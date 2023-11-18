@@ -307,6 +307,9 @@ RequestHandler.IRequest = {
 	-- Optional arguments included with the request
 	Args = {},
 }
+---Creates and returns a new IRequest object
+---@param o? table Optional initial object table
+---@return table request An IRequest object
 function RequestHandler.IRequest:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()
@@ -328,6 +331,9 @@ RequestHandler.IResponse = {
 	-- The informative response message to send back to the client
 	Message = "",
 }
+---Creates and returns a new IResponse object
+---@param o? table Optional initial object table
+---@return table response An IResponse object
 function RequestHandler.IResponse:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()

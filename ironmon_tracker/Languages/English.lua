@@ -571,6 +571,10 @@ ScreenResources{
 		ExtensionsLoaded = "Extensions Loaded",
 		ExtensionsMissing = "Extensions Missing",
 	},
+	StreamConnectOverlay = {
+		O_SendMessage = "Send chat message if successful",
+		O_AutoComplete = "Auto-complete the redeem",
+	},
 	MGBA = {
 		MenuTrackerSettings = "Tracker Settings",
 		MenuGeneralSetup = "General Setup",

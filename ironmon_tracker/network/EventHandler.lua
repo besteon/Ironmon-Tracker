@@ -279,25 +279,10 @@ function EventHandler.addDefaultEvents()
 	-- Make a copy of each default event, such that they can still be referenced without being changed.
 	for key, event in pairs(EventHandler.DefaultEvents) do
 		event.IsEnabled = true
-		local eventToAdd = EventHandler.IEvent:new({
-			Key = key,
-			Name = event.Name,
-			Process = event.Process,
-			Fulfill = event.Fulfill,
-		})
-		if event.Type == EventHandler.EventTypes.Command then
-			eventToAdd.Command = event.Command
-			eventToAdd.Help = event.Help
-			eventToAdd.Roles = {}
-			FileManager.copyTable(event.Roles, eventToAdd.Roles)
-		elseif event.Type == EventHandler.EventTypes.Reward then
-			eventToAdd.RewardId = event.RewardId
-			if event.Options then
-				eventToAdd.Options = {}
-				FileManager.copyTable(event.Options, eventToAdd.Options)
-			end
-		end
-		EventHandler.addNewEvent(eventToAdd)
+		event.Key = key
+		local eventCopy = EventHandler.IEvent:new()
+		FileManager.copyTable(event, eventCopy)
+		EventHandler.addNewEvent(eventCopy)
 	end
 end
 
@@ -583,6 +568,9 @@ EventHandler.DefaultEvents = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Pick Starter Ball (One Try)",
 		RewardId = "",
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
 		Process = function(self, request)
 			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
@@ -630,16 +618,24 @@ EventHandler.DefaultEvents = {
 			return stillInLab and not hasFoughtRival
 		end,
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			EventHandler.Queues.BallRedeems.CannotRedeemThisSeed = true
 			local pokemon = Tracker.getPokemon(1, true) or {}
 			local pokemonName = PokemonData.Pokemon[pokemon.pokemonID or false].name or "N/A"
-			return string.format("%s's ball pick redeem complete (one try): %s is the chosen starter Pokémon!", request.Username, pokemonName)
+			if self.O_SendMessage then
+				response.Message = string.format("%s's ball pick redeem complete (one try): %s is the chosen starter Pokémon!", request.Username, pokemonName)
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_PickBallUntilOut = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Pick Starter Ball (Until Out)",
 		RewardId = "",
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
 		Process = function(self, request)
 			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
@@ -693,72 +689,131 @@ EventHandler.DefaultEvents = {
 			return lastBattleStatus == 1 and rivalIds[lastFoughtTrainerId] ~= nil -- Won the battle against the first rival
 		end,
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			EventHandler.Queues.BallRedeems.CannotRedeemThisSeed = true
 			local pokemon = Tracker.getPokemon(1, true) or {}
 			local pokemonName = PokemonData.Pokemon[pokemon.pokemonID or false].name or "N/A"
-			return string.format("%s's ball pick redeem complete (until out): The chosen starter %s gets out!", request.Username, pokemonName)
+			if self.O_SendMessage then
+				response.Message = string.format("%s's ball pick redeem complete (until out): The chosen starter %s gets out!", request.Username, pokemonName)
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_ChangeFavorite = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Starter Favorite: # NAME",
 		RewardId = "",
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
-				return string.format("> Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.")
+				response.Message = string.format("> Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.")
+				return response
 			end
 			local slotNumber, pokemonName = request.SanitizedInput:match("^#?(%d*)%s*(%D.+)")
-			local resultMsg = changeStarterFavorite(pokemonName, slotNumber)
-			return resultMsg or string.format("%s > Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.", request.SanitizedInput)
+			local successMsg = changeStarterFavorite(pokemonName, slotNumber)
+			if not successMsg then
+				response.Message = string.format("%s > Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.", request.SanitizedInput)
+				return response
+			end
+			if self.O_SendMessage then
+				response.Message = successMsg
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_ChangeFavoriteOne = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Starter Favorite: #1",
 		RewardId = "",
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
-				return string.format("> Unable to change favorite #1, please enter a valid Pokémon name.")
+				response.Message = string.format("> Unable to change favorite #1, please enter a valid Pokémon name.")
+				return response
 			end
-			local resultMsg = changeStarterFavorite(request.SanitizedInput, 1)
-			return resultMsg or string.format("%s > Unable to change favorite #1, please enter a valid Pokémon name.", request.SanitizedInput)
+			local successMsg = changeStarterFavorite(request.SanitizedInput, 1)
+			if not successMsg then
+				response.Message = string.format("%s > Unable to change favorite #1, please enter a valid Pokémon name.", request.SanitizedInput)
+				return response
+			end
+			if self.O_SendMessage then
+				response.Message = successMsg
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_ChangeFavoriteTwo = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Starter Favorite: #2",
 		RewardId = "",
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
-				return string.format("> Unable to change favorite #2, please enter a valid Pokémon name.")
+				response.Message = string.format("> Unable to change favorite #2, please enter a valid Pokémon name.")
+				return response
 			end
-			local resultMsg = changeStarterFavorite(request.SanitizedInput, 2)
-			return resultMsg or string.format("%s > Unable to change favorite #2, please enter a valid Pokémon name.", request.SanitizedInput)
+			local successMsg = changeStarterFavorite(request.SanitizedInput, 2)
+			if not successMsg then
+				response.Message = string.format("%s > Unable to change favorite #2, please enter a valid Pokémon name.", request.SanitizedInput)
+				return response
+			end
+			if self.O_SendMessage then
+				response.Message = successMsg
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_ChangeFavoriteThree = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Starter Favorite: #3",
 		RewardId = "",
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
-				return string.format("> Unable to change favorite #3, please enter a valid Pokémon name.")
+				response.Message = string.format("> Unable to change favorite #3, please enter a valid Pokémon name.")
+				return response
 			end
-			local resultMsg = changeStarterFavorite(request.SanitizedInput, 3)
-			return resultMsg or string.format("%s > Unable to change favorite #3, please enter a valid Pokémon name.", request.SanitizedInput)
+			local successMsg = changeStarterFavorite(request.SanitizedInput, 3)
+			if not successMsg then
+				response.Message = string.format("%s > Unable to change favorite #3, please enter a valid Pokémon name.", request.SanitizedInput)
+				return response
+			end
+			if self.O_SendMessage then
+				response.Message = successMsg
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_ChangeTheme = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Tracker Theme",
 		RewardId = "",
-		-- Options = {
-		-- 	Duration = 10 * 60, -- # of seconds
-		-- },
-		-- Process = function(self, request) return true end,
+		Options = { "O_SendMessage", "O_AutoComplete", "O_Duration", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
+		-- O_Duration = tostring(10 * 60), -- # of seconds
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
-				return string.format("> Unable to change Tracker Theme, please enter a valid theme code or name.")
+				response.Message = string.format("> Unable to change Tracker Theme, please enter a valid theme code or name.")
+				return response
 			end
 			local themeName
 			-- Check if the input a theme code
@@ -789,25 +844,32 @@ EventHandler.DefaultEvents = {
 				end
 			end
 
-			if themeName then
-				Theme.setNextMoveLevelHighlight(true)
-				return string.format("> Tracker Theme changed to %s.", themeName)
-			else
-				return string.format("%s > Unable to change Tracker Theme, please enter a valid theme code or name.", request.SanitizedInput)
+			if not themeName then
+				response.Message = string.format("%s > Unable to change Tracker Theme, please enter a valid theme code or name.", request.SanitizedInput)
+				return response
 			end
+
+			Theme.setNextMoveLevelHighlight(true)
+			if self.O_SendMessage then
+				response.Message = string.format("> Tracker Theme changed to %s.", themeName)
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 	CR_ChangeLanguage = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Tracker Language",
 		RewardId = "",
-		-- Options = {
-		-- 	Duration = 10 * 60, -- # of seconds
-		-- },
-		-- Process = function(self, request) return true end,
+		Options = { "O_SendMessage", "O_AutoComplete", },
+		O_SendMessage = true,
+		O_AutoComplete = true,
+		-- O_Duration = tostring(10 * 60), -- # of seconds
 		Fulfill = function(self, request)
+			local response = { AdditionalInfo = { AutoComplete = false } }
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
-				return string.format("> Unable to change Tracker language, please enter a valid language name.")
+				response.Message = string.format("> Unable to change Tracker language, please enter a valid language name.")
+				return response
 			end
 
 			-- Search both the language keys (English names) and their display names
@@ -824,17 +886,24 @@ EventHandler.DefaultEvents = {
 				foundKey = Utils.getClosestWord(inputAsLower, langDisplays, 3)
 			end
 			local language = Resources.Languages[foundKey or false]
-			if language then
-				if Options["Autodetect language from game"] then
-					Options["Autodetect language from game"] = false
-					Main.SaveSettings(true)
-				end
-				local prevLangName = Resources.currentLanguage.DisplayName
-				Resources.loadAndApplyLanguage(language)
-				return string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)
-			else
-				return string.format("%s > Unable to change Tracker language, please enter a valid language name.", request.SanitizedInput)
+
+			if not language then
+				response.Message = string.format("%s > Unable to change Tracker language, please enter a valid language name.", request.SanitizedInput)
+				return response
 			end
+
+			if Options["Autodetect language from game"] then
+				Options["Autodetect language from game"] = false
+				Main.SaveSettings(true)
+			end
+			local prevLangName = Resources.currentLanguage.DisplayName
+			Resources.loadAndApplyLanguage(language)
+
+			if self.O_SendMessage then
+				response.Message = string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)
+			end
+			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
 		end,
 	},
 }
@@ -855,6 +924,9 @@ EventHandler.IEvent = {
 	-- Only after fully processed and ready, finish completing the request and return a response message or partial response table
 	Fulfill = function(self, request) return "" end,
 }
+---Creates and returns a new IEvent object
+---@param o? table Optional initial object table
+---@return table event An IEvent object
 function EventHandler.IEvent:new(o)
 	o = o or {}
 	o.Key = o.Key or EventHandler.Events.None.Key

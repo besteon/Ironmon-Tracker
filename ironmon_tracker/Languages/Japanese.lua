@@ -573,6 +573,10 @@ ScreenResources{
 		ExtensionsLoaded = "Extensions Loaded", -- NEEDS TRANSLATION
 		ExtensionsMissing = "Extensions Missing", -- NEEDS TRANSLATION
 	},
+	StreamConnectOverlay = {
+		O_SendMessage = "Send chat message if successful", -- NEEDS TRANSLATION
+		O_AutoComplete = "Auto-complete the redeem", -- NEEDS TRANSLATION
+	},
 	MGBA = {
 		MenuTrackerSettings = "Tracker Settings", -- NEEDS TRANSLATION
 		MenuGeneralSetup = "General Setup", -- NEEDS TRANSLATION

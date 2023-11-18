@@ -656,11 +656,11 @@ local function buildRewardsTab()
 			textColor = SCREEN.Colors.text,
 			box = { -1, -1, btnWidth, 11 },
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-			isVisible = function(self) return buttonRow:isVisible() end,
+			isVisible = function(self) return buttonRow:isVisible() and event.Options and #event.Options > 0 end,
 			updateSelf = function(self)
 				self.box[2] = buttonRow.box[2] + ROW_PADDING
 			end,
-			onClick = function(self)  end,
+			onClick = function(self) StreamConnectOverlay.openEventOptionsPrompt(event) end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnOptions)
 
@@ -1023,6 +1023,76 @@ function StreamConnectOverlay.openCommandRolesPrompt()
 		end
 		forms.settext(customRoleTextbox, "")
 		enableDisableAll()
+	end, 120, buttonRowY)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		Utils.closeBizhawkForm(form)
+	end, 210, buttonRowY)
+end
+
+function StreamConnectOverlay.openEventOptionsPrompt(event)
+	local x, y, lineHeight = 20, 15, 20
+	local form = Utils.createBizhawkForm("Edit Reward Options", 320, 150 + (#event.Options * lineHeight), 100, 50) -- TODO: Language
+
+	forms.label(form, event.Name, x, y, 300, lineHeight)
+	y = y + lineHeight + 5
+
+	local rightColOffset = 180
+	local optionsInForm = {}
+	for _, optionKey in ipairs(event.Options) do
+		local currentValue = event[optionKey]
+		if type(currentValue) == "boolean" then
+			local optionText = Resources.StreamConnectOverlay[optionKey] or optionKey or Constants.BLANKLINE
+			forms.label(form, optionText .. ":", x, y, rightColOffset - 2, lineHeight)
+			optionsInForm[optionKey] = forms.checkbox(form, "", x + rightColOffset, y - 4)
+			forms.setproperty(optionsInForm[optionKey], "Checked", currentValue)
+			y = y + lineHeight
+		elseif type(currentValue) == "string" or type(currentValue) == "number" then
+			local optionText = Resources.StreamConnectOverlay[optionKey] or optionKey or Constants.BLANKLINE
+			forms.label(form, optionText .. ":", x, y, rightColOffset - 2, lineHeight)
+			optionsInForm[optionKey] = forms.textbox(form, tostring(currentValue), 92, 19, nil, x + rightColOffset, y)
+			y = y + lineHeight
+		end
+	end
+
+	local buttonRowY = y + 20
+	forms.button(form, Resources.AllScreens.Save, function()
+		for optionKey, formHandle in pairs(optionsInForm) do
+			local currentValue = event[optionKey]
+			local newValue
+			if type(currentValue) == "boolean" then
+				newValue = forms.ischecked(formHandle)
+			elseif type(currentValue) == "string" or type(currentValue) == "number" then
+				newValue = forms.gettext(formHandle) or ""
+			elseif type(currentValue) == "number" then
+				newValue = forms.gettext(formHandle) or ""
+				-- newValue = tonumber(forms.gettext(formHandle) or "") or "" -- numbers not yet supported
+			end
+			-- Save only new changes
+			if newValue ~= nil and newValue ~= currentValue then
+				event[optionKey] = newValue
+				EventHandler.saveEventSetting(event, optionKey)
+			end
+		end
+		SCREEN.refreshButtons()
+		Program.redraw(true)
+		Utils.closeBizhawkForm(form)
+	end, 30, buttonRowY)
+	forms.button(form, "(Default)", function() -- TODO: Language
+		local defaultEvent = EventHandler.DefaultEvents[event.Key]
+		if not defaultEvent then
+			return
+		end
+		for optionKey, formHandle in pairs(optionsInForm) do
+			local defaultValue = defaultEvent[optionKey]
+			if defaultValue ~= nil then
+				local currentValue = event[optionKey]
+				if type(currentValue) == "boolean" then
+					forms.setproperty(formHandle, "Checked", defaultValue)
+				elseif type(currentValue) == "string" or type(currentValue) == "number" then
+					forms.settext(formHandle, defaultValue)
+				end
+			end
+		end
 	end, 120, buttonRowY)
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
