@@ -978,6 +978,16 @@ function Utils.getGameStat(statIndex)
 	return math.floor(gameStatValue)
 end
 
+---Returns 1, 2, or 3 depending on game.
+---FRLG: 1=Bulbasaur (left), 2=Squirtle (middle), 3=Charmander (right)
+---RSE: 1=Treecko (left), 2=Torchic (middle), 3=Mudkip (right)
+---@return number starterChoice
+function Utils.getStarterMonChoice()
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local varOffset = GameSettings.game == 3 and 0x62 or 0x46
+	return 1 + Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + varOffset)
+end
+
 -- Returns a new list, sorted by their indexKey number (default: 'index' attribute)
 function Utils.getSortedList(unorderedList, indexKey)
 	indexKey = indexKey or "index"

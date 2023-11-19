@@ -574,6 +574,7 @@ ScreenResources{
 	StreamConnectOverlay = {
 		O_SendMessage = "Send chat message if successful", -- NEEDS TRANSLATION
 		O_AutoComplete = "Auto-complete the redeem", -- NEEDS TRANSLATION
+		O_RequireChosenMon = "Your pick direction must match", -- NEEDS TRANSLATION
 	},
 	MGBA = {
 		MenuTrackerSettings = "Tracker Settings", -- NEEDS TRANSLATION

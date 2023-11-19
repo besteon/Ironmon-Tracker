@@ -568,9 +568,10 @@ EventHandler.DefaultEvents = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Pick Starter Ball (One Try)",
 		RewardId = "",
-		Options = { "O_SendMessage", "O_AutoComplete", },
+		Options = { "O_SendMessage", "O_AutoComplete", "O_RequireChosenMon" },
 		O_SendMessage = true,
 		O_AutoComplete = true,
+		O_RequireChosenMon = true,
 		Process = function(self, request)
 			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
@@ -612,10 +613,15 @@ EventHandler.DefaultEvents = {
 				return false
 			end
 
+			local chosenCorrectly = true
+			if self.O_RequireChosenMon then
+				chosenCorrectly = Utils.getStarterMonChoice() == TrackerScreen.PokeBalls.chosenBall
+			end
+
 			-- This condition is complete when the player has a Pokémon in their party while in the Lab, but haven't fought the Rival yet
 			local stillInLab = RouteData.Locations.IsInLab[TrackerAPI.getMapId()]
 			local hasFoughtRival = Tracker.getWhichRival() ~= nil
-			return stillInLab and not hasFoughtRival
+			return stillInLab and not hasFoughtRival and chosenCorrectly
 		end,
 		Fulfill = function(self, request)
 			local response = { AdditionalInfo = { AutoComplete = false } }
@@ -633,9 +639,10 @@ EventHandler.DefaultEvents = {
 		Type = EventHandler.EventTypes.Reward,
 		Name = "Pick Starter Ball (Until Out)",
 		RewardId = "",
-		Options = { "O_SendMessage", "O_AutoComplete", },
+		Options = { "O_SendMessage", "O_AutoComplete", "O_RequireChosenMon" },
 		O_SendMessage = true,
 		O_AutoComplete = true,
+		O_RequireChosenMon = true,
 		Process = function(self, request)
 			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
@@ -677,6 +684,11 @@ EventHandler.DefaultEvents = {
 				return false
 			end
 
+			local chosenCorrectly = true
+			if self.O_RequireChosenMon then
+				chosenCorrectly = Utils.getStarterMonChoice() == TrackerScreen.PokeBalls.chosenBall
+			end
+
 			-- This condition is complete when the player has a Pokémon in their party and they've just beaten the Lab Rival
 			local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome) -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 			local lastFoughtTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
@@ -686,7 +698,8 @@ EventHandler.DefaultEvents = {
 			else -- RSE
 				rivalIds = { [520] = true, [523] = true, [526] = true, [529] = true, [532] = true, [535] = true }
 			end
-			return lastBattleStatus == 1 and rivalIds[lastFoughtTrainerId] ~= nil -- Won the battle against the first rival
+			-- Won the battle against the first rival
+			return lastBattleStatus == 1 and rivalIds[lastFoughtTrainerId] ~= nil and chosenCorrectly
 		end,
 		Fulfill = function(self, request)
 			local response = { AdditionalInfo = { AutoComplete = false } }
