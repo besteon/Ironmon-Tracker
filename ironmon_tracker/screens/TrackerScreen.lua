@@ -351,6 +351,17 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	BattleDetails = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
+		isVisible = function() return Battle.inActiveBattle() and not Battle.isWildEncounter and not Battle.isViewingOwn end,
+		onClick = function(self)
+			BattleEffectsScreen.loadData()
+			BattleEffectsScreen.refreshIndex()
+			Program.changeScreenView(BattleEffectsScreen)
+		end
+	},
 }
 
 TrackerScreen.CarouselTypes = {
