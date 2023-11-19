@@ -21,10 +21,10 @@ StreamConnectOverlay = {
 			tabKey = "Queue",
 			resourceKey = "TabQueue",
 		},
-		Settings = {
+		Status = {
 			index = 5,
-			tabKey = "Settings",
-			resourceKey = "TabSettings",
+			tabKey = "Status",
+			resourceKey = "TabStatus",
 		},
 	},
 	currentTab = nil,
@@ -208,7 +208,7 @@ function StreamConnectOverlay.createButtons()
 	-- 	end,
 	-- }
 
-	-- SETTINGS TAB
+	-- STATUS TAB
 	startX = SCREEN.Canvas.x + 4
 	startY = SCREEN.Canvas.y + 8
 	local function nextLineY(extraOffset)
@@ -216,17 +216,17 @@ function StreamConnectOverlay.createButtons()
 		return startY
 	end
 
-	SCREEN.Buttons.SettingsLabelIsConnected = {
+	SCREEN.Buttons.StatusLabelIsConnected = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "Connected:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	startX, startY, 50, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 	}
-	SCREEN.Buttons.SettingsIconIsConnected = {
+	SCREEN.Buttons.StatusIconIsConnected = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.CROSS,
 		box = {	startX + 90, startY - 1, 11, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 		updateSelf = function(self)
 			if Network.CurrentConnection.State == Network.ConnectionState.Established then
 				self.image = Constants.PixelImages.CHECKMARK
@@ -240,7 +240,7 @@ function StreamConnectOverlay.createButtons()
 			end
 		end,
 	}
-	SCREEN.Buttons.SettingsConnectionInfo = {
+	SCREEN.Buttons.StatusConnectionInfo = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.CROSS,
 		getText = function(self)
@@ -253,7 +253,7 @@ function StreamConnectOverlay.createButtons()
 			end
 		end,
 		box = {	startX + 3, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, 13, 13 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 		updateSelf = function(self)
 			if Network.CurrentConnection.State == Network.ConnectionState.Established then
 				self.image = Constants.PixelImages.CHECKMARK
@@ -267,7 +267,7 @@ function StreamConnectOverlay.createButtons()
 			end
 		end,
 	}
-	SCREEN.Buttons.SettingsBtnConnect = {
+	SCREEN.Buttons.StatusBtnConnect = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self)
 			-- TODO: Language
@@ -278,7 +278,7 @@ function StreamConnectOverlay.createButtons()
 			end
 		end,
 		box = {	startX + 150, startY, 50, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 		updateSelf = function(self)
 			-- Update width and box location depending on it's size
 			self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5
@@ -297,13 +297,13 @@ function StreamConnectOverlay.createButtons()
 	nextLineY()
 
 
-	SCREEN.Buttons.SettingsAutoConnectStartup = {
+	SCREEN.Buttons.StatusAutoConnectStartup = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		getText = function(self) return " " .. "Auto-Connect on Startup" or " " .. Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = { startX + 90, startY, 8, 8 },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		toggleState = Network.Options["AutoConnectStartup"],
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 		updateSelf = function(self)
 			self.toggleState = Network.Options["AutoConnectStartup"]
 		end,
@@ -318,22 +318,22 @@ function StreamConnectOverlay.createButtons()
 	nextLineY()
 
 
-	SCREEN.Buttons.SettingsLabelConnType = {
+	SCREEN.Buttons.StatusLabelConnType = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "Connection Mode:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	startX, startY, 50, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 	}
 	local connOffsetX = startX + 90 - 2
 	for _, connType in ipairs(Network.getSupportedConnectionTypes() or {}) do
 		local text = connType or Resources.StreamConnectOverlay.LabelOrButton -- TODO: Language
 		local width = Utils.calcWordPixelLength(text)
-		SCREEN.Buttons["SettingsConnType" .. connType] = {
+		SCREEN.Buttons["StatusConnType" .. connType] = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return text end,
 			isSelected = false,
 			box = {	connOffsetX, startY, width + 4, 11 },
-			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 			updateSelf = function(self)
 				self.isSelected = Network.CurrentConnection.Type == connType
 			end,
@@ -354,11 +354,11 @@ function StreamConnectOverlay.createButtons()
 	nextLineY()
 
 	local setButtonOffsetX = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - 18
-	SCREEN.Buttons.SettingsDataFolder = {
+	SCREEN.Buttons.StatusDataFolder = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
@@ -370,11 +370,11 @@ function StreamConnectOverlay.createButtons()
 		end,
 		onClick = function(self) StreamConnectOverlay.openNetworkFolderPrompt("DataFolder") end,
 	}
-	SCREEN.Buttons.SettingsSocketIP = {
+	SCREEN.Buttons.StatusSocketIP = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "Server IP:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
@@ -383,11 +383,11 @@ function StreamConnectOverlay.createButtons()
 		end,
 		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketIP") end,
 	}
-	SCREEN.Buttons.SettingsHTTPGet = {
+	SCREEN.Buttons.StatusHTTPGet = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "GET:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
@@ -399,11 +399,11 @@ function StreamConnectOverlay.createButtons()
 
 
 	nextLineY()
-	SCREEN.Buttons.SettingsSocketPort = {
+	SCREEN.Buttons.StatusSocketPort = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "Port:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
@@ -412,11 +412,11 @@ function StreamConnectOverlay.createButtons()
 		end,
 		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketPort") end,
 	}
-	SCREEN.Buttons.SettingsHTTPPost = {
+	SCREEN.Buttons.StatusHTTPPost = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "POST:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
@@ -427,7 +427,7 @@ function StreamConnectOverlay.createButtons()
 	}
 
 	nextLineY()
-	SCREEN.Buttons.SettingsUnsupportedModeWarning = {
+	SCREEN.Buttons.StatusUnsupportedModeWarning = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.WARNING,
 		getText = function(self) return "This connection mode is not yet supported by Bizhawk." end, -- TODO: Language
@@ -435,16 +435,16 @@ function StreamConnectOverlay.createButtons()
 		box = {	startX + 2, startY, 10, 10 },
 		isVisible = function(self)
 			local unsupportedConn = Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets or Network.CurrentConnection.Type == Network.ConnectionTypes.Http
-			return SCREEN.currentTab == SCREEN.Tabs.Settings and unsupportedConn
+			return SCREEN.currentTab == SCREEN.Tabs.Status and unsupportedConn
 		end,
 	}
 
-	SCREEN.Buttons.SettingsGetCode = {
+	SCREEN.Buttons.StatusGetCode = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.INSTALL_BOX,
 		getText = function(self) return "Get Streamerbot Code" end, -- TODO: Language
 		box = { startX + 62, SCREEN.Canvas.y + 95, 110, 16 },
-		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
+		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
 		onClick = function(self) StreamConnectOverlay.openGetCodeWindow() end
 	}
 end
@@ -889,7 +889,7 @@ function StreamConnectOverlay.open()
 		local firstTab = Utils.getSortedList(SCREEN.Tabs)[1]
 		SCREEN.changeTab(firstTab)
 	else
-		SCREEN.changeTab(SCREEN.Tabs.Settings)
+		SCREEN.changeTab(SCREEN.Tabs.Status)
 	end
 end
 
@@ -908,15 +908,15 @@ function StreamConnectOverlay.changeTab(tab)
 end
 
 function StreamConnectOverlay.openCommandRenamePrompt(event)
-	local form = Utils.createBizhawkForm("Edit Command", 320, 150, 100, 50)
+	local form = Utils.createBizhawkForm("Edit Command", 320, 140, 100, 50)
 	local x, y, lineHeight = 30, 15, 20
 
 	forms.label(form, string.format("Command: %s", event.Name), x - 1, y, 300, y)
 	y = y + lineHeight
-	local textbox = forms.textbox(form, event.Command, 120, lineHeight, nil, x, y)
+	local textbox = forms.textbox(form, event.Command, 120, lineHeight, nil, x + 1, y)
 	y = y + lineHeight
 
-	y = y + 10
+	y = y + 15
 	forms.button(form, Resources.AllScreens.Save, function()
 		local text = forms.gettext(textbox) or ""
 		if #text > 2 and text:sub(1,1) == "!" then -- Command requirements
@@ -1031,7 +1031,7 @@ end
 
 function StreamConnectOverlay.openEventOptionsPrompt(event)
 	local x, y, lineHeight = 20, 15, 20
-	local form = Utils.createBizhawkForm("Edit Reward Options", 320, 150 + (#event.Options * lineHeight), 100, 50) -- TODO: Language
+	local form = Utils.createBizhawkForm("Edit Reward Options", 320, 130 + (#event.Options * lineHeight), 100, 50) -- TODO: Language
 
 	forms.label(form, event.Name, x, y, 300, lineHeight)
 	y = y + lineHeight + 5
@@ -1054,7 +1054,7 @@ function StreamConnectOverlay.openEventOptionsPrompt(event)
 		end
 	end
 
-	local buttonRowY = y + 20
+	local buttonRowY = y + 15
 	forms.button(form, Resources.AllScreens.Save, function()
 		for optionKey, formHandle in pairs(optionsInForm) do
 			local currentValue = event[optionKey]
@@ -1100,7 +1100,7 @@ function StreamConnectOverlay.openEventOptionsPrompt(event)
 end
 
 function StreamConnectOverlay.openRewardListPrompt(event)
-	local form = Utils.createBizhawkForm("Edit Reward Association", 320, 160, 100, 50) -- TODO: Language
+	local form = Utils.createBizhawkForm("Edit Reward Association", 320, 170, 100, 50) -- TODO: Language
 	local rewardEventText = string.format("Tracker Reward: %s", event.Name) -- TODO: Language
 	forms.label(form, rewardEventText, 28, 10, 300, 20)
 	local rewardTriggerTxt = "Triggered by Twitch Reward:" -- TODO: Language
@@ -1170,9 +1170,9 @@ end
 
 function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 	local path = Network.Options[modeKey] or ""
-	local filterOptions = "Text File (*.TXT)|*.txt|All files (*.*)|*.*"
+	local filterOptions = "Json File (*.JSON)|*.json|All files (*.*)|*.*"
 	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile("SELECT ANY FILE IN THE FOLDER", path, filterOptions)
+	local filepath = forms.openfile(Network.TEXT_INBOUND_FILE, path, filterOptions)
 	if not Utils.isNilOrEmpty(filepath) then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
