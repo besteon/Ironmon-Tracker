@@ -4,7 +4,7 @@ LogTabRoutes = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	TabIcons = {
 		Kanto = {
@@ -105,7 +105,7 @@ function LogTabRoutes.buildPagedButtons()
 	for i, col in ipairs(routeBar.cols) do
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			textColor = LogTabRoutes.Colors.hightlight,
+			textColor = LogTabRoutes.Colors.highlight,
 			box = { LogOverlay.TabBox.x + col.x + 3, LogOverlay.TabBox.y + 1, 16, 16 },
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
@@ -113,9 +113,9 @@ function LogTabRoutes.buildPagedButtons()
 				if col.icon then
 					local adjustedX = x + (w - (col.icon.w or 0)) / 2 + 1
 					local adjustedY = y + (col.icon.y or 0) + (h - (col.icon.h or 12)) - 1
-					gui.drawImage(col.icon.image, adjustedX, adjustedY)
+					Drawing.drawImage(col.icon.image, adjustedX, adjustedY)
 					-- local centeredX = (w - (col.icon.w or 0)) / 2 + 2
-					-- gui.drawImage(col.icon.image, x + centeredX, y + 1)
+					-- Drawing.drawImage(col.icon.image, x + centeredX, y + 1)
 				end
 				if type(col.getText) == "function" then
 					local adjustedX = x + 3
@@ -261,7 +261,7 @@ function LogTabRoutes.buildPagedButtons()
 				if routeIcon then
 					local adjustedX = x + routeBar.cols[1].x + 1 + (routeIcon.x or 0)
 					local adjustedY = y + 1 + (routeIcon.y or 0)
-					gui.drawImage(routeIcon:getIconPath(), adjustedX, adjustedY)
+					Drawing.drawImage(routeIcon:getIconPath(), adjustedX, adjustedY)
 				end
 
 				-- Route Name

@@ -4,7 +4,7 @@ LogTabTMs = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	TabIcons = {
 		TM1 = {
@@ -66,7 +66,7 @@ function LogTabTMs.buildNavigation()
 			box = { LogOverlay.TabBox.x + nextNavX, navHeaderY, navLabelWidth, 11 },
 			updateSelf = function(self)
 				self.isSelected = (LogOverlay.Windower.filterGrid == navFilter.group and LogSearchScreen.searchText == "")
-				self.textColor = Utils.inlineIf(self.isSelected, LogTabTMs.Colors.hightlight, LogTabTMs.Colors.text)
+				self.textColor = Utils.inlineIf(self.isSelected, LogTabTMs.Colors.highlight, LogTabTMs.Colors.text)
 			end,
 			draw = function(self)
 				if self.isSelected then
@@ -161,7 +161,7 @@ function LogTabTMs.buildGymTMButtons()
 				isVisible = function(self) return LogOverlay.Windower.filterGrid == self.group end,
 				draw = function(self, shadowcolor)
 					-- Draw badge icon to the left of the TM move
-					gui.drawImage(badgeImage, tmButton.box[1] - 18, tmButton.box[2] - 2)
+					Drawing.drawImage(badgeImage, tmButton.box[1] - 18, tmButton.box[2] - 2)
 					-- Draw the gym leader name and gym # to the right of the TM move
 					Drawing.drawText(self.box[1] + 55, self.box[2], gymLabel, Theme.COLORS[self.textColor], shadowcolor)
 				end,

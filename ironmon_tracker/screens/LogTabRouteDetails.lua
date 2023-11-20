@@ -3,7 +3,7 @@ LogTabRouteDetails = {
 		text = "Lower box text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	Tabs = {
 		-- These keys should be identical to RandomizerLog.EncounterTypes keys (not logkeys)
@@ -59,7 +59,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	local routeNameButton = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return routeName end,
-		textColor = LogTabRouteDetails.Colors.hightlight,
+		textColor = LogTabRouteDetails.Colors.highlight,
 		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, 120, 12 },
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
@@ -111,13 +111,13 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		type = Constants.ButtonTypes.NO_BORDER,
 		getEncText = function(self) return Resources.LogOverlay[self.resourceKey] or "" end,
 		resourceKey = "",
-		textColor = LogTabRouteDetails.Colors.hightlight,
+		textColor = LogTabRouteDetails.Colors.highlight,
 		box = { navX, LogOverlay.TabBox.y + 7, 64, 11 },
 		draw = function(self, shadowcolor)
 			if self.image then
 				local x, y = self.box[1] + 23, self.box[2] + 14
 				if self.imageType == Constants.ButtonTypes.IMAGE then
-					gui.drawImage(self.image, x, y + 1)
+					Drawing.drawImage(self.image, x, y + 1)
 				elseif self.imageType == Constants.ButtonTypes.PIXELIMAGE then
 					Drawing.drawImageAsPixels(self.image, x, y, self.iconColors, shadowcolor)
 				end
@@ -212,7 +212,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 					local totalText = tostring(self.totalCount)
 					Drawing.drawText(self.box[1] + self.box[3] + 1, self.box[2] + 1, totalText, Theme.COLORS[self.textColor], shadowcolor)
 					if self.isSelected then
-						local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+						local color = Theme.COLORS[LogTabRouteDetails.Colors.highlight]
 						local textWidth = Utils.calcWordPixelLength(totalText) + 4
 						Drawing.drawSelectionIndicators(self.box[1] - 1, self.box[2] - 1, self.box[3] + textWidth, self.box[4] + 1, color, 1, 4, 1)
 					end
@@ -342,7 +342,7 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 			LogTabTrainers.drawTrainerPortraitInfo(self, shadowcolor)
 			-- If this was found through search
 			if self.isSelected then
-				local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+				local color = Theme.COLORS[LogTabRouteDetails.Colors.highlight]
 				Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3], self.box[4], color, 1, 5, 1)
 			end
 		end,
@@ -424,7 +424,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			Drawing.drawTransparentTextbox(x + rateCenterX + 1, y + belowY + 9, rateText, textColor, bgColor, shadowcolor)
 			-- If this was found through search
 			if self.isSelected then
-				local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+				local color = Theme.COLORS[LogTabRouteDetails.Colors.highlight]
 				Drawing.drawSelectionIndicators(x, y + 7, self.box[3] - 1, self.box[4] - 5, color, 1, 5, 1)
 			end
 		end,
@@ -495,7 +495,7 @@ end
 -- Unsure if this will actually be needed, likely some of them
 function LogTabRouteDetails.drawTab()
 	local textColor = Theme.COLORS[LogTabRouteDetails.Colors.text]
-	local highlightColor = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+	local highlightColor = Theme.COLORS[LogTabRouteDetails.Colors.highlight]
 	local borderColor = Theme.COLORS[LogTabRouteDetails.Colors.border]
 	local fillColor = Theme.COLORS[LogTabRouteDetails.Colors.boxFill]
 	local shadowcolor = Utils.calcShadowColor(fillColor)

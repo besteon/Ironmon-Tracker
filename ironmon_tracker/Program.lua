@@ -14,8 +14,6 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
-		hideEnemy = 0, -- counts down
-		battleDataDelay = 60, -- counts down
 		Others = {}, -- list of other frame counter objects
 	},
 }
@@ -25,13 +23,18 @@ Program.GameData = {
 	wildBattles = -999, -- used to track differences in GAME STATS
 	trainerBattles = -999, -- used to track differences in GAME STATS
 	friendshipRequired = 220,
-	evolutionStones = { -- The evolution stones currently in bag
-			[93] = 0, -- Sun Stone
-			[94] = 0, -- Moon Stone
-			[95] = 0, -- Fire Stone
-			[96] = 0, -- Thunder Stone
-			[97] = 0, -- Water Stone
-			[98] = 0, -- Leaf Stone
+	PlayerTeam = {}, -- [SlotOnTeam:number] = Pokemon:table(DefaultPokemon)
+	EnemyTeam = {}, -- [SlotOnTeam:number] = Pokemon:table(DefaultPokemon)
+	-- All items currently found in the player's bag
+	Items = {
+		healingTotal = 0, -- A calculation of total HP heals
+		healingPercentage = 0, -- A calculation of percentage heals
+		-- Each of the below: map of [itemId] -> quanity of item
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	},
 }
 
@@ -159,7 +162,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -174,17 +177,23 @@ Program.Pedometer = {
 	totalSteps = 0, -- updated from GAME_STATS
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
-	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
+	initialize = function(self)
+		self.totalSteps = 0
+		self.lastResetCount = 0
+		self.goalSteps = 0
+	end,
+	getCurrentStepcount = function(self)
+		return math.max(self.totalSteps - self.lastResetCount, 0)
+	end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarting or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		return enabledAndAllowed and not hasConflict
 	end,
 }
 
 Program.AutoSaver = {
 	knownSaveCount = 0,
-	framesUntilNextSave = -1,
 	updateSaveCount = function(self) -- returns true if the savecount has been updated
 		local currentSaveCount = Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0
 		local saveSuccessCountdown = Memory.readbyte(GameSettings.sSaveDialogDelay) or 0
@@ -216,22 +225,38 @@ function Program.initialize()
 		Program.currentScreen = StartupScreen
 	end
 
+	if Main.IsOnBizhawk() then
+		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+	else
+		Program.clientFpsMultiplier = 1
+	end
+
+	-- Reset variables when a new game is loaded
+	Program.inStartMenu = false
+	Program.inCatchingTutorial = false
+	Program.hasCompletedTutorial = false
+	Program.activeFormId = 0
+	Program.lastActiveTimestamp = os.time()
+	Program.Frames.waitToDraw = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
+	Program.Frames.saveData = 3600
+	Program.Frames.carouselActive = 0
+	Program.Frames.Others = {}
+
+	Program.GameData.PlayerTeam = {}
+	Program.GameData.EnemyTeam = {}
+
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
 		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
-	Program.AutoSaver:updateSaveCount()
+	Program.Pedometer:initialize()
 	Program.GameTimer:initialize()
-	Program.lastActiveTimestamp = os.time()
-
-	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 0
-	Program.Frames.lowAccuracyUpdate = 0
-	Program.Frames.three_sec_update = 0
-	Program.Frames.waitToDraw = 1
-	Program.Frames.Others = {}
+	Program.AutoSaver:updateSaveCount()
 end
 
 function Program.mainLoop()
@@ -332,9 +357,9 @@ function Program.update()
 		end
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
-		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isValidMapLocation() then
+		if Options["Animated Pokemon popout"] and Program.isValidMapLocation() then
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or {}
+			if PokemonData.isValid(leadPokemon.pokemonID) then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -361,12 +386,7 @@ function Program.update()
 				if Program.currentScreen == StartupScreen then
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
-				elseif RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] and not GameOverScreen.enteredFromSpecialLocation then
-					GameOverScreen.enteredFromSpecialLocation = true
-					Program.currentScreen = GameOverScreen
 				end
-			elseif GameOverScreen.enteredFromSpecialLocation then
-				GameOverScreen.enteredFromSpecialLocation = false
 			end
 
 			-- Check if summary screen has being shown
@@ -382,7 +402,7 @@ function Program.update()
 				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
 			end
 
-			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
+			if Options["Display repel usage"] and not Battle.inActiveBattle() then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
@@ -441,9 +461,6 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
-	if Program.Frames.hideEnemy > 0 then
-		Program.Frames.hideEnemy = Program.Frames.hideEnemy - 1
-	end
 
 	for _, framecounter in pairs(Program.Frames.Others or {}) do
 		if type(framecounter.step) == "function" then
@@ -457,14 +474,16 @@ end
 --- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
 --- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
 --- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
---- @param callFunc function|nil Optional function to call each time the counter reaches 0.
---- @param scaleWithSpeedup boolean|nil If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
---- @return table|nil FrameCounter Returns the created frame counter
-function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
+--- @param callFunc function? [Optional] Function to call each time the counter reaches 0, up to 'numExecutions' times.
+--- @param numExecutions number? [Optional] If provided, will execute the 'callFunc' a total of that many times; otherwise no limit (default:unlimited)
+--- @param scaleWithSpeedup boolean? [Optional] If true, syncs the counter to real time instead of the client's frame rate, ignoring speedup (default:false)
+--- @return table? FrameCounter Returns the created frame counter
+function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWithSpeedup)
 	if label == nil or (frames or 0) <= 0 then return nil end
 	Program.Frames.Others[label] = {
 		framesElapsed = 0.0,
 		maxFrames = frames,
+		timesExecuted = 0,
 		paused = false,
 		pause = function(self) self.paused = true end,
 		unpause = function(self) self.paused = false end,
@@ -477,6 +496,12 @@ function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
 				self.framesElapsed = 0.0
 				if type(callFunc) == "function" then
 					callFunc()
+					if numExecutions then
+						self.timesExecuted = self.timesExecuted + 1
+						if self.timesExecuted >= numExecutions then
+							Program.removeFrameCounter(label)
+						end
+					end
 				end
 			end
 		end,
@@ -518,76 +543,53 @@ function Program.updateRepelSteps()
 	end
 end
 
+-- Read in game data for both the Player's entire team and the Enemy's entire team
 function Program.updatePokemonTeams()
-	-- Check for updates to each pokemon team
-	local addressOffset = 0
-
 	-- Check if it's a new game (no Pokémon yet)
-	if not Tracker.Data.isNewGame and Tracker.Data.ownTeam[1] == 0 then
+	if not Tracker.Data.isNewGame and Program.GameData.PlayerTeam[1] == nil then
 		Tracker.Data.isNewGame = true
 	end
 
+	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
-		-- local previousPersonality = Tracker.Data.ownTeam[i] -- See below
-		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local newPokemonData = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
-
-			if Program.validPokemonData(newPokemonData) then
-				-- Sets the player's trainerID as soon as they get their first Pokemon
-				if Tracker.Data.isNewGame and newPokemonData.trainerID ~= nil and newPokemonData.trainerID ~= 0 then
-					if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
-						Tracker.Data.trainerID = newPokemonData.trainerID
-					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
-						-- Reset the tracker data as old data was loaded and we have a different trainerID now
-						print("Old/Incorrect data was detected for this ROM. Initializing new data.")
-						local playtime = Tracker.Data.playtime
-						Tracker.resetData()
-						Tracker.Data.trainerID = newPokemonData.trainerID
-						Tracker.Data.playtime = playtime
-					end
-
-					-- Unset the new game flag
-					Tracker.Data.isNewGame = false
-				end
-
-				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
-				-- newPokemonData.trainerID = nil
+			local pokemon = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
+			if Program.validPokemonData(pokemon) then
+				Tracker.verifyDataForPlayer(pokemon.trainerID)
 
 				-- Include experience information for each Pokemon in the player's team
-				local curExp, totalExp = Program.getNextLevelExp(newPokemonData.pokemonID, newPokemonData.level, newPokemonData.experience)
-				newPokemonData.currentExp = curExp
-				newPokemonData.totalExp = totalExp
+				pokemon.currentExp, pokemon.totalExp = Program.getNextLevelExp(pokemon.pokemonID, pokemon.level, pokemon.experience)
 
-				Tracker.addUpdatePokemon(newPokemonData, personality, true)
+				Program.GameData.PlayerTeam[i] = pokemon
 			end
+		else
+			Program.GameData.PlayerTeam[i] = nil
 		end
 
 		-- Then lookup information on the opposing Pokemon
 		personality = Memory.readdword(GameSettings.estats + addressOffset)
 		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
-		Tracker.Data.otherTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local newPokemonData = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
-
-			if Program.validPokemonData(newPokemonData) then
+			local pokemon = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
+			if Program.validPokemonData(pokemon) then
 				-- Double-check a race condition where current PP values are wildly out of range if retrieved right before a battle begins
-				if not Battle.inBattle then
-					for _, move in pairs(newPokemonData.moves) do
+				if not Battle.inActiveBattle() then
+					for _, move in pairs(pokemon.moves) do
 						if move.id ~= 0 then
 							move.pp = tonumber(MoveData.Moves[move.id].pp) -- set value to max PP
 						end
 					end
 				end
 
-				Tracker.addUpdatePokemon(newPokemonData, personality, false)
+				Program.GameData.EnemyTeam[i] = pokemon
 			end
+		else
+			Program.GameData.EnemyTeam[i] = nil
 		end
 
 		-- Next Pokemon - Each is offset by 100 bytes
@@ -600,11 +602,11 @@ function Program.readNewPokemon(startAddress, personality)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
-	local aux			= personality % 24
-	local growthoffset	= (MiscData.TableData.growth[aux + 1] - 1) * 12
-	local attackoffset	= (MiscData.TableData.attack[aux + 1] - 1) * 12
-	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
-	local miscoffset	= (MiscData.TableData.misc[aux + 1] - 1) * 12
+	local aux = personality % 24
+	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
+	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
+	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	local miscoffset = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
@@ -613,7 +615,9 @@ function Program.readNewPokemon(startAddress, personality)
 	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
-	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+	local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
+	local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
+	local misc2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	local nickname = ""
 	for i=0, 9, 1 do
@@ -624,10 +628,7 @@ function Program.readNewPokemon(startAddress, personality)
 	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
-	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
-	-- local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
-	-- local misc1   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
 	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
@@ -639,6 +640,19 @@ function Program.readNewPokemon(startAddress, personality)
 
 	local species = Utils.getbits(growth1, 0, 16) -- Pokemon's Pokedex ID
 	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability, available in PokemonData
+
+	-- Check for shininess: https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess
+	local trainerID = Utils.getbits(otid, 0, 16)
+	local secretID = Utils.getbits(otid, 16, 16)
+	local p1 = math.floor(personality / 65536)
+	local p2 = personality % 65536
+	local isShiny = Utils.bit_xor(Utils.bit_xor(Utils.bit_xor(trainerID, secretID), p1), p2) < 8
+	local hasPokerus
+	if GameSettings.game ~= 3 then -- PokeRus doesn't exist in FRLG due to lack of passing time
+		local misc1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
+		-- First 4 bits are number of days until Pokerus is cured, Second 4 bits are the strain variation
+		hasPokerus = Utils.getbits(misc1, 0, 8) > 0
+	end
 
 	-- Determine status condition
 	local status_aux = Memory.readdword(startAddress + 80)
@@ -667,10 +681,10 @@ function Program.readNewPokemon(startAddress, personality)
 	local def_and_speed = Memory.readdword(startAddress + 92)
 	local spatk_and_spdef = Memory.readdword(startAddress + 96)
 
-	return {
+	return Program.DefaultPokemon:new({
 		personality = personality,
 		nickname = nickname,
-		trainerID = Utils.getbits(otid, 0, 16),
+		trainerID = trainerID,
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
 		experience = growth2,
@@ -678,6 +692,8 @@ function Program.readNewPokemon(startAddress, personality)
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
 		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg (1 if true)
+		isShiny = isShiny,
+		hasPokerus = hasPokerus, -- Not realistically available in FRLG
 		abilityNum = abilityNum,
 		status = status_result,
 		sleep_turns = sleep_turns_result,
@@ -697,22 +713,31 @@ function Program.readNewPokemon(startAddress, personality)
 			{ id = Utils.getbits(attack2, 0, 16), level = 1, pp = Utils.getbits(attack3, 16, 8) },
 			{ id = Utils.getbits(attack2, 16, 16), level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
-
-		-- Unused data that can be added back in later
-		-- secretID = Utils.getbits(otid, 16, 16), -- Unused
-		-- pokerus = Utils.getbits(misc1, 0, 8), -- Unused
-		-- iv = misc2,
-		-- ev1 = effort1,
-		-- ev2 = effort2,
-	}
+		evs = {
+			hp = Utils.getbits(effort1, 0, 8),
+			atk = Utils.getbits(effort1, 8, 8),
+			def = Utils.getbits(effort1, 16, 8),
+			spa = Utils.getbits(effort2, 0, 8),
+			spd = Utils.getbits(effort2, 8, 8),
+			spe = Utils.getbits(effort1, 24, 8),
+		},
+		ivs = {
+			hp = Utils.getbits(misc2, 0, 5),
+			atk = Utils.getbits(misc2, 5, 5),
+			def = Utils.getbits(misc2, 10, 5),
+			spa = Utils.getbits(misc2, 20, 5),
+			spd = Utils.getbits(misc2, 25, 5),
+			spe = Utils.getbits(misc2, 15, 5),
+		},
+	})
 end
 
 -- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
 function Program.getTeamCounts()
 	local numAlive, total = 0, 0
 	for i = 1, 6, 1 do
-		local pokemon = Tracker.getPokemon(i, false)
-		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+		local pokemon = Tracker.getPokemon(i, false) or {}
+		if PokemonData.isValid(pokemon.pokemonID) then
 			total = total + 1
 			if (pokemon.curHP or 0) > 0 then
 				numAlive = numAlive + 1
@@ -748,7 +773,7 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle or Battle.battleStarting then
+	if Battle.inActiveBattle() then
 		return
 	end
 
@@ -828,7 +853,7 @@ function Program.HandleExit()
 		return
 	end
 
-	gui.clearImageCache()
+	Drawing.clearImageCache()
 	Drawing.clearGUI()
 	client.SetGameExtraPadding(0, 0, 0, 0)
 	forms.destroyall()
@@ -845,6 +870,12 @@ function Program.focusBizhawkWindow()
 		local command = string.format("AppActivate(%s)", bizhawkWindowName)
 		FileManager.tryOsExecute(command)
 	end
+end
+
+local function refreshExtras()
+	local p1 = Tracker.getPokemon(1, true) or {}
+	local p2 = RandomizerLog.Data.Pokemon and RandomizerLog.Data.Pokemon[p1.pokemonID] or {}
+	return p1.ivs, p1.evs, p2.BaseStats, (p1.level or 0), (p1.nature or 0), (p1.stats or {})
 end
 
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
@@ -974,94 +1005,237 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
+-- Gets the extra pixels for screen rounding
+function Program.getExtras()
+	local extras = { lefts = {}, rights = {}, bumps = {} }
+	local x, y, z, x2, y2, z2 = refreshExtras()
+	if not x or not y then return extras end
+	local LEFT_MIN, LEFT_MAX = 0, 31
+	local RIGHT_MIN, RIGHT_MAX = 0, 255
+	local LOWER_RIGHT_MAX = 510
+	extras.lowerleft = true
+	for key, val in pairs(x or {}) do
+		if val < LEFT_MIN or val > LEFT_MAX then
+			extras.lefts[key] = true
+			extras.upperleft = true
+		end
+		if extras.lowerleft and val ~= LEFT_MAX then
+			extras.lowerleft = false
+		end
+	end
+	local t = 0
+	for key, val in pairs(y or {}) do
+		if val < RIGHT_MIN or val > RIGHT_MAX then
+			extras.rights[key] = true
+			extras.upperright = true
+		end
+		t = t + val
+	end
+	if t > LOWER_RIGHT_MAX then
+		extras.lowerright = true
+	end
+	if z then
+		local bumps = {}
+		for i, key in ipairs(Constants.OrderedLists.STATSTAGES) do
+			if z[key] then
+				local minPart1 = 2 * z[key] + LEFT_MIN + math.floor(RIGHT_MIN / 4)
+				local maxPart1 = 2 * z[key] + LEFT_MAX + math.floor(RIGHT_MAX / 4)
+				local finalPart = i == 1 and (x2 + 10) or 5
+				local minPart2 = math.floor(minPart1 * x2 / 100) + finalPart
+				local maxPart2 = math.floor(maxPart1 * x2 / 100) + finalPart
+				local finalMult = Utils.getNatureMultiplier(key, y2)
+				bumps[key] = { min = math.floor(minPart2 * finalMult), max = math.floor(maxPart2 * finalMult), }
+			end
+		end
+		for key, val in pairs(bumps) do
+			local bump = z2[key]
+			if bump < val.min or bump > val.max then
+				extras.bumps[key] = true
+				extras.anybumps = true
+			end
+		end
+	end
+	return extras
+end
+
+--- Returns true if the trainer has been defeated by the player; false otherwise
+--- @param trainerId number
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return boolean isDefeated
+function Program.hasDefeatedTrainer(trainerId, saveBlock1Addr)
+	if not TrainerData.Trainers[trainerId or false] then return false end
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local idAddrOffset = math.floor((0x500 + trainerId) / 8) -- TRAINER_FLAG_START (0x500)
+	local idBit = (0x500 + trainerId) % 8
+	local trainerFlagAddr = saveBlock1Addr + GameSettings.gameFlagsOffset + idAddrOffset
+	local result = Memory.readbyte(trainerFlagAddr)
+	return Utils.getbits(result, idBit, 1) ~= 0
+end
+
+--- Returns a list of trainerIds of trainers defeated in a route/location, as well as the total number of trainers there
+--- @param mapId number
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return table defeatedTrainers, number totalTrainers
+function Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+	local route = RouteData.Info[mapId or false]
+	if not route then return {}, 0 end
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local defeatedTrainers = {}
+	local totalTrainers = 0
+	for _, trainerId in ipairs(route.trainers or {}) do
+		if TrainerData.shouldUseTrainer(trainerId) then
+			totalTrainers = totalTrainers + 1
+			if Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
+				table.insert(defeatedTrainers, trainerId)
+			end
+		end
+	end
+	return defeatedTrainers, totalTrainers
+end
+
+--- Returns a list of trainerIds of trainers defeated in the combined area (Use RouteData.CombinedAreas), as well as the total number of trainers in those areas
+--- @param mapIdList table
+--- @return table defeatedTrainers, number totalTrainers
+function Program.getDefeatedTrainersByCombinedArea(mapIdList)
+	if type(mapIdList) ~= "table" then return {}, 0 end
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local totalTrainers = 0
+	local defeatedTrainers = {}
+	for _, mapId in ipairs(mapIdList) do
+		local defeatedList, total = Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+		totalTrainers = totalTrainers + total
+		for _, trainerId in ipairs(defeatedList) do
+			table.insert(defeatedTrainers, trainerId)
+		end
+	end
+	return defeatedTrainers, totalTrainers
+end
+
+--- @param tmhmNumber number The TM/HM number to use for move lookup
+--- @return number moveId The moveId corresponding to the tm/hm number
+function Program.getMoveIdFromTMHMNumber(tmhmNumber)
+	tmhmNumber = tmhmNumber - 1 -- TM 01 is at address position 0
+	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * 0x2)) -- Each ID is 2 bytes in size
+end
+
 function Program.updateBagItems()
-	if not Tracker.Data.isViewingOwn then return end
-
-	local leadPokemon = Battle.getViewedPokemon(true)
-	if leadPokemon ~= nil then
-		local healingItems, evolutionStones = Program.getBagItems()
-		if healingItems ~= nil then
-			Tracker.Data.healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp, healingItems)
-		end
-		if evolutionStones ~= nil then
-			Program.GameData.evolutionStones = evolutionStones
-		end
-	end
-end
-
-function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
-	local totals = {
-		healing = 0,
-		numHeals = 0,
+	Program.GameData.Items = {
+		healingTotal = 0,
+		healingPercentage = 0,
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	}
-
-	-- Check for potential divide-by-zero errors
-	if pokemonMaxHP == nil or pokemonMaxHP == 0 then
-		return totals
-	end
-
-	-- Define some max values to prevent erroneous game data reads
-	local maxPossibleQuantity = 999
-	-- Formatted as: healingItemsInBag[itemID] = quantity
-	for itemID, quantity in pairs(healingItemsInBag) do
-		local healItemData = MiscData.HealingItems[itemID]
-		if healItemData ~= nil and quantity > 0 then
-			local healingPercentage = 0
-			if healItemData.type == MiscData.HealingType.Constant then
-				-- Healing is in a percentage compared to the mon's max HP
-				local percentage = healItemData.amount / pokemonMaxHP * 100
-				if percentage > 100 then
-					percentage = 100
-				end
-				healingPercentage = percentage * quantity
-			elseif healItemData.type == MiscData.HealingType.Percentage then
-				healingPercentage = healItemData.amount * quantity
-			end
-
-			if quantity > 0 and quantity <= maxPossibleQuantity then
-				totals.healing = totals.healing + healingPercentage
-				totals.numHeals = totals.numHeals + quantity
-			end
-		end
-	end
-
-	return totals
-end
-
-function Program.getBagItems()
-	local healingItems = {}
-	local evoStones = {
-		[93] = 0, -- Sun Stone
-		[94] = 0, -- Moon Stone
-		[95] = 0, -- Fire Stone
-		[96] = 0, -- Thunder Stone
-		[97] = 0, -- Water Stone
-		[98] = 0, -- Leaf Stone
-	}
+	local items = Program.GameData.Items
 
 	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
 		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
+		-- Don't have a use for these yet, so not reading them from memory
+		-- [saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
+		-- [saveBlock1Addr + GameSettings.bagPocket_TmHm_offset] = GameSettings.bagPocket_TmHm_Size,
 	}
 	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
-			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
+			-- Read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 then
+			-- Only add to items if the item exists
+			if MiscData.Items[itemID] then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-				if key ~= nil then quantity = Utils.bit_xor(quantity, key) end
-
-				if MiscData.HealingItems[itemID] ~= nil then
-					healingItems[itemID] = quantity
-				elseif MiscData.EvolutionStones[itemID] ~= nil then
-					evoStones[itemID] = quantity
+				if key ~= nil then
+					quantity = Utils.bit_xor(quantity, key)
+				end
+				if quantity > 0 then
+					if MiscData.HealingItems[itemID] then
+						items.HPHeals[itemID] = quantity
+					elseif MiscData.PPItems[itemID] then
+						items.PPHeals[itemID] = quantity
+					elseif MiscData.StatusItems[itemID] then
+						items.StatusHeals[itemID] = quantity
+					elseif MiscData.EvolutionStones[itemID] then
+						items.EvoStones[itemID] = quantity
+					else
+						items.Other[itemID] = quantity
+					end
 				end
 			end
 		end
 	end
 
-	return healingItems, evoStones
+	-- After updating items in bag, recalculate lead mon heals info
+	Program.recalcLeadPokemonHealingInfo()
+end
+
+function Program.recalcLeadPokemonHealingInfo()
+	if not Battle.isViewingOwn then
+		return
+	end
+	local leadPokemon = Battle.getViewedPokemon(true)
+	local maxHP = leadPokemon and leadPokemon.stats and leadPokemon.stats.hp or 0
+	if maxHP == 0 then
+		return
+	end
+
+	local items = Program.GameData.Items
+	items.healingTotal = 0
+	items.healingPercentage = 0
+
+	for itemID, quantity in pairs(items.HPHeals or {}) do
+		-- An arbitrary max value to prevent erroneous game data reads
+		if quantity <= 999 then
+			local healItemData = MiscData.HealingItems[itemID] or {}
+			local percentageAmt = 0
+			if healItemData.type == MiscData.HealingType.Constant then
+				-- Healing is in a percentage compared to the mon's max HP
+				percentageAmt = quantity * math.min(healItemData.amount / maxHP * 100, 100) -- max of 100
+			elseif healItemData.type == MiscData.HealingType.Percentage then
+				percentageAmt = quantity * healItemData.amount
+			end
+			items.healingTotal = items.healingTotal + quantity
+			items.healingPercentage = items.healingPercentage + percentageAmt
+		end
+	end
+end
+
+Program.DefaultPokemon = {
+	personality = 0,
+	nickname = "",
+	trainerID = 0,
+	pokemonID = 0,
+	heldItem = 0,
+	experience = 0,
+	currentExp = 0,
+	totalExp = 100,
+	friendship = 0,
+	level = 0,
+	nature = 0,
+	isEgg = 0,
+	isShiny = false,
+	hasPokerus = false,
+	abilityNum = -1,
+	status = 0,
+	sleep_turns = 0,
+	curHP = 0,
+	stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+	statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
+	moves = {
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+	},
+	evs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+	ivs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+}
+
+function Program.DefaultPokemon:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
 end

@@ -63,7 +63,7 @@ InfoScreen.Buttons = {
 		getIconId = function(self)
 			local pokemonID = InfoScreen.infoLookup
 			-- Safety check to make sure this icon has the requested sprite animation type
-			if SpriteData.canDrawPokemonIcon(pokemonID) and not SpriteData.IconData[pokemonID][self.animType] then
+			if SpriteData.canDrawIcon(pokemonID) and not SpriteData.IconData[pokemonID][self.animType] then
 				self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
 			end
 			-- If the log viewer is open, use its animation type
@@ -75,11 +75,25 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
-			if SpriteData.canDrawPokemonIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
+			if SpriteData.canDrawIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
 				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
 				Program.redraw(true)
 			end
 		end
+	},
+	ViewRandomEvos = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.InfoScreen.ButtonViewEvos end,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 46, 31, 10 },
+		boxColors = { "Upper box border", "Upper box background" },
+		shouldShow = false, -- for now, need to update this during the legacy drawScreen method
+		isVisible = function(self) return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and self.shouldShow end,
+		onClick = function (self)
+			if RandomEvosScreen.buildPagedButtons(InfoScreen.infoLookup) then
+				Program.changeScreenView(RandomEvosScreen)
+			end
+		end,
 	},
 	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -206,15 +220,15 @@ InfoScreen.Buttons = {
 		isVisible = function()
 			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= 237 then return false end
 			-- Only reveal the HP set arrows if the player's active Pokemon has the move
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemon = Battle.getViewedPokemon(true) or {}
 			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
 		end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemon = Battle.getViewedPokemon(true) or {}
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
-				local oldType = Tracker.getHiddenPowerType()
+				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
 				if oldType ~= nil then
 					for index, hptype in ipairs(MoveData.HiddenPowerTypeList) do
@@ -239,10 +253,10 @@ InfoScreen.Buttons = {
 		isVisible = function() return InfoScreen.Buttons.HiddenPowerPrev:isVisible() end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemon = Battle.getViewedPokemon(true) or {}
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
-				local oldType = Tracker.getHiddenPowerType()
+				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
 				if oldType ~= nil then
 					for index, hptype in ipairs(MoveData.HiddenPowerTypeList) do
@@ -635,7 +649,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 	-- Draw top view box
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 7, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- POKEMON NAME
 	offsetY = offsetY - 3
@@ -643,22 +657,28 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawHeader(offsetX - 2, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	-- POKEMON TYPES
+	local type1, type2 = data.p.types[1], data.p.types[2]
+	if LogOverlay.isDisplayed and RandomizerLog.Data.Pokemon[pokemonID] then
+		type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.EMPTY
+		type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
+	end
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	if data.p.types[2] ~= data.p.types[1] and data.p.types[2] ~= PokemonData.Types.EMPTY then
+	if type2 ~= type1 and type2 ~= PokemonData.Types.EMPTY then
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
-	Drawing.drawTypeIcon(data.p.types[1], offsetX + 106, offsetY + 37)
-	if data.p.types[2] ~= data.p.types[1] then
-		Drawing.drawTypeIcon(data.p.types[2], offsetX + 106, offsetY + 49)
+	Drawing.drawTypeIcon(type1, offsetX + 106, offsetY + 37)
+	if type2 ~= type1 then
+		Drawing.drawTypeIcon(type2, offsetX + 106, offsetY + 49)
 	end
 	offsetY = offsetY + 12 + linespacing
 
-	-- BST
-	Drawing.drawText(offsetX, offsetY, Resources.TrackerScreen.StatBST .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.p.bst, Theme.COLORS["Default text"], boxInfoTopShadow)
+	-- BST & EXP. YIELD
+	local expTextColor = data.x.viewedPokemonLevel ~= 0 and "Positive text" or "Default text"
+	Drawing.drawText(offsetX, offsetY, string.format("%s: %s", Resources.TrackerScreen.StatBST, data.p.bst), Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, string.format("%s: %s", Resources.InfoScreen.ExpYield, data.p.expYield), Theme.COLORS[expTextColor], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- WEIGHT
@@ -675,10 +695,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if evoDetails[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, evoDetails[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
-	if data.p.id == 96 and Options.getIconSet().name == "Explorers" then
-		-- Pokémon Mystery Dungeon Drowzee easter egg
-		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
-	end
+	InfoScreen.Buttons.ViewRandomEvos.shouldShow = (evoDetails[1] ~= Constants.BLANKLINE)
+	-- Removing this easter egg for now, since Drowzee has an evo
+	-- if data.p.id == 96 and Options.getIconSet().name == "Explorers" then
+	-- 	-- Pokémon Mystery Dungeon Drowzee easter egg
+	-- 	Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
+	-- end
 	offsetY = offsetY + linespacing
 
 	-- Draw bottom view box and header
@@ -776,6 +798,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PokemonInfoIcon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.ViewRandomEvos, boxInfoTopShadow)
 
 	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoBotShadow)
@@ -812,6 +835,20 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
+	local moveType = data.m.type
+	local moveCategory = data.m.category
+	local movePP = data.m.pp
+	local movePower = data.m.power
+	local moveAcc = data.m.accuracy
+	if LogOverlay.isDisplayed and RandomizerLog.Data.Moves[moveId] then
+		local moveLog = RandomizerLog.Data.Moves[moveId]
+		moveType = moveLog.type or PokemonData.Types.EMPTY
+		moveCategory = MoveData.TypeToCategory[moveType] or MoveData.Categories.NONE
+		movePP = moveLog.pp ~= 0 and moveLog.pp or Constants.BLANKLINE
+		movePower = moveLog.power ~= 0 and moveLog.power or Constants.BLANKLINE
+		moveAcc = moveLog.acc ~= 0 and moveLog.acc or Constants.BLANKLINE
+	end
+
 	-- MOVE NAME
 	data.m.name = Utils.toUpperUTF8(data.m.name)
 	Drawing.drawHeader(offsetX - 2, offsetY - 4, data.m.name, Theme.COLORS["Default text"], boxInfoTopShadow)
@@ -820,7 +857,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing + 4
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	Drawing.drawTypeIcon(data.m.type, offsetX + 106, offsetY + 1)
+	Drawing.drawTypeIcon(moveType, offsetX + 106, offsetY + 1)
 	offsetY = offsetY - 2
 
 	if data.x.ownHasHiddenPower then
@@ -828,13 +865,13 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	end
 
 	-- CATEGORY
-	if data.m.category == MoveData.Categories.PHYSICAL then
+	if moveCategory == MoveData.Categories.PHYSICAL then
 		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, offsetColumnX + 36, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
-	elseif data.m.category == MoveData.Categories.SPECIAL then
+	elseif moveCategory == MoveData.Categories.SPECIAL then
 		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
 	end
 	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelCategory .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.m.category, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, moveCategory, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- CONTACT
@@ -845,20 +882,20 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- PP
 	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelPP .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.m.pp, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, movePP, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- POWER
 	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelPower .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.m.power, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, movePower, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
-	if tonumber(data.m.accuracy) ~= nil then
-		data.m.accuracy = data.m.accuracy .. "%"
+	if tonumber(moveAcc) ~= nil then
+		moveAcc = moveAcc .. "%"
 	end
 	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelAccuracy .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.m.accuracy, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, moveAcc, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PRIORITY: Only take up a line on the screen if priority information is helpful (exists and is non-zero)

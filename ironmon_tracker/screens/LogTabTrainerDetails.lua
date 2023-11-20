@@ -3,7 +3,7 @@ LogTabTrainerDetails = {
 		text = "Lower box text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	infoId = -1,
 	dataSet = nil,
@@ -60,7 +60,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
 					if Utils.containsText(partyPokemon.name, LogSearchScreen.searchText, true) then
 						self.isSelected = true
-						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						self.textColor = LogTabTrainerDetails.Colors.highlight
 						return
 					end
 				end
@@ -126,7 +126,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				Drawing.drawTransparentTextbox(x + 5, y + self.box[4] + 2, self:getText(), textColor, bgColor, shadowcolor)
 				-- If this was found through search
 				if self.isSelected then
-					local color = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
+					local color = Theme.COLORS[LogTabTrainerDetails.Colors.highlight]
 					Drawing.drawSelectionIndicators(x + 1, y + 7, self.box[3] - 3, self.box[4] - 6, color, 1, 5, 1)
 				end
 			end,
@@ -153,7 +153,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 					-- Highlight moves that are found by the search
 					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
 						if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
-							self.textColor = LogTabTrainerDetails.Colors.hightlight
+							self.textColor = LogTabTrainerDetails.Colors.highlight
 						end
 					end
 				end,
@@ -195,7 +195,7 @@ end
 -- Unsure if this will actually be needed, likely some of them
 function LogTabTrainerDetails.drawTab()
 	local textColor = Theme.COLORS[LogTabTrainerDetails.Colors.text]
-	local highlightColor = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
+	local highlightColor = Theme.COLORS[LogTabTrainerDetails.Colors.highlight]
 	local borderColor = Theme.COLORS[LogTabTrainerDetails.Colors.border]
 	local fillColor = Theme.COLORS[LogTabTrainerDetails.Colors.boxFill]
 	local shadowcolor = Utils.calcShadowColor(fillColor)
@@ -224,11 +224,11 @@ function LogTabTrainerDetails.drawTab()
 	if data.x.gymNumber ~= nil then
 		local badgeName = GameSettings.badgePrefix .. "_badge" .. data.x.gymNumber
 		local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
-		gui.drawImage(badgeImage, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y + 2)
+		Drawing.drawImage(badgeImage, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y + 2)
 	end
 
 	-- TRAINER NAME & ICON
-	gui.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
+	Drawing.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
 	local classText = data.t.class
 	local nameText = data.t.name
 	if Options["Use Custom Trainer Names"] then

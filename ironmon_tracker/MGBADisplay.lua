@@ -179,7 +179,8 @@ MGBADisplay.DataFormatter = {
 		end
 	end,
 	formatTrackerScreen = function(data)
-		data.p.name = Utils.toUpperUTF8(data.p.name)
+		-- Don't capitalize if nicknames are being used
+		data.p.name = Options["Show nicknames"] and data.p.name or Utils.toUpperUTF8(data.p.name)
 
 		if data.p.status ~= "" then
 			data.p.status = Utils.formatUTF8("[%s]", data.p.status)
@@ -253,7 +254,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
-		for i = 1, 8, 1 do
+		for i = 1, 9, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -341,7 +342,7 @@ MGBADisplay.LineBuilder = {
 			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadMultipleRoms))
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
-		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.OptionDisabled then
+		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.OptionEnabled then
 			-- for i = 33, 35, 1 do
 			-- 	local opt = MGBA.OptionMap[i]
 			-- 	if opt ~= nil then
@@ -369,7 +370,7 @@ MGBADisplay.LineBuilder = {
 		local instructionBar = "%-14s %-18s"
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
 		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadButtonCombo .. ":", quickloadCombo))
-		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadTextCommand .. ":", MGBA.CommandMap["QUICKLOAD"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadTextCommand .. ":", MGBA.CommandMap["NEWRUN"].usageSyntax))
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		return lines
@@ -793,7 +794,7 @@ MGBADisplay.LineBuilder = {
 				table.insert(lines, carouselText)
 			end
 		end
-		if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) then
+		if Options["Display repel usage"] and Program.ActiveRepel.inUse and not Battle.inActiveBattle() then
 			local repelBarSize = 20
 			local remainingFraction = math.floor(Program.ActiveRepel.stepCount * repelBarSize / Program.ActiveRepel.duration)
 			local repelBarFill = string.rep("=", remainingFraction)

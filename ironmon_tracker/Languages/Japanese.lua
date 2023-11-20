@@ -56,7 +56,7 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER", -- NEEDS TRANSLATION
 			short = "Thunder", -- NEEDS TRANSLATION
-			detailed = "Thunder Stone", -- NEEDS TRANSLATION
+			detailed = "Thunderstone", -- NEEDS TRANSLATION
 		},
 		FIRE = {
 			abbreviation = "FIRE", -- NEEDS TRANSLATION
@@ -177,7 +177,7 @@ ScreenResources{
 		ButtonTheme = "テーマ",
 		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION
 		ButtonExtras = "Extras", -- NEEDS TRANSLATION
-		ButtonQuickload = "Quickload", -- NEEDS TRANSLATION
+		ButtonQuickload = "New Runs", -- NEEDS TRANSLATION
 		ButtonLanguage = "言語",
 		ButtonUpdate = "アップデート",
 		ButtonExtensions = "Extensions", -- NEEDS TRANSLATION
@@ -193,6 +193,7 @@ ScreenResources{
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
@@ -209,7 +210,10 @@ ScreenResources{
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION
+		TabTools = "Tools", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
 		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
+		ButtonCoverageCalculator = "Coverage Calculator", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
@@ -243,9 +247,9 @@ ScreenResources{
 		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
-		Title = "Quickload Setup", -- NEEDS TRANSLATION
+		Title = "New Runs Setup", -- NEEDS TRANSLATION
 		ButtonCombo = "Buttons", -- NEEDS TRANSLATION
-		ChoiceHeader = "Choose a quickload option", -- NEEDS TRANSLATION
+		ChoiceHeader = "How to load a New Run", -- NEEDS TRANSLATION
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate ROM each time", -- NEEDS TRANSLATION
@@ -350,8 +354,10 @@ ScreenResources{
 	},
 	InfoScreen = {
 		-- Pokémon Info
+		ButtonViewEvos = "View ...", -- NEEDS TRANSLATION
 		ButtonHistory = "History", -- NEEDS TRANSLATION
 		ButtonResistances = "Show resistances", -- NEEDS TRANSLATION
+		ExpYield = "EXP", -- NEEDS TRANSLATION
 		KilogramAbbreviation = "kg", -- NEEDS TRANSLATION
 		LabelWeight = "Weight", -- NEEDS TRANSLATION
 		LabelEvolution = "Evolution", -- NEEDS TRANSLATION
@@ -422,6 +428,15 @@ ScreenResources{
 		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.", -- NEEDS TRANSLATION
 		WarningIfUnsure = "If you are unsure, simply do not view the log file.", -- NEEDS TRANSLATION
 	},
+	CoverageCalcScreen = {
+		Title = "Coverage Calculator", -- NEEDS TRANSLATION
+		ButtonAddType = "Add Type", -- NEEDS TRANSLATION
+		ButtonClearTypes = "Clear All", -- NEEDS TRANSLATION
+		ButtonPokemonMatchups = "Pokémon Matchups", -- NEEDS TRANSLATION
+		OptionFullyEvolvedOnly = "Fully evolved Pokémon only", -- NEEDS TRANSLATION
+		TitleAddMoveType = "Add a Move Type", -- NEEDS TRANSLATION
+		LabelTotal = "Total", -- NEEDS TRANSLATION
+	},
 	TimeMachineScreen = {
 		Title = "Time Machine", -- NEEDS TRANSLATION
 		OptionEnableRestorePoints = "Enable restore points", -- NEEDS TRANSLATION
@@ -460,6 +475,17 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+	},
+	RandomEvosScreen = {
+		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
+		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
+	},
+	HealsInBagScreen = {
+		TabAll = "All", -- NEEDS TRANSLATION
+		TabHP = "HP", -- NEEDS TRANSLATION
+		TabPP = "PP", -- NEEDS TRANSLATION
+		TabStatus = "Status", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
 	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION
@@ -550,7 +576,7 @@ ScreenResources{
 		MenuTrackerSettings = "Tracker Settings", -- NEEDS TRANSLATION
 		MenuGeneralSetup = "General Setup", -- NEEDS TRANSLATION
 		MenuGameplayOptions = "Gameplay Options", -- NEEDS TRANSLATION
-		MenuQuickloadSetup = "Quickload Setup", -- NEEDS TRANSLATION
+		MenuQuickloadSetup = "New Runs Setup", -- NEEDS TRANSLATION
 		MenuCheckForUpdates = "Check for Updates", -- NEEDS TRANSLATION
 		MenuNewUpdateVailable = "New Update Available", -- NEEDS TRANSLATION
 		MenuLanguage = "Language", -- NEEDS TRANSLATION
@@ -578,6 +604,7 @@ ScreenResources{
 		OptionKeyError = "Option key doesn't exist", -- NEEDS TRANSLATION
 		OptionFileError = "File not found", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionAutosaveTrackedData = "Autosave tracked game data", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
@@ -588,7 +615,7 @@ ScreenResources{
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
-		OptionQuickload = "Quickload", -- NEEDS TRANSLATION
+		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
 		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
 		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
 		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
@@ -634,7 +661,7 @@ ScreenResources{
 		GeneralSetupControls = "Controls", -- NEEDS TRANSLATION
 		GeneralSetupGBAButtons = "GBA Buttons", -- NEEDS TRANSLATION
 		GameplayOptionsManualSave = "Manually save/load tracked data", -- NEEDS TRANSLATION
-		QuickloadDesc = "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.", -- NEEDS TRANSLATION
+		QuickloadDesc = "To use a Load New Run option, put the required files in the [quickload] folder found in your main Tracker folder.", -- NEEDS TRANSLATION
 		QuickloadChooseMode = "Choose a mode with", -- NEEDS TRANSLATION
 		QuickloadMode = "Mode", -- NEEDS TRANSLATION
 		QuickloadSelected = "Selected", -- NEEDS TRANSLATION
@@ -768,7 +795,7 @@ ScreenResources{
 		UpdateNowSteps1 = "Complete any ongoing battles first", -- NEEDS TRANSLATION
 		UpdateNowSteps2 = "On the mGBA scripting window: Click File -> Reset", -- NEEDS TRANSLATION
 		UpdateNowSteps3 = "Click File -> Load script (or Load recent script)", -- NEEDS TRANSLATION
-		QuickloadDesc = "Forces the Tracker to Quickload a new game ROM.", -- NEEDS TRANSLATION
+		QuickloadDesc = "Forces the Tracker to automatically load a new game ROM.", -- NEEDS TRANSLATION
 		HelpWikiDesc = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.", -- NEEDS TRANSLATION
 		AttemptsDesc = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar.", -- NEEDS TRANSLATION
 		AttemptsError1 = "Where # is a positive number.", -- NEEDS TRANSLATION
@@ -1587,11 +1614,11 @@ GameResources{
 		},
 		{
 			NameKey = "DoubleSlap",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Comet Punch",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Mega Punch",
@@ -1699,7 +1726,7 @@ GameResources{
 		},
 		{
 			NameKey = "Fury Attack",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Horn Drill",
@@ -1743,7 +1770,7 @@ GameResources{
 		},
 		{
 			NameKey = "Pin Missile",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Leer",
@@ -2099,7 +2126,7 @@ GameResources{
 		},
 		{
 			NameKey = "Spike Cannon",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Constrict",
@@ -2135,7 +2162,7 @@ GameResources{
 		},
 		{
 			NameKey = "Barrage",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Leech Life",
@@ -2191,7 +2218,7 @@ GameResources{
 		},
 		{
 			NameKey = "Fury Swipes",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Bonemerang",
@@ -2367,7 +2394,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bone Rush",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Lock-On",
@@ -2743,7 +2770,7 @@ GameResources{
 		},
 		{
 			NameKey = "Arm Thrust",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Camouflage",
@@ -2899,7 +2926,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bullet Seed",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Aerial Ace",
@@ -2907,7 +2934,7 @@ GameResources{
 		},
 		{
 			NameKey = "Icicle Spear",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Iron Defense",
@@ -2975,7 +3002,7 @@ GameResources{
 		},
 		{
 			NameKey = "Rock Blast",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Shock Wave",
@@ -3320,11 +3347,11 @@ GameResources{
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Forecast",

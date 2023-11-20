@@ -4,6 +4,7 @@ TrainerData = {}
 -- These are populated later after the game being played is determined
 TrainerData.Trainers = {}
 TrainerData.GymTMs = {}
+TrainerData.FinalTrainer = {} -- The final trainer to defeat to win Ironmon
 
 TrainerData.TrainerGroups = {
 	All = "All",
@@ -115,6 +116,9 @@ TrainerData.BlankTrainer = {
 }
 
 function TrainerData.initialize()
+	TrainerData.Trainers = {}
+	TrainerData.GymTMs = {}
+	TrainerData.FinalTrainer = {}
 	if GameSettings.game == 1 then
 		TrainerData.setupTrainersAsRubySapphire()
 	elseif GameSettings.game == 2 then
@@ -149,12 +153,13 @@ function TrainerData.shouldUseTrainer(trainerId)
 	if trainerInternal == TrainerData.BlankTrainer then
 		return false
 	end
+	local whichRival = Tracker.getWhichRival()
 	-- Always okay to use trainer if it's not a rival
-	if Tracker.Data.whichRival == nil or trainerInternal.whichRival == nil then
+	if whichRival == nil or trainerInternal.whichRival == nil then
 		return true
 	end
 	-- Otherwise, make sure it's the correct rival
-	return Tracker.Data.whichRival == trainerInternal.whichRival
+	return whichRival == trainerInternal.whichRival
 end
 
 -- Returns a list of trainers to exclude from a parsed log, often dummy trainers or VS Seeker rematch
@@ -175,7 +180,7 @@ function TrainerData.getExcludedTrainers()
 		}
 	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
 		trainerIdRanges = {
-			{1, 88}, 147, 200, 263, {492, 497}, {511, 515}, 530,
+			{1, 88}, 101, 147, 200, 263, {454, 461}, {492, 515}, 530, {621, 741},
 		}
 	end
 
@@ -347,6 +352,8 @@ function TrainerData.setupTrainersAsRubySapphire()
 	TrainerData.Trainers[536].whichRival = "May Right"
 	TrainerData.Trainers[537].whichRival = "May Right"
 	TrainerData.Trainers[666].whichRival = "May Right"
+
+	TrainerData.FinalTrainer = { [335] = true }
 end
 
 function TrainerData.setupTrainersAsEmerald()
@@ -467,6 +474,8 @@ function TrainerData.setupTrainersAsEmerald()
 	TrainerData.Trainers[537].whichRival = "May Right"
 	TrainerData.Trainers[666].whichRival = "May Right"
 	TrainerData.Trainers[769].whichRival = "May Right"
+
+	TrainerData.FinalTrainer = { [804] = true }
 end
 
 function TrainerData.setupTrainersAsFRLG()
@@ -583,4 +592,7 @@ function TrainerData.setupTrainersAsFRLG()
 	TrainerData.Trainers[434].whichRival = "Right"
 	TrainerData.Trainers[437].whichRival = "Right"
 	TrainerData.Trainers[440].whichRival = "Right"
+
+	-- All 3 rivals
+	TrainerData.FinalTrainer = { [438] = true, [439] = true, [440] = true }
 end

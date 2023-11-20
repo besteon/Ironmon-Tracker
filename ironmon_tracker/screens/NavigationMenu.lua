@@ -1,6 +1,7 @@
 NavigationMenu = {
 	Colors = {
-		textColor = "Default text",
+		text = "Default text",
+		highlight = "Intermediate text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
 	},
@@ -30,7 +31,7 @@ NavigationMenu.Buttons = {
 		getText = function(self) return Resources.NavigationMenu.ButtonExtras end,
 		image = Constants.PixelImages.POKEBALL,
 		index = 2,
-		iconColors = { NavigationMenu.Colors.textColor, NavigationMenu.Colors.boxFill, NavigationMenu.Colors.boxFill, },
+		iconColors = { NavigationMenu.Colors.text, NavigationMenu.Colors.boxFill, NavigationMenu.Colors.boxFill, },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(ExtrasScreen) end
 	},
@@ -48,10 +49,10 @@ NavigationMenu.Buttons = {
 		isVisible = function() return not NavigationMenu.showCredits end,
 		updateSelf = function (self)
 			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
-				self.textColor = NavigationMenu.Colors.textColor
+				self.textColor = NavigationMenu.Colors.text
 			else
 				-- If neither quickload option is enabled, then highlight it to draw user's attention
-				self.textColor = "Intermediate text"
+				self.textColor = NavigationMenu.Colors.highlight
 			end
 		end,
 		onClick = function() Program.changeScreenView(QuickloadScreen) end
@@ -86,7 +87,7 @@ NavigationMenu.Buttons = {
 		isVisible = function(self) return not NavigationMenu.showCredits end,
 		updateSelf = function(self)
 			if Main.isOnLatestVersion() then
-				self.textColor = NavigationMenu.Colors.textColor
+				self.textColor = NavigationMenu.Colors.text
 			else
 				self.textColor = "Positive text"
 			end
@@ -135,7 +136,7 @@ NavigationMenu.Buttons = {
 		onClick = function(self)
 			-- A non-functional button only appears very rarely, and will disappear after it's clicked a few times
 			self.timesClicked = self.timesClicked + 1
-			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.Colors.textColor, "Intermediate text")
+			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.Colors.text, NavigationMenu.Colors.highlight)
 			Program.redraw(true)
 		end
 	},
@@ -194,7 +195,7 @@ function NavigationMenu.initialize()
 
 	for _, button in pairs(NavigationMenu.Buttons) do
 		if button.textColor == nil then
-			button.textColor = NavigationMenu.Colors.textColor
+			button.textColor = NavigationMenu.Colors.text
 		end
 		if button.boxColors == nil then
 			button.boxColors = { NavigationMenu.Colors.border, NavigationMenu.Colors.boxFill }
@@ -226,79 +227,75 @@ end
 
 -- DRAWING FUNCTIONS
 function NavigationMenu.drawScreen()
+	local canvas = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.MARGIN + 10,
+		w = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		h = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+		text = Theme.COLORS[NavigationMenu.Colors.text],
+		border = Theme.COLORS[NavigationMenu.Colors.border],
+		fill = Theme.COLORS[NavigationMenu.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.Colors.boxFill]),
+	}
+
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[NavigationMenu.Colors.boxFill])
+	gui.defaultTextBackground(canvas.fill)
 
 	if NavigationMenu.showCredits then
-		NavigationMenu.drawCredits()
+		NavigationMenu.drawCredits(canvas)
 		return
 	end
-
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.Colors.boxFill])
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
 
 	-- Draw header text
 	local headerText = Utils.toUpperUTF8(Resources.NavigationMenu.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
+	gui.drawRectangle(canvas.x, canvas.y, canvas.w, canvas.h, canvas.border, canvas.fill)
 
 	-- Draw all buttons, manually
 	for _, button in pairs(NavigationMenu.Buttons) do
 		if button == NavigationMenu.Buttons.VersionInfo then
 			Drawing.drawButton(button, headerShadow)
 		else
-			Drawing.drawButton(button, shadowcolor)
+			Drawing.drawButton(button, canvas.shadow)
 		end
 	end
 end
 
-function NavigationMenu.drawCredits()
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.Colors.boxFill])
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxColX = topboxX + 57
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
-	local linespacing = Constants.SCREEN.LINESPACING + 1
-
+function NavigationMenu.drawCredits(canvas)
 	-- Draw header text
 	local creditsHeader = Utils.toUpperUTF8(Resources.StartupScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, creditsHeader, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(canvas.x + 29, canvas.y - 12, creditsHeader, Theme.COLORS["Header text"], headerShadow)
 
-	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
+	-- Draw box
+	gui.drawRectangle(canvas.x, canvas.y, canvas.w, canvas.h, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
+	-- Draw the original Espeon gif image
+	local originalIconSet = Options.IconSetMap[1]
+	local espeonImage = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
+	Drawing.drawImage(espeonImage, canvas.x + 104, canvas.y, 32, 32)
 
-	local offsetX = topboxX + 2
-	local offsetY = topboxY + 8
-
+	local textLineY = canvas.y + 4
 	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)
-	Drawing.drawText(offsetX, offsetY, createdByText, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
+	Drawing.drawText(canvas.x + 3, textLineY, createdByText, Theme.COLORS[NavigationMenu.Colors.highlight], canvas.shadow)
+	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	local espeonImage = FileManager.buildImagePath(Options.IconSetMap["1"].folder, "196", Options.IconSetMap["1"].extension)
-	gui.drawImage(espeonImage, topboxColX + 41, offsetY - 13, 32, 32)
-	offsetY = offsetY + linespacing + 10
+	local colOffsetX = Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
+	Drawing.drawText(canvas.x + colOffsetX, textLineY, Main.CreditsList.CreatedBy, canvas.text, canvas.shadow)
+	textLineY = textLineY + Constants.SCREEN.LINESPACING + 3
 
 	local contributorText = string.format("%s:", Resources.NavigationMenu.CreditsContributors)
-	Drawing.drawText(offsetX, offsetY, contributorText, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
-	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(canvas.x + 3, textLineY, contributorText, Theme.COLORS[NavigationMenu.Colors.highlight], canvas.shadow)
+	textLineY = textLineY + Constants.SCREEN.LINESPACING + 1
 
 	-- Draw Contributors List
-	offsetX = offsetX + 4
-	for i=1, #Main.CreditsList.Contributors, 2 do
-		Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[i], Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
-		if Main.CreditsList.Contributors[i + 1] ~= nil then
-			Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[i + 1], Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
-		end
-		offsetY = offsetY + linespacing
+	local wrappedDesc = Utils.getWordWrapLines(table.concat(Main.CreditsList.Contributors, ", "), 32)
+	for _, line in pairs(wrappedDesc) do
+		Drawing.drawText(canvas.x + 5, textLineY, line, canvas.text, canvas.shadow)
+		textLineY = textLineY + Constants.SCREEN.LINESPACING
 	end
 
-	Drawing.drawButton(NavigationMenu.Buttons.Back, shadowcolor)
+	Drawing.drawButton(NavigationMenu.Buttons.Back, canvas.shadow)
 end

@@ -319,7 +319,7 @@ function LogOverlay.addHeaderTabButtons()
 					if icon.image then
 						local adjustedX = x + (icon.x or 0) + spacer
 						local adjustedY = y + (icon.y or 0) + LogOverlay.tabHeight - (icon.h or 12)
-						gui.drawImage(icon.image, adjustedX, adjustedY)
+						Drawing.drawImage(icon.image, adjustedX, adjustedY)
 						x = x + (icon.w or 0) + spacer
 					end
 				end
@@ -456,8 +456,8 @@ function LogOverlay.viewLogFile(postfix)
 end
 
 --- Attempts to determine the log file that matches the currently loaded rom. If not match or can't find, returns nil
---- @param postFix string|nil The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
---- @return string|nil
+--- @param postFix string? The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
+--- @return string?
 function LogOverlay.getLogFileAutodetected(postFix)
 	postFix = postFix or FileManager.PostFixes.AUTORANDOMIZED
 
@@ -514,7 +514,7 @@ function LogOverlay.getLogFileAutodetected(postFix)
 end
 
 --- Prompts user to select a log file to parse
---- @return string|nil
+--- @return string?
 function LogOverlay.getLogFileFromPrompt()
 	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE
 	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"
@@ -555,7 +555,7 @@ function LogOverlay.parseAndDisplay(logpath)
 		LogSearchScreen.resetSearchSortFilter()
 		LogOverlay.refreshActiveTabGrid()
 		-- If the player has a Pokemon, show it on the side-screen
-		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
+		local leadPokemon = Tracker.getPokemon(1, true) or {}
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, leadPokemon.pokemonID)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)

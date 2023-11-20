@@ -216,7 +216,7 @@ MGBA.Screens = {
 				self.pokemonID = pokemon.pokemonID or 0
 			end
 
-			if self.data == nil or self.pokemonID ~= self.data.p.pokemonID or Battle.inBattle then -- Temp using battle
+			if self.data == nil or self.pokemonID ~= self.data.p.pokemonID or Battle.inActiveBattle() then -- Temp using battle
 				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemonID)
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildPokemonInfo, self.displayLines, self.data)
 			end
@@ -257,7 +257,7 @@ MGBA.Screens = {
 			end
 		end,
 		checkForEnemyAttack = function(self)
-			if not Battle.inBattle and self.lastTurnLookup ~= -1 then
+			if not Battle.inActiveBattle() and self.lastTurnLookup ~= -1 then
 				self.lastTurnLookup = -1
 			elseif not Battle.enemyHasAttacked and MoveData.isValid(Battle.actualEnemyMoveId) and self.lastTurnLookup ~= Battle.turnCount then
 				self.lastTurnLookup = Battle.turnCount
@@ -284,7 +284,7 @@ MGBA.Screens = {
 			-- Automatically default to showing the currently viewed Pokémon's ability
 			if self.abilityId == nil or self.abilityId == 0 then
 				local pokemon = Tracker.getViewedPokemon() or PokemonData.BlankPokemon
-				if Tracker.Data.isViewingOwn then
+				if Battle.isViewingOwn then
 					self.abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum) or 0
 				else
 					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -453,14 +453,18 @@ MGBA.OptionMap = {
 		getText = function() return Resources.MGBA.OptionRightJustifiedNumbers end,
 	},
 	[2] = {
+		optionKey = "Show nicknames",
+		getText = function() return Resources.MGBA.OptionShowNicknames end,
+	},
+	[3] = {
 		optionKey = "Auto save tracked game data",
 		getText = function() return Resources.MGBA.OptionAutosaveTrackedData end,
 	},
-	[3] = {
+	[4] = {
 		optionKey = "Track PC Heals",
 		getText = function() return Resources.MGBA.OptionTrackPCHeals end,
 	},
-	[4] = {
+	[5] = {
 		optionKey = "PC heals count downward",
 		getText = function() return Resources.MGBA.OptionPCHealsCountDownward end,
 		updateSelf = function(self)
@@ -474,15 +478,15 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[5] = {
+	[6] = {
 		optionKey = "Display pedometer",
 		getText = function() return Resources.MGBA.OptionDisplayPedometer end,
 	},
-	[6] = {
+	[7] = {
 		optionKey = "Display repel usage",
 		getText = function() return Resources.MGBA.OptionDisplayRepel end,
 	},
-	[7] = {
+	[8] = {
 		optionKey = "Animated Pokemon popout",
 		getText = function() return Resources.MGBA.OptionAnimatedPokemonGIF end,
 		updateSelf = function(self, params)
@@ -501,7 +505,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[8] = {
+	[9] = {
 		optionKey = "Dev branch updates",
 		getText = function() return Resources.MGBA.OptionDevBranchUpdates end,
 	},
@@ -814,7 +818,7 @@ MGBA.CommandMap = {
 				return
 			end
 
-			if Tracker.Data.isViewingOwn then
+			if Battle.isViewingOwn then
 				printf(" %s", Resources.MGBACommands.NoteError3)
 			else
 				Tracker.TrackNote(pokemon.pokemonID, noteText)
@@ -967,7 +971,7 @@ MGBA.CommandMap = {
 			local hiddenpowerName = MoveData.Moves[hiddenpowerMoveId].name or "Hidden Power"
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemonViewed = Battle.getViewedPokemon(true) or {}
 			if not PokemonData.isValid(pokemonViewed.pokemonID) then
 				printf(" %s", Resources.MGBACommands.HiddenPowerError2)
 				return
@@ -1135,10 +1139,10 @@ MGBA.CommandMap = {
 			end
 		end,
 	},
-	["QUICKLOAD"] = {
+	["NEWRUN"] = {
 		getDesc = function(self) return Resources.MGBACommands.QuickloadDesc end,
-		usageSyntax = 'QUICKLOAD()',
-		usageExample = 'QUICKLOAD()',
+		usageSyntax = 'NEWRUN()',
+		usageExample = 'NEWRUN()',
 		execute = function(self, params)
 			Main.loadNextSeed = true
 		end,
@@ -1293,7 +1297,11 @@ function UPDATENOW(...) MGBA.CommandMap["UPDATENOW"]:execute(...) end
 function UpdateNow(...) UPDATENOW(...) end
 function updatenow(...) UPDATENOW(...) end
 
-function QUICKLOAD(...) MGBA.CommandMap["QUICKLOAD"]:execute(...) end
+function NEWRUN(...) MGBA.CommandMap["NEWRUN"]:execute(...) end
+function NewRun(...) NEWRUN(...) end
+function newrun(...) NEWRUN(...) end
+--- Keep the old quickload function but pointing to the New Run code
+function QUICKLOAD(...) MGBA.CommandMap["NEWRUN"]:execute(...) end
 function Quickload(...) QUICKLOAD(...) end
 function quickload(...) QUICKLOAD(...) end
 

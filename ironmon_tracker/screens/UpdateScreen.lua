@@ -106,10 +106,8 @@ UpdateScreen.Buttons = {
 				return Resources.UpdateScreen.ButtonOpenDownload
 			elseif Options["Dev branch updates"] then
 				return Resources.UpdateScreen.ButtonInstallFromDev
-			elseif Main.Version.updateAfterRestart then
-				return Resources.UpdateScreen.ButtonInstallNow
 			else
-				return Resources.UpdateScreen.ButtonBeginInstall
+				return Resources.UpdateScreen.ButtonInstallNow
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 73, 90, 16 },
@@ -119,15 +117,10 @@ UpdateScreen.Buttons = {
 				-- In such a case, open a browser window with a link for manual download...
 				Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
 				-- ... and swap back to main Tracker screen. Default to remind later if they forget to manually update.
-				Main.Version.remindMe = true
+				-- Main.Version.remindMe = true -- Temporarily disabled
 				UpdateScreen.exitScreen()
 			else
-				if Main.Version.updateAfterRestart then
-					-- Instructs Main to perform the update after the current emulation frame loop finishes
-					Main.updateRequested = true
-				else
-					UpdateScreen.prepareForUpdateAfterRestart()
-				end
+				UpdateScreen.beginAutoUpdate()
 			end
 		end
 	},
@@ -160,7 +153,11 @@ UpdateScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	Back = Drawing.createUIElementBackButton(function() UpdateScreen.exitScreenAndRemindMe(true) end),
+	Back = Drawing.createUIElementBackButton(function()
+		-- Don't allow navigating off of this page if an update is in progress
+		if not Drawing.allowCachedImages then return end
+		UpdateScreen.exitScreenAndRemindMe(true)
+	end),
 }
 
 UpdateScreen.Pager = {
@@ -264,9 +261,9 @@ function UpdateScreen.isUpdateSupported()
 end
 
 function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
-	Main.Version.remindMe = shouldRemindMe
+	-- Main.Version.remindMe = shouldRemindMe -- Temporarily disabled
 	Main.Version.showUpdate = false
-	Main.Version.updateAfterRestart = false
+	-- Main.Version.updateAfterRestart = false -- Currently unused
 	Main.SaveSettings(true)
 	UpdateScreen.Buttons.CheckForUpdates:reset()
 	UpdateScreen.showNotes = false
@@ -311,91 +308,60 @@ function UpdateScreen.buildOutPagedButtons()
 	return true
 end
 
-function UpdateScreen.prepareForUpdateAfterRestart()
-	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
-	Main.Version.updateAfterRestart = true
-	Main.SaveSettings(true)
-	Program.redraw(true)
-end
+-- Currently unused
+-- function UpdateScreen.prepareForUpdateAfterRestart()
+-- 	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
+-- 	Main.Version.updateAfterRestart = true
+-- 	Main.SaveSettings(true)
+-- 	Program.redraw(true)
+-- end
 
-function UpdateScreen.performAutoUpdate()
-	Main.updateRequested = false
+function UpdateScreen.beginAutoUpdate()
+	local imageCacheClearDelay = 60 -- 1 seconds
+	local updateStartDelay = 60 * 5 + 2 -- about 5 seconds
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
-
-	Utils.tempDisableBizhawkSound()
-
-	if Main.IsOnBizhawk() then
-		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
-	end
 
 	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 		Tracker.saveData()
 	end
 
-	gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-	emu.frameadvance() -- Required to allow the redraw to occur before batch commands begin
-
-	-- Execute the batch set of operations
-	local success = UpdateScreen.executeBatchOperations()
-	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
-	Program.redraw(true)
-
-	if client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
+	if Main.IsOnBizhawk() then
+		-- Required to make Bizhawk release images so that they can be replaced
+		Drawing.allowCachedImages = false
+		Drawing.clearImageCache(imageCacheClearDelay)
+	else
+		updateStartDelay = 15
 	end
+	-- After a small delay, then continue on with the rest of the update. During this time, images can't be drawn on the Tracker to prevent them from re-caching
+	Program.addFrameCounter("PerformUpdate", updateStartDelay, function()
+		if Main.IsOnBizhawk() then
+			Drawing.clearImageCache() -- doing this an extra time to be safe
+		end
+		Main.updateRequested = true
+	end, 1, true)
+end
 
-	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+-- Don't call this function inside of the Main loop's xpcall. Must do it outside.
+function UpdateScreen.performUpdate()
+	Main.updateRequested = nil
+	Utils.tempDisableBizhawkSound()
+
+	if UpdateOrInstall.performParallelUpdate() then
+		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
-		Main.Version.updateAfterRestart = false
+		-- Main.Version.updateAfterRestart = false -- Currently unused
 		Main.Version.showReleaseNotes = true
 		-- Emulator is closing as expected; no crash
 		CrashRecoveryScreen.logCrashReport(false)
 		Main.SaveSettings(true)
-	end
-end
-
-function UpdateScreen.executeBatchOperations()
-	-- For non-Windows OS, likely need to use something other than a .bat file
-	if Main.OS ~= "Windows" then
-		return false
+	else
+		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
 
+	Drawing.allowCachedImages = true
 	Utils.tempEnableBizhawkSound()
-	-- Temp Files/Folders used by batch operations
-	local archiveName = "Ironmon-Tracker-main.tar.gz"
-	local folderName = "Ironmon-Tracker-main"
-
-	-- Each individual command listed in order, to be appended together later
-	local batchCommands = {
-		'(echo Downloading the latest Ironmon Tracker version.',
-		string.format('curl -L "%s" -o "%s" --ssl-no-revoke', Constants.Release.TAR_URL, archiveName),
-		'echo; && echo Extracting downloaded files.', -- "echo;" prints a new line
-		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
-		'echo; && echo Applying the update; copying over files.',
-		string.format('rmdir "%s\\.vscode" /s /q', folderName),
-		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q', folderName),
-		string.format('del "%s\\.editorconfig" /q', folderName),
-		string.format('del "%s\\.gitattributes" /q', folderName),
-		string.format('del "%s\\.gitignore" /q', folderName),
-		string.format('del "%s\\README.md" /q', folderName),
-		string.format('xcopy "%s" /s /y /q', folderName),
-		string.format('rmdir "%s" /s /q', folderName),
-		'echo; && echo Version update completed successfully.',
-		'timeout /t 3) || pause', -- Pause if any of the commands fail, those grouped between ( )
-	}
-
-	local combined_cmd = table.concat(batchCommands, ' && ')
-
-	print(string.format("Performing version update to %s", Main.Version.latestAvailable))
-
-	local result = os.execute(combined_cmd)
-	if result ~= 0 then -- 0 = successful
-		print("Update-Error: Unable to download, extract, or overwrite files in Tracker folder.")
-		return false
-	end
 
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then

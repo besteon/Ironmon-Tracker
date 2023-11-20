@@ -1,0 +1,62 @@
+--------------------------
+ INTRODUCTION TO NEW RUNS
+--------------------------
+The "New Runs" feature is a feature of the Ironmon Tracker that allows you to easily load a new game ROM to play, without having to go through any menus or do it manually.
+This feature was previously known as "Quickload", but was renamed for clarity.
+
+To use the New Runs feature of the Tracker, you'll need to provide it with all of the required files it needs.
+The Tracker will use these files to load up a new game ROM each time you activate New Run by pressing the button combination (A + B + START by default).
+
+---------------------------
+           SETUP
+---------------------------
+[quickload] - This refers to the "quickload" folder found inside your main Tracker folder.
+
+There are two different ways to use New Runs:
+1) From a set of premade ROMs that were created beforehand
+2) By automatically generating a new randomized ROM each time
+
+TO USE OPTION 1: Premade ROMs
+-----------------------------
+You will need to provide the Tracker with all of the game ROM files that you made.
+- If you haven't already, first create a batch of randomized ROMs using the Randomizer program.
+- Ensure that the ROMs are numbered in sequential order, such as FireRed1.gba, FireRed2.gba, etc
+- Place all of the ROMs into this [quickload] folder
+- Finally, load up the first ROM (smallest number) from among them into your emulator
+
+EXAMPLE SETUP (OPTION 1)
+------------------------
+The [quickload] folder contains the following files:
+- Emerald1.gba
+- Emerald2.gba
+- Emerald3.gba
+- Emerald4.gba
+- etc.
+
+TO USE OPTION 2: Generate a ROM
+-------------------------------
+You will need to provide the Tracker with three files in order for it to create a randomized ROM for you. Place each file in this [quickload] folder.
+
+- File 1: Copy & paste the JAR file (typically named "PokeRandoZX.jar") from the Randomizer folder into the [quickload] folder
+- File 2: Copy & paste the GBA ROM file you want to use for creating a randomized game, and place it into the [quickload] folder
+  - Do NOT use an already randomized game ROM
+- File 3: Copy & paste an RNQS settings file into the [quickload] folder
+  - This file is the Randomizer settings/options that determine how you want your game to be randomized
+  - You can either use one of the preloaded Ironmon settings files found in folder: /ironmon_tracker/RandomizerSettings
+  - Or you can make your own settings file using the Randomizer program, loading the settings you want, then clicking Save Settings
+
+EXAMPLE SETUP (OPTION 2)
+------------------------
+The [quickload] folder contains the following files:
+- PokeRandoZX.jar
+- Pokemon Emerald (intro skip).gba
+- RSE Kaizo.rnqs
+
+---------------------------
+       FINISH SETUP
+---------------------------
+Once you've placed the required files into the [quickload] folder, the last step is to let the Tracker know which of these two options you want to use.
+To do so, simply load up the Tracker, then go to the New Runs setup page under Tracker settings.
+Finally, select which of the two options you intend to use:
+  (1) Premade ROMs
+  (2) Generate a ROM

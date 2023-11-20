@@ -2,7 +2,7 @@
 RandomizerLog = {}
 
 RandomizerLog.Patterns = {
-	RandomizerVersion = "Randomizer Version:%s*([%d%.]+).*$", -- Note: log file line 1 does NOT start with "Rando..."
+	RandomizerVersion = "Randomizer Version:%s*([^%s]+)%s*$", -- Note: log file line 1 does NOT start with "Rando..."
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
@@ -27,6 +27,11 @@ RandomizerLog.Sectors = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Base Stats & Types"),
 		-- Matches: id, pokemon, types, hp, atk, def, spatk, spdef, spd, ability1, ability2, helditems
 		PokemonBSTPattern = "^%s*(%d*)|(.-)%s*|(.-)%s*|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|(.-)%s*|(.-)%s*|(.*)",
+	},
+	Moves = {
+		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Move Data"),
+		-- Matches: moveId, movename, movetype, power, acc, pp
+		MovePattern = "^%s*(%d*)|(.-)%s*|(.-)%s*|%s*(%d*)|%s*(%d*)|%s*(%d*)",
 	},
 	MoveSets = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Movesets"),
@@ -149,6 +154,7 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parseRandomizerSettings(logLines)
 	RandomizerLog.parseBaseStatsItems(logLines) -- required to parse first
 	RandomizerLog.parseEvolutions(logLines)
+	RandomizerLog.parseMoves(logLines)
 	RandomizerLog.parseMoveSets(logLines)
 	RandomizerLog.parseTMMoves(logLines)
 	RandomizerLog.parseTMCompatibility(logLines)
@@ -199,13 +205,14 @@ function RandomizerLog.initBlankData()
 	RandomizerLog.Data = {
 		Settings = {},
 		Pokemon = {},
+		Moves = {},
 		TMs = {},
 		Trainers = {},
 		Routes = {},
 		PickupItems = {}, -- Currently unused
 	}
 
-	for id = 1, PokemonData.totalPokemon, 1 do
+	for id = 1, #PokemonData.Pokemon, 1 do
 		if id <= 251 or id >= 277 then -- celebi / treecko
 			RandomizerLog.Data.Pokemon[id] = {
 				Types = {},
@@ -301,6 +308,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 	local index = RandomizerLog.Sectors.BaseStatsItems.LineNumber + 1 -- remove the first line to skip the table header
 	while index <= #logLines do
 		local id, pokemon, types, hp, atk, def, spa, spd, spe, ability1, ability2, helditems = string.match(logLines[index] or "", RandomizerLog.Sectors.BaseStatsItems.PokemonBSTPattern)
+		id = tonumber(tostring(id)) or 0
 		pokemon = RandomizerLog.formatInput(pokemon)
 		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
@@ -309,7 +317,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 			return
 		end
 
-		local pokemonId = RouteData.verifyPID(tonumber(tostring(id)) or 0)
+		local pokemonId = PokemonData.dexMapNationalToInternal(id)
 		local pokemonData = RandomizerLog.Data.Pokemon[pokemonId]
 		if pokemonData ~= nil then
 			-- Setup future lookups to handle custom names
@@ -344,6 +352,38 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 				pokemonData.HeldItems = RandomizerLog.formatInput(helditems)
 			end
 		end
+		index = index + 1
+	end
+end
+
+function RandomizerLog.parseMoves(logLines)
+	if RandomizerLog.Sectors.Moves.LineNumber == nil then
+		return
+	end
+
+	-- Parse the sector
+	local index = RandomizerLog.Sectors.Moves.LineNumber + 1 -- remove the first line to skip the table header
+	while index <= #logLines do
+		local moveId, movename, movetype, power, acc, pp = string.match(logLines[index] or "", RandomizerLog.Sectors.Moves.MovePattern)
+		moveId = tonumber(RandomizerLog.formatInput(moveId) or "") -- nil if not a number
+		power = tonumber(RandomizerLog.formatInput(power) or "") -- nil if not a number
+		acc = tonumber(RandomizerLog.formatInput(acc) or "") -- nil if not a number
+		pp = tonumber(RandomizerLog.formatInput(pp) or "") -- nil if not a number
+
+		-- If nothing matches, end of sector
+		if moveId == nil or RandomizerLog.formatInput(movename) == nil or movetype == nil then
+			return
+		end
+
+		RandomizerLog.Data.Moves[moveId] = {
+			moveId = moveId,
+			name = movename, -- For custom move names
+			type = PokemonData.Types[Utils.toUpperUTF8(movetype or "")] or PokemonData.Types.EMPTY,
+			power = power,
+			acc = acc,
+			pp = pp,
+		}
+
 		index = index + 1
 	end
 end

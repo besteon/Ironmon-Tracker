@@ -91,7 +91,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.m = {} -- data about the Moves of the Pokemon
 	data.x = {} -- misc data to display, such as heals, encounters, badges
 
-	data.x.viewingOwn = Tracker.Data.isViewingOwn
+	data.x.viewingOwn = Battle.isViewingOwn
 	if forceView ~= nil then
 		data.x.viewingOwn = forceView
 	end
@@ -111,12 +111,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		viewedPokemon = defaultPokemon
 	end
 
-	-- Add in Pokedex information about the Pokemon
-	if PokemonData.isValid(viewedPokemon.pokemonID) then
-		for key, value in pairs(PokemonData.Pokemon[viewedPokemon.pokemonID]) do
-			viewedPokemon[key] = value
-		end
-	end
+	local pokemonInternal = PokemonData.Pokemon[viewedPokemon.pokemonID] or PokemonData.BlankPokemon
 
 	local pokemonLog = {}
 	if RandomizerLog.Data.Pokemon then
@@ -125,17 +120,20 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	-- POKEMON ITSELF (data.p)
 	data.p.id = viewedPokemon.pokemonID
-	data.p.name = viewedPokemon.name or Constants.BLANKLINE
+	data.p.name = pokemonInternal.name or Constants.BLANKLINE
+	if Options["Show nicknames"] and viewedPokemon.nickname ~= "" and Utils.toLowerUTF8(pokemonInternal.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
+		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
+	end
 	data.p.curHP = viewedPokemon.curHP or Constants.BLANKLINE
 	data.p.level = viewedPokemon.level or Constants.BLANKLINE
-	data.p.evo = viewedPokemon.evolution or Constants.BLANKLINE
-	data.p.bst = viewedPokemon.bst or Constants.BLANKLINE
+	data.p.evo = pokemonInternal.evolution or Constants.BLANKLINE
+	data.p.bst = pokemonInternal.bst or Constants.BLANKLINE
 	data.p.lastlevel = Tracker.getLastLevelSeen(viewedPokemon.pokemonID) or ""
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
 	data.p.curExp = viewedPokemon.currentExp or 0
 	data.p.totalExp = viewedPokemon.totalExp or 100
-	data.p.friendship = viewedPokemon.friendship or 70 -- Current friendship value; 70 is default for most Pokémon
-	data.p.friendshipBase = viewedPokemon.friendshipBase or 70 -- The starting friendship value of the Pokémon
+	data.p.friendship = viewedPokemon.friendship or 70 -- Current value; 70 is default for most Pokémon
+	data.p.friendshipBase = pokemonInternal.friendshipBase or 70 -- The starting value of the Pokémon
 
 	-- Add: Stats, Stages, and Nature
 	data.p.nature = viewedPokemon.nature
@@ -161,11 +159,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.stages.eva = viewedPokemon.statStages.eva or 6
 
 	-- Update: Pokemon Types
-	if Battle.inBattle and (data.x.viewingOwn or not Battle.isGhost) then
+	if Battle.inActiveBattle() and (data.x.viewingOwn or not Battle.isGhost) then
 		-- Update displayed types as typing changes (i.e. Color Change)
 		data.p.types = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 	else
-		data.p.types = { viewedPokemon.types[1], viewedPokemon.types[2], }
+		data.p.types = { pokemonInternal.types[1], pokemonInternal.types[2], }
 	end
 
 	-- Update: Pokemon Evolution
@@ -182,7 +180,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			data.p.line1 = MiscData.Items[viewedPokemon.heldItem]
 		end
 		local abilityId = PokemonData.getAbilityId(viewedPokemon.pokemonID, viewedPokemon.abilityNum)
-		if abilityId ~= nil and abilityId ~= 0 then
+		if AbilityData.isValid(abilityId) then
 			data.p.line2 = AbilityData.Abilities[abilityId].name
 		end
 	elseif useOpenBookInfo then
@@ -190,8 +188,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 0),
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 1),
 		}
-		if abilityIds[1] ~= nil and abilityIds[1] ~= 0 then
-			if abilityIds[2] ~= nil and abilityIds[2] ~= abilityIds[1] then
+		if AbilityData.isValid(abilityIds[1]) then
+			if abilityIds[2] ~= abilityIds[1] then
 				data.p.line1 = AbilityData.Abilities[abilityIds[1]].name .. " /"
 				data.p.line2 = AbilityData.Abilities[abilityIds[2]].name
 			else
@@ -201,11 +199,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 	else
 		local trackedAbilities = Tracker.getAbilities(viewedPokemon.pokemonID)
-		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
+		if AbilityData.isValid(trackedAbilities[1].id) then
 			data.p.line1 = AbilityData.Abilities[trackedAbilities[1].id].name .. " /"
 			data.p.line2 = Constants.HIDDEN_INFO
 		end
-		if trackedAbilities[2].id ~= nil and trackedAbilities[2].id ~= 0 then
+		if AbilityData.isValid(trackedAbilities[2].id) then
 			data.p.line2 = AbilityData.Abilities[trackedAbilities[2].id].name
 		end
 	end
@@ -227,13 +225,15 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
 		if data.x.viewingOwn or useOpenBookInfo then
-			if viewedPokemon.moves[i] ~= nil and viewedPokemon.moves[i].id ~= 0 then
-				moveToCopy = MoveData.Moves[viewedPokemon.moves[i].id]
+			local viewedMove = viewedPokemon.moves[i] or {}
+			if MoveData.isValid(viewedMove.id) then
+				moveToCopy = MoveData.Moves[viewedMove.id]
 			end
-		elseif trackedMoves ~= nil then
+		else
 			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-			if trackedMoves[i] ~= nil and trackedMoves[i].id ~= 0 then
-				moveToCopy = MoveData.Moves[trackedMoves[i].id]
+			local trackedMove = trackedMoves[i] or {}
+			if MoveData.isValid(trackedMove.id) then
+				moveToCopy = MoveData.Moves[trackedMove.id]
 			end
 		end
 
@@ -251,16 +251,16 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		-- Update: Specific Moves
 		if move.id == 237 then -- 237 = Hidden Power
 			if data.x.viewingOwn then
-				move.type = Tracker.getHiddenPowerType()
+				move.type = Tracker.getHiddenPowerType(viewedPokemon)
 			else
-				move.type = MoveData.HiddenPowerTypeList[1] -- Unknown type
+				move.type = MoveData.HIDDEN_POWER_NOT_SET
 			end
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
 			if move.id == 311 then -- 311 = Weather Ball
 				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
 				move.category = MoveData.TypeToCategory[move.type]
-			elseif move.id == 67 and Battle.inBattle and opposingPokemon ~= nil then -- 67 = Low Kick
+			elseif move.id == 67 and Battle.inActiveBattle() and opposingPokemon ~= nil then -- 67 = Low Kick
 				local targetWeight
 				if opposingPokemon.weight ~= nil then
 					targetWeight = opposingPokemon.weight
@@ -282,7 +282,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 
 		-- Update: If STAB
-		if Battle.inBattle then
+		if Battle.inActiveBattle() then
 			local ownTypes = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 			move.isstab = Utils.isSTAB(move, move.type, ownTypes)
 		end
@@ -320,7 +320,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			-- If move info is randomized and the user doesn't want to know about it, hide it
 			if data.x.viewingOwn or useOpenBookInfo then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
-				move.showeffective = not PokemonData.IsRand.pokemonTypes
+				move.showeffective = not PokemonData.IsRand.types
 			else
 				if MoveData.IsRand.moveType then
 					move.type = PokemonData.Types.UNKNOWN
@@ -337,7 +337,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 				end
 			end
 		end
-		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inBattle and Battle.canViewEnemy()
+		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inActiveBattle()
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
@@ -349,8 +349,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- MISC DATA (data.x)
-	data.x.healperc = math.min(9999, Tracker.Data.healingItems.healing or 0)
-	data.x.healnum = math.min(99, Tracker.Data.healingItems.numHeals or 0)
+	data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
+	data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
 	data.x.pcheals = Tracker.Data.centerHeals
 
 	data.x.route = Constants.BLANKLINE
@@ -359,14 +359,13 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.route = Utils.formatSpecialCharacters(data.x.route)
 	end
 
-	if Battle.inBattle then
-		data.x.encounters = Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter)
-		if data.x.encounters > 999 then
-			data.x.encounters = 999
-		end
+	if Battle.inActiveBattle() then
+		data.x.encounters = math.min(Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter), 999) -- Max 999
 	else
 		data.x.encounters = 0
 	end
+
+	data.x.extras = Program.getExtras()
 
 	return data
 end
@@ -377,15 +376,10 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.e = {} -- data about the Type Effectiveness of the Pokemon
 	data.x = {} -- misc data to display, such as notes
 
-	local pokemon
-	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
-		pokemon = PokemonData.BlankPokemon
-	else
-		pokemon = PokemonData.Pokemon[pokemonID]
-	end
+	local pokemon = PokemonData.isValid(pokemonID) and PokemonData.Pokemon[pokemonID] or PokemonData.BlankPokemon
 
 	-- Your lead Pokémon
-	local ownLeadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local ownLeadPokemon = Battle.getViewedPokemon(true) or {}
 
 	data.p.id = pokemon.pokemonID or 0
 	data.p.name = pokemon.name or Constants.BLANKLINE
@@ -394,7 +388,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
-	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
+	if not PokemonData.IsRand.types or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
 		data.p.types = { pokemon.types[1], pokemon.types[2] }
 	else
 		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
@@ -413,11 +407,20 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
 	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	local pokemonViewed = Tracker.getViewedPokemon() or {}
 	if pokemonViewed.pokemonID == pokemon.pokemonID then
-		data.x.viewedPokemonLevel = pokemonViewed.level
+		data.x.viewedPokemonLevel = pokemonViewed.level or 0
 	else
 		data.x.viewedPokemonLevel = 0
+	end
+
+	-- Experience yield
+	if data.x.viewedPokemonLevel ~= 0 then
+		local yield = PokemonData.Pokemon[pokemonViewed.pokemonID].expYield or 0
+		local ratio = Battle.isWildEncounter and (pokemonViewed.level / 7) or (pokemonViewed.level * 3 / 14)
+		data.p.expYield = math.floor(yield * ratio)
+	else
+		data.p.expYield = pokemon.expYield or Constants.BLANKLINE
 	end
 
 	return data
@@ -428,12 +431,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	data.m = {} -- data about the Move itself
 	data.x = {} -- misc data to display
 
-	local move
-	if moveId == nil or not MoveData.isValid(moveId) then
-		move = MoveData.BlankMove
-	else
-		move = MoveData.Moves[moveId]
-	end
+	local move = MoveData.isValid(moveId) and MoveData.Moves[moveId] or MoveData.BlankMove
 
 	data.m.id = tonumber(move.id) or 0
 	data.m.name = move.name or Constants.BLANKLINE
@@ -450,7 +448,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownLeadPokemon, move.id)
 
 	if moveId == 237 and Utils.pokemonHasMove(ownLeadPokemon, 237) then -- 237 = Hidden Power
-		data.m.type = Tracker.getHiddenPowerType() or PokemonData.Types.UNKNOWN
+		data.m.type = Tracker.getHiddenPowerType(ownLeadPokemon)
 		data.m.category = MoveData.TypeToCategory[data.m.type]
 		data.x.ownHasHiddenPower = true
 	end
@@ -492,12 +490,7 @@ function DataHelper.buildAbilityInfoDisplay(abilityId)
 	data.a = {} -- data about the Ability itself
 	data.x = {} -- misc data to display
 
-	local ability
-	if abilityId == nil or not AbilityData.isValid(abilityId) then
-		ability = AbilityData.DefaultAbility
-	else
-		ability = AbilityData.Abilities[abilityId]
-	end
+	local ability = AbilityData.isValid(abilityId) and AbilityData.Abilities[abilityId] or AbilityData.DefaultAbility
 
 	data.a.id = ability.id or 0
 	data.a.name = ability.name or Constants.BLANKLINE
@@ -515,12 +508,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 	data.e = {} -- data about each of the Routes encounter areas
 	data.x = {} -- misc data to display
 
-	local route
-	if routeId == nil or not RouteData.hasRoute(routeId) then
-		route = RouteData.BlankRoute
-	else
-		route = RouteData.Info[routeId]
-	end
+	local route = RouteData.hasRoute(routeId) and RouteData.Info[routeId] or RouteData.BlankRoute
 
 	data.r.id = routeId or 0
 	data.r.name = Utils.formatSpecialCharacters(route.name) or Constants.BLANKLINE
@@ -565,7 +553,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.x = {} -- misc data to display, such as notes
 
 	local pokemonInternal
-	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
+	if not PokemonData.isValid(pokemonID) then
 		pokemonInternal = PokemonData.BlankPokemon
 		return data -- likely want a safer way
 	else
@@ -575,7 +563,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 
 	data.p.id = pokemonInternal.pokemonID or 0
 	data.p.name = RandomizerLog.getPokemonName(pokemonID)
-	data.p.bst = pokemonInternal.bst or Constants.BLANKLINE
+	data.p.bst = pokemonInternal.bstCalculated or pokemonInternal.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
 		pokemonLog.Types[2],
@@ -661,6 +649,8 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		end
 		table.insert(data.p.tmmoves, tm)
 	end
+
+	data.x.extras = Program.getExtras()
 
 	return data
 end

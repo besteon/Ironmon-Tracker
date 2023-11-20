@@ -54,9 +54,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Walking Pals Interactive Icon Set
+### Heals in Bag Screen
 
-![Image showing the new walking pals icon set. It shows a Quagsire standing in a walking-position on the main Tracker screen. The next image shows the same Quagsire asleep with its mouth open.](https://user-images.githubusercontent.com/4258818/265281719-455fdc67-8e65-460a-9eff-e536ffba7928.png)
+![A screen showing a list of items in the player's item bag, most of which are healing items with little icons next to them.](https://user-images.githubusercontent.com/4258818/272361505-4cc15595-f93a-475d-83ca-d6f5cc2d9e4b.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

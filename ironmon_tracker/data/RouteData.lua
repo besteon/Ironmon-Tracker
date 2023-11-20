@@ -49,23 +49,8 @@ RouteData.OrderedEncounters = {
 	RouteData.EncounterArea.TRAINER,
 }
 
--- Used for looking up the gen3 pokedex number (index) based on the Pokemon's national dex number
-RouteData.NatDexToIndex = {
-	[252] = 277, [253] = 278, [254] = 279, [255] = 280, [256] = 281, [257] = 282, [258] = 283, [259] = 284,
-	[260] = 285, [261] = 286, [262] = 287, [263] = 288, [264] = 289, [265] = 290, [266] = 291, [267] = 292, [268] = 293, [269] = 294,
-	[270] = 295, [271] = 296, [272] = 297, [273] = 298, [274] = 299, [275] = 300, [276] = 304, [277] = 305, [278] = 309, [279] = 310,
-	[280] = 392, [281] = 393, [282] = 394, [283] = 311, [284] = 312, [285] = 306, [286] = 307, [287] = 364, [288] = 365, [289] = 366,
-	[290] = 301, [291] = 302, [292] = 303, [293] = 370, [294] = 371, [295] = 372, [296] = 335, [297] = 336, [298] = 350, [299] = 320,
-	[300] = 315, [301] = 316, [302] = 322, [303] = 355, [304] = 382, [305] = 383, [306] = 384, [307] = 356, [308] = 357, [309] = 337,
-	[310] = 338, [311] = 353, [312] = 354, [313] = 386, [314] = 387, [315] = 363, [316] = 367, [317] = 368, [318] = 330, [319] = 331,
-	[320] = 313, [321] = 314, [322] = 339, [323] = 340, [324] = 321, [325] = 351, [326] = 352, [327] = 308, [328] = 332, [329] = 333,
-	[330] = 334, [331] = 344, [332] = 345, [333] = 358, [334] = 359, [335] = 380, [336] = 379, [337] = 348, [338] = 349, [339] = 323,
-	[340] = 324, [341] = 326, [342] = 327, [343] = 318, [344] = 319, [345] = 388, [346] = 389, [347] = 390, [348] = 391, [349] = 328,
-	[350] = 329, [351] = 385, [352] = 317, [353] = 377, [354] = 378, [355] = 361, [356] = 362, [357] = 369, [358] = 411, [359] = 376,
-	[360] = 360, [361] = 346, [362] = 347, [363] = 341, [364] = 342, [365] = 343, [366] = 373, [367] = 374, [368] = 375, [369] = 381,
-	[370] = 325, [371] = 395, [372] = 396, [373] = 397, [374] = 398, [375] = 399, [376] = 400, [377] = 401, [378] = 402, [379] = 403,
-	[380] = 407, [381] = 408, [382] = 404, [383] = 405, [384] = 406, [385] = 409, [386] = 410,
-}
+-- [Deprecated] Use PokemonData.dexMapNationalToInternal(id) instead.
+RouteData.NatDexToIndex = {}
 
 -- Maps the rodId from 'gSpecialVar_ItemId' to encounterArea
 RouteData.Rods = {
@@ -81,10 +66,18 @@ RouteData.Locations = {
 	IsInLab = {},
 	IsInHallOfFame = {},
 }
+-- Maps a mapId to all its connected other mapIds that make up a complete dungeon (e.g. Pokemon Tower 1F-7F)
+RouteData.CombinedAreas = {}
 
 function RouteData.initialize()
-	local maxMapId = 0
+	-- Setup references for extensions that still use the deprecated table map
+	local mt = {}
+	setmetatable(RouteData.NatDexToIndex, mt)
+	mt.__index = function(table, key)
+		return PokemonData.dexMapNationalToInternal(key)
+	end
 
+	local maxMapId = 0
 	if GameSettings.game == 1 or GameSettings.game == 2 then
 		maxMapId = RouteData.setupRouteInfoAsRSE()
 	elseif GameSettings.game == 3 then
@@ -98,6 +91,7 @@ function RouteData.initialize()
 		end
 	end
 
+	RouteData.combineRouteAreas()
 	RouteData.populateAvailableRoutes(maxMapId)
 
 	-- At some point we might want to implement this so that wild encounter data is automatic
@@ -132,15 +126,6 @@ function RouteData.hasRouteEncounterArea(mapId, encounterArea)
 	if encounterArea == nil or not RouteData.hasRoute(mapId) then return false end
 
 	return RouteData.Info[mapId][encounterArea] ~= nil and RouteData.Info[mapId][encounterArea] ~= {}
-end
-
-function RouteData.verifyPID(pokemonID)
-	-- Convert from national dex to gen3 dex (applies to ids > 251)
-	if RouteData.NatDexToIndex[pokemonID] ~= nil then
-		return RouteData.NatDexToIndex[pokemonID]
-	else
-		return pokemonID
-	end
 end
 
 function RouteData.countPokemonInArea(mapId, encounterArea)
@@ -240,12 +225,14 @@ function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 
 	local numEncounters = #RouteData.OrderedEncounters
 	local nextIndex = (startingIndex % numEncounters) + 1
-	while startingIndex ~= nextIndex do
+	local maxIterations = numEncounters + 1
+	while startingIndex ~= nextIndex and maxIterations >= 0 do
 		encounterArea = RouteData.OrderedEncounters[nextIndex]
 		if RouteData.hasRouteEncounterArea(mapId, encounterArea) then
 			break
 		end
 		nextIndex = (nextIndex % numEncounters) + 1
+		maxIterations = maxIterations - 1
 	end
 
 	return encounterArea
@@ -299,7 +286,8 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 				info[key] = encVal[pIndex]
 			end
 		end
-		info.pokemonID = RouteData.verifyPID(info.pokemonID)
+		-- the pokedex #s stored in route encounter data are national pokedex #s
+		info.pokemonID = PokemonData.dexMapNationalToInternal(info.pokemonID)
 
 		-- Some version have fewer Pokemon than others; if so, the ID will be -1
 		if PokemonData.isValid(info.pokemonID) then
@@ -403,6 +391,29 @@ function RouteData.readWildPokemonInfoFromMemory()
 	end
 end
 
+-- Builds out RouteData.CombinedAreas by grouping multi-floor buildings and caves together for easy look-ups
+function RouteData.combineRouteAreas()
+	-- Remove any existing mappings, if they exist
+	for _, mapIdList in pairs(RouteData.CombinedAreas) do
+		local maxIterations = 9999
+		while #mapIdList > 0 and maxIterations > 0 do
+			table.remove(mapIdList)
+			maxIterations = maxIterations - 1
+		end
+	end
+	-- Add in mappings
+	for mapId, route in pairs(RouteData.Info) do
+		-- The 'area' is the RouteData.CombinedAreas
+		if type(route.area) == "table" then
+			table.insert(route.area, mapId)
+		end
+	end
+	-- After all mappings have been added, sort them
+	for _, mapIdList in pairs(RouteData.CombinedAreas) do
+		table.sort(mapIdList, function(a,b) return a < b end)
+	end
+end
+
 RouteData.BlankRoute = {
 	id = 0,
 	name = Constants.BLANKLINE,
@@ -432,6 +443,28 @@ function RouteData.setupRouteInfoAsFRLG()
 	}
 	RouteData.Locations.IsInHallOfFame = {
 		[218] = true,
+	}
+
+	-- [AreaName] = { combained list of mapIds }
+	RouteData.CombinedAreas = {
+		MtMoon = { name = "Mt. Moon" },
+		SSAnne = { name = "S.S. Anne" },
+		RockTunnel = { name = "Rock Tunnel" },
+		RocketHideout = { name = "Rocket Hideout" },
+		PokemonTower = { name = "Pokémon Tower" },
+		CinnabarMansion = { name = "Poké Mansion (Cinnabar)" },
+		SilphCo = { name = "Silph Co." },
+		VictoryRoad = { name = "Victory Road" },
+		EliteFour = { name = "Elite Four (Indigo Plateau)" },
+		SafariZone = { name = "Safari Zone" },
+		CeruleanCave = { name = "Cerulean Cave" },
+		SeafoamIslands = { name = "Seafoam Islands" },
+		SummitPath = { name = "Summit Path" },
+		RubyPath = { name = "Ruby Path" },
+		IcefallCave = { name = "Icefall Cave" },
+		TrainerTower = { name = "Trainer Tower" },
+		LostCave = { name = "Lost Cave" },
+		TanobyChambers = { name = "Tanoby Chambers" },
 	}
 
 	RouteData.Info = {
@@ -1166,6 +1199,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[114] = {
 			name = "Mt. Moon 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.MtMoon,
 			trainers = { 181, 91, 120, 121, 169, 108, 109 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.69, minLv = 7, maxLv = 10, },
@@ -1177,6 +1211,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[115] = {
 			name = "Mt. Moon B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.MtMoon,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 46, rate = 1.00, minLv = 5, maxLv = 10, },
 			},
@@ -1184,6 +1219,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[116] = {
 			name = "Mt. Moon B2F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.MtMoon,
 			trainers = { 170, 351, 352, 353, 354 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.49, minLv = 8, maxLv = 11, },
@@ -1207,27 +1243,33 @@ function RouteData.setupRouteInfoAsFRLG()
 		[118] = {
 			name = "S.S. Anne Ext.", -- Exterior
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 		},
 		[119] = {
 			name = "S.S. Anne 1F",
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 		},
 		[120] = {
 			name = "S.S. Anne 2F", -- 2F corridor (Rival Fight)
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 			trainers = { 426, 427, 428 },
 		},
 		[121] = {
 			name = "S.S. Anne 3F",
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 		},
 		[122] = {
 			name = "S.S. Anne B1F",
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 		},
 		[123] = {
 			name = "S.S. Anne Deck",
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 			trainers = { 134, 135 },
 		},
 		[124] = {
@@ -1241,6 +1283,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[125] = {
 			name = "Victory Road 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.VictoryRoad,
 			trainers = { 406, 396 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 95, rate = 0.30, minLv = 40, maxLv = 46, },
@@ -1256,6 +1299,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[126] = {
 			name = "Victory Road 2F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.VictoryRoad,
 			trainers = { 167, 325, 287, 290, 298 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 66, rate = 0.20, minLv = 34, maxLv = 34, },
@@ -1272,6 +1316,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[127] = {
 			name = "Victory Road 3F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.VictoryRoad,
 			trainers = { 393, 394, 403, 404, 485, 485 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 95, rate = 0.30, minLv = 40, maxLv = 46, },
@@ -1287,80 +1332,96 @@ function RouteData.setupRouteInfoAsFRLG()
 		[128] = {
 			name = "Rocket Hideout B1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.RocketHideout,
 			trainers = { 358, 359, 360, 361, 362 },
 		},
 		[129] = {
 			name = "Rocket Hideout B2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.RocketHideout,
 			trainers = { 363 },
 		},
 		[130] = {
 			name = "Rocket Hideout B3F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.RocketHideout,
 			trainers = { 364, 365 },
 		},
 		[131] = {
 			name = "Rocket Hideout B4F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.RocketHideout,
 			trainers = { 348, 368, 366, 367 },
 		},
 		[132] = {
 			name = "Silph Co. 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 		},
 		[133] = {
 			name = "Silph Co. 2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 336, 337, 373, 374 },
 		},
 		[134] = {
 			name = "Silph Co. 3F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 338, 375 },
 		},
 		[135] = {
 			name = "Silph Co. 4F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 339, 376, 377 },
 		},
 		[136] = {
 			name = "Silph Co. 5F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 340, 378, 379, 286 },
 		},
 		[137] = {
 			name = "Silph Co. 6F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 341, 380, 381 },
 		},
 		[138] = {
 			name = "Silph Co. 7F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 342, 383, 384, 385, 432, 433, 434 },
 		},
 		[139] = {
 			name = "Silph Co. 8F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 343, 382, 386 },
 		},
 		[140] = {
 			name = "Silph Co. 9F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 344, 387, 388 },
 		},
 		[141] = {
 			name = "Silph Co. 10F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 345, 389 },
 		},
 		[142] = {
 			name = "Silph Co. 11F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SilphCo,
 			trainers = { 349, 390, 391 },
 		},
 		[143] = {
 			name = "Poké Mansion 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.CinnabarMansion,
 			trainers = { 335, 534 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
@@ -1374,6 +1435,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[144] = {
 			name = "Poké Mansion 2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.CinnabarMansion,
 			trainers = { 216 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
@@ -1387,6 +1449,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[145] = {
 			name = "Poké Mansion 3F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.CinnabarMansion,
 			trainers = { 218, 346 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
@@ -1400,6 +1463,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[146] = {
 			name = "Poké Mansion B1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.CinnabarMansion,
 			trainers = { 219, 347 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 34, maxLv = 38, },
@@ -1414,6 +1478,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[147] = {
 			name = "Safari Zone Center",
 			icon = RouteData.Icons.ForestTree,
+			area = RouteData.CombinedAreas.SafariZone,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {32, 29}, rate = 0.20, minLv = 22, maxLv = 22, },
 				{ pokemonID = 102, rate = 0.20, minLv = 24, maxLv = 25, },
@@ -1447,6 +1512,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[148] = {
 			name = "Safari Zone East",
 			icon = RouteData.Icons.ForestTree,
+			area = RouteData.CombinedAreas.SafariZone,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {32, 29}, rate = 0.20, minLv = 24, maxLv = 24, },
 				{ pokemonID = 84, rate = 0.20, minLv = 24, maxLv = 25, },
@@ -1480,6 +1546,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[149] = {
 			name = "Safari Zone North",
 			icon = RouteData.Icons.ForestTree,
+			area = RouteData.CombinedAreas.SafariZone,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {32, 29}, rate = 0.20, minLv = 30, maxLv = 30, },
 				{ pokemonID = 102, rate = 0.20, minLv = 25, maxLv = 27, },
@@ -1513,6 +1580,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[150] = {
 			name = "Safari Zone West",
 			icon = RouteData.Icons.ForestTree,
+			area = RouteData.CombinedAreas.SafariZone,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {32, 29}, rate = 0.20, minLv = 22, maxLv = 22, },
 				{ pokemonID = 84, rate = 0.20, minLv = 26, maxLv = 26, },
@@ -1546,6 +1614,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[151] = {
 			name = "Cerulean Cave 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CeruleanCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 47, rate = 0.25, minLv = 49, maxLv = 58, },
 				{ pokemonID = 82, rate = 0.20, minLv = 49, maxLv = 49, },
@@ -1582,6 +1651,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[152] = {
 			name = "Cerulean Cave 2F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CeruleanCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 42, rate = 0.25, minLv = 49, maxLv = 58, },
 				{ pokemonID = 67, rate = 0.20, minLv = 49, maxLv = 49, },
@@ -1600,6 +1670,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[153] = {
 			name = "Cerulean Cave B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CeruleanCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 64, rate = 0.25, minLv = 58, maxLv = 67, },
 				{ pokemonID = 132, rate = 0.25, minLv = 58, maxLv = 67, },
@@ -1639,6 +1710,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[154] = {
 			name = "Rock Tunnel 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RockTunnel,
 			trainers = { 192, 193, 194, 168, 476, 475, 474 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 74, rate = 0.35, minLv = 15, maxLv = 17, },
@@ -1651,6 +1723,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[155] = {
 			name = "Rock Tunnel B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RockTunnel,
 			trainers = { 158, 159, 189, 190, 191, 164, 165, 166 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 74, rate = 0.35, minLv = 15, maxLv = 17, },
@@ -1667,6 +1740,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[156] = {
 			name = "Seafoam Islands 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SeafoamIslands,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {54,79}, rate = 0.55, minLv = 26, maxLv = 33, },
 				{ pokemonID = 41, rate = 0.34, minLv = 22, maxLv = 26, },
@@ -1676,6 +1750,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[157] = {
 			name = "Seafoam Islands B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SeafoamIslands,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {54,79}, rate = 0.40, minLv = 29, maxLv = 31, },
 				{ pokemonID = 41, rate = 0.34, minLv = 22, maxLv = 26, },
@@ -1687,6 +1762,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[158] = {
 			name = "Seafoam Islands B2F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SeafoamIslands,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = {54,79}, rate = 0.40, minLv = 30, maxLv = 32, },
 				{ pokemonID = 41, rate = 0.20, minLv = 22, maxLv = 24, },
@@ -1698,6 +1774,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[159] = {
 			name = "Seafoam Islands B3F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SeafoamIslands,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 86, rate = 0.40, minLv = 30, maxLv = 32, },
 				{ pokemonID = {54,79}, rate = 0.20, minLv = 30, maxLv = 32, },
@@ -1730,6 +1807,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[160] = {
 			name = "Seafoam Islands B4F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SeafoamIslands,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 86, rate = 0.50, minLv = 30, maxLv = 34, },
 				{ pokemonID = 42, rate = 0.15, minLv = 26, maxLv = 30, },
@@ -1764,15 +1842,18 @@ function RouteData.setupRouteInfoAsFRLG()
 		[161] = {
 			name = "Pokémon Tower 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
-			trainers = { 429, 430, 431 },
+			area = RouteData.CombinedAreas.PokemonTower,
 		},
 		[162] = {
-			icon = RouteData.Icons.BuildingDoorLarge,
 			name = "Pokémon Tower 2F",
+			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.PokemonTower,
+			trainers = { 429, 430, 431 },
 		},
 		[163] = {
 			name = "Pokémon Tower 3F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.PokemonTower,
 			trainers = { 441, 442, 443 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.90, minLv = 13, maxLv = 19, },
@@ -1783,6 +1864,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[164] = {
 			name = "Pokémon Tower 4F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.PokemonTower,
 			trainers = { 444, 445, 446 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.86, minLv = 13, maxLv = 19, },
@@ -1793,6 +1875,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[165] = {
 			name = "Pokémon Tower 5F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.PokemonTower,
 			trainers = { 447, 448, 449, 450 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.86, minLv = 13, maxLv = 19, },
@@ -1803,6 +1886,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[166] = {
 			name = "Pokémon Tower 6F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.PokemonTower,
 			trainers = { 451, 452, 453 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.85, minLv = 17, maxLv = 19, },
@@ -1816,6 +1900,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[167] = {
 			name = "Pokémon Tower 7F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.PokemonTower,
 			trainers = { 369, 370, 371 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.75, minLv = 15, maxLv = 19, },
@@ -1841,11 +1926,13 @@ function RouteData.setupRouteInfoAsFRLG()
 		[177] = {
 			name = "S.S. Anne Rooms",
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 			trainers = { 483, 127, 223, 482, 422, 421, 126, 96 }, -- Untested
 		},
 		[178] = {
 			name = "S.S. Anne Rooms",
 			icon = RouteData.Icons.BuildingDoorSmall,
+			area = RouteData.CombinedAreas.SSAnne,
 			trainers = { 138, 139, 224, 140, 136, 137 }, -- Untested
 		},
 		[212] = {
@@ -1855,26 +1942,31 @@ function RouteData.setupRouteInfoAsFRLG()
 		[213] = {
 			name = "Lorelei's Room",
 			icon = RouteData.Icons.EliteFourStatue,
+			area = RouteData.CombinedAreas.EliteFour,
 			trainers = { 410 },
 		},
 		[214] = {
 			name = "Bruno's Room",
 			icon = RouteData.Icons.EliteFourStatue,
+			area = RouteData.CombinedAreas.EliteFour,
 			trainers = { 411 },
 		},
 		[215] = {
 			name = "Agatha's Room",
 			icon = RouteData.Icons.EliteFourStatue,
+			area = RouteData.CombinedAreas.EliteFour,
 			trainers = { 412 },
 		},
 		[216] = {
 			name = "Lance's Room",
 			icon = RouteData.Icons.EliteFourStatue,
+			area = RouteData.CombinedAreas.EliteFour,
 			trainers = { 413 },
 		},
 		[217] = {
 			name = "Champion's Room",
 			icon = RouteData.Icons.EliteFourStatue,
+			area = RouteData.CombinedAreas.EliteFour,
 			trainers = { 438, 439, 440 },
 		},
 		[219] = {
@@ -1899,7 +1991,7 @@ function RouteData.setupRouteInfoAsFRLG()
 			},
 		},
 		[228] = {
-			name = "Saffron City Dojo",
+			name = "Dojo",
 			icon = RouteData.Icons.BuildingDoorSmall,
 			trainers = { 321, 319, 320, 318, 317 },
 		},
@@ -2483,6 +2575,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[282] = {
 			name = "Summit Path 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SummitPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 66, rate = 0.50, minLv = 31, maxLv = 39, },
 				{ pokemonID = 74, rate = 0.50, minLv = 29, maxLv = 37, },
@@ -2491,6 +2584,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[283] = {
 			name = "Summit Path 2F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SummitPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 66, rate = 0.40, minLv = 32, maxLv = 36, },
 				{ pokemonID = 74, rate = 0.40, minLv = 30, maxLv = 34, },
@@ -2504,12 +2598,16 @@ function RouteData.setupRouteInfoAsFRLG()
 		[284] = {
 			name = "Summit Path 3F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.SummitPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 66, rate = 0.50, minLv = 31, maxLv = 39, },
 				{ pokemonID = 74, rate = 0.50, minLv = 29, maxLv = 37, },
 			},
 		},
-		[285] = { name = "Ruby Path 1F",
+		[285] = {
+			name = "Ruby Path 1F",
+			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RubyPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 74, rate = 0.50, minLv = 32, maxLv = 40, },
 				{ pokemonID = 66, rate = 0.40, minLv = 34, maxLv = 38, },
@@ -2523,6 +2621,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[286] = {
 			name = "Ruby Path B1F- a",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RubyPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 74, rate = 0.70, minLv = 34, maxLv = 42, },
 				{ pokemonID = 218, rate = 0.30, minLv = 24, maxLv = 30, },
@@ -2535,6 +2634,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[287] = {
 			name = "Ruby Path B2F- a",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RubyPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 218, rate = 0.60, minLv = 22, maxLv = 32, },
 				{ pokemonID = 74, rate = 0.40, minLv = 40, maxLv = 44, },
@@ -2547,6 +2647,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[288] = {
 			name = "Ruby Path B3F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RubyPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 218, rate = 1.00, minLv = 18, maxLv = 36, },
 			},
@@ -2559,6 +2660,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[289] = {
 			name = "Ruby Path B1F- b",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RubyPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 74, rate = 0.70, minLv = 34, maxLv = 42, },
 				{ pokemonID = 218, rate = 0.30, minLv = 24, maxLv = 30, },
@@ -2571,6 +2673,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[290] = {
 			name = "Ruby Path B2F- b",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.RubyPath,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 218, rate = 0.60, minLv = 22, maxLv = 32, },
 				{ pokemonID = 74, rate = 0.40, minLv = 40, maxLv = 44, },
@@ -2591,6 +2694,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[293] = {
 			name = "Icefall Cave Entrance",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.IcefallCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 86, rate = 0.40, minLv = 43, maxLv = 47, },
 				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
@@ -2622,6 +2726,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[294] = {
 			name = "Icefall Cave 1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.IcefallCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 220, rate = 0.50, minLv = 23, maxLv = 31, },
 				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
@@ -2633,6 +2738,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[295] = {
 			name = "Icefall Cave B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.IcefallCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 220, rate = 0.50, minLv = 23, maxLv = 31, },
 				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
@@ -2644,6 +2750,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[296] = {
 			name = "Icefall Cave Back",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.IcefallCave,
 			trainers = { 539 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 86, rate = 0.40, minLv = 43, maxLv = 47, },
@@ -2675,34 +2782,42 @@ function RouteData.setupRouteInfoAsFRLG()
 		[298] = {
 			name = "Trainer Tower 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[299] = {
 			name = "Trainer Tower 2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[300] = {
 			name = "Trainer Tower 3F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[301] = {
 			name = "Trainer Tower 4F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[302] = {
 			name = "Trainer Tower 5F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[303] = {
 			name = "Trainer Tower 6F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[304] = {
 			name = "Trainer Tower 7F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[305] = {
 			name = "Trainer Tower 8F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.TrainerTower,
 		},
 		[317] = {
 			name = "Pattern Bush",
@@ -2721,6 +2836,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[321] = {
 			name = "Lost Cave Room 1",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			trainers = { 607 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
@@ -2733,6 +2849,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[322] = {
 			name = "Lost Cave Room 2",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2744,6 +2861,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[323] = {
 			name = "Lost Cave Room 3",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2755,6 +2873,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[324] = {
 			name = "Lost Cave Room 4",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			trainers = { 608 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
@@ -2767,6 +2886,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[325] = {
 			name = "Lost Cave Room 5",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2778,6 +2898,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[326] = {
 			name = "Lost Cave Room 6",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2789,6 +2910,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[327] = {
 			name = "Lost Cave Room 7",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2800,6 +2922,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[328] = {
 			name = "Lost Cave Room 8",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2811,6 +2934,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[329] = {
 			name = "Lost Cave Room 9",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
@@ -2822,6 +2946,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[330] = {
 			name = "Lost Cave Room 10",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			trainers = { 606 },
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
@@ -2834,6 +2959,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[331] = {
 			name = "Lost Cave Room 11",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
@@ -2845,6 +2971,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[332] = {
 			name = "Lost Cave Room 12",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
@@ -2856,6 +2983,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[333] = {
 			name = "Lost Cave Room 13",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
@@ -2867,6 +2995,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[334] = {
 			name = "Lost Cave Room 14",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.LostCave,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
 				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
@@ -2878,6 +3007,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[335] = {
 			name = "Monean Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2885,6 +3015,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[336] = {
 			name = "Liptoo Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2892,6 +3023,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[337] = {
 			name = "Weepth Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2899,6 +3031,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[338] = {
 			name = "Dilford Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2906,6 +3039,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[339] = {
 			name = "Scufib Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2941,6 +3075,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[362] = {
 			name = "Rixy Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2948,6 +3083,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[363] = {
 			name = "Viapois Chamber",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.TanobyChambers,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
 			},
@@ -2986,12 +3122,44 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
-	if not isGameEmerald then
-		-- Ironmon ends after Steven battle, not e4. This is handled by Battle.endCurrentBattle()
+	if isGameEmerald then
+		-- In Emerald, Ironmon ends after Steven battle, not e4.
+		RouteData.Locations.IsInHallOfFame = {
+			[431] = true,
+		}
+	else
 		RouteData.Locations.IsInHallOfFame = {
 			[298 + offset] = true,
 		}
 	end
+
+	-- [AreaName] = { combained list of mapIds }
+	RouteData.CombinedAreas = {
+		GraniteCave = { name = "Granite Cave" },
+		OceanicMuseum = { name = "Oceanic Museum" },
+		TrickHouse = { name = "Trick House" },
+		MeteorFalls = { name = "Meteor Falls" },
+		LavaridgeGym = { name = "Lavaridge Gym" },
+		MirageTower = { name = "Mirage Tower" },
+		AbandonedShip = { name = "Abandoned Ship" },
+		WeatherInstitute = { name = "Weather Institute" },
+		MtPyre = { name = "Mt. Pyre" },
+		MagmaHideout = { name = "Magma Hideout" },
+		AquaHideout = { name = "Aqua Hideout" },
+		SpaceCenter = { name = "Space Center" },
+		CaveOrigin = { name = "Cave of Origin" },
+		SootopolisGym = { name = "Sootopolis Gym" },
+		SkyPillar = { name = "Sky Pillar" },
+		VictoryRoad = { name = "Victory Road" },
+		EliteFour = { name = "Elite Four (Ever Grande City)" },
+		SSTidal = { name = "S.S. Tidal" },
+		SeafloorCavern = { name = "Seafloor Cavern" },
+		ShoalCave = { name = "Shoal Cave" },
+		NewMauville = { name = "New Mauville" },
+		SafariZone = { name = "Safari Zone" },
+		ArtisanCave = { name = "Artisan Cave" },
+		NavelRock = { name = "Navel Rock" },
+	}
 
 	RouteData.Info = {}
 
@@ -4111,11 +4279,13 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[69] = {
 		name = "Lavaridge Gym 1F",
 		icon = RouteData.Icons.GymBuilding,
+		area = RouteData.CombinedAreas.LavaridgeGym,
 		trainers = { 202, 204, 501, 201, 648, 203, 205, 650, 268 },
 	}
 	RouteData.Info[70] = {
 		name = "Lavaridge Gym B1F",
 		icon = RouteData.Icons.GymBuilding,
+		area = RouteData.CombinedAreas.LavaridgeGym,
 		-- trainers = { }, -- Combine with id=69
 	}
 	RouteData.Info[71] = {
@@ -4130,10 +4300,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[86] = {
 		name = "Oceanic Museum 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.OceanicMuseum,
 	}
 	RouteData.Info[87] = {
 		name = "Oceanic Museum 2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.OceanicMuseum,
 		trainers = { 20, 21 },
 	}
 	RouteData.Info[89] = {
@@ -4159,11 +4331,13 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[109] = {
 		name = "Sootopolis Gym 1F",
 		icon = RouteData.Icons.GymBuilding,
+		area = RouteData.CombinedAreas.SootopolisGym,
 		trainers = { 128, 613, 115, 502, 131, 614, 301, 130, 118, 129, 272 },
 	}
 	RouteData.Info[110] = {
 		name = "Sootopolis Gym B1F",
 		icon = RouteData.Icons.GymBuilding,
+		area = RouteData.CombinedAreas.SootopolisGym,
 		-- trainers = { }, -- Combine with id=109
 	}
 	-- Ruby/Sapphire gyms have different trainers
@@ -4177,31 +4351,37 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[111] = {
 		name = "Sidney's Room",
 		icon = RouteData.Icons.EliteFourStatue,
+		area = RouteData.CombinedAreas.EliteFour,
 		trainers = { 261 },
 	}
 	RouteData.Info[112] = {
 		name = "Phoebe's Room",
 		icon = RouteData.Icons.EliteFourStatue,
+		area = RouteData.CombinedAreas.EliteFour,
 		trainers = { 262 },
 	}
 	RouteData.Info[113] = {
 		name = "Glacia's Room",
 		icon = RouteData.Icons.EliteFourStatue,
+		area = RouteData.CombinedAreas.EliteFour,
 		trainers = { 263 },
 	}
 	RouteData.Info[114] = {
 		name = "Drake's Room",
 		icon = RouteData.Icons.EliteFourStatue,
+		area = RouteData.CombinedAreas.EliteFour,
 		trainers = { 264 },
 	}
 	RouteData.Info[115] = {
 		name = "Champion's Room",
 		icon = RouteData.Icons.EliteFourStatue,
+		area = RouteData.CombinedAreas.EliteFour,
 		trainers = { 335 },
 	}
 	RouteData.Info[125 + offset] = {
 		name = "Meteor Falls 1Fa",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MeteorFalls,
 		trainers = { 681, 392, 804 }, -- Combined
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.80, },
@@ -4227,6 +4407,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[126 + offset] = {
 		name = "Meteor Falls 1Fb",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MeteorFalls,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.65, },
 			{ pokemonID = {338,337,338}, rate = 0.35, },
@@ -4252,6 +4433,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[127 + offset] = {
 		name = "Meteor Falls 2Fa",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MeteorFalls,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.65, },
 			{ pokemonID = {338,337,338}, rate = 0.35, },
@@ -4277,6 +4459,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[128 + offset] = {
 		name = "Meteor Falls 2Fb",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MeteorFalls,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.50, },
 			{ pokemonID = {338,337,338}, rate = 0.25, },
@@ -4304,6 +4487,7 @@ function RouteData.setupRouteInfoAsRSE()
 		RouteData.Info[431] = {
 			name = "Meteor Falls 2Fc",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.MeteorFalls,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 42, rate = 0.50, },
 				{ pokemonID = {338,337,338}, rate = 0.25, },
@@ -4323,6 +4507,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[132 + offset] = {
 		name = "Granite Cave 1Fa",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.GraniteCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 296, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.30, },
@@ -4333,6 +4518,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[133 + offset] = {
 		name = "Granite Cave B1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.GraniteCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 304, rate = 0.40, },
 			{ pokemonID = 41, rate = 0.30, },
@@ -4344,6 +4530,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[134 + offset] = {
 		name = "Granite Cave B2F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.GraniteCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 304, rate = 0.40, },
 			{ pokemonID = 41, rate = 0.30, },
@@ -4358,6 +4545,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[288 + offset] = {
 		name = "Granite Cave 1Fb",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.GraniteCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 296, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.30, },
@@ -4388,6 +4576,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[137 + offset] = {
 		name = "Mt. Pyre 1F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 1.00, },
 		},
@@ -4395,6 +4584,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[138 + offset] = {
 		name = "Mt. Pyre 2F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		trainers = isGameEmerald and { 145, 35, 31, 640 }
 			or { 145, 640 },
 		[RouteData.EncounterArea.LAND] = {
@@ -4404,6 +4594,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[139 + offset] = {
 		name = "Mt. Pyre 3F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		trainers = isGameEmerald and { 247, 9, 236 }
 			or { 247, 236 },
 		[RouteData.EncounterArea.LAND] = {
@@ -4413,6 +4604,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[140 + offset] = {
 		name = "Mt. Pyre 4F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		trainers = { 109 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.90, },
@@ -4422,6 +4614,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[141 + offset] = {
 		name = "Mt. Pyre 5F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		trainers = { 190 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.90, },
@@ -4431,6 +4624,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[142 + offset] = {
 		name = "Mt. Pyre 6F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		trainers = isGameEmerald and { 108, 475 }
 			or { 108 },
 		[RouteData.EncounterArea.LAND] = {
@@ -4441,26 +4635,31 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[143 + offset] = {
 		name = "Aqua Hideout 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.AquaHideout,
 		trainers = { 2, },
 	}
 	RouteData.Info[144 + offset] = {
 		name = "Aqua Hideout B1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.AquaHideout,
 		trainers = isGameEmerald and { 23, 3, 192, 193 }
 			or { 23, 3 },
 	}
 	RouteData.Info[145 + offset] = {
 		name = "Aqua Hideout B2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.AquaHideout,
 		trainers = { 24, 27, 28, 30 },
 	}
 	RouteData.Info[146 + offset] = {
 		name = "Seafloor Cavern U.", -- Underwater
 		icon = RouteData.Icons.OceanWaves,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[147 + offset] = {
 		name = "Seafloor Cavern", -- Entrance
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 		trainers = isGameEmerald and { 6, 7, 8, 9, 567, 33, 34 } -- All caverns combined here
 			or { 6, 7, 8, 33, 34 },
 		[RouteData.EncounterArea.LAND] = {
@@ -4488,26 +4687,32 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[148 + offset] = {
 		name = "Seafloor Cavern 1",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[149 + offset] = {
 		name = "Seafloor Cavern 2",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[150 + offset] = {
 		name = "Seafloor Cavern 3",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[151 + offset] = {
 		name = "Seafloor Cavern 4",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[152 + offset] = {
 		name = "Seafloor Cavern 5",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[153 + offset] = {
 		name = "Seafloor Cavern 6",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 41, rate = 0.35, },
@@ -4529,6 +4734,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[154 + offset] = {
 		name = "Seafloor Cavern 7",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 41, rate = 0.35, },
@@ -4550,14 +4756,17 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[155 + offset] = {
 		name = "Seafloor Cavern 8",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[156 + offset] = {
 		name = "Seafloor Cavern 9",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SeafloorCavern,
 	}
 	RouteData.Info[157 + offset] = {
 		name = "Cave of Origin",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.CaveOrigin,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, },
 			{ pokemonID = 42, rate = 0.10, },
@@ -4566,6 +4775,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[158 + offset] = {
 		name = "Cave of Origin 1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.CaveOrigin,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.60, },
 			{ pokemonID = {303,302,302}, rate = 0.30, },
@@ -4577,6 +4787,7 @@ function RouteData.setupRouteInfoAsRSE()
 		RouteData.Info[162] = {
 			name = "Cave of Origin B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CaveOrigin,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.60, },
 				{ pokemonID = {-1,-1,302}, rate = 0.30, },
@@ -4587,6 +4798,7 @@ function RouteData.setupRouteInfoAsRSE()
 		RouteData.Info[160] = {
 			name = "Cave of Origin B1F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CaveOrigin,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.60, },
 				{ pokemonID = {303,302,-1}, rate = 0.30, },
@@ -4596,6 +4808,7 @@ function RouteData.setupRouteInfoAsRSE()
 		RouteData.Info[161] = {
 			name = "Cave of Origin B2F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CaveOrigin,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.60, },
 				{ pokemonID = {303,302,-1}, rate = 0.30, },
@@ -4605,6 +4818,7 @@ function RouteData.setupRouteInfoAsRSE()
 		RouteData.Info[162] = {
 			name = "Cave of Origin B3F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CaveOrigin,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.60, },
 				{ pokemonID = {303,302,-1}, rate = 0.30, },
@@ -4614,6 +4828,7 @@ function RouteData.setupRouteInfoAsRSE()
 		RouteData.Info[163] = {
 			name = "Cave of Origin B4F",
 			icon = RouteData.Icons.CaveEntrance,
+			area = RouteData.CombinedAreas.CaveOrigin,
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 41, rate = 0.60, },
 				{ pokemonID = {303,302,-1}, rate = 0.30, },
@@ -4627,6 +4842,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[163 + offset] = {
 		name = "Victory Road 1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.VictoryRoad,
 		trainers = isGameEmerald and { 80, 96, 97, 81, 100, 83, 417, 38, 99, 82, 98, 540, 546, 79, 325, 324, 519 }
 			or { 80, 96, 97, 81, 100, 83, 99, 82, 98, 79, 519 },
 		[RouteData.EncounterArea.LAND] = {
@@ -4643,6 +4859,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[164 + offset] = {
 		name = "Shoal Cave Lo-1",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ShoalCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 363, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.45, },
@@ -4652,6 +4869,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[165 + offset] = {
 		name = "Shoal Cave Lo-2",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ShoalCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 363, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.45, },
@@ -4661,6 +4879,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[166 + offset] = {
 		name = "Shoal Cave Lo-3",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ShoalCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 363, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.45, },
@@ -4670,6 +4889,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[167 + offset] = {
 		name = "Shoal Cave Lo-4",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ShoalCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 363, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.40, },
@@ -4680,6 +4900,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[168 + offset] = {
 		name = "Shoal Cave Hi-1",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ShoalCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 363, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.45, },
@@ -4706,6 +4927,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[169 + offset] = {
 		name = "Shoal Cave Hi-2",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ShoalCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 363, rate = 0.50, },
 			{ pokemonID = 41, rate = 0.45, },
@@ -4732,6 +4954,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[184 + offset] = {
 		name = "New Mauville 1",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.NewMauville,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 81, rate = 0.50, },
 			{ pokemonID = 100, rate = 0.50, },
@@ -4740,6 +4963,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[185 + offset] = {
 		name = "New Mauville 2",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.NewMauville,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 81, rate = 0.49, },
 			{ pokemonID = 100, rate = 0.49, },
@@ -4750,20 +4974,24 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[186 + offset] = {
 		name = "Abandoned Ship Deck",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[187 + offset] = {
 		name = "Abandoned Ship 1F", -- Corridors
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[188 + offset] = {
 		name = "Abandoned Ship 1F", -- Rooms
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 		trainers = isGameEmerald and { 144, 375, 66, 547, 418, 642 }
 			or { 66, 642 },
 	}
 	RouteData.Info[189 + offset] = {
 		name = "Abandoned Ship B1F", -- Corridors
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.99, },
 			{ pokemonID = 73, rate = 0.01, },
@@ -4776,35 +5004,43 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[190 + offset] = {
 		name = "Abandoned Ship B1F", -- Rooms
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 		trainers = { 496 },
 	}
 	RouteData.Info[191 + offset] = {
 		name = "Abandoned Ship B1F", -- Rooms
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[192 + offset] = {
 		name = "Abandoned Ship Uw1", -- Underwater 1
 		icon = RouteData.Icons.OceanWaves,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[193 + offset] = {
 		name = "Abandoned Ship B1F", -- Rooms
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[194 + offset] = {
 		name = "Abandoned Ship 1F", -- Rooms
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[195 + offset] = {
 		name = "Abandoned Ship Cpt", -- Captain's Office
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[196 + offset] = {
 		name = "Abandoned Ship Uw2", -- Underwater 2
 		icon = RouteData.Icons.OceanWaves,
+		area = RouteData.CombinedAreas.AbandonedShip,
 	}
 	RouteData.Info[238 + offset] = {
 		name = "Safari Zone NW.",
 		icon = RouteData.Icons.ForestTree,
+		area = RouteData.CombinedAreas.SafariZone,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.30, },
 			{ pokemonID = 111, rate = 0.30, },
@@ -4833,6 +5069,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[239 + offset] = {
 		name = "Safari Zone NE.", -- North in Emerald decomp, as extension is to East
 		icon = RouteData.Icons.ForestTree,
+		area = RouteData.CombinedAreas.SafariZone,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.30, },
 			{ pokemonID = 231, rate = 0.30, },
@@ -4848,6 +5085,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[240 + offset] = {
 		name = "Safari Zone SW.",
 		icon = RouteData.Icons.ForestTree,
+		area = RouteData.CombinedAreas.SafariZone,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.40, },
 			{ pokemonID = 203, rate = 0.20, },
@@ -4876,6 +5114,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[241 + offset] = {
 		name = "Safari Zone SE.", -- South in Emerald, as extension is to East
 		icon = RouteData.Icons.ForestTree,
+		area = RouteData.CombinedAreas.SafariZone,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.40, },
 			{ pokemonID = 203, rate = 0.20, },
@@ -4895,40 +5134,48 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[247 + offset] = {
 		name = "Trick House 1",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 611, 612, 332 },
 	}
 	RouteData.Info[248 + offset] = {
 		name = "Trick House 2",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 274, 275, 281 },
 	}
 	RouteData.Info[249 + offset] = {
 		name = "Trick House 3",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 215, 473, 630 },
 	}
 	RouteData.Info[250 + offset] = {
 		name = "Trick House 4",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 188, 428, 429 },
 	}
 	RouteData.Info[251 + offset] = {
 		name = "Trick House 5",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 	}
 	RouteData.Info[252 + offset] = {
 		name = "Trick House 6",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 561, 554, 407 },
 	}
 	RouteData.Info[253 + offset] = {
 		name = "Trick House 7",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 237, 105, 248, 848, 850, 849 },
 	}
 	RouteData.Info[254 + offset] = {
 		name = "Trick House 8",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.TrickHouse,
 		trainers = { 93, 76, 77 },
 	}
 	RouteData.Info[270 + offset] = {
@@ -4938,43 +5185,51 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[271 + offset] = {
 		name = "Weather Institute 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.WeatherInstitute,
 		trainers = isGameEmerald and { 26, 17, 596 }
 			or { 26, 17 },
 	}
 	RouteData.Info[272 + offset] = {
 		name = "Weather Institute 2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.WeatherInstitute,
 		trainers = { 18, 19, 32 },
 	}
 	if isGameEmerald then
 		RouteData.Info[275 + offset] = {
 			name = "City Space Center 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SpaceCenter,
 			trainers = { 586, 22, 587, 116 },
 		}
 		RouteData.Info[276 + offset] = {
 			name = "City Space Center 2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
+			area = RouteData.CombinedAreas.SpaceCenter,
 			trainers = { 588, 589, 590, 734, 514 },
 		}
 	end
 	RouteData.Info[277 + offset] = {
 		name = "S.S. Tidal Hall",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.SSTidal,
 	}
 	RouteData.Info[278 + offset] = {
 		name = "S.S. Tidal Deck",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.SSTidal,
 		trainers = { 494, 495 },
 	}
 	RouteData.Info[279 + offset] = {
 		name = "S.S. Tidal Rooms",
 		icon = RouteData.Icons.BuildingDoorSmall,
+		area = RouteData.CombinedAreas.SSTidal,
 		trainers = { 641, 138, 255, 294, 119, 256 },
 	}
 	RouteData.Info[285 + offset] = {
 		name = "Victory Road B1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.VictoryRoad,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.35, },
 			{ pokemonID = 297, rate = 0.35, },
@@ -4990,6 +5245,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[286 + offset] = {
 		name = "Victory Road B2F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.VictoryRoad,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.35, },
 			{ pokemonID = {303,302,302}, rate = 0.35, },
@@ -5048,6 +5304,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[302 + offset] = {
 		name = "Mt. Pyre Ext.",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		trainers = isGameEmerald and { 5, 4, 569 } -- instead of 4,5 could be 23,24 or 27,28
 			or { 5, 4 },
 		[RouteData.EncounterArea.LAND] = {
@@ -5060,6 +5317,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[303 + offset] = {
 		name = "Mt. Pyre Summit",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.MtPyre,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.85, },
 			{ pokemonID = {355,353,353}, rate = 0.13, },
@@ -5070,6 +5328,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[322 + offset] = {
 		name = "Sky Pillar 1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SkyPillar,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.30, },
 			{ pokemonID = {303,302,302}, rate = 0.30, },
@@ -5080,6 +5339,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[324 + offset] = {
 		name = "Sky Pillar 3F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SkyPillar,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.30, },
 			{ pokemonID = {303,302,302}, rate = 0.30, },
@@ -5090,6 +5350,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[330 + offset] = {
 		name = "Sky Pillar 5F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.SkyPillar,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.30, },
 			{ pokemonID = {303,302,302}, rate = 0.30, },
@@ -5101,6 +5362,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[331 + offset] = {
 		name = "Sky Pillar 6F",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.SkyPillar,
 		[RouteData.EncounterArea.STATIC] = {
 			{ pokemonID = 384, rate = 1.00, },
 		},
@@ -5133,6 +5395,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[336] = {
 		name = "Magma Hideout 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		trainers = { 717, 716 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
@@ -5143,6 +5406,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[337] = {
 		name = "Magma Hideout 2Fa",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		trainers = { 718, 721, 720, 719, 727, 725, 722, 723 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
@@ -5153,6 +5417,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[338] = {
 		name = "Magma Hideout 2Fb",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5162,6 +5427,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[339] = {
 		name = "Magma Hideout 3Fa",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		trainers = { 724, 726, 729 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
@@ -5172,6 +5438,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[340] = {
 		name = "Magma Hideout 3Fb",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5181,6 +5448,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[341] = {
 		name = "Magma Hideout 4F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		trainers = { 728, 730, 731, 732, 601 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
@@ -5198,6 +5466,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[379] = {
 		name = "Magma Hideout 3Fc",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5207,6 +5476,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[380] = {
 		name = "Magma Hideout 2Fc",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.MagmaHideout,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5216,6 +5486,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[381] = {
 		name = "Mirage Tower 1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MirageTower,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 27, rate = 0.50, },
 			{ pokemonID = 328, rate = 0.50, },
@@ -5224,6 +5495,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[382] = {
 		name = "Mirage Tower 2F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MirageTower,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 27, rate = 0.50, },
 			{ pokemonID = 328, rate = 0.50, },
@@ -5232,6 +5504,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[383] = {
 		name = "Mirage Tower 3F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MirageTower,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 27, rate = 0.50, },
 			{ pokemonID = 328, rate = 0.50, },
@@ -5240,6 +5513,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[388] = {
 		name = "Mirage Tower 4F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.MirageTower,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 27, rate = 0.50, },
 			{ pokemonID = 328, rate = 0.50, },
@@ -5258,6 +5532,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[394] = {
 		name = "Safari Zone N-Ext.",
 		icon = RouteData.Icons.ForestTree,
+		area = RouteData.CombinedAreas.SafariZone,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 190, rate = 0.30, },
 			{ pokemonID = 216, rate = 0.30, },
@@ -5275,6 +5550,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[395] = {
 		name = "Safari Zone S-Ext.",
 		icon = RouteData.Icons.ForestTree,
+		area = RouteData.CombinedAreas.SafariZone,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 179, rate = 0.30, },
 			{ pokemonID = 191, rate = 0.30, },
@@ -5308,6 +5584,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[400] = {
 		name = "Artisan Cave B1F",
 		icon = RouteData.Icons.CaveEntrance,
+		area = RouteData.CombinedAreas.ArtisanCave,
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 235, rate = 1.00, },
 		},
@@ -5351,6 +5628,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[423] = {
 		name = "Navel Rock Top",
 		icon = RouteData.Icons.MountainTop,
+		area = RouteData.CombinedAreas.NavelRock,
 		[RouteData.EncounterArea.STATIC] = {
 			{ pokemonID = 250, rate = 1.00, },
 		},

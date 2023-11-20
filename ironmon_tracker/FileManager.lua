@@ -84,6 +84,7 @@ FileManager.LuaCode = {
 	{ name = "GameSettings", filepath = "GameSettings.lua", },
 	-- Data files
 	{ name = "PokemonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonData.lua", },
+	{ name = "PokemonRevoData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonRevoData.lua", },
 	{ name = "MoveData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MoveData.lua", },
 	{ name = "AbilityData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "AbilityData.lua", },
 	{ name = "MiscData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MiscData.lua", },
@@ -117,8 +118,10 @@ FileManager.LuaCode = {
 	{ name = "TrackedDataScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua", },
 	{ name = "LanguageScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LanguageScreen.lua", },
 	{ name = "StatsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua", },
+	{ name = "RandomEvosScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "RandomEvosScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
+	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
 	{ name = "TimeMachineScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua", },
@@ -126,6 +129,7 @@ FileManager.LuaCode = {
 	{ name = "SingleExtensionScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "SingleExtensionScreen.lua", },
 	{ name = "ViewLogWarningScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ViewLogWarningScreen.lua", },
 	{ name = "CrashRecoveryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CrashRecoveryScreen.lua"},
+	{ name = "CoverageCalcScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CoverageCalcScreen.lua"},
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
 	{ name = "LogTabPokemon", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemon.lua", },
 	{ name = "LogTabPokemonDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemonDetails.lua", },
@@ -203,30 +207,53 @@ end
 function FileManager.setupWorkingDirectory()
 	FileManager.dir = IronmonTracker.workingDir or ""
 
-	local getDirCommand
-	if FileManager.slash == "\\" then -- Windows
-		getDirCommand = "cd"
-	else -- Linux
-		getDirCommand = "pwd"
+	-- First check if the working directory has been looked up before
+	local knownDirPath = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt"
+	local knownDirFile = io.open(knownDirPath, "r")
+	-- If the file doesn't exist, try another path
+	if knownDirFile == nil then
+		knownDirPath = FileManager.dir .. knownDirPath
+		knownDirFile = io.open(knownDirPath, "r")
 	end
 
-	-- Bizhawk handles current working directory differently, this is the only way to get it
-	local success, fileLines = FileManager.tryOsExecute(getDirCommand)
-	if success then
-		if #fileLines >= 1 and Main.IsOnBizhawk() and FileManager.dir == "" then
-			FileManager.dir = fileLines[1]
+	-- If the working directory is known (used in the past), then load that instead of running an os execute
+	if knownDirFile ~= nil then
+		FileManager.dir = knownDirFile:read("*a") or ""
+		knownDirFile:close()
+		FileManager.dir = FileManager.dir:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+		-- Then verify that this saved working directory is correct and usable (user might have moved files/folders)
+		if not FileManager.fileExists(FileManager.prependDir(FileManager.Files.UPDATE_OR_INSTALL)) then
+			FileManager.dir = ""
 		end
 	end
 
-	-- Properly format the working directory
-	FileManager.dir = FileManager.formatPathForOS(FileManager.dir)
-	if FileManager.dir:sub(-1) ~= FileManager.slash then
-		FileManager.dir = FileManager.dir .. FileManager.slash
-	end
-
-	-- Linux Bizhawk 2.8 doesn't support popen or working dir absolute path
-	if Main.emulator == Main.EMU.BIZHAWK28 and FileManager.dir == FileManager.slash then
-		FileManager.dir = ""
+	-- Otherwise, if no known working directory was found, look it up the hard way
+	if knownDirFile == nil or FileManager.dir == "" then
+		-- Windows: "cd", Linux: "pwd"
+		local getDirCommand = FileManager.slash == "\\" and "cd" or "pwd"
+		-- Bizhawk handles current working directory differently, this is the only way to get it
+		local success, fileLines = FileManager.tryOsExecute(getDirCommand)
+		if success and #fileLines > 0 and Main.IsOnBizhawk() and FileManager.dir == "" then
+			FileManager.dir = fileLines[1]
+		end
+		-- Properly format the working directory
+		FileManager.dir = FileManager.formatPathForOS(FileManager.dir)
+		if FileManager.dir:sub(-1) ~= FileManager.slash then
+			FileManager.dir = FileManager.dir .. FileManager.slash
+		end
+		-- Linux Bizhawk 2.8 doesn't support popen or working dir absolute path
+		if Main.emulator == Main.EMU.BIZHAWK28 and FileManager.dir == FileManager.slash then
+			FileManager.dir = ""
+		end
+		-- Save known working directory to file to load for future startups
+		if FileManager.dir ~= "" then
+			knownDirFile = io.open(knownDirPath, "w")
+			if knownDirFile then
+				knownDirFile:write(FileManager.dir)
+				knownDirFile:flush()
+				knownDirFile:close()
+			end
+		end
 	end
 
 	IronmonTracker.workingDir = FileManager.dir -- required so UpdateOrInstall works regardless of standalone execution
@@ -291,6 +318,7 @@ function FileManager.executeEachFile(functionName)
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
 	else
+		---@diagnostic disable-next-line: undefined-global
 		globalRef = _ENV -- Lua 5.4
 	end
 
@@ -417,7 +445,7 @@ function FileManager.buildSpritePath(animationType, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
--- Returns a properly formatted folder path where custom code files are located
+-- Returns a properly formatted folder path where custom code files are located; includes trailing slash
 function FileManager.getCustomFolderPath()
 	local listOfPaths = {
 		FileManager.Folders.Custom,
@@ -444,33 +472,33 @@ function FileManager.extractFolderNameFromPath(path)
 	return ""
 end
 
-function FileManager.extractFileNameFromPath(path)
+function FileManager.extractFileNameFromPath(path, includeExtension)
 	if path == nil or path == "" then return "" end
 
-	local nameStartIndex = path:match("^.*()" .. FileManager.slash) or 0 -- path to file
-	local nameEndIndex = path:match("^.*()%.") -- file extension
-	if nameEndIndex ~= nil then
-		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
-		if filename ~= nil then
-			return filename
-		end
+	local folder, filename, extension = FileManager.getPathParts(path)
+	if includeExtension and filename then
+		return filename .. (extension or "")
+	else
+		return filename or ""
 	end
-
-	return ""
 end
 
 function FileManager.extractFileExtensionFromPath(path)
 	if path == nil or path == "" then return "" end
 
-	local extStartIndex = path:match("^.*()%.") -- file extension
-	if extStartIndex ~= nil then
-		local extension = path:sub(extStartIndex + 1)
-		if extension ~= nil then
-			return extension:lower()
-		end
+	local folder, filename, extension = FileManager.getPathParts(path)
+	if extension and #extension > 1 then
+		return extension:sub(2) -- remove the leading '.'
+	else
+		return ""
 	end
+end
 
-	return ""
+--- Returns the folder, filename, and extension for the given filepath
+--- @param filepath string The full file path to split apart
+--- @return string folder, string filename, string extension
+function FileManager.getPathParts(filepath)
+	return string.match(filepath or "", "^(.-)([^\\/]-)(%.[^\\/%.]-)%.?$")
 end
 
 -- Copies file at 'filepath' to 'filecopyPath' with option to overwrite the file if it exists, or append to it
@@ -530,16 +558,13 @@ function FileManager.writeTableToFile(table, filename)
 
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
-
 		--append a trailing \n if one is absent
 		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
-			file:write(dataLine)
-			file:write("\n")
+			file:write(dataLine .. "\n")
 		end
+		file:flush()
 		file:close()
-	else
-		print("> ERROR: Unable to create auto-save file: " .. filename)
 	end
 end
 
@@ -550,7 +575,6 @@ function FileManager.readTableFromFile(filepath)
 
 	if file ~= nil then
 		local dataString = file:read("*a")
-
 		if dataString ~= nil and dataString ~= "" then
 			tableData = Pickle.unpickle(dataString)
 		end
