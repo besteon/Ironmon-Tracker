@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 public class CPHInline
 {
 	// Internal Streamerbot Properties
-	private const string VERSION = "1.0.3"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const string VERSION = "1.0.4"; // Used to compare against known version # in Tracker code, to check if this code needs updating
 	private const bool DEBUG_LOG_EVENTS = false;
 	private const string GVAR_ConnectionDataFolder = "connectionDataFolder"; // "data" folder override global variable; define is Streamerbot
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
