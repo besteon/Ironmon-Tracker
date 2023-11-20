@@ -32,7 +32,7 @@ Network.ConnectionState = {
 
 Network.Options = {
 	["AutoConnectStartup"] = true,
-	["ConnectionType"] = Network.ConnectionTypes.None,
+	["ConnectionType"] = Network.ConnectionTypes.Text,
 	["DataFolder"] = "",
 	["WebSocketIP"] = "0.0.0.0", -- 127.0.0.1
 	["WebSocketPort"] = "8080",
@@ -76,7 +76,6 @@ end
 ---@return table supportedTypes
 function Network.getSupportedConnectionTypes()
 	local supportedTypes = {
-		Network.ConnectionTypes.None,
 		Network.ConnectionTypes.Text,
 		Network.ConnectionTypes.WebSockets, -- Not fully supported
 		Network.ConnectionTypes.Http, -- Not fully supported

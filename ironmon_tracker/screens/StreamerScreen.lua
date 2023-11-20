@@ -83,9 +83,20 @@ StreamerScreen.Buttons = {
 	StreamConnectOpen = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		-- iconColors = { StreamerScreen.Colors.highlight, },
 		getText = function(self) return "Stream Connect" or Resources.StreamerScreen.ButtonStreamConnect end, -- TODO: Language
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 115, 100, 16 },
+		updateSelf = function(self)
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				self.image = Constants.PixelImages.CHECKMARK
+				self.iconColors = { "Positive text" }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				self.image = Constants.PixelImages.CLOCK
+				self.iconColors = { "Intermediate text" }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				self.image = Constants.PixelImages.CROSS
+				self.iconColors = { "Negative text" }
+			end
+		end,
 		onClick = function(self) StreamConnectOverlay.open() end,
 	},
 	Back = Drawing.createUIElementBackButton(function()
@@ -109,6 +120,12 @@ function StreamerScreen.initialize()
 	StreamerScreen.Buttons.ShowFavorites.toggleState = Options["Show on new game screen"] or false
 
 	StreamerScreen.loadFavorites()
+end
+
+function StreamerScreen.refreshButtons()
+	for _, button in pairs(StreamerScreen.Buttons) do
+		if button.updateSelf ~= nil then button:updateSelf() end
+	end
 end
 
 function StreamerScreen.openEditAttemptsWindow()

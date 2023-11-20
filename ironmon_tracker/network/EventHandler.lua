@@ -250,6 +250,10 @@ function EventHandler.queueRequestForLater(queueKey, request)
 		return false
 	end
 	Q.Requests[request.GUID] = request
+	-- Refresh the queue if it's open on the screen
+	if StreamConnectOverlay.isDisplayed and StreamConnectOverlay.currentTab == StreamConnectOverlay.Tabs.Queue then
+		StreamConnectOverlay.buildPagedButtons()
+	end
 	return true
 end
 
@@ -365,6 +369,7 @@ EventHandler.CoreEvents = {
 			Network.updateConnectionState(Network.ConnectionState.Established)
 			Network.checkVersion(request.Args and request.Args.Version or "")
 			RequestHandler.removedExcludedRequests()
+			StreamerScreen.refreshButtons()
 			StreamConnectOverlay.refreshButtons()
 			return RequestHandler.REQUEST_COMPLETE
 		end,
@@ -380,6 +385,7 @@ EventHandler.CoreEvents = {
 		Fulfill = function(self, request)
 			Network.updateConnectionState(Network.ConnectionState.Listen)
 			RequestHandler.removedExcludedRequests()
+			StreamerScreen.refreshButtons()
 			StreamConnectOverlay.refreshButtons()
 			return RequestHandler.REQUEST_COMPLETE
 		end,

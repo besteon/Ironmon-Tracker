@@ -21,8 +21,13 @@ StreamConnectOverlay = {
 			tabKey = "Queue",
 			resourceKey = "TabQueue",
 		},
-		Status = {
+		Game = {
 			index = 5,
+			tabKey = "Game",
+			resourceKey = "TabGame",
+		},
+		Status = {
+			index = 6,
 			tabKey = "Status",
 			resourceKey = "TabStatus",
 		},
@@ -113,7 +118,7 @@ SCREEN.Pager = {
 function StreamConnectOverlay.initialize()
 	SCREEN.currentTab = SCREEN.Tabs.Queue
 	SCREEN.isDisplayed = false
-	SCREEN.createButtons()
+	SCREEN.createTabButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
 			button.textColor = SCREEN.Colors.text
@@ -151,7 +156,7 @@ local function addRightAligned(button)
 end
 resetButtonRow()
 
-function StreamConnectOverlay.createButtons()
+function StreamConnectOverlay.createTabButtons()
 	local startX = SCREEN.Canvas.x
 	local startY = SCREEN.Canvas.y - TAB_HEIGHT
 	local tabPadding = 5
@@ -192,268 +197,13 @@ function StreamConnectOverlay.createButtons()
 		}
 		startX = startX + tabWidth
 	end
-
-	-- Unsure if I want to use this or not
-	-- local refreshWidth = Utils.calcWordPixelLength("Refresh" or Resources.StreamConnectOverlay.LabelOrButton) + 6 -- TODO: Language
-	-- SCREEN.Buttons.RewardsRefresh = {
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "Refresh" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-	-- 	box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, refreshWidth, 11 },
-	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Rewards end,
-	-- 	onClick = function(self)
-	-- 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-	-- 			EventKey = EventHandler.CoreEventTypes.GetRewards,
-	-- 			Args = { Received = "No" }
-	-- 		}))
-	-- 	end,
-	-- }
-
-	-- STATUS TAB
-	startX = SCREEN.Canvas.x + 4
-	startY = SCREEN.Canvas.y + 8
-	local function nextLineY(extraOffset)
-		startY = startY + Constants.SCREEN.LINESPACING + 8 + (extraOffset or 0)
-		return startY
-	end
-
-	SCREEN.Buttons.StatusLabelIsConnected = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return "Connected:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX, startY, 50, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-	}
-	SCREEN.Buttons.StatusIconIsConnected = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.CROSS,
-		box = {	startX + 90, startY - 1, 11, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-		updateSelf = function(self)
-			if Network.CurrentConnection.State == Network.ConnectionState.Established then
-				self.image = Constants.PixelImages.CHECKMARK
-				self.textColor = "Positive text"
-			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
-				self.image = Constants.PixelImages.CLOCK
-				self.textColor = SCREEN.Colors.highlight
-			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
-				self.image = Constants.PixelImages.CROSS
-				self.textColor = "Negative text"
-			end
-		end,
-	}
-	SCREEN.Buttons.StatusConnectionInfo = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.CROSS,
-		getText = function(self)
-			if Network.CurrentConnection.State == Network.ConnectionState.Established then
-				return "Online: Connection established." -- TODO: Language
-			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
-				return "Online: Waiting for external connection..." -- TODO: Language
-			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
-				return "Offline." -- TODO: Language
-			end
-		end,
-		box = {	startX + 3, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, 13, 13 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-		updateSelf = function(self)
-			if Network.CurrentConnection.State == Network.ConnectionState.Established then
-				self.image = Constants.PixelImages.CHECKMARK
-				self.iconColors = { "Positive text" }
-			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
-				self.image = Constants.PixelImages.CLOCK
-				self.iconColors = { SCREEN.Colors.highlight }
-			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
-				self.image = Constants.PixelImages.CROSS
-				self.iconColors = { "Negative text" }
-			end
-		end,
-	}
-	SCREEN.Buttons.StatusBtnConnect = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self)
-			-- TODO: Language
-			if Network.isConnected() then
-				return "Disconnect" or Resources.StreamConnectOverlay.LabelOrButton
-			else
-				return "Connect" or Resources.StreamConnectOverlay.LabelOrButton
-			end
-		end,
-		box = {	startX + 150, startY, 50, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-		updateSelf = function(self)
-			-- Update width and box location depending on it's size
-			self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5
-			self.box[1] = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - self.box[3]
-		end,
-		onClick = function(self)
-			if Network.isConnected() then
-				Network.closeConnections()
-			else
-				Network.tryConnect()
-			end
-			SCREEN.refreshButtons()
-			Program.redraw(true)
-		end,
-	}
-	nextLineY()
-
-
-	SCREEN.Buttons.StatusAutoConnectStartup = {
-		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function(self) return " " .. "Auto-Connect on Startup" or " " .. Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = { startX + 90, startY, 8, 8 },
-		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-		toggleState = Network.Options["AutoConnectStartup"],
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-		updateSelf = function(self)
-			self.toggleState = Network.Options["AutoConnectStartup"]
-		end,
-		onClick = function(self)
-			self.toggleState = not self.toggleState
-			Network.Options["AutoConnectStartup"] = (self.toggleState == true)
-			Main.SaveSettings(true)
-			SCREEN.refreshButtons()
-			Program.redraw(true)
-		end,
-	}
-	nextLineY()
-
-
-	SCREEN.Buttons.StatusLabelConnType = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return "Connection Mode:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX, startY, 50, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-	}
-	local connOffsetX = startX + 90 - 2
-	for _, connType in ipairs(Network.getSupportedConnectionTypes() or {}) do
-		local text = connType or Resources.StreamConnectOverlay.LabelOrButton -- TODO: Language
-		local width = Utils.calcWordPixelLength(text)
-		SCREEN.Buttons["StatusConnType" .. connType] = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return text end,
-			isSelected = false,
-			box = {	connOffsetX, startY, width + 4, 11 },
-			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-			updateSelf = function(self)
-				self.isSelected = Network.CurrentConnection.Type == connType
-			end,
-			draw = function(self, shadowcolor)
-				if self.isSelected then
-					local color = Theme.COLORS[SCREEN.Colors.highlight]
-					Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3] + 1, self.box[4], color, 1, 4, 1)
-				end
-			end,
-			onClick = function(self)
-				Network.changeConnection(connType)
-				SCREEN.refreshButtons()
-				Program.redraw(true)
-			end,
-		}
-		connOffsetX = connOffsetX + width + 10
-	end
-	nextLineY()
-
-	local setButtonOffsetX = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - 18
-	SCREEN.Buttons.StatusDataFolder = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
-		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			Drawing.drawText(startX + 1, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-			local folder = FileManager.extractFolderNameFromPath(Network.Options["DataFolder"] or "")
-			if Utils.isNilOrEmpty(folder) then
-				folder = "/"
-			end
-			Drawing.drawText(startX + 90 - 1, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-		end,
-		onClick = function(self) StreamConnectOverlay.openNetworkFolderPrompt("DataFolder") end,
-	}
-	SCREEN.Buttons.StatusSocketIP = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
-		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			Drawing.drawText(startX + 1, y, "Server IP:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-			local val = Network.Options["WebSocketIP"] or "0.0.0.0"
-			Drawing.drawText(startX + 50, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-		end,
-		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketIP") end,
-	}
-	SCREEN.Buttons.StatusHTTPGet = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
-		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			Drawing.drawText(startX + 1, y, "GET:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-			local val = Network.Options["HttpGet"] or "/"
-			Drawing.drawText(startX + 35, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-		end,
-		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpGet") end,
-	}
-
-
-	nextLineY()
-	SCREEN.Buttons.StatusSocketPort = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
-		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			Drawing.drawText(startX + 1, y, "Port:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-			local val = Network.Options["WebSocketPort"] or "0"
-			Drawing.drawText(startX + 50, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-		end,
-		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketPort") end,
-	}
-	SCREEN.Buttons.StatusHTTPPost = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	setButtonOffsetX, startY, 18, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
-		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			Drawing.drawText(startX + 1, y, "POST:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-			local val = Network.Options["HttpPost"] or "/"
-			Drawing.drawText(startX + 35, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-		end,
-		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpPost") end,
-	}
-
-	nextLineY()
-	SCREEN.Buttons.StatusUnsupportedModeWarning = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.WARNING,
-		getText = function(self) return "This connection mode is not yet supported by Bizhawk." end, -- TODO: Language
-		textColor = "Negative text",
-		box = {	startX + 2, startY, 10, 10 },
-		isVisible = function(self)
-			local unsupportedConn = Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets or Network.CurrentConnection.Type == Network.ConnectionTypes.Http
-			return SCREEN.currentTab == SCREEN.Tabs.Status and unsupportedConn
-		end,
-	}
-
-	SCREEN.Buttons.StatusGetCode = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.INSTALL_BOX,
-		getText = function(self) return "Get Streamerbot Code" end, -- TODO: Language
-		box = { startX + 62, SCREEN.Canvas.y + 95, 110, 16 },
-		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
-		onClick = function(self) StreamConnectOverlay.openGetCodeWindow() end
-	}
 end
 
 local function buildCommandsTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
 
-	SCREEN.Buttons.CommandsRoles = {
+	SCREEN.Pager.Buttons.CommandsRoles = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Role Permissions" or Resources.StreamConnectOverlay.X end, -- TODO: Language
 		textColor = SCREEN.Colors.text,
@@ -550,6 +300,21 @@ end
 local function buildRewardsTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
+
+	-- Unsure if I want to use this or not
+	-- local refreshWidth = Utils.calcWordPixelLength("Refresh" or Resources.StreamConnectOverlay.LabelOrButton) + 6 -- TODO: Language
+	-- SCREEN.Pager.Buttons.RewardsRefresh = {
+	-- 	type = Constants.ButtonTypes.FULL_BORDER,
+	-- 	getText = function(self) return "Refresh" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+	-- 	box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, refreshWidth, 11 },
+	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Rewards end,
+	-- 	onClick = function(self)
+	-- 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+	-- 			EventKey = EventHandler.CoreEventTypes.GetRewards,
+	-- 			Args = { Received = "No" }
+	-- 		}))
+	-- 	end,
+	-- }
 
 	local tabContents = {}
 	for _, event in pairs(EventHandler.Events) do
@@ -702,40 +467,6 @@ local function buildQueueTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
 
-	SCREEN.Buttons.QueueClear = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self)
-			if self.confirmReset then
-				return string.format("%s", "Are you sure?") -- TODO: Language
-			else
-				return string.format("%s", "Clear Queue") -- TODO: Language
-			end
-		end,
-		textColor = SCREEN.Colors.text,
-		confirmReset = false,
-		box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, 58, 11 },
-		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Queue end,
-		updateSelf = function(self)
-			if self.confirmReset then
-				self.textColor = "Negative text"
-			else
-				self.textColor = SCREEN.Colors.text
-			end
-		end,
-		onClick = function(self)
-			if self.confirmReset then
-				self.confirmReset = false
-				EventHandler.cancelAllQueues()
-				buildQueueTab()
-			else
-				self.confirmReset = true
-			end
-			self:updateSelf()
-			Program.redraw(true)
-		end,
-	}
-
 	local tabContents = {}
 	for key, queue in pairs(EventHandler.Queues) do
 		-- Put the active item at the front
@@ -755,6 +486,49 @@ local function buildQueueTab()
 		end
 	end
 	-- TODO: Might do other group-sorting here later
+
+	SCREEN.Pager.Buttons.NoContents = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.CLOCK,
+		iconColors = { SCREEN.Colors.highlight },
+		getText = function(self) return "No Rewards have been queued up." end, -- TODO: Language
+		box = { SCREEN.Canvas.x + 20, SCREEN.Canvas.y + SCREEN.Canvas.h / 2 - 28, 12, 11, },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Queue and #tabContents == 0 end,
+	}
+
+	SCREEN.Pager.Buttons.QueueClear = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self)
+			if self.confirmReset then
+				return string.format("%s", "Are you sure?") -- TODO: Language
+			else
+				return string.format("%s", "Clear Queue") -- TODO: Language
+			end
+		end,
+		textColor = SCREEN.Colors.text,
+		confirmReset = false,
+		box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, 58, 11 },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Queue and #tabContents > 0 end,
+		updateSelf = function(self)
+			if self.confirmReset then
+				self.textColor = "Negative text"
+			else
+				self.textColor = SCREEN.Colors.text
+			end
+		end,
+		onClick = function(self)
+			if self.confirmReset then
+				self.confirmReset = false
+				EventHandler.cancelAllQueues()
+				buildQueueTab()
+			else
+				self.confirmReset = true
+			end
+			self:updateSelf()
+			Program.redraw(true)
+		end,
+	}
 
 	for i, item in ipairs(tabContents) do
 		local Q = EventHandler.Queues[item.QueueName]
@@ -859,14 +633,425 @@ local function buildQueueTab()
 	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
 
+local function buildGameTab()
+	SCREEN.Pager.ButtonRows = {}
+	SCREEN.Pager.Buttons = {}
+
+	local tabContents = {}
+	for _, event in pairs(EventHandler.Events) do
+		if event.Type == EventHandler.EventTypes.Game and not event.Exclude then
+			table.insert(tabContents, event)
+		end
+	end
+	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.Name < b.Name) end)
+
+	SCREEN.Pager.Buttons.NoContents = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.EXTENSIONS,
+		iconColors = { SCREEN.Colors.highlight },
+		getText = function(self) return "No Game event triggers have been added." end, -- TODO: Language
+		box = { SCREEN.Canvas.x + 20, SCREEN.Canvas.y + SCREEN.Canvas.h / 2 - 28, 12, 12, },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Game and #tabContents == 0 end,
+		draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				y = y + Constants.SCREEN.LINESPACING * 2
+				local wrappedDesc = Utils.getWordWrapLines("You can add new Game event triggers through custom Tracker extensions.", 50) -- TODO: Language
+				for _, line in pairs(wrappedDesc) do
+					local centeredOffset = Utils.getCenteredTextX(line, SCREEN.Canvas.w)
+					Drawing.drawText(SCREEN.Canvas.x + centeredOffset, y, line, Theme.COLORS[SCREEN.Colors.text], shadowcolor)
+					y = y + Constants.SCREEN.LINESPACING
+				end
+		end,
+	}
+
+	for i, event in ipairs(tabContents) do
+		resetButtonRow()
+		local buttonRow = {
+			index = i,
+			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
+			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible and SCREEN.currentTab == SCREEN.Tabs.Game end,
+			includeInGrid = function(self)
+				-- Allow checkboxes to filter enabled, disabled, etc
+				return true
+			end,
+		}
+		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
+
+		local btnEnabled = {
+			type = Constants.ButtonTypes.CHECKBOX,
+			box = { -1, -1, 8, 8 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			toggleState = event.IsEnabled,
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.toggleState = event.IsEnabled
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING
+			end,
+			onClick = function(self)
+				self.toggleState = not self.toggleState
+				event.IsEnabled = (self.toggleState == true)
+				EventHandler.saveEventSetting(event, "IsEnabled")
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnEnabled)
+		addLeftAligned(btnEnabled)
+
+		local btnWidth = Utils.calcWordPixelLength(event.Name) + 5
+		local btnName = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return event.Name end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 2
+				self.textColor = btnEnabled.toggleState and SCREEN.Colors.text or "Negative text"
+			end,
+			-- draw = function(self, shadowcolor)
+			-- 	Drawing.drawUnderline(self)
+			-- 	local x, y = self.box[1], self.box[2]
+			-- 	Drawing.drawText(x + 1, y + Constants.SCREEN.LINESPACING + ROW_PADDING, Constants.BLANKLINE, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+			-- end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnName)
+		addLeftAligned(btnName)
+
+		-- -- Add buttons to row from right-to-left
+		-- btnWidth = Utils.calcWordPixelLength("Rename" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
+		-- local btnRename = {
+		-- 	type = Constants.ButtonTypes.FULL_BORDER,
+		-- 	getText = function(self) return "Rename" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+		-- 	textColor = SCREEN.Colors.text,
+		-- 	box = { -1, -1, btnWidth, 11 },
+		-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		-- 	isVisible = function(self) return buttonRow:isVisible() end,
+		-- 	updateSelf = function(self)
+		-- 		self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 3
+		-- 	end,
+		-- 	onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
+		-- }
+		-- table.insert(SCREEN.Pager.Buttons, btnRename)
+		-- addRightAligned(btnRename)
+	end
+	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
+end
+
+local function buildStatusTab()
+	SCREEN.Pager.ButtonRows = {}
+	SCREEN.Pager.Buttons = {}
+
+	local startX = SCREEN.Canvas.x + 4
+	local startY = SCREEN.Canvas.y + 3
+	local function nextLineY(extraOffset)
+		startY = startY + Constants.SCREEN.LINESPACING + 2 + (extraOffset or 0)
+		return startY
+	end
+
+	SCREEN.Pager.Buttons.StatusHeaderConnectionStatus = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return "Connection Status" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		textColor = SCREEN.Colors.highlight,
+		box = {	startX, startY, Utils.calcWordPixelLength("Connection Status" or Resources.StreamConnectOverlay.LabelOrButton) + 5, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+		draw = function(self, shadowcolor)
+			Drawing.drawUnderline(self)
+		end,
+	}
+	local versionWidth = Utils.calcWordPixelLength("v" .. Network.STREAMERBOT_VERSION) + 5
+	SCREEN.Pager.Buttons.StatusHeaderVersion = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return "v" .. Network.STREAMERBOT_VERSION end,
+		box = {	SCREEN.Canvas.w - versionWidth - MARGIN, startY, versionWidth, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+	}
+	nextLineY(3)
+
+
+	SCREEN.Pager.Buttons.StatusConnectionInfo = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.CROSS,
+		getText = function(self)
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				return "Online: Connection established." -- TODO: Language
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				return "Online: Waiting for connection..." -- TODO: Language
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				return "Offline." -- TODO: Language
+			end
+		end,
+		box = {	startX + 3, startY, 13, 13 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+		updateSelf = function(self)
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				self.image = Constants.PixelImages.CHECKMARK
+				self.iconColors = { "Positive text" }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				self.image = Constants.PixelImages.CLOCK
+				self.iconColors = { SCREEN.Colors.highlight }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				self.image = Constants.PixelImages.CROSS
+				self.iconColors = { "Negative text" }
+			end
+		end,
+	}
+	SCREEN.Pager.Buttons.StatusBtnConnect = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self)
+			-- TODO: Language
+			if Network.isConnected() then
+				return "Disconnect" or Resources.StreamConnectOverlay.LabelOrButton
+			else
+				return "Connect" or Resources.StreamConnectOverlay.LabelOrButton
+			end
+		end,
+		box = {	startX + 150, startY - 1, 50, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+		updateSelf = function(self)
+			-- Update width and box location depending on it's size
+			self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5
+			self.box[1] = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - self.box[3]
+		end,
+		onClick = function(self)
+			if Network.isConnected() then
+				Network.closeConnections()
+			else
+				Network.tryConnect()
+			end
+			StreamerScreen.refreshButtons()
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+	}
+	nextLineY(3)
+
+
+	SCREEN.Pager.Buttons.StatusHeaderSettings = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return "Settings" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		textColor = SCREEN.Colors.highlight,
+		box = {	startX, startY, Utils.calcWordPixelLength("Settings" or Resources.StreamConnectOverlay.LabelOrButton) + 5, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+		draw = function(self, shadowcolor)
+			Drawing.drawUnderline(self)
+		end,
+	}
+	nextLineY(3)
+
+
+	SCREEN.Pager.Buttons.StatusAutoConnectStartup = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		getText = function(self) return " " .. "Auto-connect on startup" or " " .. Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		clickableArea = { startX + 3, startY, 8 + Utils.calcWordPixelLength(" " .. "Auto-connect on startup"), 8 },
+		box = { startX + 3, startY, 8, 8 },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		toggleState = Network.Options["AutoConnectStartup"],
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+		updateSelf = function(self)
+			self.toggleState = Network.Options["AutoConnectStartup"]
+		end,
+		onClick = function(self)
+			self.toggleState = not self.toggleState
+			Network.Options["AutoConnectStartup"] = (self.toggleState == true)
+			Main.SaveSettings(true)
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+	}
+	nextLineY(1)
+
+
+	local rightColOffset = 90
+	SCREEN.Pager.Buttons.StatusLabelConnType = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return "Connection Mode:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	startX, startY, 50, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+	}
+	local connOffsetX = startX + rightColOffset - 2
+	for _, connType in ipairs(Network.getSupportedConnectionTypes() or {}) do
+		local text = connType or Resources.StreamConnectOverlay.LabelOrButton -- TODO: Language
+		local width = Utils.calcWordPixelLength(text)
+		SCREEN.Pager.Buttons["StatusConnType" .. connType] = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return text end,
+			isSelected = false,
+			box = {	connOffsetX, startY, width + 4, 11 },
+			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+			updateSelf = function(self)
+				self.isSelected = Network.CurrentConnection.Type == connType
+			end,
+			draw = function(self, shadowcolor)
+				if self.isSelected then
+					local color = Theme.COLORS[SCREEN.Colors.highlight]
+					Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3] + 1, self.box[4], color, 1, 4, 1)
+				end
+			end,
+			onClick = function(self)
+				Network.changeConnection(connType)
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end,
+		}
+		connOffsetX = connOffsetX + width + 10
+	end
+	nextLineY(1)
+
+
+	local setButtonOffsetX = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - 18
+	SCREEN.Pager.Buttons.StatusDataFolder = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local folder = FileManager.extractFolderNameFromPath(Network.Options["DataFolder"] or "") or ""
+			if Utils.isNilOrEmpty(folder) then
+				folder = "/"
+			end
+			Drawing.drawText(startX + rightColOffset - 1, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkFolderPrompt("DataFolder") end,
+	}
+	SCREEN.Pager.Buttons.StatusSocketIP = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "Server IP:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["WebSocketIP"] or "0.0.0.0"
+			Drawing.drawText(startX + 50, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketIP") end,
+	}
+	SCREEN.Pager.Buttons.StatusHTTPGet = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "GET:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["HttpGet"] or "/"
+			Drawing.drawText(startX + 35, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpGet") end,
+	}
+	nextLineY(1)
+
+
+	SCREEN.Pager.Buttons.StatusGetCode = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		image = Constants.PixelImages.INSTALL_BOX,
+		getText = function(self) return "Get Streamerbot Code" end, -- TODO: Language
+		-- textColor = SCREEN.Colors.highlight,
+		box = { startX + rightColOffset, startY, Utils.calcWordPixelLength("Get Streamerbot Code") + 5, 11 },
+		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
+		onClick = function(self) StreamConnectOverlay.openGetCodeWindow() end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "Import Code:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+		end,
+	}
+	SCREEN.Pager.Buttons.StatusSocketPort = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "Port:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["WebSocketPort"] or "0"
+			Drawing.drawText(startX + 50, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketPort") end,
+	}
+	SCREEN.Pager.Buttons.StatusHTTPPost = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "POST:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["HttpPost"] or "/"
+			Drawing.drawText(startX + 35, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpPost") end,
+	}
+	nextLineY(3)
+
+
+	SCREEN.Pager.Buttons.StatusUnsupportedModeWarning = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		iconColors = { "Negative text" },
+		getText = function(self)
+			if Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets or Network.CurrentConnection.Type == Network.ConnectionTypes.Http then
+				return "This mode not yet supported by Bizhawk." -- TODO: Language
+			elseif Network.CurrentConnection.Type == Network.ConnectionTypes.Text then
+				return "Setup: Import code then set connection folder." -- TODO: Language
+			else
+				return ""
+			end
+		end,
+		box = {	startX + 3, startY, 10, 10 },
+		isVisible = function(self)
+			if SCREEN.currentTab ~= SCREEN.Tabs.Status then
+				return false
+			end
+			if Network.CurrentConnection.Type == Network.ConnectionTypes.Text then
+				return Utils.isNilOrEmpty(Network.Options["DataFolder"])
+			elseif Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets then
+				return true
+			elseif Network.CurrentConnection.Type == Network.ConnectionTypes.Http then
+				return true
+			else
+				return false
+			end
+		end,
+		updateSelf = function(self)
+			if Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets or Network.CurrentConnection.Type == Network.ConnectionTypes.Http then
+				self.iconColors = { "Negative text" }
+			else
+				self.iconColors = { SCREEN.Colors.highlight }
+			end
+		end,
+	}
+	nextLineY(4)
+
+
+	local bottomRowY = SCREEN.Canvas.y + SCREEN.Canvas.h - 15
+	SCREEN.Pager.Buttons.StatusHelp = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Help" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+		textColor = SCREEN.Colors.text,
+		box = {	SCREEN.Canvas.x + 4, bottomRowY, Utils.calcWordPixelLength("Help") + 5, 11 },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
+		onClick = function(self) Utils.openBrowserWindow(FileManager.Urls.WIKI) end,
+	}
+
+
+	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
+end
+
 function StreamConnectOverlay.buildPagedButtons(tab)
 	tab = tab or SCREEN.currentTab
-	if tab == SCREEN.Tabs.Commands then
-		buildCommandsTab()
-	elseif tab == SCREEN.Tabs.Rewards then
-		buildRewardsTab()
-	elseif tab == SCREEN.Tabs.Queue then
-		buildQueueTab()
+	local tabBuilderFuncs = {
+		[SCREEN.Tabs.Commands] = buildCommandsTab,
+		[SCREEN.Tabs.Rewards] = buildRewardsTab,
+		[SCREEN.Tabs.Queue] = buildQueueTab,
+		[SCREEN.Tabs.Game] = buildGameTab,
+		[SCREEN.Tabs.Status] = buildStatusTab,
+	}
+	if tabBuilderFuncs[tab] then
+		tabBuilderFuncs[tab]()
 	else
 		SCREEN.Pager.ButtonRows = {}
 		SCREEN.Pager.Buttons = {}
@@ -877,7 +1062,7 @@ end
 -- Rebuilds the buttons for the currently displayed screen. Useful when the Tracker's display language changes
 function StreamConnectOverlay.rebuildScreen()
 	if not SCREEN.isDisplayed then return end
-	SCREEN.createButtons()
+	SCREEN.createTabButtons()
 	SCREEN.buildPagedButtons(SCREEN.currentTab)
 	SCREEN.refreshButtons()
 end
@@ -1172,7 +1357,7 @@ function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 	local path = Network.Options[modeKey] or ""
 	local filterOptions = "Json File (*.JSON)|*.json|All files (*.*)|*.*"
 	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile(Network.TEXT_INBOUND_FILE, path, filterOptions)
+	local filepath = forms.openfile("SELECT ANY JSON FILE", path, filterOptions)
 	if not Utils.isNilOrEmpty(filepath) then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
@@ -1206,6 +1391,8 @@ function StreamConnectOverlay.openGetCodeWindow()
 	forms.label(form, '3. Restart Streamerbot.', x, y, 495, lineHeight)
 	y = y + lineHeight
 	forms.textbox(form, codeText, 763, 442, nil, x - 1, y, true, true, "Vertical")
+
+	forms.label(form, string.format("Streamerbot Code Version: %s", Network.STREAMERBOT_VERSION), x, 530, 250, lineHeight)
 	forms.button(form, Resources.AllScreens.Close, function()
 		Utils.closeBizhawkForm(form)
 	end, 350, 530)
