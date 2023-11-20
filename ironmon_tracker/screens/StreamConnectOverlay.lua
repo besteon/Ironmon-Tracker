@@ -1035,7 +1035,7 @@ local function buildStatusTab()
 		box = {	SCREEN.Canvas.x + 4, bottomRowY, Utils.calcWordPixelLength("Help") + 5, 11 },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
-		onClick = function(self) Utils.openBrowserWindow(FileManager.Urls.WIKI) end,
+		onClick = function(self) Utils.openBrowserWindow(FileManager.Urls.STREAM_CONNECT) end,
 	}
 
 
