@@ -870,7 +870,8 @@ local function buildStatusTab()
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Status end,
 	}
 	local connOffsetX = startX + rightColOffset - 2
-	for _, connType in ipairs(Network.getSupportedConnectionTypes() or {}) do
+	local connectionModes = Network.getSupportedConnectionTypes() or {}
+	for _, connType in ipairs(connectionModes) do
 		local text = connType or Resources.StreamConnectOverlay.LabelOrButton -- TODO: Language
 		local width = Utils.calcWordPixelLength(text)
 		SCREEN.Pager.Buttons["StatusConnType" .. connType] = {
@@ -883,7 +884,7 @@ local function buildStatusTab()
 				self.isSelected = Network.CurrentConnection.Type == connType
 			end,
 			draw = function(self, shadowcolor)
-				if self.isSelected then
+				if self.isSelected and #connectionModes > 1 then
 					local color = Theme.COLORS[SCREEN.Colors.highlight]
 					Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3] + 1, self.box[4], color, 1, 4, 1)
 				end

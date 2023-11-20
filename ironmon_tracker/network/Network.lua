@@ -77,8 +77,8 @@ end
 function Network.getSupportedConnectionTypes()
 	local supportedTypes = {
 		Network.ConnectionTypes.Text,
-		Network.ConnectionTypes.WebSockets, -- Not fully supported
-		Network.ConnectionTypes.Http, -- Not fully supported
+		-- Network.ConnectionTypes.WebSockets, -- Not fully supported
+		-- Network.ConnectionTypes.Http, -- Not fully supported
 	}
 	return supportedTypes
 end
