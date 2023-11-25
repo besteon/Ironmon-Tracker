@@ -62,7 +62,7 @@ end
 
 -- Loads a single extension based on its key (filename) and returns it. Doesn't enable it by default
 function CustomCode.loadExtension(extensionKey)
-	if extensionKey == nil or extensionKey == "" then
+	if Utils.isNilOrEmpty(extensionKey) then
 		return nil
 	end
 
@@ -74,15 +74,18 @@ function CustomCode.loadExtension(extensionKey)
 	end
 
 	-- Load the extension code
-	local extensionReturnObject = dofile(filepath)
 	local selfObject
-	if type(extensionReturnObject) == "function" then
-		selfObject = extensionReturnObject() or {}
-	elseif type(extensionReturnObject) == "table" then
-		selfObject = extensionReturnObject
-	end
+	xpcall(function()
+		local extensionReturnObject = dofile(filepath)
+		if type(extensionReturnObject) == "function" then
+			selfObject = extensionReturnObject() or {}
+		elseif type(extensionReturnObject) == "table" then
+			selfObject = extensionReturnObject
+		end
+	end, FileManager.logError)
 
 	if selfObject == nil then
+		print(string.format("> Error loading extension: %s, removing it from the extensions list.", extensionKey))
 		return nil
 	end
 

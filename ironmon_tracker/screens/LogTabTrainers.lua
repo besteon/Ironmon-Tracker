@@ -89,10 +89,10 @@ function LogTabTrainers.buildNavigation()
 			isSelected = false,
 			box = { LogOverlay.TabBox.x + nextNavX, navHeaderY, navLabelWidth, 11 },
 			updateSelf = function(self)
-				if navFilter.group == TrainerData.TrainerGroups.All and LogSearchScreen.searchText ~= "" then
+				if navFilter.group == TrainerData.TrainerGroups.All and not Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					self.isSelected = true
 					self.textColor = LogTabTrainers.Colors.highlight
-				elseif navFilter.group == LogOverlay.Windower.filterGrid and LogSearchScreen.searchText == "" then
+				elseif navFilter.group == LogOverlay.Windower.filterGrid and Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					self.isSelected = true
 					self.textColor = LogTabTrainers.Colors.highlight
 				else
@@ -162,7 +162,7 @@ function LogTabTrainers.buildPagedButtons()
 				end
 
 				-- If no search text entered, check any filter groups
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					if LogOverlay.Windower.filterGrid == self.group then
 						return true
 					elseif LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All then

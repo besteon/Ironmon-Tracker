@@ -23,6 +23,33 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
 		end
 	},
+	ShinyEffect = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.SPARKLES,
+		iconColors = { "Intermediate text" },
+		isHighlighted = true,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 84, Constants.SCREEN.MARGIN + 10, 12, 12 },
+		isVisible = function(self) return (Tracker.getViewedPokemon() or {}).isShiny end,
+		updateSelf = function(self)
+			self.iconColors[1] = self.isHighlighted and "Intermediate text" or "Default text"
+		end,
+		onClick = function(self)
+			self:activatePulsing()
+		end,
+		pulse = function(self)
+			self.isHighlighted = not self.isHighlighted
+			self:updateSelf()
+			Program.redraw(true)
+		end,
+		activatePulsing = function(self)
+			-- Reset the shiny pulse effect, lasts 15 seconds
+			Program.removeFrameCounter("ShinyPulse")
+			Program.addFrameCounter("ShinyPulse", 45, function()
+				self:pulse()
+			end, 19, true)
+			self:pulse()
+		end,
+	},
 	TypeDefenses = {
 		-- Invisible button area for the type defenses boxes
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -489,7 +516,7 @@ function TrackerScreen.buildCarousel()
 		getContentList = function(pokemonID)
 			local noteText = Tracker.getNote(pokemonID)
 			if Main.IsOnBizhawk() then
-				if noteText ~= nil and noteText ~= "" then
+				if not Utils.isNilOrEmpty(noteText) then
 					return { noteText }
 				else
 					return { TrackerScreen.Buttons.NotepadTracking }
@@ -728,7 +755,7 @@ function TrackerScreen.openEditStepGoalWindow()
 
 	forms.button(form, Resources.AllScreens.Save, function()
 		local formInput = forms.gettext(textBox)
-		if formInput ~= nil and formInput ~= "" then
+		if not Utils.isNilOrEmpty(formInput) then
 			local newStepGoal = tonumber(formInput)
 			if newStepGoal ~= nil then
 				Program.Pedometer.goalSteps = newStepGoal
@@ -839,7 +866,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			end
 		end
 	else
-		if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
+		if not Utils.isNilOrEmpty(data.p.lastlevel) then
 			extraInfoText = string.format("%s %s.%s", Resources.TrackerScreen.BattleLastSeen, Resources.TrackerScreen.LevelAbbreviation, data.p.lastlevel)
 		else
 			extraInfoText = Resources.TrackerScreen.BattleNewEncounter
@@ -977,6 +1004,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
 	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+	Drawing.drawButton(TrackerScreen.Buttons.ShinyEffect, shadowcolor)
 
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
@@ -1243,11 +1271,31 @@ function TrackerScreen.drawBallPicker()
 	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, canvas.shadow)
 	Drawing.drawButton(TrackerScreen.Buttons.RerollBallPicker, canvas.shadow)
 
-	local randomBallText = string.format("%s:", Resources.TrackerScreen.RandomBallChosen)
-	local chosenBallText = TrackerScreen.PokeBalls.getLabel(TrackerScreen.PokeBalls.chosenBall)
+	local botText = TrackerScreen.PokeBalls.getLabel(TrackerScreen.PokeBalls.chosenBall)
+	local topText, botColor
+	if EventHandler.Queues.BallRedeems.HasPickedBall then
+		local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
+		local direction = EventHandler.Queues.BallRedeems.ChosenDirection or ""
+		if not Utils.isNilOrEmpty(username) then
+			topText = string.format("%s %s:", username, Resources.TrackerScreen.RandomBallUserPicks)
+		else
+			topText = string.format("%s:", Resources.TrackerScreen.RandomBallUserChosen)
+		end
+		if direction == "Random" then
+			botText = botText .. string.format(" (%s)", Utils.firstToUpper(direction))
+		end
+		botColor = Theme.COLORS["Positive text"]
+	else
+		topText = string.format("%s:", Resources.TrackerScreen.RandomBallChosen)
+		botColor = canvas.highlight
+	end
+
+	local topCenterX = math.max(Utils.getCenteredTextX(topText, canvas.w) - 1, 1) -- Minimum of 1
+	local botCenterX = math.max(Utils.getCenteredTextX(botText, canvas.w) - 1, 1) -- Minimum of 1
+
 	gui.drawRectangle(canvas.x, canvas.y2, canvas.w, canvas.h2, canvas.border, canvas.fill)
-	Drawing.drawText(canvas.x + Utils.getCenteredTextX(randomBallText, canvas.w), canvas.y2 + 1, randomBallText, canvas.text, canvas.shadow)
-	Drawing.drawText(canvas.x + Utils.getCenteredTextX(chosenBallText, canvas.w), canvas.y2 + Constants.SCREEN.LINESPACING, chosenBallText, canvas.highlight, canvas.shadow)
+	Drawing.drawText(canvas.x + topCenterX, canvas.y2 + 1, topText, canvas.text, canvas.shadow)
+	Drawing.drawText(canvas.x + botCenterX, canvas.y2 + Constants.SCREEN.LINESPACING, botText, botColor, canvas.shadow)
 end
 
 function TrackerScreen.drawFavorites()

@@ -54,9 +54,11 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Heals in Bag Screen
+### Stream Connect for Twitch & Streamerbot
 
-![A screen showing a list of items in the player's item bag, most of which are healing items with little icons next to them.](https://user-images.githubusercontent.com/4258818/272361505-4cc15595-f93a-475d-83ca-d6f5cc2d9e4b.png)
+Read more about this cool new feature here: [Stream Connect Guide](https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide)
+
+![The Stream Connect status screen, showing the Tracker successfully connected and a few settings.](https://github.com/besteon/Ironmon-Tracker/assets/4258818/744bd5c6-3141-4d10-8e43-00746099951d)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

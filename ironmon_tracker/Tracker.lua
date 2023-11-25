@@ -305,7 +305,7 @@ end
 --- Returns info on which Rival the player is fighting throughout the game. If not set, returns nil
 --- @return string? nameAndDirection FRLG: "Left/Middle/Right", RSE: "TrainerName Left/Middle/Right"
 function Tracker.getWhichRival()
-	if Tracker.Data.whichRival == "" then
+	if Utils.isNilOrEmpty(Tracker.Data.whichRival) then
 		return nil
 	else
 		return Tracker.Data.whichRival
@@ -457,7 +457,7 @@ end
 function Tracker.getGhostPokemon()
 	local defaultPokemon = Tracker.getDefaultPokemon()
 	defaultPokemon.pokemonID = 413
-	defaultPokemon.name = "Ghost"
+	defaultPokemon.name = Resources.TrackerScreen.UnidentifiedGhost or "Ghost"
 	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
 	return defaultPokemon
 end

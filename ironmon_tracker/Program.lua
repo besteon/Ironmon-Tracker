@@ -162,7 +162,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING or StreamConnectOverlay.isDisplayed or UpdateScreen.showNotes
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -266,6 +266,7 @@ function Program.mainLoop()
 	end
 	Input.checkForInput()
 	Program.update()
+	Network.update()
 	Battle.update()
 	CustomCode.afterEachFrame()
 	Program.redraw(false)
@@ -291,8 +292,11 @@ function Program.redraw(forced)
 		Program.GameTimer:draw()
 
 		-- These screens occupy the main game screen space, overlayed on top, and need their own check; order matters
+		-- TODO: Create some sort of combined overlay detection variable
 		if UpdateScreen.showNotes then
 			UpdateScreen.drawReleaseNotesOverlay()
+		elseif StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.drawScreen()
 		elseif LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
 		end
@@ -858,15 +862,14 @@ function Program.HandleExit()
 	client.SetGameExtraPadding(0, 0, 0, 0)
 	forms.destroyall()
 
-	-- Emulator is closing as expected; no crash
-	CrashRecoveryScreen.logCrashReport(false)
+	Main.ExitSafely(false)
 end
 
 -- Returns focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
 function Program.focusBizhawkWindow()
 	if not Main.IsOnBizhawk() then return end
 	local bizhawkWindowName = GameSettings.getRomName()
-	if bizhawkWindowName and bizhawkWindowName ~= "" then
+	if not Utils.isNilOrEmpty(bizhawkWindowName) then
 		local command = string.format("AppActivate(%s)", bizhawkWindowName)
 		FileManager.tryOsExecute(command)
 	end
@@ -1112,9 +1115,13 @@ function Program.getDefeatedTrainersByCombinedArea(mapIdList)
 end
 
 --- @param tmhmNumber number The TM/HM number to use for move lookup
+--- @param isHM? boolean If this is an HM number; default: false
 --- @return number moveId The moveId corresponding to the tm/hm number
-function Program.getMoveIdFromTMHMNumber(tmhmNumber)
+function Program.getMoveIdFromTMHMNumber(tmhmNumber, isHM)
 	tmhmNumber = tmhmNumber - 1 -- TM 01 is at address position 0
+	if isHM then
+		tmhmNumber = tmhmNumber + 50
+	end
 	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * 0x2)) -- Each ID is 2 bytes in size
 end
 
@@ -1200,6 +1207,32 @@ function Program.recalcLeadPokemonHealingInfo()
 			items.healingPercentage = items.healingPercentage + percentageAmt
 		end
 	end
+end
+
+---Returns sorted lists of obtained TM & HM items in the bag
+---@return table tms, table hms
+function Program.getTMsHMsBagItems()
+	local tms, hms = {}, {}
+	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
+	local address = Utils.getSaveBlock1Addr() + GameSettings.bagPocket_TmHm_offset
+	for i = 0, (GameSettings.bagPocket_TmHm_Size - 1), 1 do
+		local itemid_and_quantity = Memory.readdword(address + i * 0x4)
+		local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
+		if itemID ~= 0 then
+			local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
+			if key ~= nil then
+				quantity = Utils.bit_xor(quantity, key)
+			end
+			if MiscData.TMs[itemID] then
+				table.insert(tms, { id = itemID, quantity = quantity })
+			elseif MiscData.HMs[itemID] then
+				table.insert(hms, { id = itemID, quantity = quantity })
+			end
+		end
+	end
+	table.sort(tms, function(a,b) return a.id < b.id end)
+	table.sort(hms, function(a,b) return a.id < b.id end)
+	return tms, hms
 end
 
 Program.DefaultPokemon = {

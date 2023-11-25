@@ -80,7 +80,31 @@ StreamerScreen.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(NavigationMenu) end),
+	StreamConnectOpen = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.StreamerScreen.ButtonStreamConnect end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 115, 100, 16 },
+		updateSelf = function(self)
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				self.image = Constants.PixelImages.CHECKMARK
+				self.iconColors = { "Positive text" }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				self.image = Constants.PixelImages.CLOCK
+				self.iconColors = { "Intermediate text" }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				self.image = Constants.PixelImages.CROSS
+				self.iconColors = { "Negative text" }
+			end
+		end,
+		onClick = function(self) StreamConnectOverlay.open() end,
+	},
+	Back = Drawing.createUIElementBackButton(function()
+		if StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.close()
+		end
+		Program.changeScreenView(NavigationMenu)
+	end),
 }
 
 function StreamerScreen.initialize()
@@ -98,6 +122,12 @@ function StreamerScreen.initialize()
 	StreamerScreen.loadFavorites()
 end
 
+function StreamerScreen.refreshButtons()
+	for _, button in pairs(StreamerScreen.Buttons) do
+		if button.updateSelf ~= nil then button:updateSelf() end
+	end
+end
+
 function StreamerScreen.openEditAttemptsWindow()
 	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptEditAttemptsTitle, 320, 130)
 
@@ -105,7 +135,7 @@ function StreamerScreen.openEditAttemptsWindow()
 	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
 	forms.button(form, Resources.AllScreens.Save, function()
 		local formInput = forms.gettext(textBox)
-		if formInput ~= nil and formInput ~= "" then
+		if not Utils.isNilOrEmpty(formInput) then
 			local newAttemptsCount = tonumber(formInput)
 			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
 				Main.currentSeed = newAttemptsCount

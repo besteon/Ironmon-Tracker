@@ -72,16 +72,28 @@ end
 
 -- Alters the string by changing the first character to uppercase
 function Utils.firstToUpper(str)
-	if str == nil or str == "" then return str end
+	if Utils.isNilOrEmpty(str) then return str end
 	str = str:gsub("^%l", Utils.toUpperUTF8)
 	return str
 end
 
 -- Alters the string by changing the first character of each word to uppercase
 function Utils.firstToUpperEachWord(str)
-	if str == nil or str == "" then return str end
+	if Utils.isNilOrEmpty(str) then return str end
 	str = string.gsub(" " .. str, "[%s%.%-]%l", Utils.toUpperUTF8):sub(2)
 	return str
+end
+
+---Returns true if the `str` is nil or empty (""); false otherwise
+---@param str string|nil
+---@param trimWhitespace? boolean Optional, remove leading and trailing whitespice
+---@return boolean
+function Utils.isNilOrEmpty(str, trimWhitespace)
+	if not str then return true end
+	if trimWhitespace then
+		str = str:match("^%s*(.-)%s*$") or ""
+	end
+	return str == ""
 end
 
 function Utils.split(s, delimiter, trimWhitespace)
@@ -129,7 +141,7 @@ function Utils.centerTextOffset(text, charSize, width)
 end
 
 function Utils.calcWordPixelLength(text)
-	if text == nil or text == "" or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if Utils.isNilOrEmpty(text) or Utils.startsWithJapaneseChineseChar(text) then return 0 end
 	local pattern = "."
 	if Main.supportsSpecialChars then
 		---@diagnostic disable-next-line: undefined-global, undefined-field
@@ -178,7 +190,7 @@ end
 
 -- Safely formats the text and encodes any special characters (if incompatible with the emulator)
 function Utils.formatSpecialCharacters(text)
-	if text == nil or text == "" then return "" end
+	if Utils.isNilOrEmpty(text) then return "" end
 
 	-- For each known special character, attempt to replace it
 	for _, c in pairs(Constants.CharCategories.Special) do
@@ -205,7 +217,7 @@ function Utils.toLowerUTF8(str)
 end
 
 function Utils.containsText(text, searchString, ignoreAccentedChars)
-	if text == nil or text == "" or searchString == nil then
+	if Utils.isNilOrEmpty(text) or searchString == nil then
 		return false
 	end
 	text = Utils.toLowerUTF8(text)
@@ -234,7 +246,7 @@ end
 
 -- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode
 function Utils.encodeDecodeForSettingsIni(text, doEncode)
-	if text == nil or text == "" then return "" end
+	if Utils.isNilOrEmpty(text) then return "" end
 
 	local charsToEncode = {
 		{ raw = "\n", encoded = "\\n", },
@@ -283,7 +295,7 @@ end
 -- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
 -- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
 function Utils.getClosestWord(word, wordlist, threshold)
-	if word == nil or word == "" then return word end
+	if Utils.isNilOrEmpty(word) then return word end
 	threshold = threshold or 3
 	local function min(a, b, c) return math.min(math.min(a, b), c) end
 	local function matrix(row, col)
@@ -347,7 +359,7 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 	Utils.setFormLocation(form, x, y)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
 		local property = "BlocksInputWhenFocused"
-		if (forms.getproperty(form, property) or "") ~= "" then
+		if not Utils.isNilOrEmpty(forms.getproperty(form, property)) then
 			forms.setproperty(form, property, blockInput)
 		end
 	end
@@ -381,6 +393,15 @@ function Utils.randomTrainerID()
 		return math.random(742)
 	end
 	return 0
+end
+
+---@return string guid
+function Utils.newGUID()
+	local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+	return (string.gsub(template, '[xy]', function (c)
+		local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+		return string.format('%x', v)
+	end))
 end
 
 -- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)
@@ -882,7 +903,7 @@ function Utils.getCenterHealColor()
 end
 
 function Utils.getWordWrapLines(str, limit)
-	if str == nil or str == "" then return {} end
+	if Utils.isNilOrEmpty(str) then return {} end
 	limit = limit or 72
 
 	local firstSpace = str:find("(%s+)()(%S+)()")
@@ -955,6 +976,16 @@ function Utils.getGameStat(statIndex)
 	end
 
 	return math.floor(gameStatValue)
+end
+
+---Returns 1, 2, or 3 depending on game.
+---FRLG: 1=Bulbasaur (left), 2=Squirtle (middle), 3=Charmander (right)
+---RSE: 1=Treecko (left), 2=Torchic (middle), 3=Mudkip (right)
+---@return number starterChoice
+function Utils.getStarterMonChoice()
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local varOffset = GameSettings.game == 3 and 0x62 or 0x46
+	return 1 + Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + varOffset)
 end
 
 -- Returns a new list, sorted by their indexKey number (default: 'index' attribute)
@@ -1068,7 +1099,7 @@ function Utils.gridAlign(orderedList, startX, startY, colSpacer, rowSpacer, list
 end
 
 function Utils.openBrowserWindow(url, notifyMessage)
-	if url == nil or url == "" then return end
+	if Utils.isNilOrEmpty(url) then return end
 
 	notifyMessage = notifyMessage or "Unable to open browser window. Check Lua Console for link."
 
@@ -1110,7 +1141,7 @@ end
 
 -- Returns true if an update is available (checked via compareFunc (optional), or default); otherwise returns false
 function Utils.checkForVersionUpdate(url, currentVersion, versionResponsePattern, compareFunc)
-	if url == nil or url == "" or currentVersion == nil or currentVersion == "" or versionResponsePattern == nil or versionResponsePattern == "" then
+	if Utils.isNilOrEmpty(url) or Utils.isNilOrEmpty(currentVersion) or Utils.isNilOrEmpty(versionResponsePattern) then
 		return false
 	end
 
