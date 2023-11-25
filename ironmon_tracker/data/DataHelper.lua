@@ -1403,7 +1403,7 @@ function DataHelper.EventRequests.getTMsHMs(params)
 		local hmTexts = {}
 		for _, item in ipairs(hms or {}) do
 			local hmNumber = item.id - 339 + 1 -- 339 is the item ID of the first HM
-			local moveId = Program.getMoveIdFromTMHMNumber(hmNumber)
+			local moveId = Program.getMoveIdFromTMHMNumber(hmNumber, true)
 			if MoveData.isValid(moveId) then
 				local hmText = string.format("%s (HM%02d)", MoveData.Moves[moveId].name, hmNumber)
 				table.insert(hmTexts, hmText)

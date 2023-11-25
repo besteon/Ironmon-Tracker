@@ -1115,9 +1115,13 @@ function Program.getDefeatedTrainersByCombinedArea(mapIdList)
 end
 
 --- @param tmhmNumber number The TM/HM number to use for move lookup
+--- @param isHM? boolean If this is an HM number; default: false
 --- @return number moveId The moveId corresponding to the tm/hm number
-function Program.getMoveIdFromTMHMNumber(tmhmNumber)
+function Program.getMoveIdFromTMHMNumber(tmhmNumber, isHM)
 	tmhmNumber = tmhmNumber - 1 -- TM 01 is at address position 0
+	if isHM then
+		tmhmNumber = tmhmNumber + 50
+	end
 	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * 0x2)) -- Each ID is 2 bytes in size
 end
 
