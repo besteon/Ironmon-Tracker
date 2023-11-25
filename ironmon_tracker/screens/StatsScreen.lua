@@ -1,4 +1,7 @@
 StatsScreen = {
+	Labels = {
+		header = "Game Stats",
+	},
 	Colors = {
 		text = "Lower box text",
 		border = "Lower box border",
@@ -8,15 +11,7 @@ StatsScreen = {
 
 StatsScreen.StatTables = {
 	{
-		getText = function() return Resources.StatsScreen.StatPlayTime end,
-		getValue = function() return Program.GameTimer:getText() end,
-	},
-	{
-		getText = function() return Resources.StatsScreen.StatTotalAttempts end,
-		getValue = function() return Main.currentSeed or 1 end,
-	},
-	{
-		getText = function() return Resources.StatsScreen.StatPCsUsed end,
+		name = Constants.Words.POKE .. "centers Used",
 		getValue = function()
 			local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER) or 0
 			local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME) or 0
@@ -25,37 +20,44 @@ StatsScreen.StatTables = {
 		end,
 	},
 	{
-		getText = function() return Resources.StatsScreen.StatTrainerBattles end,
+		name = "Trainer Battles",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES) or 0 end,
 	},
 	{
-		getText = function() return Resources.StatsScreen.StatWildEncounters end,
+		name = "Wild Encounters",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES) or 0 end,
 	},
 	{
-		getText = function() return Resources.StatsScreen.StatPokemonCaught end,
+		name = Constants.Words.POKEMON .. " Caught",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.POKEMON_CAPTURES) or 0 end,
 	},
-	{ -- Temporarily adding this back in: it's not # items bought but rather # of bulk purchases
-		getText = function() return Resources.StatsScreen.StatShopPurchases end,
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
-	},
+	-- { -- Temporarily removing this as it's confusing: it's not # items bought but rather # of bulk purchases
+	-- 	name = "Bulk Shop Purcahses",
+	-- 	getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
+	-- },
 	{
-		getText = function() return Resources.StatsScreen.StatGameSaves end,
+		name = "Game Saves",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0 end,
 	},
 	{
-		getText = function() return Resources.StatsScreen.StatTotalSteps end,
+		name = "Total Steps",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.STEPS) or 0 end,
 	},
 	{
-		getText = function() return Resources.StatsScreen.StatStrugglesUsed end,
+		name = "Struggles Used",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.USED_STRUGGLE) or 0 end,
 	},
 }
 
 StatsScreen.Buttons = {
-	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(GameOptionsScreen) end),
+	Back = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Back",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
+		onClick = function(self)
+			Program.changeScreenView(NavigationMenu)
+		end
+	},
 }
 
 function StatsScreen.initialize()
@@ -94,7 +96,7 @@ function StatsScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.StatsScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX + 41, Constants.SCREEN.MARGIN - 2, StatsScreen.Labels.header:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[StatsScreen.Colors.border], Theme.COLORS[StatsScreen.Colors.boxFill])
@@ -102,11 +104,8 @@ function StatsScreen.drawScreen()
 	-- Draw all stat tables
 	local colXOffset = 90
 	for _, statTable in ipairs(StatsScreen.StatTables) do
-		local statValue = statTable.getValue() or 0
-		if type(statValue) == "number" then
-			statValue = Utils.formatNumberWithCommas(statValue)
-		end
-		Drawing.drawText(statTable.x, statTable.y, statTable:getText(), Theme.COLORS[statTable.textColor], shadowcolor)
+		local statValue = Utils.formatNumberWithCommas(statTable.getValue() or 0)
+		Drawing.drawText(statTable.x, statTable.y, statTable.name, Theme.COLORS[statTable.textColor], shadowcolor)
 		Drawing.drawText(statTable.x + colXOffset, statTable.y, statValue, Theme.COLORS[statTable.textColor], shadowcolor)
 	end
 

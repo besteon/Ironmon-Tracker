@@ -1,84 +1,86 @@
----@diagnostic disable: duplicate-set-field
 Memory = {}
 
-function Memory.initialize()
-	if Memory.hasInitialized then return end
-	-- Define how to read/write memory from the game depending on which emulator is in use
-	if Main.IsOnBizhawk() then
-		Memory.read8 = function(addr)
-			local m, a = Memory.splitDomainAndAddress(addr)
-			return memory.read_u8(a, m)
-		end
-		Memory.read16 = function(addr)
-			local m, a = Memory.splitDomainAndAddress(addr)
-			return memory.read_u16_le(a, m)
-		end
-		Memory.read32 = function(addr)
-			local m, a = Memory.splitDomainAndAddress(addr)
-			return memory.read_u32_le(a, m)
-		end
-		Memory.write8 = function(addr, value)
-			local m, a = Memory.splitDomainAndAddress(addr)
-			return memory.write_u8(a, value, m)
-		end
-		Memory.write16 = function(addr, value)
-			local m, a = Memory.splitDomainAndAddress(addr)
-			return memory.write_u16_le(a, value, m)
-		end
-		Memory.write32 = function(addr, value)
-			local m, a = Memory.splitDomainAndAddress(addr)
-			return memory.write_u32_le(a, value, m)
-		end
-	else
-		Memory.read8 = function(addr)
-			return emu:read8(addr)
-		end
-		Memory.read16 = function(addr)
-			return Memory.read8(addr) + Utils.bit_lshift(Memory.read8(addr + 0x01), 8)
-		end
-		Memory.read32 = function(addr)
-			return Memory.read16(addr) + Utils.bit_lshift(Memory.read16(addr + 0x02), 16)
-		end
-		Memory.write8 = function(addr, value) return emu:write8(addr, value) end
-		Memory.write16 = function(addr, value) return emu:write16(addr, value) end
-		Memory.write32 = function(addr, value) return emu:write32(addr, value) end
+function Memory.read(addr, size)
+	if addr == nil or addr <= 0x0 then
+		print(debug.traceback())
+		print("[ERROR] Unable to read game memory from unknown address.")
+		return 0
 	end
-	Memory.hasInitialized = true
+
+	local mem = ""
+	local memdomain = bit.rshift(addr, 24)
+	if memdomain == 0 then
+		mem = "BIOS"
+	elseif memdomain == 2 then
+		mem = "EWRAM"
+	elseif memdomain == 3 then
+		mem = "IWRAM"
+	elseif memdomain == 8 then
+		mem = "ROM"
+	end
+	addr = bit.band(addr, 0xFFFFFF)
+	if size == 1 then
+		return memory.read_u8(addr, mem)
+	elseif size == 2 then
+		return memory.read_u16_le(addr, mem)
+	elseif size == 3 then
+		return memory.read_u24_le(addr, mem)
+	else
+		return memory.read_u32_le(addr, mem)
+	end
+end
+
+function Memory.readdword(addr)
+	return Memory.read(addr, 4)
+end
+
+function Memory.readword(addr)
+	return Memory.read(addr, 2)
 end
 
 function Memory.readbyte(addr)
-	return Memory.read8(addr)
-end
-function Memory.readword(addr)
-	return Memory.read16(addr)
-end
-function Memory.readdword(addr)
-	return Memory.read32(addr)
+	return Memory.read(addr, 1)
 end
 
--- Unless absolutely necessary, the Tracker must NOT write to memory
-function Memory.writebyte(addr, value)
-	return Memory.write8(addr, value)
-end
-function Memory.writeword(addr, value)
-	return Memory.write16(addr, value)
-end
-function Memory.writedword(addr, value)
-	return Memory.write32(addr, value)
-end
-
--- Splits the address into [Memory Domain], [Remaining Addr]
-function Memory.splitDomainAndAddress(addr)
-	local memdomain = Utils.bit_rshift(addr, 24)
-	local splitaddr = Utils.bit_and(addr, 0xFFFFFF)
-	if memdomain == 0 then
-		return "BIOS", splitaddr
-	elseif memdomain == 2 then
-		return "EWRAM", splitaddr
-	elseif memdomain == 3 then
-		return "IWRAM", splitaddr
-	elseif memdomain == 8 then
-		return "ROM", splitaddr
+-- Unless absolutely necessary (looking at you fishing rods), do NOT write to memory
+function Memory.write(addr, value, size)
+	if addr == nil or addr <= 0x0 then
+		print(debug.traceback())
+		print("[ERROR] Unable to write to game memory using an unknown address.")
+		return false
 	end
-	return nil, addr
+
+	local mem = ""
+	local memdomain = bit.rshift(addr, 24)
+	if memdomain == 0 then
+		mem = "BIOS"
+	elseif memdomain == 2 then
+		mem = "EWRAM"
+	elseif memdomain == 3 then
+		mem = "IWRAM"
+	elseif memdomain == 8 then
+		mem = "ROM"
+	end
+	addr = bit.band(addr, 0xFFFFFF)
+	if size == 1 then
+		return memory.write_u8(addr, value, mem)
+	elseif size == 2 then
+		return memory.write_u16_le(addr, value, mem)
+	elseif size == 3 then
+		return memory.write_u24_le(addr, value, mem)
+	else
+		return memory.write_u32_le(addr, value, mem)
+	end
+end
+
+function Memory.writedword(addr, value)
+	return Memory.write(addr, value, 4)
+end
+
+function Memory.writeword(addr, value)
+	return Memory.write(addr, value, 2)
+end
+
+function Memory.writebyte(addr, value)
+	return Memory.write(addr, value, 1)
 end
