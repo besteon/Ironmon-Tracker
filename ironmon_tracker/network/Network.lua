@@ -319,11 +319,11 @@ function Network.openUpdateRequiredPrompt()
 	y = y + lineHeight
 	-- Bottom row buttons
 	y = y + 10
-	forms.button(form, "Show Me", function() -- TODO: Language
+	forms.button(form, Resources.StreamConnect.PromptNetworkShowMe, function()
 		Utils.closeBizhawkForm(form)
 		StreamConnectOverlay.openGetCodeWindow()
 	end, 40, y, 80, lineHeight + 5)
-	forms.button(form, "Turn Off Stream Connect", function() -- TODO: Language
+	forms.button(form, Resources.StreamConnect.PromptNetworkTurnOff, function()
 		Network.Options["AutoConnectStartup"] = false
 		Main.SaveSettings(true)
 		Network.closeConnections()

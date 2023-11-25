@@ -284,6 +284,8 @@ function EventHandler.addDefaultEvents()
 	for key, event in pairs(EventHandler.DefaultEvents) do
 		event.IsEnabled = true
 		event.Key = key
+		event.Name = Resources.StreamConnect[tostring(key) .. "_Name"]
+		event.Help = Resources.StreamConnect[tostring(key) .. "_Help"]
 		local eventCopy = EventHandler.IEvent:new()
 		FileManager.copyTable(event, eventCopy)
 		EventHandler.addNewEvent(eventCopy)
@@ -430,156 +432,115 @@ EventHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
 	CMD_Pokemon = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Pokémon Info", -- TODO: Language
 		Command = "!pokemon",
-		Help = "name > Displays useful game info for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.SanitizedInput) end,
 	},
 	CMD_BST = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Pokémon BST", -- TODO: Language
 		Command = "!bst",
-		Help = "name > Displays the base stat total (BST) for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.SanitizedInput) end,
 	},
 	CMD_Weak = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Pokémon Weaknesses", -- TODO: Language
 		Command = "!weak",
-		Help = "name > Displays the weaknesses for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.SanitizedInput) end,
 	},
 	CMD_Move = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Move Info", -- TODO: Language
 		Command = "!move",
-		Help = "name > Displays game info for a move.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.SanitizedInput) end,
 	},
 	CMD_Ability = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Ability Info", -- TODO: Language
 		Command = "!ability",
-		Help = "name > Displays game info for a Pokémon's ability.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.SanitizedInput) end,
 	},
 	CMD_Route = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Route Info", -- TODO: Language
 		Command = "!route",
-		Help = "name > Displays trainer and wild encounter info for a route or area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.SanitizedInput) end,
 	},
 	CMD_Dungeon = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Dungeon Info", -- TODO: Language
 		Command = "!dungeon",
-		Help = "name > Displays info about which trainers have been defeated for an area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
 	},
 	-- CMD_RemainingTrainers = {
 	-- 	Type = EventHandler.EventTypes.Command,
-	-- 	Name = "Remaining Trainers", -- TODO: Language
+	-- 	Name = "Remaining Trainers", -- TODO: Move to Resources file
 	-- 	Command = "!trainers",
-	-- 	Help = "> Displays a summary of trainers that have yet to be defeated.",
+	-- 	Help = "> Displays a summary of trainers that have yet to be defeated.", -- TODO: Move to Resources file
 	-- 	Fulfill = function(self, request) return DataHelper.EventRequests.getRemainingTrainers(request.SanitizedInput) end,
 	-- },
 	CMD_Pivots = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Pivots Seen", -- TODO: Language
 		Command = "!pivots",
-		Help = "name > Displays known early game wild encounters for an area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.SanitizedInput) end,
 	},
 	CMD_Revo = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Pokémon Random Evolutions", -- TODO: Language
 		Command = "!revo",
-		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.SanitizedInput) end,
 	},
 	CMD_Coverage = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Move Coverage Effectiveness", -- TODO: Language
 		Command = "!coverage",
-		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.SanitizedInput) end,
 	},
 	CMD_Heals = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Heals in Bag", -- TODO: Language
 		Command = "!heals",
-		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.SanitizedInput) end,
 	},
 	CMD_TMs = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "TM Lookup", -- TODO: Language
 		Command = "!tms",
-		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.SanitizedInput) end,
 	},
 	CMD_Search = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Search Tracked Info", -- TODO: Language
 		Command = "!search",
-		Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.SanitizedInput) end,
 	},
 	CMD_SearchNotes = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Search Notes on Pokémon", -- TODO: Language
 		Command = "!searchnotes",
-		Help = "notes > Displays a list of Pokémon with any matching notes.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
 	},
 	CMD_Theme = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Theme Export", -- TODO: Language
 		Command = "!theme",
-		Help = "name > Displays the name and code string for a Tracker theme.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.SanitizedInput) end,
 	},
 	CMD_GameStats = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Game Stats", -- TODO: Language
 		Command = "!gamestats",
-		Help = "> Displays fun stats for the current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.SanitizedInput) end,
 	},
 	CMD_Progress = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Game Progress", -- TODO: Language
 		Command = "!progress",
-		Help = "> Displays fun progress percentages for the current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.SanitizedInput) end,
 	},
 	CMD_Log = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Log Randomizer Settings", -- TODO: Language
 		Command = "!log",
-		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.SanitizedInput) end,
 	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "About the Tracker", -- TODO: Language
 		Command = "!about",
-		Help = "> Displays info about the Ironmon Tracker and game being played.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.SanitizedInput) end,
 	},
 	CMD_Help = {
 		Type = EventHandler.EventTypes.Command,
-		Name = "Command Help", -- TODO: Language
 		Command = "!help",
-		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.SanitizedInput) end,
 	},
 
 	-- CR_: Channel Rewards (Point Redeems)
 	CR_PickBallOnce = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Pick Starter Ball (One Try)",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", "O_RequireChosenMon" },
 		O_SendMessage = true,
@@ -650,7 +611,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_PickBallUntilOut = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Pick Starter Ball (Until Out)",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", "O_RequireChosenMon" },
 		O_SendMessage = true,
@@ -728,7 +688,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeFavorite = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Starter Favorite: # NAME",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", },
 		O_SendMessage = true,
@@ -754,7 +713,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeFavoriteOne = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Starter Favorite: #1",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", },
 		O_SendMessage = true,
@@ -779,7 +737,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeFavoriteTwo = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Starter Favorite: #2",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", },
 		O_SendMessage = true,
@@ -804,7 +761,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeFavoriteThree = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Starter Favorite: #3",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", },
 		O_SendMessage = true,
@@ -829,7 +785,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeTheme = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Tracker Theme",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", "O_Duration", },
 		O_SendMessage = true,
@@ -885,7 +840,6 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeLanguage = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Tracker Language",
 		RewardId = "",
 		Options = { "O_SendMessage", "O_AutoComplete", },
 		O_SendMessage = true,

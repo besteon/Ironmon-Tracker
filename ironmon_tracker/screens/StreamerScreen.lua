@@ -83,7 +83,7 @@ StreamerScreen.Buttons = {
 	StreamConnectOpen = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		getText = function(self) return "Stream Connect" or Resources.StreamerScreen.ButtonStreamConnect end, -- TODO: Language
+		getText = function(self) return Resources.StreamerScreen.ButtonStreamConnect end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 115, 100, 16 },
 		updateSelf = function(self)
 			if Network.CurrentConnection.State == Network.ConnectionState.Established then

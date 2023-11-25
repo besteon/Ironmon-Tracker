@@ -1722,7 +1722,7 @@ function DataHelper.EventRequests.getAbout(params)
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Version, Main.TrackerVersion))
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Game, GameSettings.gamename))
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Attempts, Main.currentSeed or 1))
-	table.insert(info, string.format("%s: v%s", "Streamerbot Code", Network.currentStreamerbotVersion or "N/A")) -- TODO: Language
+	table.insert(info, string.format("%s: v%s", "Streamerbot Code", Network.currentStreamerbotVersion or "N/A"))
 	local prefix = string.format("%s %s", Resources.StartupScreen.Title, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end

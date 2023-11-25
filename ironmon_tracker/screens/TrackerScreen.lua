@@ -1277,9 +1277,9 @@ function TrackerScreen.drawBallPicker()
 		local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
 		local direction = EventHandler.Queues.BallRedeems.ChosenDirection or ""
 		if not Utils.isNilOrEmpty(username) then
-			topText = string.format("%s %s:", username, "picks") -- TODO: Language
+			topText = string.format("%s %s:", username, Resources.TrackerScreen.RandomBallUserPicks)
 		else
-			topText = string.format("%s:", "Chosen Ball")
+			topText = string.format("%s:", Resources.TrackerScreen.RandomBallUserChosen)
 		end
 		if direction == "Random" then
 			botText = botText .. string.format(" (%s)", Utils.firstToUpper(direction))
