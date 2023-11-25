@@ -57,7 +57,11 @@ Symbols = {
 		},
 	},
 	symbolSearch = {
-		{"sSaveDialogDelay",0x0},
+		{"BattleIntroDrawPartySummaryScreens",0x1},
+		{"BattleIntroOpponentSendsOutMonAnimation",0x1},
+		{"HandleEndTurn_FinishBattle",0x1},
+		{"gBattleMainFunc",0x1},
+		{"HandleEndTurn_FinishBattle",0x1}
 	},
 	FRToOtherGameNameMap = {
 		["sBattleBuffersTransferData"] = {
@@ -72,14 +76,6 @@ Symbols = {
 			[0] = "SendOutMonAnimation",
 			[1] = "SendOutMonAnimation",
 			[2] = "BattleIntroOpponent2SendsOutMonAnimation",
-		},
-		["sSaveDialogDelay"] = {
-			[0]="saveDialogTimer",
-			[1]="saveDialogTimer",
-			[2]="sSaveDialogTimer",
-		},
-		["SaveDialogCB_ReturnSuccess"] = {
-			[2]="SaveSuccessCallback",
 		}
 	},
 	outputFile = "addresses.txt",
@@ -92,8 +88,7 @@ function Symbols.populateSymbolsMap()
 		local gameValues = Symbols.symbolSources[i]
 		gameValues.symbols = {}
 		for j = 1, #Symbols.symbolSearch, 1 do
-			print (FileManager.prependDir(gameValues.fileName))
-			local symbolFile = io.open(FileManager.prependDir(gameValues.fileName),"r") or ""
+			local symbolFile = io.open(gameValues.fileName,"r") or ""
 			local found = false
 			local variableName = Symbols.symbolSearch[j][1]
 			if Symbols.FRToOtherGameNameMap[variableName] ~= nil and Symbols.FRToOtherGameNameMap[variableName][gameValues.gameType] ~= nil then
@@ -115,7 +110,7 @@ function Symbols.populateSymbolsMap()
 end
 
 function Symbols.writeSymbolsToFile()
-	local writeFile = io.open(FileManager.prependDir(Symbols.outputFile),"w+")
+	local writeFile = io.open(Symbols.outputFile,"w+")
 	if writeFile ~= nil then
 		for i = 1 , #Symbols.symbolSearch, 1 do
 			writeFile:write(Symbols.symbolSearch[i][1] .. " = {\n\t{")
