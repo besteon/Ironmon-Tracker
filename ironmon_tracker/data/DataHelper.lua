@@ -1089,6 +1089,13 @@ end
 
 ---@param params string?
 ---@return string response
+function DataHelper.EventRequests.getRemainingTrainers(params)
+	-- TODO: Implement in a later patch
+	return buildDefaultResponse(params)
+end
+
+---@param params string?
+---@return string response
 function DataHelper.EventRequests.getPivots(params)
 	local info = {}
 	local mapIds
@@ -1135,7 +1142,12 @@ function DataHelper.EventRequests.getRevo(params)
 	local revo = PokemonRevoData.getEvoTable(pokemonID, targetEvoId)
 	if not revo then
 		local pokemon = PokemonData.Pokemon[pokemonID or false] or {}
-		return buildDefaultResponse(pokemon.name or params)
+		if pokemon.evolution == PokemonData.Evolutions.NONE then
+			local prefix = string.format("%s %s %s", pokemon.name, "Evos", OUTPUT_CHAR)
+			return buildResponse(prefix, "Does not evolve.")
+		else
+			return buildDefaultResponse(pokemon.name or params)
+		end
 	end
 
 	local info = {}
@@ -1145,7 +1157,7 @@ function DataHelper.EventRequests.getRevo(params)
 		else return string.format("%.1f%%", p) end
 	end
 	local extraMons = 0
-	for _, revoInfo in ipairs(revo) do
+	for _, revoInfo in ipairs(revo or {}) do
 		if #info < MAX_ITEMS then
 			table.insert(info, string.format("%s %s", PokemonData.Pokemon[revoInfo.id].name, shortenPerc(revoInfo.perc)))
 		else

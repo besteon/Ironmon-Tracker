@@ -477,6 +477,13 @@ EventHandler.DefaultEvents = {
 		Help = "name > Displays info about which trainers have been defeated for an area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
 	},
+	-- CMD_RemainingTrainers = {
+	-- 	Type = EventHandler.EventTypes.Command,
+	-- 	Name = "Remaining Trainers", -- TODO: Language
+	-- 	Command = "!trainers",
+	-- 	Help = "> Displays a summary of trainers that have yet to be defeated.",
+	-- 	Fulfill = function(self, request) return DataHelper.EventRequests.getRemainingTrainers(request.SanitizedInput) end,
+	-- },
 	CMD_Pivots = {
 		Type = EventHandler.EventTypes.Command,
 		Name = "Pivots Seen", -- TODO: Language
