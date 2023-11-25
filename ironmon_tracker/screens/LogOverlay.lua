@@ -262,7 +262,7 @@ function LogOverlay.initialize()
 	if Options["Open Book Play Mode"] then
 		local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
 
-		if (logpath or "") ~= "" then
+		if not Utils.isNilOrEmpty(logpath) then
 			RandomizerLog.loadedLogPath = logpath
 			local success = RandomizerLog.parseLog(logpath)
 
@@ -356,7 +356,7 @@ end
 function LogOverlay.refreshActiveTabGrid()
 	local currentTab = LogOverlay.Windower.currentTab or {}
 	if type(currentTab.realignGrid) == "function" then
-		if LogSearchScreen.searchText ~= "" and LogSearchScreen.AllowedTabViews[currentTab] then
+		if not Utils.isNilOrEmpty(LogSearchScreen.searchText) and LogSearchScreen.AllowedTabViews[currentTab] then
 			currentTab.realignGrid(LogOverlay.Windower.filterGrid, LogSearchScreen.currentSortOrder.sortFunc)
 		else
 			currentTab.realignGrid()
@@ -520,13 +520,13 @@ function LogOverlay.getLogFileFromPrompt()
 	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"
 
 	local workingDir = FileManager.dir
-	if workingDir ~= "" then
+	if not Utils.isNilOrEmpty(workingDir) then
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
 	Utils.tempDisableBizhawkSound()
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if filepath == "" then
+	if Utils.isNilOrEmpty(filepath) then
 		filepath = nil
 	end
 	Utils.tempEnableBizhawkSound()

@@ -10,6 +10,7 @@ FileManager.Folders = {
 	SavedGames = "saved_games", -- needs to be created first to be used
 	BackupSaves = "backup_saves", -- needs to be created first to be used
 	DataCode = "data",
+	Network = "network",
 	ScreensCode = "screens",
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
@@ -27,10 +28,12 @@ FileManager.Files = {
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	TRACKER_CORE = "Ironmon-Tracker.lua",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
+	REQUESTS_DATA = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Network .. FileManager.slash .. "Requests.json",
+	STREAMERBOT_CODE = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Network .. FileManager.slash .. "StreamerbotCodeImport.txt",
+	JSON_LIBRARY = FileManager.Folders.TrackerCode .. FileManager.slash .. "Json.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
 	CRASH_REPORT = FileManager.Folders.TrackerCode .. FileManager.slash .. "crashreport.txt",
-
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -71,6 +74,7 @@ FileManager.Urls = {
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
 	DISCUSSIONS = "https://github.com/besteon/Ironmon-Tracker/discussions/389", -- Discussion: "Help us translate the Ironmon Tracker"
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
+	STREAM_CONNECT = "https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide",
 }
 
 -- All Lua code files used by the Tracker, loaded and initialized in the order listed
@@ -105,6 +109,10 @@ FileManager.LuaCode = {
 	{ name = "Pickle", filepath = "Pickle.lua", },
 	{ name = "Tracker", filepath = "Tracker.lua", },
 	{ name = "MGBA", filepath = "MGBA.lua", },
+	-- Network files
+	{ name = "Network", filepath = FileManager.Folders.Network .. FileManager.slash .. "Network.lua", },
+	{ name = "EventHandler", filepath = FileManager.Folders.Network .. FileManager.slash .. "EventHandler.lua", },
+	{ name = "RequestHandler", filepath = FileManager.Folders.Network .. FileManager.slash .. "RequestHandler.lua", },
 	-- Screen files
 	{ name = "MGBADisplay", filepath = "MGBADisplay.lua", },
 	{ name = "TrackerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackerScreen.lua", },
@@ -142,6 +150,7 @@ FileManager.LuaCode = {
 	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
 	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua"},
+	{ name = "StreamConnectOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamConnectOverlay.lua", },
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
@@ -176,6 +185,7 @@ function FileManager.folderExists(folderpath)
 end
 
 -- Returns the path that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil
+---@return string|nil filepath
 function FileManager.getPathIfExists(filepath)
 	filepath = string.match(filepath or "", "^%s*(.-)%s*$") -- remove leading/trailing spaces
 
@@ -200,6 +210,7 @@ function FileManager.getPathIfExists(filepath)
 end
 
 -- Returns the absolute file path using a local filename/path and the working directory of the Tracker
+---@return string filepath
 function FileManager.prependDir(filenameOrPath)
 	return FileManager.dir .. (filenameOrPath or "")
 end
@@ -606,7 +617,7 @@ function FileManager.readTableFromFile(filepath)
 
 	if file ~= nil then
 		local dataString = file:read("*a")
-		if dataString ~= nil and dataString ~= "" then
+		if not Utils.isNilOrEmpty(dataString) then
 			tableData = Pickle.unpickle(dataString)
 		end
 		file:close()
@@ -630,7 +641,7 @@ function FileManager.readLinesFromFile(filename)
 	end
 
 	local fileContents = file:read("*a")
-	if fileContents ~= nil and fileContents ~= "" then
+	if not Utils.isNilOrEmpty(fileContents) then
 		for line in fileContents:gmatch("([^\r\n]+)[\r\n]*") do
 			if line ~= nil then
 				table.insert(lines, line)
@@ -640,6 +651,33 @@ function FileManager.readLinesFromFile(filename)
 	file:close()
 
 	return lines
+end
+
+--- Returns true if data is written to file, false if resulting json is empty, or nil if no file
+---@param filepath string
+---@param data table
+---@return boolean|nil dataWritten
+function FileManager.encodeToJsonFile(filepath, data)
+	local file = filepath and io.open(filepath, "w")
+	if file then
+		-- Empty Json is "[]"
+		local output = FileManager.JsonLibrary.encode(data) or "[]"
+		file:write(output)
+		file:close()
+		return (#output > 2)
+	end
+end
+
+--- Returns a lua table of the decoded json string from a file, or nil if no file
+---@param filepath string
+---@return table|nil data
+function FileManager.decodeJsonFile(filepath)
+	local file = filepath and io.open(filepath, "r")
+	if file then
+		local input = file:read("*a") or ""
+		file:close()
+		return #input > 0 and FileManager.JsonLibrary.decode(input) or {}
+	end
 end
 
 function FileManager.addCustomThemeToFile(themeName, themeCode)
@@ -705,6 +743,20 @@ function FileManager.copyTable(source, destination)
 			FileManager.copyTable(val, destination[key])
 		else
 			destination[key] = val
+		end
+	end
+end
+
+--- Loads the external Json library into FileManager.JsonLibrary
+function FileManager.setupJsonLibrary()
+	if type(FileManager.JsonLibrary) == "table" then
+		return
+	end
+	local filepath = FileManager.getPathIfExists(FileManager.Files.JSON_LIBRARY)
+	if filepath ~= nil then
+		FileManager.JsonLibrary = dofile(filepath)
+		if type(FileManager.JsonLibrary) ~= "table" then
+			FileManager.JsonLibrary = nil
 		end
 	end
 end

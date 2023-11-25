@@ -73,7 +73,7 @@ end
 ---@param width number? [Optional] If specified and the image is larger, will resize accordingly
 ---@param height number? [Optional] If specified and the image is larger, will resize accordingly
 function Drawing.drawImage(filepath, x, y, width, height)
-	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
+	if not Drawing.allowCachedImages or Utils.isNilOrEmpty(filepath) then return end
 	if width ~= nil and height ~= nil then
 		gui.drawImage(filepath, x, y, width, height)
 	else
@@ -91,7 +91,7 @@ end
 ---@param destW number? [Optional] If specified and the image is larger, will resize accordingly
 ---@param destH number? [Optional] If specified and the image is larger, will resize accordingly
 function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
-	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
+	if not Drawing.allowCachedImages or Utils.isNilOrEmpty(filepath) then return end
 	if destW ~= nil and destH ~= nil then
 		gui.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
 	else
@@ -118,19 +118,19 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
-	if type == nil or type == "" then return end
+	if Utils.isNilOrEmpty(type) then return end
 
 	Drawing.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
 end
 
 function Drawing.drawStatusIcon(status, x, y)
-	if status == nil or status == "" then return end
+	if Utils.isNilOrEmpty(status) then return end
 
 	Drawing.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
-	if text == nil or text == "" then return end
+	if Utils.isNilOrEmpty(text) then return end
 
 	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
 	if Main.OS == "Linux" then
@@ -256,7 +256,7 @@ end
 
 -- Draws a semi-transparent rectangle box behind the text
 function Drawing.drawTransparentTextbox(x, y, text, textColor, bgColor, shadowcolor)
-	if (text or "") == "" then return end
+	if Utils.isNilOrEmpty(text) then return end
 	textColor = textColor or Theme.COLORS["Default text"]
 	bgColor = bgColor or Theme.COLORS["Upper box background"]
 	shadowcolor = shadowcolor or Utils.calcShadowColor(bgColor)
@@ -610,7 +610,7 @@ function Drawing.setupAnimatedPictureBox()
 	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
 		local property = "BlocksInputWhenFocused"
-		if (forms.getproperty(form, property) or "") ~= "" then
+		if not Utils.isNilOrEmpty(forms.getproperty(form, property)) then
 			forms.setproperty(form, property, true)
 		end
 	end

@@ -6,6 +6,22 @@ function TrackerAPI.getMapId()
 	return Program.GameData.mapId or 0
 end
 
+--- Checks if a Tracker Extension is enabled, if it exists
+--- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+--- @return boolean isEnabled
+function TrackerAPI.isExtensionEnabled(extensionName)
+	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
+	return ext.isEnabled or false
+end
+
+--- Gets an extension object, if one exists
+--- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+--- @return table? extension
+function TrackerAPI.getExtensionSelf(extensionName)
+	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
+	return ext.selfObject
+end
+
 --- Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.
 --- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
 --- @param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file

@@ -375,7 +375,7 @@ end
 -- returns true if successful; false otherwise.
 -- applyTheme: if false, this won't replace current theme, but set it as the preview for the mini tracker preview
 function Theme.importThemeFromText(themeCode, applyTheme)
-	if themeCode == nil or themeCode == "" then
+	if Utils.isNilOrEmpty(themeCode) then
 		return false
 	end
 
@@ -452,7 +452,7 @@ end
 
 -- A simple way to check if user imports an old theme config string
 function Theme.isOldThemeString(themeCode)
-	if themeCode == nil or themeCode == "" then return false end
+	if Utils.isNilOrEmpty(themeCode) then return false end
 
 	local oldHexCountGBA = 10 -- version 0.6.2 and below
 	local oldHexCountNDS = 13 -- version 0.3.31 and below
@@ -480,6 +480,19 @@ function Theme.exportThemeToText()
 	themeCode = themeCode .. Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, "1", "0") .. " " .. Utils.inlineIf(Theme.DRAW_TEXT_SHADOWS, "1", "0")
 
 	return string.upper(themeCode)
+end
+
+---Returns a the name of a theme if it exist in the theme library; if it doesn't, returns "Custom"
+---@param themeCode string
+---@return string
+function Theme.getThemeNameFromCode(themeCode)
+	themeCode = Theme.formatAsProperThemeCode(themeCode)
+	for i, themePair in ipairs(Theme.Presets or {}) do
+		if themeCode == themePair.code and i ~= 1 then -- skip "Active theme"
+			return themePair:getText()
+		end
+	end
+	return "Custom"
 end
 
 function Theme.openColorPickerWindow(colorkey)
@@ -572,7 +585,7 @@ function Theme.openSaveCurrentThemeWindow()
 		forms.settext(Theme.Manager.SaveNewWarning, "")
 
 		local themeName = forms.gettext(saveTextBox)
-		if themeName == nil or themeName == "" then
+		if Utils.isNilOrEmpty(themeName) then
 			return
 		end
 

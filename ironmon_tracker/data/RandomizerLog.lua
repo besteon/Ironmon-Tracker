@@ -188,7 +188,7 @@ RandomizerLog.currentNidoranIsF = true
 
 -- In some cases, the ♀/♂ in nidoran's names are stripped out. This is only way to figure out which is which
 function RandomizerLog.alternateNidorans(name)
-	if name == nil or name == "" or Utils.toLowerUTF8(name) ~= "nidoran" then return name end
+	if Utils.isNilOrEmpty(name) or Utils.toLowerUTF8(name) ~= "nidoran" then return name end
 
 	local correctName
 	if RandomizerLog.currentNidoranIsF then
@@ -348,7 +348,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 				RandomizerLog.AbilityNameToIdMap[ability2],
 			}
 
-			if helditems ~= nil and helditems ~= "" then
+			if not Utils.isNilOrEmpty(helditems) then
 				pokemonData.HeldItems = RandomizerLog.formatInput(helditems)
 			end
 		end
@@ -540,7 +540,7 @@ function RandomizerLog.parseTrainers(logLines)
 			local helditem = RandomizerLog.formatInput(splitTable[2] or "")
 			level = tonumber(RandomizerLog.formatInput(level) or "") or 0 -- nil if not a number
 
-			if helditem == "" then
+			if Utils.isNilOrEmpty(helditem) then
 				helditem = nil -- don't waste storage if empty
 			end
 
@@ -864,7 +864,7 @@ function RandomizerLog.setupMappings()
 	-- Move names -> IDs
 	RandomizerLog.MoveNameToIdMap = {}
 	for _, moveInfo in ipairs(allMovesSource) do
-		if moveInfo.id ~= nil and moveInfo.name ~= nil and moveInfo.name ~= "" then
+		if moveInfo.id ~= nil and not Utils.isNilOrEmpty(moveInfo.name) then
 			local formattedName = RandomizerLog.formatInput(moveInfo.name) or ""
 			RandomizerLog.MoveNameToIdMap[formattedName] = tonumber(moveInfo.id) or -1
 		end
@@ -873,7 +873,7 @@ function RandomizerLog.setupMappings()
 	-- Ability names -> IDs
 	RandomizerLog.AbilityNameToIdMap = {}
 	for _, abilityInfo in ipairs(allAbilitiesSource) do
-		if abilityInfo.id ~= nil and abilityInfo.name ~= nil and abilityInfo.name ~= "" then
+		if abilityInfo.id ~= nil and not Utils.isNilOrEmpty(abilityInfo.name) then
 			local formattedName = RandomizerLog.formatInput(abilityInfo.name) or ""
 			RandomizerLog.AbilityNameToIdMap[formattedName] = abilityInfo.id
 		end

@@ -12,6 +12,7 @@ extensions/*
 !extensions/How to use.txt
 !extensions/CodeExtensionTemplate.lua.txt
 ironmon_tracker/*.txt
+ironmon_tracker/network/Requests.json
 ironmon_tracker/images/pokemonAnimated/*.gif
 AnimatedPokemon.gif
 RandomizerErrorLog.txt

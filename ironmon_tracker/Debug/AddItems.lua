@@ -16,7 +16,7 @@ function AddItems.createAddItemForm()
 	forms.setproperty(form, "MaximizeBox", false)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
 		local property = "BlocksInputWhenFocused"
-		if (forms.getproperty(form, property) or "") ~= "" then
+		if not Utils.isNilOrEmpty(forms.getproperty(form, property)) then
 			forms.setproperty(form, property, true)
 		end
 	end
@@ -130,7 +130,7 @@ function AddItems.DisplayUsage()
 	forms.setproperty(form, "MaximizeBox", false)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
 		local property = "BlocksInputWhenFocused"
-		if (forms.getproperty(form, property) or "") ~= "" then
+		if not Utils.isNilOrEmpty(forms.getproperty(form, property)) then
 			forms.setproperty(form, property, true)
 		end
 	end

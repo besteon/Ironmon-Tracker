@@ -188,7 +188,7 @@ function SetupScreen.openEditControlsWindow()
 	forms.button(form, saveCloseLabel, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
 			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[i] or ""))
-			if controlCombination ~= "" then
+			if not Utils.isNilOrEmpty(controlCombination) then
 				Options.CONTROLS[controlTuple[1]] = controlCombination
 			end
 		end

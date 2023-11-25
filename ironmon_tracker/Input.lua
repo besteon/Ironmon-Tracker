@@ -203,6 +203,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 	end
 	if UpdateScreen.showNotes then
 		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
+	elseif StreamConnectOverlay.isDisplayed then
+		StreamConnectOverlay.checkInput(xmouse, ymouse)
 	elseif LogOverlay.isDisplayed then
 		LogOverlay.checkInput(xmouse, ymouse)
 	end

@@ -60,7 +60,7 @@ ExtrasScreen.Buttons = {
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getCustomText = function(self)
-			if self.ivText ~= nil and self.ivText ~= "" then
+			if not Utils.isNilOrEmpty(self.ivText) then
 				return self.ivText
 			else
 				return Resources.ExtrasScreen.ButtonEstimatePokemonIVs
