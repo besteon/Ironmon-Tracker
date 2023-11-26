@@ -6,12 +6,6 @@ EventHandler = {
 
 	-- Shared values between server and client
 	COMMAND_PREFIX = "!",
-
-	-- TODO: CUSTOM OPTIONS FOR TESTING
-	OutputToFileRewardUsername = true,
-	OutputToFileRewardDirection = true,
-	RedemptionUsernameOutput = "RedemptionUser.txt",
-	RedemptionDirectionOutput = "RedemptionDirection.txt",
 }
 
 EventHandler.EventTypes = {
