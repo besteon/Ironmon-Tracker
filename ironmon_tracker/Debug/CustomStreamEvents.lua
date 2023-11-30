@@ -32,7 +32,10 @@ local function CustomStreamEvents()
 		-- Send to the Tracker Network a response with a named global variable for what changed
 		-- The global variable's name was sent to this event through the input field of the created request
 		local globalVarName = request.SanitizedInput
-		local globalVarValue = self.PerSeedVars[globalVarName] or "Updated!"
+		local globalVarValue = self.PerSeedVars[globalVarName]
+		if globalVarValue == nil then
+			globalVarValue = "Updated!"
+		end
 		response.GlobalVars = {
 			[globalVarName] = globalVarValue
 		}
