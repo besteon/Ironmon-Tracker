@@ -905,7 +905,9 @@ function EventHandler.IEvent:new(o)
 	o = o or {}
 	o.Key = o.Key or EventHandler.Events.None.Key
 	o.Type = o.Type or EventHandler.EventTypes.None
-	o.IsEnabled = o.IsEnabled ~= nil and o.IsEnabled or true
+	if o.IsEnabled == nil then
+		o.IsEnabled = true
+	end
 	setmetatable(o, self)
 	self.__index = self
 	return o
