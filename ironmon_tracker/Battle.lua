@@ -784,8 +784,6 @@ function Battle.endCurrentBattle()
 	}
 
 	Program.recalcLeadPokemonHealingInfo()
-	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
-	Program.GameData.EnemyTeam = {}
 
 	-- Reset stat stage changes for the owner's pokemon team
 	for i=1, 6, 1 do
