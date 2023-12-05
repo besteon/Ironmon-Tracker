@@ -1,7 +1,7 @@
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
-	STREAMERBOT_VERSION = "1.0.4", -- Known streamerbot version. Update this value to inform user to update streamerbot code
+	STREAMERBOT_VERSION = "1.0.5", -- Known streamerbot version. Update this value to inform user to update streamerbot code
 	TEXT_UPDATE_FREQUENCY = 2, -- # of seconds
 	SOCKET_UPDATE_FREQUENCY = 2, -- # of seconds
 	HTTP_UPDATE_FREQUENCY = 2, -- # of seconds
