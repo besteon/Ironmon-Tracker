@@ -109,7 +109,8 @@ Constants.OrderedLists = {
 	OPTIONS = {
 		"Language",
 		"Autodetect language from game",
-		"Disable mainscreen carousel",
+		"Allow carousel rotation",
+		"CarouselItems",
 		"Auto swap to enemy",
 		"Show random ball picker",
 		"Hide stats until summary shown",

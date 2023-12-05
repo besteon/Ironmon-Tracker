@@ -351,14 +351,27 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	TrainerSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.SWORD_ATTACK,
+		getText = function(self) return self.updatedText or "" end,
+		textColor = "Lower box text",
+		iconColors = { "Positive text" },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.TRAINERS end,
+		--onClick = function(self) end
+	},
 }
 
+-- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
 TrackerScreen.CarouselTypes = {
 	BADGES = 1, -- Outside of battle
-	LAST_ATTACK = 2, -- During battle, only between turns
-	ROUTE_INFO = 3, -- During battle, only if encounter is a wild pokemon
-	NOTES = 4, -- During new game intro or inside of battle
-	PEDOMETER = 5, -- Outside of battle
+	TRAINERS = 2, -- Immediately after a battle
+	LAST_ATTACK = 3, -- During battle, only between turns
+	ROUTE_INFO = 4, -- During battle, only if encounter is a wild pokemon
+	NOTES = 5, -- During battle
+	PEDOMETER = 6, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -466,10 +479,6 @@ end
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
 function TrackerScreen.buildCarousel()
 	-- Helper functions
-	-- Checks if carousel rotation has been disabled by the user settings
-	local function isCarouselDisabled()
-		return Options["Disable mainscreen carousel"] and Battle.isViewingOwn
-	end
 	-- Checks if the early game conditions are correct to show route encounter info instead of the normal carousel item
 	local function showEarlyRouteEncounters()
 		-- In trainer battle
@@ -491,14 +500,18 @@ function TrackerScreen.buildCarousel()
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
-		isVisible = function()
-			if isCarouselDisabled() then
-				return not Program.Pedometer:isInUse()
+		framesToShow = 210,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselBadges.toggleState then
+				return false
+			end
+			-- Pedometer overrides badges if no carousel rotation
+			if not Options["Allow carousel rotation"] and TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER]:canShow() then
+				return false
 			end
 			return Battle.isViewingOwn and not showEarlyRouteEncounters()
 		end,
-		framesToShow = 210,
-		getContentList = function()
+		getContentList = function(self)
 			local badgeButtons = {}
 			for index = 1, 8, 1 do
 				local badgeName = "badge" .. index
@@ -511,9 +524,14 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return not Battle.isViewingOwn end,
 		framesToShow = 180,
-		getContentList = function(pokemonID)
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselNotes.toggleState then
+				return false
+			end
+			return not Battle.isViewingOwn
+		end,
+		getContentList = function(self, pokemonID)
 			local noteText = Tracker.getNote(pokemonID)
 			if Main.IsOnBizhawk() then
 				if not Utils.isNilOrEmpty(noteText) then
@@ -530,16 +548,16 @@ function TrackerScreen.buildCarousel()
 	-- LAST ATTACK
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
-		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
-		isVisible = function()
-			if isCarouselDisabled() then
+		framesToShow = 180,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselLastAttack.toggleState then
 				return false
 			end
+			-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
 			local properBattleTiming = Battle.inActiveBattle() and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
 			return Options["Show last damage calcs"] and properBattleTiming
 		end,
-		framesToShow = 180,
-		getContentList = function()
+		getContentList = function(self)
 			local lastAttackMsg
 			-- Currently this only records last move used for damaging moves
 			if MoveData.isValid(Battle.lastEnemyMoveId) then
@@ -575,18 +593,19 @@ function TrackerScreen.buildCarousel()
 	-- ROUTE INFO
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
-		isVisible = function()
-			if isCarouselDisabled() then
+		framesToShow = 180,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselRouteInfo.toggleState then
 				return false
-			elseif showEarlyRouteEncounters() then
+			end
+			if showEarlyRouteEncounters() then
 				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
 				return true
 			else
 				return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo
 			end
 		end,
-		framesToShow = 180,
-		getContentList = function()
+		getContentList = function(self)
 			local totalPossible = RouteData.countPokemonInArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local routeEncounters = Tracker.getRouteEncounters(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
@@ -625,9 +644,14 @@ function TrackerScreen.buildCarousel()
 	--  PEDOMETER
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER] = {
 		type = TrackerScreen.CarouselTypes.PEDOMETER,
-		isVisible = function() return Battle.isViewingOwn and Program.Pedometer:isInUse() end,
 		framesToShow = 210,
-		getContentList = function()
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselPedometer.toggleState then
+				return false
+			end
+			return Battle.isViewingOwn and Program.Pedometer:isInUse()
+		end,
+		getContentList = function(self)
 			TrackerScreen.Buttons.PedometerStepText:updateSelf()
 			TrackerScreen.Buttons.PedometerGoal:updateSelf()
 			if Main.IsOnBizhawk() then
@@ -641,38 +665,89 @@ function TrackerScreen.buildCarousel()
 			end
 		end,
 	}
+
+	-- TRAINERS
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.TRAINERS] = {
+		type = TrackerScreen.CarouselTypes.TRAINERS,
+		framesToShow = 360,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselTrainers.toggleState then
+				return false
+			end
+			local battleJustEnded = Program.Frames.Others["TrainerBattleEnded"] ~= nil
+			return not Battle.inActiveBattle() and battleJustEnded and RouteData.hasRouteTrainers()
+		end,
+		getContentList = function(self)
+			if RouteData.hasRouteTrainers() then
+				local routeId = TrackerAPI.getMapId()
+				local route = RouteData.Info[routeId]
+				local routeName = route.area and route.area.name or route.name
+				local defeatedTrainersList, totalInArea
+				if route.area ~= nil then
+					defeatedTrainersList, totalInArea = Program.getDefeatedTrainersByCombinedArea(route.area)
+				elseif route.trainers and #route.trainers > 0 then
+					defeatedTrainersList, totalInArea = Program.getDefeatedTrainersByLocation(routeId)
+				end
+				local text
+				if defeatedTrainersList and totalInArea then
+					text = string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainersList, totalInArea)
+				else
+					text = string.format("%s: %s", routeName, "N/A")
+				end
+				TrackerScreen.Buttons.TrainerSummary.updatedText = text
+			else
+				TrackerScreen.Buttons.TrainerSummary.updatedText = "No Trainers in this area."
+			end
+
+			if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.TrainerSummary }
+			else
+				return TrackerScreen.Buttons.TrainerSummary.updatedText or ""
+			end
+		end,
+	}
+
+	-- A default carousel item if none of the others can be shown (perhaps all are disabled)
+	TrackerScreen.CarouselItems[0] = {
+		type = 0,
+		framesToShow = 60,
+		canShow = function(self) return true end,
+		getContentList = function(self)
+			local text = "" or string.format("%s: v%s", Resources.StartupScreen.Title, Main.TrackerVersion)
+			return Main.IsOnBizhawk() and { text } or text
+		end,
+	}
 end
 
--- Returns the current visible carousel. If unavailable, looks up the next visible carousel
+---Returns the active carousel item, or if expired/unable to show, the next available carousel item
+---@return table carouselItem
 function TrackerScreen.getCurrentCarouselItem()
-	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
-
-	-- Adjust rotation delay check for carousel based on the speed of emulation
-	local adjustedVisibilityFrames = carousel.framesToShow * Program.clientFpsMultiplier
-
-	-- Check if the current carousel's time has expired, or if it shouldn't be shown
-	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > adjustedVisibilityFrames then
-		local nextCarousel = TrackerScreen.getNextVisibleCarouselItem(TrackerScreen.carouselIndex)
-		TrackerScreen.carouselIndex = nextCarousel.type
+	local function rotateToNextItem()
+		for _ = 1, #TrackerScreen.CarouselItems, 1 do
+			TrackerScreen.carouselIndex = (TrackerScreen.carouselIndex % #TrackerScreen.CarouselItems) + 1
+			if TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]:canShow() then
+				break
+			end
+		end
 		Program.Frames.carouselActive = 0
-
-		return nextCarousel
 	end
 
-	return carousel
-end
-
-function TrackerScreen.getNextVisibleCarouselItem(startIndex)
-	local numItems = #TrackerScreen.CarouselItems
-	local nextIndex = (startIndex % numItems) + 1
-	local carousel = TrackerScreen.CarouselItems[nextIndex]
-
-	while (nextIndex ~= startIndex and not carousel.isVisible()) do
-		nextIndex = (nextIndex % numItems) + 1
-		carousel = TrackerScreen.CarouselItems[nextIndex]
+	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
+	if not carousel or not carousel:canShow() then
+		rotateToNextItem()
+	elseif Options["Allow carousel rotation"] then
+		-- Adjust rotation delay check for carousel based on the speed of emulation
+		local adjustedVisibilityFrames = (carousel.framesToShow or 0) * Program.clientFpsMultiplier
+		if Program.Frames.carouselActive > adjustedVisibilityFrames then
+			rotateToNextItem()
+		end
 	end
 
-	return carousel
+	if TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]:canShow() then
+		return TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
+	else
+		return TrackerScreen.CarouselItems[0] -- Default carousel item
+	end
 end
 
 function TrackerScreen.updateButtonStates()
@@ -1212,12 +1287,11 @@ function TrackerScreen.drawCarouselArea(data)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 136, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 19, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	local carousel = TrackerScreen.getCurrentCarouselItem()
-	for _, content in pairs(carousel.getContentList(data.p.id)) do
+	for _, content in pairs(carousel:getContentList(data.p.id)) do
 		if content.type == Constants.ButtonTypes.IMAGE or content.type == Constants.ButtonTypes.PIXELIMAGE or content.type == Constants.ButtonTypes.FULL_BORDER then
 			Drawing.drawButton(content, shadowcolor)
 		elseif type(content) == "string" then
-			local wrappedText = Utils.getWordWrapLines(content, 34) -- was 31
-
+			local wrappedText = Utils.getWordWrapLines(content, 34)
 			if #wrappedText == 1 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, wrappedText[1], Theme.COLORS["Lower box text"], shadowcolor)
 			elseif #wrappedText >= 2 then

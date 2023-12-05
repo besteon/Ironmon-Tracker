@@ -789,7 +789,7 @@ MGBADisplay.LineBuilder = {
 		-- Footer, carousel related stuff
 		-- local botFormattedLine = "%-33s"
 		for _, carousel in ipairs(TrackerScreen.CarouselItems) do
-			if carousel.isVisible() then
+			if carousel:canShow() then
 				local carouselText = MGBADisplay.Utils.carouselToText(carousel, data.p.id)
 				table.insert(lines, carouselText)
 			end
@@ -840,7 +840,7 @@ MGBADisplay.Utils = {
 		if carousel == nil then return carouselText end
 		pokemonID = pokemonID or 0
 
-		local carouselContent = carousel.getContentList(pokemonID)
+		local carouselContent = carousel:getContentList(pokemonID)
 		if carousel.type == TrackerScreen.CarouselTypes.BADGES then
 			carouselText = Resources.MGBAScreens.TrackerBadges ..  ": "
 			for badgeNumber, badgeButton in ipairs(carouselContent) do
@@ -854,6 +854,8 @@ MGBADisplay.Utils = {
 		elseif carousel.type == TrackerScreen.CarouselTypes.NOTES then
 			carouselText = Resources.MGBAScreens.PokemonInfoNote .. ": " .. carouselContent
 		elseif carousel.type == TrackerScreen.CarouselTypes.PEDOMETER then
+			carouselText = carouselContent
+		elseif carousel.type == TrackerScreen.CarouselTypes.TRAINERS then
 			carouselText = carouselContent
 		end
 

@@ -128,6 +128,13 @@ function RouteData.hasRouteEncounterArea(mapId, encounterArea)
 	return RouteData.Info[mapId][encounterArea] ~= nil and RouteData.Info[mapId][encounterArea] ~= {}
 end
 
+---@param mapId? number Optional, defaults to current location
+---@return boolean
+function RouteData.hasRouteTrainers(mapId)
+	local route = RouteData.Info[mapId or TrackerAPI.getMapId()]
+	return route and route.trainers and #route.trainers > 0
+end
+
 function RouteData.countPokemonInArea(mapId, encounterArea)
 	local areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	return #areaInfo

@@ -932,6 +932,11 @@ function Main.LoadSettings()
 
 	-- [TRACKER]
 	if settings.tracker ~= nil then
+		-- First, check for deprecated options
+		if settings.tracker["Disable_mainscreen_carousel"] ~= nil then
+			Options["Allow carousel rotation"] = not settings.tracker["Disable_mainscreen_carousel"]
+			settings.tracker["Disable_mainscreen_carousel"] = nil
+		end
 		for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 			local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
 			if optionValue ~= nil then
