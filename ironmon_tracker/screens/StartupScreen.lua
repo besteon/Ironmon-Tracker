@@ -262,7 +262,7 @@ function StartupScreen.drawScreen()
 	Drawing.drawText(topcolX, textLineY, GameSettings.versioncolor, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	if StartupScreen.Buttons.AttemptsCount.isVisible() then
+	if StartupScreen.Buttons.AttemptsCount:isVisible() then
 		Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Attempts .. ":", topBox.text, topBox.shadow)
 	end
 	textLineY = textLineY + linespacing

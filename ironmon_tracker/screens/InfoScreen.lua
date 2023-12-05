@@ -276,7 +276,7 @@ InfoScreen.Buttons = {
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		getContentList = function(pokemonId)
+		getContentList = function(self, pokemonId)
 			local noteText = Tracker.getNote(pokemonId)
 			if not Utils.isNilOrEmpty(noteText) then
 				return noteText
@@ -1076,7 +1076,7 @@ end
 
 function InfoScreen.drawNotepadArea()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
-	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
+	local noteText = InfoScreen.Buttons.NotepadTracking:getContentList(InfoScreen.infoLookup)
 	--23 will fit, but cut to 22 if we need to show the ellipses
 	if #noteText > 23 then
 		local	textTest = Utils.getWordWrapLines(noteText, 22)
