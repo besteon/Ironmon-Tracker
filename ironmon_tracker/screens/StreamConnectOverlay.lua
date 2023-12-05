@@ -116,7 +116,7 @@ SCREEN.Pager = {
 }
 
 function StreamConnectOverlay.initialize()
-	SCREEN.currentTab = SCREEN.Tabs.Queue
+	SCREEN.currentTab = SCREEN.Tabs.Status
 	SCREEN.isDisplayed = false
 	SCREEN.createTabButtons()
 	for _, button in pairs(SCREEN.Buttons) do
@@ -163,7 +163,10 @@ function StreamConnectOverlay.createTabButtons()
 
 	-- TABS
 	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
-		local tabText = tab.tabKey or Resources.StreamConnect[tab.resourceKey] -- TODO: Add language texts
+		local tabText = tab.resourceKey and Resources.StreamConnect[tab.resourceKey] or ""
+		if Utils.isNilOrEmpty(tabText) then
+			tabText = tab.tabKey
+		end
 		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,

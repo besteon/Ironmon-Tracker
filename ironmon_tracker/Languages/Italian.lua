@@ -629,6 +629,11 @@ ScreenResources{
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
+		TabCommands = "Commands",
+		TabRewards = "Rewards",
+		TabQueue = "Queue",
+		TabGame = "Game",
+		TabStatus = "Status",
 		ButtonRolePermissions = "Role Permissions",
 		ButtonRename = "Rename",
 		ButtonOptions = "Options",

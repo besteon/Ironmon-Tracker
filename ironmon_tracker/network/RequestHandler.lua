@@ -191,7 +191,7 @@ function RequestHandler.processAndBuildResponse(request, event)
 		response.AdditionalInfo = {
 			RewardId = request.Args and request.Args["RewardId"] or nil,
 			RedemptionId = request.Args and request.Args["RedemptionId"] or nil,
-			AutoComplete = true, -- TODO: Expose option to enable/disable this
+			AutoComplete = true,
 		}
 	end
 
