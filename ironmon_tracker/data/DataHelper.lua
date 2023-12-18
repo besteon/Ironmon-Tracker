@@ -1621,6 +1621,32 @@ end
 
 ---@param params string?
 ---@return string response
+function DataHelper.EventRequests.getFavorites(params)
+	local info = {}
+	local faveButtons = {
+		StreamerScreen.Buttons.PokemonFavorite1,
+		StreamerScreen.Buttons.PokemonFavorite2,
+		StreamerScreen.Buttons.PokemonFavorite3,
+	}
+	local favesList = {}
+	for i, button in ipairs(faveButtons or {}) do
+		local name
+		if PokemonData.isValid(button.pokemonID) then
+			name = PokemonData.Pokemon[button.pokemonID].name
+		else
+			name = Constants.BLANKLINE
+		end
+		table.insert(favesList, string.format("#%s %s", i, name))
+	end
+	if #favesList > 0 then
+		table.insert(info, table.concat(favesList, ", "))
+	end
+	local prefix = string.format("%s %s", "Favorites", OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
 function DataHelper.EventRequests.getTheme(params)
 	local info = {}
 	local themeCode = Theme.exportThemeToText()

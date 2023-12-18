@@ -501,6 +501,11 @@ EventHandler.DefaultEvents = {
 		Command = "!searchnotes",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
 	},
+	CMD_Favorites = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!favorites",
+		Fulfill = function(self, request) return DataHelper.EventRequests.getFavorites(request.SanitizedInput) end,
+	},
 	CMD_Theme = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!theme",
