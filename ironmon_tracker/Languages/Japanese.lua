@@ -616,6 +616,8 @@ ScreenResources{
 		CMD_Search_Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
 		CMD_SearchNotes_Name = "Search Notes on Pokémon",
 		CMD_SearchNotes_Help = "notes > Displays a list of Pokémon with any matching notes.",
+		CMD_Favorites_Name = "Favorite Starters",
+		CMD_Favorites_Help = "> Displays the list of favorites used for picking a starter.",
 		CMD_Theme_Name = "Theme Export",
 		CMD_Theme_Help = "name > Displays the name and code string for a Tracker theme.",
 		CMD_GameStats_Name = "Game Stats",

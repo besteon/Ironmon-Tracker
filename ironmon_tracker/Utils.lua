@@ -140,8 +140,14 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
+---Returns the number of pixels (width) the provided text uses on the Tracker screen
+---@param text? string
+---@return number
 function Utils.calcWordPixelLength(text)
 	if Utils.isNilOrEmpty(text) or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if type(text) ~= "string" then
+		text = tostring(text)
+	end
 	local pattern = "."
 	if Main.supportsSpecialChars then
 		---@diagnostic disable-next-line: undefined-global, undefined-field

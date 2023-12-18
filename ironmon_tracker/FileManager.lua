@@ -659,13 +659,20 @@ end
 ---@return boolean|nil dataWritten
 function FileManager.encodeToJsonFile(filepath, data)
 	local file = filepath and io.open(filepath, "w")
-	if file then
-		-- Empty Json is "[]"
-		local output = FileManager.JsonLibrary.encode(data) or "[]"
-		file:write(output)
-		file:close()
-		return (#output > 2)
+	if not file then
+		return nil
 	end
+	if not FileManager.JsonLibrary then
+		return false
+	end
+	-- Empty Json is "[]"
+	local output = "[]"
+	pcall(function()
+		output = FileManager.JsonLibrary.encode(data) or "[]"
+	end)
+	file:write(output)
+	file:close()
+	return (#output > 2)
 end
 
 --- Returns a lua table of the decoded json string from a file, or nil if no file
@@ -673,11 +680,21 @@ end
 ---@return table|nil data
 function FileManager.decodeJsonFile(filepath)
 	local file = filepath and io.open(filepath, "r")
-	if file then
-		local input = file:read("*a") or ""
-		file:close()
-		return #input > 0 and FileManager.JsonLibrary.decode(input) or {}
+	if not file then
+		return nil
 	end
+	if not FileManager.JsonLibrary then
+		return {}
+	end
+	local input = file:read("*a") or ""
+	file:close()
+	local decodedTable = {}
+	if #input > 0 then
+		pcall(function()
+			decodedTable = FileManager.JsonLibrary.decode(input) or {}
+		end)
+	end
+	return decodedTable
 end
 
 function FileManager.addCustomThemeToFile(themeName, themeCode)
