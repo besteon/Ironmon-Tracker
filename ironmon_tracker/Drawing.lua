@@ -443,10 +443,9 @@ function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	for rowIndex = 1, #imageMatrix, 1 do
 		for colIndex = 1, #(imageMatrix[rowIndex]) do
 			local colorIndex = imageMatrix[rowIndex][colIndex]
-			if colorIndex > 0 then
+			if colorList[colorIndex] then
 				local offsetX = colIndex - 1
 				local offsetY = rowIndex - 1
-
 				if shadowcolor ~= nil and Theme.DRAW_TEXT_SHADOWS then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
