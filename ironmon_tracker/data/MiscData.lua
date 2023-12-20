@@ -8,6 +8,12 @@ MiscData.TableData = {
 	misc   = { 4, 3, 4, 3, 2, 2, 4, 3, 4, 3, 2, 2, 4, 3, 4, 3, 2, 2, 1, 1, 1, 1, 1, 1 },
 }
 
+MiscData.Gender = {
+	MALE = 0,
+	FEMALE = 254,
+	UNKNOWN = 255,
+}
+
 MiscData.BagPocket = {
 	PC = 0,
 	Items = 1,
@@ -90,6 +96,31 @@ function MiscData.getItemIcon(itemId)
 		return FileManager.buildImagePath(FileManager.Folders.Icons, item.icon, ".png")
 	else
 		return nil
+	end
+end
+
+---Returns the Gender of a Pokemon based on its personality value.
+---@param pokemonID number
+---@param personality number
+---@return number gender MiscData.Gender
+function MiscData.getMonGender(pokemonID, personality)
+	if not PokemonData.isValid(pokemonID) then
+		return MiscData.Gender.UNKNOWN
+	end
+
+	local threshold = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * 0x1C) + 16) -- Gender is the 16th byte
+	if threshold == MiscData.Gender.MALE then
+		return MiscData.Gender.MALE
+	elseif threshold == MiscData.Gender.FEMALE then
+		return MiscData.Gender.FEMALE
+	elseif threshold == MiscData.Gender.UNKNOWN then
+		return MiscData.Gender.UNKNOWN
+	else
+		if personality % 256 >= threshold then
+			return MiscData.Gender.MALE
+		else
+			return MiscData.Gender.FEMALE
+		end
 	end
 end
 

@@ -487,6 +487,10 @@ MGBA.OptionMap = {
 		getText = function() return Resources.MGBA.OptionDisplayRepel end,
 	},
 	[8] = {
+		optionKey = "Display gender",
+		getText = function() return Resources.MGBA.OptionDisplayGender end,
+	},
+	[9] = {
 		optionKey = "Animated Pokemon popout",
 		getText = function() return Resources.MGBA.OptionAnimatedPokemonGIF end,
 		updateSelf = function(self, params)
@@ -505,23 +509,23 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[9] = {
+	[10] = {
 		optionKey = "Dev branch updates",
 		getText = function() return Resources.MGBA.OptionDevBranchUpdates end,
 	},
-	[10] = {
+	[11] = {
 		optionKey = "Toggle view",
 		getText = function() return Resources.MGBA.OptionSwapViewedPokemon end,
 	},
-	[11] = {
+	[12] = {
 		optionKey = "Cycle through stats",
 		getText = function() return Resources.MGBA.OptionCycleThroughStats end,
 	},
-	[12] = {
+	[13] = {
 		optionKey = "Mark stat",
 		getText = function() return Resources.MGBA.OptionMarkStat end,
 	},
-	[13] = {
+	[14] = {
 		optionKey = "Load next seed",
 		getText = function() return Resources.MGBA.OptionQuickload end,
 	},

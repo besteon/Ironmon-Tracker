@@ -158,6 +158,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.friendshipBase = pokemonInternal.friendshipBase or 70 -- The starting value of the Pokémon
 
 	-- Add: Stats, Stages, and Nature
+	data.p.gender = viewedPokemon.gender
 	data.p.nature = viewedPokemon.nature
 	data.p.positivestat = ""
 	data.p.negativestat = ""

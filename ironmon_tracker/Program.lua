@@ -606,11 +606,11 @@ function Program.readNewPokemon(startAddress, personality)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
-	local aux = personality % 24
-	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
-	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
-	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
-	local miscoffset = (MiscData.TableData.misc[aux + 1] - 1) * 12
+	local aux = personality % 24 + 1
+	local growthoffset = (MiscData.TableData.growth[aux] - 1) * 12
+	local attackoffset = (MiscData.TableData.attack[aux] - 1) * 12
+	local effortoffset = (MiscData.TableData.effort[aux] - 1) * 12
+	local miscoffset = (MiscData.TableData.misc[aux] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
@@ -694,6 +694,7 @@ function Program.readNewPokemon(startAddress, personality)
 		experience = growth2,
 		friendship = Utils.getbits(growth3, 8, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
+		gender = MiscData.getMonGender(species, personality),
 		nature = personality % 25,
 		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg (1 if true)
 		isShiny = isShiny,
@@ -1246,6 +1247,7 @@ Program.DefaultPokemon = {
 	totalExp = 100,
 	friendship = 0,
 	level = 0,
+	gender = 0,
 	nature = 0,
 	isEgg = 0,
 	isShiny = false,
