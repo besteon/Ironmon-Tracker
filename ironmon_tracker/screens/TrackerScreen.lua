@@ -1085,6 +1085,33 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
+
+	-- GENDER ICON
+	if Options["Display gender"] and PokemonData.isValid(data.p.id) and data.p.gender ~= MiscData.Gender.UNKNOWN then
+		local gSymbol
+		if data.p.gender == MiscData.Gender.MALE then
+			gSymbol = Constants.PixelImages.MALE_SYMBOL
+		else
+			gSymbol = Constants.PixelImages.FEMALE_SYMBOL
+		end
+		local nameWidth = Utils.calcWordPixelLength(data.p.name)
+		local gX, gY, gShadow
+		local gColors = { Theme.COLORS["Default text"] }
+		-- Check if there's room to draw the symbol next to the name, otherwise overlay on the Pokemon icon
+		if nameWidth < 45 then
+			gX = Constants.SCREEN.WIDTH + 36 + nameWidth + 4
+			gY = Constants.SCREEN.MARGIN + 2
+			gShadow = shadowcolor
+		else
+			gX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 23
+			gY = Constants.SCREEN.MARGIN + 20
+			if gSymbol == Constants.PixelImages.FEMALE_SYMBOL then
+				gX = gX + 3
+			end
+			table.insert(gColors, Theme.COLORS["Upper box background"] - 0x40000000) -- semi-transparent
+		end
+		Drawing.drawImageAsPixels(gSymbol, gX, gY, gColors, gShadow)
+	end
 end
 
 function TrackerScreen.drawStatsArea(data)

@@ -677,7 +677,15 @@ MGBADisplay.LineBuilder = {
 
 		-- Header and top dividing line (with types)
 		local bstAligned = Utils.formatUTF8(justify3, data.p.bst)
-		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", data.p.name, data.p.status), Resources.MGBAScreens.TrackerBST, bstAligned)
+		local name = data.p.name
+		if Options["Display gender"] and PokemonData.isValid(data.p.id) and data.p.gender ~= MiscData.Gender.UNKNOWN then
+			if data.p.gender == MiscData.Gender.MALE then
+				name = name .. " ♂"
+			else
+				name = name .. " ♀"
+			end
+		end
+		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", name, data.p.status), Resources.MGBAScreens.TrackerBST, bstAligned)
 		lines[2] = Utils.formatUTF8("%-23s%-10s", data.p.typeline, "----------")
 
 		-- Top six lines of the box: Pokemon related stuff
