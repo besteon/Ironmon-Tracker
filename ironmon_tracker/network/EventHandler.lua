@@ -6,12 +6,6 @@ EventHandler = {
 
 	-- Shared values between server and client
 	COMMAND_PREFIX = "!",
-
-	-- TODO: CUSTOM OPTIONS FOR TESTING
-	OutputToFileRewardUsername = true,
-	OutputToFileRewardDirection = true,
-	RedemptionUsernameOutput = "RedemptionUser.txt",
-	RedemptionDirectionOutput = "RedemptionDirection.txt",
 }
 
 EventHandler.EventTypes = {
@@ -507,6 +501,11 @@ EventHandler.DefaultEvents = {
 		Command = "!searchnotes",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
 	},
+	CMD_Favorites = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!favorites",
+		Fulfill = function(self, request) return DataHelper.EventRequests.getFavorites(request.SanitizedInput) end,
+	},
 	CMD_Theme = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!theme",
@@ -911,7 +910,9 @@ function EventHandler.IEvent:new(o)
 	o = o or {}
 	o.Key = o.Key or EventHandler.Events.None.Key
 	o.Type = o.Type or EventHandler.EventTypes.None
-	o.IsEnabled = o.IsEnabled ~= nil and o.IsEnabled or true
+	if o.IsEnabled == nil then
+		o.IsEnabled = true
+	end
 	setmetatable(o, self)
 	self.__index = self
 	return o

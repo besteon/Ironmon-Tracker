@@ -1,7 +1,7 @@
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
-	STREAMERBOT_VERSION = "1.0.4", -- Known streamerbot version. Update this value to inform user to update streamerbot code
+	STREAMERBOT_VERSION = "1.0.5", -- Known streamerbot version. Update this value to inform user to update streamerbot code
 	TEXT_UPDATE_FREQUENCY = 2, -- # of seconds
 	SOCKET_UPDATE_FREQUENCY = 2, -- # of seconds
 	HTTP_UPDATE_FREQUENCY = 2, -- # of seconds
@@ -129,7 +129,7 @@ function Network.tryConnect()
 			comm.socketServerSetIp(C.SocketIP)
 			comm.socketServerSetPort(C.SocketPort)
 			serverInfo = comm.socketServerGetInfo() or Network.SOCKET_SERVER_NOT_FOUND
-			-- TODO: Might also test/try 'bool comm.socketServerIsConnected()'
+			-- Might also test/try 'bool comm.socketServerIsConnected()'
 		end
 		local ableToConnect = serverInfo and Utils.containsText(serverInfo, Network.SOCKET_SERVER_NOT_FOUND)
 		if ableToConnect then
@@ -239,7 +239,7 @@ function Network.updateBySocket()
 	if C.SocketIP == "0.0.0.0" or C.SocketPort == 0 or not FileManager.JsonLibrary then
 		return
 	end
-	-- TODO: Not implemented. Requires asynchronous compatibility
+	-- Not implemented. Requires asynchronous compatibility
 	if true then
 		return
 	end
@@ -262,7 +262,7 @@ function Network.updateByHttp()
 	if Utils.isNilOrEmpty(C.HttpGetUrl) or Utils.isNilOrEmpty(C.HttpPostUrl) or not FileManager.JsonLibrary then
 		return
 	end
-	-- TODO: Not implemented. Requires asynchronous compatibility
+	-- Not implemented. Requires asynchronous compatibility
 	if true then
 		return
 	end

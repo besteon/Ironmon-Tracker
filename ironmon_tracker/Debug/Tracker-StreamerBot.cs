@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 public class CPHInline
 {
 	// Internal Streamerbot Properties
-	private const string VERSION = "1.0.4"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const string VERSION = "1.0.5"; // Used to compare against known version # in Tracker code, to check if this code needs updating
 	private const bool DEBUG_LOG_EVENTS = false;
 	private const string GVAR_ConnectionDataFolder = "connectionDataFolder"; // "data" folder override global variable; define is Streamerbot
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
@@ -109,7 +109,7 @@ public class CPHInline
 	// https://wiki.streamer.bot/en/Commands
 	public void ProcessCommandEvent()
 	{
-		Match matchesCommand = Regex.Match(VARS.RawInput.ToLower(), COMMAND_REGEX, RegexOptions.IgnoreCase);
+		Match matchesCommand = Regex.Match(VARS.RawInput, COMMAND_REGEX, RegexOptions.IgnoreCase);
 		if (!matchesCommand.Success)
 			return;
 

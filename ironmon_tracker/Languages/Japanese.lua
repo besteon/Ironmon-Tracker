@@ -193,17 +193,27 @@ ScreenResources{
 	},
 	SetupScreen = {
 		Title = "Tracker Setup", -- NEEDS TRANSLATION
+		TabGeneral = "General", -- NEEDS TRANSLATION
+		TabCarousel = "Carousel", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
-		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
+		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
+		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
+		LabelSpeedSetting = "Speed", -- NEEDS TRANSLATION
+		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION
+		CarouselNotes = "Notes on Pokémon", -- NEEDS TRANSLATION
+		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION
+		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
+		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
+		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
 		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
 		PromptEditControllerLoadNext = "Load next seed", -- NEEDS TRANSLATION
@@ -227,6 +237,7 @@ ScreenResources{
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
+		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout", -- NEEDS TRANSLATION
 		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential", -- NEEDS TRANSLATION
 		EstimateResultOutstanding = "Outstanding!!!", -- NEEDS TRANSLATION
@@ -607,6 +618,8 @@ ScreenResources{
 		CMD_Search_Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
 		CMD_SearchNotes_Name = "Search Notes on Pokémon",
 		CMD_SearchNotes_Help = "notes > Displays a list of Pokémon with any matching notes.",
+		CMD_Favorites_Name = "Favorite Starters",
+		CMD_Favorites_Help = "> Displays the list of favorites used for picking a starter.",
 		CMD_Theme_Name = "Theme Export",
 		CMD_Theme_Help = "name > Displays the name and code string for a Tracker theme.",
 		CMD_GameStats_Name = "Game Stats",
@@ -631,6 +644,11 @@ ScreenResources{
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
+		TabCommands = "Commands",
+		TabRewards = "Rewards",
+		TabQueue = "Queue",
+		TabGame = "Game",
+		TabStatus = "Status",
 		ButtonRolePermissions = "Role Permissions",
 		ButtonRename = "Rename",
 		ButtonOptions = "Options",
@@ -708,6 +726,7 @@ ScreenResources{
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
+		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
 		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION

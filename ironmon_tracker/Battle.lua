@@ -681,6 +681,8 @@ function Battle.beginNewBattle()
 	GameOverScreen.isDisplayed = false
 	GameOverScreen.createTempSaveState()
 
+	Program.Frames.Others["TrainerBattleEnded"] = nil
+
 	-- BATTLE_TYPE_TRAINER (1 << 3)
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
@@ -754,6 +756,14 @@ function Battle.endCurrentBattle()
 		end
 	end
 
+	if not Battle.isWildEncounter then
+		Program.addFrameCounter("TrainerBattleEnded", 300, function() end, 1, true)
+		if SetupScreen.Buttons.CarouselTrainers.toggleState then
+			TrackerScreen.carouselIndex = TrackerScreen.CarouselTypes.TRAINERS
+			Program.Frames.carouselActive = 0
+		end
+	end
+
 	Battle.numBattlers = 0
 	Battle.partySize = 6
 	Battle.inBattleScreen = false
@@ -784,8 +794,6 @@ function Battle.endCurrentBattle()
 	}
 
 	Program.recalcLeadPokemonHealingInfo()
-	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
-	Program.GameData.EnemyTeam = {}
 
 	-- Reset stat stage changes for the owner's pokemon team
 	for i=1, 6, 1 do

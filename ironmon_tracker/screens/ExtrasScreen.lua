@@ -81,7 +81,7 @@ ExtrasScreen.Buttons = {
 	TimerEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonEditTime end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 99, 24, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 111, 24, 11 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Options and Options["Display play time"] end,
 		draw = function(self, shadowcolor)
 			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
@@ -92,7 +92,7 @@ ExtrasScreen.Buttons = {
 	TimerRelocate = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonRelocateTime end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 99, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 111, 44, 11 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Options and Options["Display play time"] end,
 		onClick = function(self)
 			ExtrasScreen.relocateTimer()
@@ -196,6 +196,7 @@ function ExtrasScreen.createButtons()
 		{"Display repel usage", "OptionDisplayRepelUsage", },
 		{"Display pedometer", "OptionDisplayPedometer", },
 		{"Display play time", "OptionDisplayPlayTime", },
+		{"Display gender", "OptionDisplayGender", },
 		{"Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
 	}
 
