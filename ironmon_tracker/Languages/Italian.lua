@@ -205,6 +205,7 @@ ScreenResources{
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
 		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
+		LabelSpeedSetting = "Speed", -- NEEDS TRANSLATION
 		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION
 		CarouselNotes = "Notes on Pokémon", -- NEEDS TRANSLATION
 		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION

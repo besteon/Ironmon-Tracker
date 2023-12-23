@@ -264,17 +264,58 @@ function SetupScreen.createButtons()
 
 	-- TAB: CAROUSEL
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	startY = Constants.SCREEN.MARGIN + 40
+	startY = Constants.SCREEN.MARGIN + 38
 
-	local headerText = string.format("%s:", Resources.SetupScreen.LabelInfoToShow)
+	local speedText = string.format("%s:", Resources.SetupScreen.LabelSpeedSetting)
+	SCREEN.Buttons.CarouselSpeedHeader = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return speedText end,
+		box = {	startX - 3, startY, Utils.calcWordPixelLength(speedText) + 5, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Carousel end,
+	}
+	startX = startX + 32
+	for _, speedOption in ipairs(Utils.getSortedList(Options.CarouselSpeedMap)) do
+		local speedLabel = speedOption.optionKey .. "x"
+		local speedWidth = Utils.calcWordPixelLength(speedLabel) + 5
+		SCREEN.Buttons["CarouselSpeed" .. speedLabel] = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return speedLabel end,
+			box = {	startX, startY, speedWidth, 11 },
+			isSelected = false,
+			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Carousel end,
+			updateSelf = function(self)
+				self.isSelected = (Options["CarouselSpeed"] == speedOption.optionKey)
+				self.textColor = self.isSelected and SCREEN.Colors.highlight or SCREEN.Colors.text
+			end,
+			draw = function(self, shadowcolor)
+				if self.isSelected then
+					local color = Theme.COLORS[LogTabRouteDetails.Colors.highlight]
+					Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3], self.box[4], color, 1, 5, 1)
+				end
+			end,
+			onClick = function(self)
+				Options["CarouselSpeed"] = speedOption.optionKey
+				Main.SaveSettings(true)
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end,
+		}
+		startX = startX + speedWidth + 4
+	end
+
+	startY = startY + Constants.SCREEN.LINESPACING + 4
+
+	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
+
+	local infoText = string.format("%s:", Resources.SetupScreen.LabelInfoToShow)
 	SCREEN.Buttons.CarouselInfoHeader = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return headerText end,
-		box = {	startX - 2, startY, Utils.calcWordPixelLength(headerText) + 5, 11 },
+		getText = function(self) return infoText end,
+		box = {	startX - 2, startY, Utils.calcWordPixelLength(infoText) + 5, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Carousel end,
 		draw = function(self, shadowcolor) Drawing.drawUnderline(self) end,
 	}
-	startY = startY + Constants.SCREEN.LINESPACING + 4
+	startY = startY + Constants.SCREEN.LINESPACING + 3
 
 	local carouselKeyMap = {
 		{"Badges", "CarouselBadges", },
@@ -297,11 +338,12 @@ function SetupScreen.createButtons()
 	end
 
 	for _, tuple in ipairs(carouselKeyMap) do
+		local optionWidth = Utils.calcWordPixelLength(Resources.SetupScreen[tuple[2]]) + 5
 		SCREEN.Buttons["Carousel" .. tuple[1]] = {
 			type = Constants.ButtonTypes.CHECKBOX,
 			optionKey = tuple[1],
 			getText = function(self) return " " .. Resources.SetupScreen[tuple[2]] end,
-			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+			clickableArea = { startX, startY, optionWidth + 10, 8 },
 			box = {	startX, startY, 8, 8 },
 			toggleState = Utils.containsText(Options["CarouselItems"], tuple[1]),
 			updateSelf = function(self)

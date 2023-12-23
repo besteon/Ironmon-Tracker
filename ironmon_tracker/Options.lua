@@ -11,6 +11,7 @@ Options = {
 	["Autodetect language from game"] = true,
 	["Allow carousel rotation"] = true,
 	["CarouselItems"] = "Badges,Notes,RouteInfo,LastAttack,Pedometer,Trainers",
+	["CarouselSpeed"] = "1",
 	["Auto swap to enemy"] = true,
 	["Show random ball picker"] = true,
 	["Hide stats until summary shown"] = false,
@@ -125,10 +126,40 @@ Options.StartupIcon = {
 
 Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
 
+-- Multiplier as applied to "total # frames to show", so half-speed = twice as many frames to show
+Options.CarouselSpeedMap = {
+	["1/2"] = {
+		optionKey = "1/2",
+		multiplier = 2,
+		index = 2,
+	},
+	["1"] = {
+		optionKey = "1",
+		multiplier = 1,
+		index = 3,
+	},
+	["2"] = {
+		optionKey = "2",
+		multiplier = 1/2,
+		index = 4,
+	},
+	["3"] = {
+		optionKey = "3",
+		multiplier = 1/3,
+		index = 5,
+	},
+	["4"] = {
+		optionKey = "4",
+		multiplier = 1/4,
+		index = 6,
+	},
+}
+
 local defaultOptions = {}
 FileManager.copyTable(Options, defaultOptions)
 defaultOptions.IconSetMap = nil
 defaultOptions.StartupIcon = nil
+defaultOptions.CarouselSpeedMap = nil
 Options.Defaults = defaultOptions
 
 function Options.initialize()

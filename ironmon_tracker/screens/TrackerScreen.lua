@@ -670,6 +670,7 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.TRAINERS] = {
 		type = TrackerScreen.CarouselTypes.TRAINERS,
 		framesToShow = 360,
+		lockedSpeed = true,
 		canShow = function(self)
 			if not SetupScreen.Buttons.CarouselTrainers.toggleState then
 				return false
@@ -738,6 +739,12 @@ function TrackerScreen.getCurrentCarouselItem()
 	elseif Options["Allow carousel rotation"] then
 		-- Adjust rotation delay check for carousel based on the speed of emulation
 		local adjustedVisibilityFrames = (carousel.framesToShow or 0) * Program.clientFpsMultiplier
+		-- Adjust based on speed setting
+		if not carousel.lockedSpeed and Options["CarouselSpeed"] ~= "1" then
+			local speedOption = Options.CarouselSpeedMap[Options["CarouselSpeed"] or "1"]
+			local multiplier = speedOption and speedOption.multiplier or 1
+			adjustedVisibilityFrames = adjustedVisibilityFrames * multiplier
+		end
 		if Program.Frames.carouselActive > adjustedVisibilityFrames then
 			rotateToNextItem()
 		end
