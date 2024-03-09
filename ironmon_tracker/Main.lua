@@ -271,11 +271,34 @@ function Main.SetupFileManager()
 	dofile(fileManagerPath)
 	FileManager.setupWorkingDirectory()
 
+	-- Confirm the working directory was setup properly. Currently a necessary check for accented characters in Windows username.
+	if not FileManager.fileExists(FileManager.Files.TRACKER_CORE) then
+		local err1 = "Error locating Tracker files. Can't find path:"
+		local err2 = FileManager.dir or ""
+		print("> " .. err1)
+		print("> " .. err2)
+		local url = "https://github.com/besteon/Ironmon-Tracker/wiki/FAQ-&-Troubleshooting#folderpermission-issues"
+		print(string.format("More Info: %s", url))
+		Main.DisplayError(err1 .. "\n\n" .. err2, "More Info", function()
+			local result = os.execute(string.format('start "" "%s"', url)) -- Windows
+			if result ~= true and result ~= 0 then -- Failed to execute
+				result = os.execute(string.format('open "%s"', url)) -- Mac OSX
+				if result ~= true and result ~= 0 then -- Failed to execute
+					result = os.execute(string.format('xdg-open "%s"', url)) -- Linux
+				end
+			end
+		end)
+		return false
+	end
+
 	return true
 end
 
--- Displays a given error message in a pop-up dialogue box
-function Main.DisplayError(errMessage)
+---Displays a given error message in a pop-up dialogue box
+---@param errMessage string
+---@param moreInfoBtnLabel string? Optional label for a "More Info" button
+---@param moreInfoFunc function? Optional function to execute for "More Info" button
+function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 	if not Main.IsOnBizhawk() then return end -- Only Bizhawk allows popup form windows
 
 	client.pause()
@@ -285,11 +308,16 @@ function Main.DisplayError(errMessage)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
 
-	forms.label(form, errMessage, 18, 10, 350, 65)
+	forms.label(form, errMessage or "", 18, 10, 350, 65)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
 	end, 155, 80)
+
+	-- Optional additional info button and event function
+	if type(moreInfoFunc) == "function" then
+		forms.button(form, moreInfoBtnLabel or "(?)", moreInfoFunc, 20, 80, 110, 22)
+	end
 end
 
 function Main.AfterStartupScreenRedirect()
@@ -628,17 +656,24 @@ function Main.GenerateNextRom()
 		local missingJava = Utils.containsText(output, "'java' is not recognized", true)
 		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
 		local err1
+		local moreInfoLabel, moreinfoUrl
 		if missingJava then
 			err1 = string.format('ERROR: Java not installed. Please install "Java 64-bit Offline."')
+			moreInfoLabel = "Get Java"
+			moreinfoUrl = "https://www.java.com/en/download/manual.jsp"
 		elseif missing64bit then
 			err1 = string.format('ERROR: Wrong Java installed. Please install "Java 64-bit Offline."')
+			moreInfoLabel = "Get Java"
+			moreinfoUrl = "https://www.java.com/en/download/manual.jsp"
 		else
 			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
+			moreInfoLabel = "View Error Log"
+			moreinfoUrl = FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)
 		end
 		local err2 = "~~~ The Randomizer program failed to generate a ROM ~~~"
 		print("> " .. err1)
 		print("> " .. err2)
-		Main.DisplayError(err1 .. "\n\n" .. err2)
+		Main.DisplayError(err1 .. "\n\n" .. err2, moreInfoLabel, function() Utils.openBrowserWindow(moreinfoUrl) end)
 		return nil
 	end
 
