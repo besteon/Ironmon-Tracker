@@ -595,8 +595,14 @@ function Main.GenerateNextRom()
 		emu:loadFile(FileManager.prependDir(previousRomName))
 	end
 
+	local javaPath = Options.PATHS["Java Path"]
+	if Utils.isNilOrEmpty(javaPath) then
+		javaPath = "java" -- Default for most operating systems
+	end
+
 	local javacommand = string.format(
-		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
+		'%s -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
+		javaPath,
 		jarPath,
 		settingsPath,
 		romPath,
@@ -623,9 +629,9 @@ function Main.GenerateNextRom()
 		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
 		local err1
 		if missingJava then
-			err1 = string.format('ERROR: Java not installed, New Run requires "Java 64-bit Offline."')
+			err1 = string.format('ERROR: Java not installed. Please install "Java 64-bit Offline."')
 		elseif missing64bit then
-			err1 = string.format('ERROR: Wrong Java installed, New Run requires "Java 64-bit Offline."')
+			err1 = string.format('ERROR: Wrong Java installed. Please install "Java 64-bit Offline."')
 		else
 			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
 		end
@@ -928,6 +934,12 @@ function Main.LoadSettings()
 				Options.FILES[configKey] = configValue
 			end
 		end
+		for configKey, _ in pairs(Options.PATHS) do
+			local configValue = settings.config[string.gsub(configKey, " ", "_")]
+			if configValue ~= nil then
+				Options.PATHS[configKey] = configValue
+			end
+		end
 	end
 
 	-- [TRACKER]
@@ -1044,6 +1056,10 @@ function Main.SaveSettings(forced)
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
 		settings.config[encodedKey] = Options.FILES[configKey]
+	end
+	for configKey, _ in pairs(Options.PATHS) do
+		local encodedKey = string.gsub(configKey, " ", "_")
+		settings.config[encodedKey] = Options.PATHS[configKey]
 	end
 
 	-- [TRACKER]
