@@ -16,6 +16,42 @@ Program = {
 		carouselActive = 0, -- counts up
 		Others = {}, -- list of other frame counter objects
 	},
+	Addresses = {
+		battleStructDefault = 0x2000000, -- gSharedMem
+		nicknameCharEnd = 0xFF,
+		hitmarkerFlag80000 = 0x80000, -- A special value for gHitMarker
+		moveResultsFlag29 = 0x29, -- A special value for gMoveResultFlags
+
+		offsetStarterMonChoiceFRLG = 0x62,
+		offsetStarterMonChoiceRSE = 0x46,
+		offsetRepelStepCountFRLG = 0x40,
+		offsetRepelStepCountRSE = 0x42,
+		offsetGrowthRateIndex = 0x13,
+		offsetMapHeaderLayoutId = 0x12, -- mapLayoutId
+		offsetPokemonGettingExp = 0x10, -- expGetterMonId
+		offsetBattlePokemonStatStages = 0x18,
+		offsetBattlePokemonTypes = 0x21,
+		offsetBattlePokemonDoublesPartner = 0xB0,
+		offsetBattleMoves = 0x1,
+		offsetEvoInfoTaskId = 0x2,
+		offsetTaskIsActive = 0x4,
+		offsetTrainerFlagStart = 0x500,
+		offsetBattleResultsCurrentTurn = 0x13,
+		offsetBattleResultsEnemyMoveId = 0x24,
+		offsetBattleResultsLastAttackerMove = 0x22,
+		offsetBattleCommConfirmedCount = 0x4,
+		offsetBattleCommLevitate = 0x6,
+
+		sizeofBaseStatsPokemon = 0x1C,
+		sizeofExpTablePokemon = 0x194,
+		sizeofExpTableLevel = 0x4,
+		sizeofBattlePokemon = 0x58,
+		sizeofBattleMove = 0xC,
+		sizeofTaskStruct = 0x28,
+		sizeofTMHMMoveId = 0x2,
+		sizeofGameStat = 0x4,
+		sizeofLastAttackerMove = 0x2,
+	},
 }
 
 Program.GameData = {
@@ -522,7 +558,12 @@ function Program.updateRepelSteps()
 	-- Checks for an active repel and updates the current steps remaining
 	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
-	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
+	local repelStepCountOffset
+	if GameSettings.game == 3 then
+		repelStepCountOffset = Program.Addresses.offsetRepelStepCountFRLG
+	else
+		repelStepCountOffset = Program.Addresses.offsetRepelStepCountRSE
+	end
 	local repelStepCount = Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
 	if repelStepCount ~= nil and repelStepCount > 0 then
 		Program.ActiveRepel.inUse = true
@@ -626,7 +667,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local nickname = ""
 	for i=0, 9, 1 do
 		local charByte = Memory.readbyte(startAddress + 8 + i)
-		if charByte == 0xFF then break end -- end of sequence
+		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
 		nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
 	end
 	nickname = Utils.formatSpecialCharacters(nickname)
@@ -761,10 +802,10 @@ function Program.getNextLevelExp(pokemonID, level, experience)
 		return 0, 100 -- arbitrary returned values to indicate this information isn't found and it's 0% of the way to next level
 	end
 
-	local growthRateIndex = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x13)
-	local expTableOffset = GameSettings.gExperienceTables + (growthRateIndex * 0x194) + (level * 0x4)
+	local growthRateIndex = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * Program.Addresses.sizeofBaseStatsPokemon) + Program.Addresses.offsetGrowthRateIndex)
+	local expTableOffset = GameSettings.gExperienceTables + (growthRateIndex * Program.Addresses.sizeofExpTablePokemon) + (level * Program.Addresses.sizeofExpTableLevel)
 	local expAtLv = Memory.readdword(expTableOffset)
-	local expAtNextLv = Memory.readdword(expTableOffset + 0x4)
+	local expAtNextLv = Memory.readdword(expTableOffset + Program.Addresses.sizeofExpTableLevel)
 
 	local currentExp = experience - expAtLv
 	local totalExp = expAtNextLv - expAtLv
@@ -838,7 +879,7 @@ function Program.updateBadgesObtained()
 end
 
 function Program.updateMapLocation()
-	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+	local newMapId = Memory.readword(GameSettings.gMapHeader + Program.Addresses.offsetMapHeaderLayoutId)
 
 	-- If the player is in a new area, auto-lookup for mGBA screen
 	if not Main.IsOnBizhawk() and newMapId ~= Program.GameData.mapId then
@@ -894,10 +935,11 @@ function Program.getLearnedMoveInfoTable()
 		if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
 			battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
 		else
-			battleStructAddress = 0x02000000 -- gSharedMem
+			battleStructAddress = Program.Addresses.battleStructDefault
 		end
 
-		local partyIndex = Memory.readbyte(battleStructAddress + 0x10) + 1 -- expGetterMonId: Party index of player (1-6)
+		-- Note: Determining who is leveling up is a bit buggy, sometimes the wrong mon gets its levelup move tracked
+		local partyIndex = Memory.readbyte(battleStructAddress + Program.Addresses.offsetPokemonGettingExp) + 1 -- Party index of player (1-6)
 		local pokemon = Tracker.getPokemon(partyIndex, true)
 		if pokemon ~= nil then
 			return {
@@ -923,9 +965,9 @@ end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
 function Program.getPokemonTypes(isOwn, isLeft)
-	local ownerAddressOffset = Utils.inlineIf(isOwn, 0x0, 0x58)
-	local leftAddressOffset = Utils.inlineIf(isLeft, 0x0, 0xB0)
-	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + ownerAddressOffset + leftAddressOffset)
+	local ownerAddressOffset = Utils.inlineIf(isOwn, 0, Program.Addresses.sizeofBattlePokemon)
+	local leftAddressOffset = Utils.inlineIf(isLeft, 0, Program.Addresses.offsetBattlePokemonDoublesPartner)
+	local typesData = Memory.readword(GameSettings.gBattleMons + Program.Addresses.offsetBattlePokemonTypes + ownerAddressOffset + leftAddressOffset)
 	return {
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
@@ -958,20 +1000,18 @@ function Program.isInEvolutionScene()
 		evoInfo = GameSettings.sEvoInfo
 	end
 	-- third byte of EvoInfo is dedicated to the taskId
-	local taskID = Memory.readbyte(evoInfo + 0x2)
+	local taskID = Memory.readbyte(evoInfo + Program.Addresses.offsetEvoInfoTaskId)
 
 	--only 16 tasks possible max in gTasks
 	if taskID > 15 then return false end
 
-	--Check for Evolution Task (Task_EvolutionScene + 0x1); Task struct size is 0x28
-	local taskFunc = Memory.readdword(GameSettings.gTasks + (0x28 * taskID))
+	--Check for Evolution Task (Task_EvolutionScene + 1)
+	local taskFunc = Memory.readdword(GameSettings.gTasks + (Program.Addresses.sizeofTaskStruct * taskID))
 	if taskFunc ~= GameSettings.Task_EvolutionScene then return false end
 
 	--Check if the Task is active
-	local isActive = Memory.readbyte(GameSettings.gTasks + (0x28 * taskID) + 0x4)
-	if isActive ~= 1 then return false end
-
-	return true
+	local isActive = Memory.readbyte(GameSettings.gTasks + (Program.Addresses.sizeofTaskStruct * taskID) + Program.Addresses.offsetTaskIsActive)
+	return isActive == 1
 end
 
 -- Returns true if player is in the start menu (or the subsequent pokedex/pokemon/bag/etc menus)
@@ -1069,8 +1109,8 @@ end
 function Program.hasDefeatedTrainer(trainerId, saveBlock1Addr)
 	if not TrainerData.Trainers[trainerId or false] then return false end
 	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
-	local idAddrOffset = math.floor((0x500 + trainerId) / 8) -- TRAINER_FLAG_START (0x500)
-	local idBit = (0x500 + trainerId) % 8
+	local idAddrOffset = math.floor((Program.Addresses.offsetTrainerFlagStart + trainerId) / 8)
+	local idBit = (Program.Addresses.offsetTrainerFlagStart + trainerId) % 8
 	local trainerFlagAddr = saveBlock1Addr + GameSettings.gameFlagsOffset + idAddrOffset
 	local result = Memory.readbyte(trainerFlagAddr)
 	return Utils.getbits(result, idBit, 1) ~= 0
@@ -1123,7 +1163,7 @@ function Program.getMoveIdFromTMHMNumber(tmhmNumber, isHM)
 	if isHM then
 		tmhmNumber = tmhmNumber + 50
 	end
-	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * 0x2)) -- Each ID is 2 bytes in size
+	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * Program.Addresses.sizeofTMHMMoveId))
 end
 
 function Program.updateBagItems()
@@ -1149,8 +1189,7 @@ function Program.updateBagItems()
 	}
 	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
-			-- Read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
-			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
+			local itemid_and_quantity = Memory.readdword(address + i * 4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
 			-- Only add to items if the item exists
 			if MiscData.Items[itemID] then
@@ -1217,7 +1256,7 @@ function Program.getTMsHMsBagItems()
 	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local address = Utils.getSaveBlock1Addr() + GameSettings.bagPocket_TmHm_offset
 	for i = 0, (GameSettings.bagPocket_TmHm_Size - 1), 1 do
-		local itemid_and_quantity = Memory.readdword(address + i * 0x4)
+		local itemid_and_quantity = Memory.readdword(address + i * 4)
 		local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
 		if itemID ~= 0 then
 			local quantity = Utils.getbits(itemid_and_quantity, 16, 16)

@@ -1,5 +1,15 @@
 PokemonData = {}
 
+-- https://github.com/pret/pokefirered/blob/0c17a3b041a56f176f23145e4a4c0ae758f8d720/include/pokemon.h#L208-L236
+PokemonData.Addresses = {
+	offsetBaseStats = 0x0,
+	offsetTypes = 0x6,
+	offsetExpYield = 0x9,
+	offsetGenderRatio = 0x10,
+	offsetBaseFriendship = 0x12,
+	offsetAbilities = 0x16,
+}
+
 PokemonData.IsRand = {
 	types = false,
 	abilities = false,
@@ -188,18 +198,18 @@ function PokemonData.buildPokemonData()
 		pokemon.pokemonID = id
 
 		if id < 252 or id > 276 then -- Skip fake Pokemon
-			local addrOffset = GameSettings.gBaseStats + (id * 0x1C)
+			local addrOffset = GameSettings.gBaseStats + (id * Program.Addresses.sizeofBaseStatsPokemon)
 
 			-- BST (6 bytes)
-			local baseHPAttack = Memory.readword(addrOffset + 0x00)
-			local baseDefenseSpeed = Memory.readword(addrOffset + 0x02)
-			local baseSpASpD = Memory.readword(addrOffset + 0x04)
+			local baseHPAttack = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats)
+			local baseDefenseSpeed = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 2)
+			local baseSpASpD = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 4)
 			pokemon.bstCalculated = Utils.getbits(baseHPAttack, 0, 8) + Utils.getbits(baseHPAttack, 8, 8)
 				+ Utils.getbits(baseDefenseSpeed, 0, 8) + Utils.getbits(baseDefenseSpeed, 8, 8)
 				+ Utils.getbits(baseSpASpD, 0, 8) + Utils.getbits(baseSpASpD, 8, 8)
 
 			-- Types (2 bytes)
-			local typesData = Memory.readword(addrOffset + 0x06)
+			local typesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetTypes)
 			local typeOne = Utils.getbits(typesData, 0, 8)
 			local typeTwo = Utils.getbits(typesData, 8, 8)
 			pokemon.types = {
@@ -208,13 +218,13 @@ function PokemonData.buildPokemonData()
 			}
 
 			-- Exp Yield (1 byte)
-			pokemon.expYield = Memory.readbyte(addrOffset + 0x09)
+			pokemon.expYield = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetExpYield)
 
 			-- Base Friendship (1 byte)
-			pokemon.friendshipBase = Memory.readbyte(addrOffset + 0x12)
+			pokemon.friendshipBase = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetBaseFriendship)
 
 			-- Abilities (2 bytes)
-			local abilitiesData = Memory.readword(addrOffset + 0x16)
+			local abilitiesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetAbilities)
 			pokemon.abilities = {
 				Utils.getbits(abilitiesData, 0, 8),
 				Utils.getbits(abilitiesData, 8, 8),

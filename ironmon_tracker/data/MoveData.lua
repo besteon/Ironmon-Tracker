@@ -137,7 +137,7 @@ function MoveData.updateResources()
 end
 
 function MoveData.readMoveInfoFromMemory(moveId)
-	local moveData = Memory.readdword(GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01)
+	local moveData = Memory.readdword(GameSettings.gBattleMoves + (moveId * Program.Addresses.sizeofBattleMove) + Program.Addresses.offsetBattleMoves)
 
 	local movePower = Utils.getbits(moveData, 0, 8)
 	local moveType = Utils.getbits(moveData, 8, 8)

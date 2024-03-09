@@ -974,7 +974,7 @@ function Utils.getGameStat(statIndex)
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
 
-	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * 0x4)
+	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * Program.Addresses.sizeofGameStat)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
 	if key ~= nil then
@@ -990,7 +990,12 @@ end
 ---@return number starterChoice
 function Utils.getStarterMonChoice()
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
-	local varOffset = GameSettings.game == 3 and 0x62 or 0x46
+	local varOffset
+	if GameSettings.game == 3 then
+		varOffset = Program.Addresses.offsetStarterMonChoiceFRLG
+	else
+		varOffset = Program.Addresses.offsetStarterMonChoiceRSE
+	end
 	return 1 + Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + varOffset)
 end
 
