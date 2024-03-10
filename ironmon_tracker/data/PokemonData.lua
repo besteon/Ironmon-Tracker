@@ -15,6 +15,8 @@ PokemonData.Addresses = {
 	offsetGenderRatio = 0x10,
 	offsetBaseFriendship = 0x12,
 	offsetAbilities = 0x16,
+
+	sizeofExpYield = 1,
 }
 
 PokemonData.IsRand = {
@@ -224,8 +226,12 @@ function PokemonData.buildPokemonData()
 				typeOne ~= typeTwo and PokemonData.TypeIndexMap[typeTwo] or PokemonData.Types.EMPTY,
 			}
 
-			-- Exp Yield (1 byte)
-			pokemon.expYield = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetExpYield)
+			-- Exp Yield
+			if PokemonData.Addresses.sizeofExpYield == 2 then
+				pokemon.expYield = Memory.readword(addrOffset + PokemonData.Addresses.offsetExpYield)
+			else
+				pokemon.expYield = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetExpYield)
+			end
 
 			-- Base Friendship (1 byte)
 			pokemon.friendshipBase = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetBaseFriendship)
