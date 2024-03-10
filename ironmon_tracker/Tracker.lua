@@ -403,7 +403,7 @@ end
 --- @param pokemonID number
 --- @return string
 function Tracker.getNote(pokemonID)
-	if pokemonID == 413 then -- Ghost
+	if pokemonID == PokemonData.Values.GhostId then
 		return "Spoooky!"
 	end
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
@@ -456,7 +456,7 @@ end
 --- @return table pokemon A mostly empty set of Pokémon game data, with some info hidden because it's the story ghost encounter
 function Tracker.getGhostPokemon()
 	local defaultPokemon = Tracker.getDefaultPokemon()
-	defaultPokemon.pokemonID = 413
+	defaultPokemon.pokemonID = PokemonData.Values.GhostId
 	defaultPokemon.name = Resources.TrackerScreen.UnidentifiedGhost or "Ghost"
 	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
 	return defaultPokemon

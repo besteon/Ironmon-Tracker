@@ -286,7 +286,7 @@ function Program.initialize()
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
-	if friendshipRequired > 1 and friendshipRequired <= 220 then
+	if friendshipRequired > 1 and friendshipRequired <= PokemonData.Values.FriendshipRequiredToEvo then
 		Program.GameData.friendshipRequired = friendshipRequired
 	end
 

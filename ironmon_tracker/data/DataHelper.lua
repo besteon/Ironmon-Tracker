@@ -141,7 +141,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	-- If there's a nickname that's different that the original Pokémon name and option is on, use that name
 	if Options["Show nicknames"] and not Utils.isNilOrEmpty(viewedPokemon.nickname) and Utils.toLowerUTF8(pokemonInternal.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
-	elseif viewedPokemon.pokemonID == 413 then -- Ghost
+	elseif viewedPokemon.pokemonID == PokemonData.Values.GhostId then
 		data.p.name = viewedPokemon.name or Constants.BLANKLINE
 	else
 		data.p.name = pokemonInternal.name or viewedPokemon.name or Constants.BLANKLINE
@@ -154,8 +154,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
 	data.p.curExp = viewedPokemon.currentExp or 0
 	data.p.totalExp = viewedPokemon.totalExp or 100
-	data.p.friendship = viewedPokemon.friendship or 70 -- Current value; 70 is default for most Pokémon
-	data.p.friendshipBase = pokemonInternal.friendshipBase or 70 -- The starting value of the Pokémon
+	data.p.friendship = viewedPokemon.friendship or PokemonData.Values.DefaultBaseFriendship -- Current value
+	data.p.friendshipBase = pokemonInternal.friendshipBase or PokemonData.Values.DefaultBaseFriendship -- The starting value of the Pokémon
 
 	-- Add: Stats, Stages, and Nature
 	data.p.gender = viewedPokemon.gender

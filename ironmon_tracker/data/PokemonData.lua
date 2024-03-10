@@ -1,5 +1,12 @@
 PokemonData = {}
 
+PokemonData.Values = {
+	EggId = 412,
+	GhostId = 413, -- Pokémon Tower's Silph Scope Ghost
+	DefaultBaseFriendship = 70,
+	FriendshipRequiredToEvo = 220,
+}
+
 -- https://github.com/pret/pokefirered/blob/0c17a3b041a56f176f23145e4a4c0ae758f8d720/include/pokemon.h#L208-L236
 PokemonData.Addresses = {
 	offsetBaseStats = 0x0,
@@ -254,7 +261,7 @@ function PokemonData.checkIfDataIsRandomized()
 	elseif lapras.abilities[1] ~= 11 or lapras.abilities[2] ~= 75 then -- 11 = Water Absorb, 75 = Shell Armor
 		PokemonData.IsRand.abilities = true
 	end
-	if bulbasaur.friendshipBase ~= 70 or lapras.friendshipBase ~= 70 then
+	if bulbasaur.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship or lapras.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship then
 		PokemonData.IsRand.friendshipBase = true
 	end
 	if bulbasaur.expYield ~= 64 or lapras.expYield ~= 219 then
@@ -281,8 +288,8 @@ function PokemonData.isValid(pokemonID)
 end
 
 function PokemonData.isImageIDValid(pokemonID)
-	--Eggs (412), Ghosts (413), and placeholder (0)
-	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413 or pokemonID == 0
+	-- 0 is a valid placeholder id
+	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
 end
 
 local idInternalToNat = {
