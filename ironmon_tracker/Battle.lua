@@ -165,7 +165,13 @@ function Battle.updateBattleStatus()
 		Battle.isViewingOwn = not Options["Auto swap to enemy"]
 	end
 
-	if not Battle.inBattleScreen and battleStatusActive and not isFakeBattle then
+	-- Only bother checking for safari zone battle encounter if this incorrectly thinks it's a fake battle
+	local isSafariEncounter = false
+	if not Battle.inBattleScreen and battleStatusActive and isFakeBattle then
+		isSafariEncounter = Program.isInSafariZone()
+	end
+
+	if not Battle.inBattleScreen and battleStatusActive and (not isFakeBattle or isSafariEncounter) then
 		Battle.beginNewBattle()
 	elseif Battle.dataReady and not battleStatusActive and msgTiming.DataEnd[battleMainFunction] then
 		Battle.endCurrentBattle()

@@ -36,6 +36,10 @@ Program = {
 		offsetEvoInfoTaskId = 0x2,
 		offsetTaskIsActive = 0x4,
 		offsetTrainerFlagStart = 0x500,
+		offsetSysFlagStartFRLG = 0x800,
+		offsetSysFlagStartRSE = 0x860,
+		offsetSysFlagSafariModeFRLG = 0x0,
+		offsetSysFlagSafariModeRSE = 0x2C,
 		offsetBattleResultsCurrentTurn = 0x13,
 		offsetBattleResultsEnemyMoveId = 0x24,
 		offsetBattleResultsLastAttackerMove = 0x22,
@@ -1100,6 +1104,23 @@ function Program.getExtras()
 		end
 	end
 	return extras
+end
+
+--- Returns true if the player is actively in the Safari Zone; false otherwise
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return boolean inSafariZone
+function Program.isInSafariZone(saveBlock1Addr)
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local offsetSafariMode
+	if GameSettings.game == 3 then
+		offsetSafariMode = Program.Addresses.offsetSysFlagStartFRLG + Program.Addresses.offsetSysFlagSafariModeFRLG
+	else
+		offsetSafariMode = Program.Addresses.offsetSysFlagStartRSE + Program.Addresses.offsetSysFlagSafariModeRSE
+	end
+	local safariModeAddr = saveBlock1Addr + GameSettings.gameFlagsOffset + math.floor(offsetSafariMode / 8)
+	local safariModeBit = offsetSafariMode % 8
+	local safariModeVal = Memory.readbyte(safariModeAddr)
+	return Utils.getbits(safariModeVal, safariModeBit, 1) ~= 0
 end
 
 --- Returns true if the trainer has been defeated by the player; false otherwise
