@@ -1,6 +1,4 @@
-MoveData = {
-	totalMoves = 354,
-}
+MoveData = {}
 
 MoveData.IsRand = {
 	moveType = false,
@@ -99,29 +97,7 @@ MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected b
 }
 
 function MoveData.initialize()
-	-- Reads the Move's type, power, accuracy, and pp
-	-- If any data at all was randomized, read in full move data from memory
-	if MoveData.checkIfDataIsRandomized() then
-		for moveId=1, MoveData.totalMoves, 1 do
-			local moveData = MoveData.Moves[moveId]
-
-			local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
-			if moveInfo ~= nil then
-				moveData.type = moveInfo.type
-				moveData.accuracy = moveInfo.accuracy
-				moveData.pp = moveInfo.pp
-
-				-- Don't overwrite manually entered data for moves with special powers (randomizer sets them to "1")
-				if moveInfo.power ~= "1" then
-					moveData.power = moveInfo.power
-				end
-
-				if moveData.power ~= "0" then
-					moveData.category = MoveData.TypeToCategory[moveData.type]
-				end
-			end
-		end
-	end
+	MoveData.buildData()
 end
 
 function MoveData.updateResources()
@@ -132,6 +108,33 @@ function MoveData.updateResources()
 		local descTable = Resources.Game.MoveDescriptions[i] or {}
 		if descTable and descTable.Description then
 			val.summary = descTable.Description
+		end
+	end
+end
+
+--- Reads the Move's type, power, accuracy, and pp from the game memory.
+---@param forced boolean? Optional, forces the data to be read in from the game
+function MoveData.buildData(forced)
+	-- Don't bother reading in game data if it's not randomized (might not need this check)
+	if not forced and not MoveData.checkIfDataIsRandomized() then
+		return
+	end
+
+	for moveId = 1, #MoveData.Moves, 1 do
+		local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
+		if moveInfo ~= nil then
+			local moveData = MoveData.Moves[moveId]
+			moveData.type = moveInfo.type
+			moveData.accuracy = moveInfo.accuracy
+			moveData.pp = moveInfo.pp
+
+			-- Don't overwrite manually entered data for moves with special powers (randomizer sets them to "1")
+			if moveInfo.power ~= "1" then
+				moveData.power = moveInfo.power
+			end
+			if moveData.power ~= "0" then
+				moveData.category = MoveData.TypeToCategory[moveData.type]
+			end
 		end
 	end
 end
@@ -152,6 +155,8 @@ function MoveData.readMoveInfoFromMemory(moveId)
 	}
 end
 
+---Returns true if the game's data is randomized (accuracy is not absolute); false otherwise
+---@return boolean
 function MoveData.checkIfDataIsRandomized()
 	local areTypesRandomized = false
 	local arePowersRandomized = false
@@ -194,8 +199,11 @@ function MoveData.checkIfDataIsRandomized()
 	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
 end
 
+---Returns true if the moveId is a valid, existing id of a move in MoveData.Moves
+---@param moveId number
+---@return boolean
 function MoveData.isValid(moveId)
-	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
+	return moveId ~= nil and moveId >= 1 and moveId <= #MoveData.Moves
 end
 
 MoveData.BlankMove = {

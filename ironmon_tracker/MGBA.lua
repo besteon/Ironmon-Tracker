@@ -248,7 +248,7 @@ MGBA.Screens = {
 
 			-- Automatically default to showing a random Move
 			if self.moveId == nil or self.moveId == 0 then
-				self.moveId = math.random(MoveData.totalMoves)
+				self.moveId = math.random(#MoveData.Moves)
 			end
 
 			if self.data == nil or (self.moveId ~= nil and self.moveId ~= self.data.m.id) then

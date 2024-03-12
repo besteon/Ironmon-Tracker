@@ -148,7 +148,7 @@ PokemonData.Evolutions = {
 }
 
 function PokemonData.initialize()
-	PokemonData.buildPokemonData()
+	PokemonData.buildData()
 	PokemonData.checkIfDataIsRandomized()
 end
 
@@ -202,7 +202,7 @@ function PokemonData.updateResources()
 end
 
 ---Read in PokemonData from game memory: https://github.com/pret/pokefirered/blob/master/include/pokemon.h#L208
-function PokemonData.buildPokemonData()
+function PokemonData.buildData()
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
 		pokemon.pokemonID = id
 
@@ -289,10 +289,16 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	return pokemon.abilities[abilityNum + 1] or 0 -- abilityNum stored from memory as [0 or 1]
 end
 
+---Returns true if the pokemonId is a valid, existing id of a pokemon in PokemonData.Pokemon
+---@param pokemonID number
+---@return boolean
 function PokemonData.isValid(pokemonID)
 	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= #PokemonData.Pokemon
 end
 
+---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
+---@param pokemonID number
+---@return boolean
 function PokemonData.isImageIDValid(pokemonID)
 	-- 0 is a valid placeholder id
 	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
