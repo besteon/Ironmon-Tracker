@@ -33,6 +33,46 @@ Drawing.AnimatedPokemon = {
 	requiresRelocating = false,
 }
 
+---Each different type of image that could be drawn. An optional override check & path can be defined, which will be used instead
+Drawing.ImagePaths = {
+	PokemonIcon = {
+		getDefaultPath = function(self, value)
+			local iconset = Options.getIconSet()
+			return FileManager.buildImagePath(iconset.folder, tostring(value), iconset.extension)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	PokemonType = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath("types", value, ".png")
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	PokemonStatus = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath("status", value, ".png")
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	AnimatedPokemon = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, value, FileManager.Extensions.ANIMATED_POKEMON)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	Repel = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+}
+
 function Drawing.initialize()
 	Drawing.allowCachedImages = true
 	if Main.IsOnBizhawk() then
@@ -112,21 +152,35 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	if iconset.isAnimated then
 		Drawing.drawSpriteIcon(x, y, pokemonID)
 	else
-		local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-		Drawing.drawImage(image, x, y, width, height)
+		local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))
+		if imagePath then
+			Drawing.drawImage(imagePath, x, y, width, height)
+		end
 	end
 end
 
+---@param type string
+---@param x number
+---@param y number
 function Drawing.drawTypeIcon(type, x, y)
 	if Utils.isNilOrEmpty(type) then return end
 
-	Drawing.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
+	local imagePath = Drawing.getImagePath("PokemonType", type)
+	if imagePath then
+		Drawing.drawImage(imagePath, x, y, 30, 12)
+	end
 end
 
+---@param status string
+---@param x number
+---@param y number
 function Drawing.drawStatusIcon(status, x, y)
 	if Utils.isNilOrEmpty(status) then return end
 
-	Drawing.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
+	local imagePath = Drawing.getImagePath("PokemonStatus", status)
+	if imagePath then
+		Drawing.drawImage(imagePath, x, y, 16, 8)
+	end
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
@@ -392,8 +446,10 @@ function Drawing.drawButton(button, shadowcolor)
 			if iconset.isAnimated then
 				Drawing.drawSpriteIcon(x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), pokemonID, animType)
 			else
-				local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-				Drawing.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+				local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))
+				if imagePath then
+					Drawing.drawImage(imagePath, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+				end
 			end
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
@@ -639,35 +695,41 @@ function Drawing.setAnimatedPokemon(pokemonID)
 		return
 	end
 
-	local pictureBox = Drawing.AnimatedPokemon.pictureBox
+	-- Skip setting a new animated image if it's still the same Pokemon
+	if pokemonID == Drawing.AnimatedPokemon.pokemonID then
+		return
+	end
 
-	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
-		local lowerPokemonName = Resources.Default.Game.PokemonNames[pokemonID]
-		if lowerPokemonName ~= nil then
-			-- Track this ID so we don't have to preform as many checks later
-			Drawing.AnimatedPokemon.pokemonID = pokemonID
+	-- Verify this pokemon's name exists, otherwise skip it
+	local lowerPokemonName = Resources.Default.Game.PokemonNames[pokemonID]
+	if Utils.isNilOrEmpty(lowerPokemonName) then
+		return
+	end
 
-			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
-			local fileExists = FileManager.fileExists(imagepath)
-			if Main.IsOnBizhawk() then
-				if fileExists then
-					-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
-					forms.setproperty(pictureBox, "Visible", false)
-					forms.setproperty(pictureBox, "ImageLocation", "")
-					forms.setproperty(pictureBox, "Left", 1)
-					forms.setproperty(pictureBox, "Top", 1)
-					forms.setproperty(pictureBox, "Width", 1)
-					forms.setproperty(pictureBox, "Height", 1)
-					forms.setproperty(pictureBox, "ImageLocation", imagepath)
-					Drawing.AnimatedPokemon.requiresRelocating = true
-				end
-				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
-			elseif fileExists then
-				-- For mGBA, duplicate the image file so it can be rendered by external programs
-				local animatedImageFile = FileManager.prependDir(FileManager.Files.Other.ANIMATED_POKEMON)
-				FileManager.CopyFile(imagepath, animatedImageFile, "overwrite")
-			end
+	-- Record this ID so we don't have to re-set it again later if it remains unchanged
+	Drawing.AnimatedPokemon.pokemonID = pokemonID
+
+	local imagePath = Drawing.getImagePath("AnimatedPokemon", lowerPokemonName)
+	local fileExists = imagePath and FileManager.fileExists(imagePath)
+
+	if Main.IsOnBizhawk() then
+		if fileExists then
+			-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+			local pictureBox = Drawing.AnimatedPokemon.pictureBox
+			forms.setproperty(pictureBox, "Visible", false)
+			forms.setproperty(pictureBox, "ImageLocation", "")
+			forms.setproperty(pictureBox, "Left", 1)
+			forms.setproperty(pictureBox, "Top", 1)
+			forms.setproperty(pictureBox, "Width", 1)
+			forms.setproperty(pictureBox, "Height", 1)
+			forms.setproperty(pictureBox, "ImageLocation", imagePath)
+			Drawing.AnimatedPokemon.requiresRelocating = true
 		end
+		forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
+	elseif fileExists then
+		-- For mGBA, duplicate the image file so it can be rendered by external programs
+		local animatedImageFile = FileManager.prependDir(FileManager.Files.Other.ANIMATED_POKEMON)
+		FileManager.CopyFile(imagePath, animatedImageFile, "overwrite")
 	end
 end
 
@@ -697,6 +759,28 @@ function Drawing.relocateAnimatedPokemon()
 	end
 end
 
+---Returns the proper full image path to an asset, while checking if any overrides are necessary; or returns nil if none exists
+---@param imagePathType string A valid image path type key, as defined in Drawing.ImagePaths
+---@param value any? Optional, a value to be used to build the image file (such as a pokemonID)
+---@return string|nil
+function Drawing.getImagePath(imagePathType, value)
+	local imagePathObj = Drawing.ImagePaths[imagePathType or false]
+	if not imagePathObj then
+		return nil
+	end
+
+	-- If path override exists and it meets the condition to be used
+	if type(imagePathObj.shouldUseOverride) == "function" and imagePathObj:shouldUseOverride(value) then
+		local overridePath = imagePathObj:getOverridePath(value)
+		if not Utils.isNilOrEmpty(overridePath) then
+			return overridePath
+		end
+	end
+
+	-- Otherwise, return the default image path
+	return imagePathObj:getDefaultPath(value)
+end
+
 -- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
 function Drawing.drawRepelUsage()
 	if not Main.IsOnBizhawk() then return end
@@ -707,8 +791,10 @@ function Drawing.drawRepelUsage()
 		yOffset = (Program.GameTimer.box.height or 9) + (Program.GameTimer.margin or 0) + 1
 	end
 	-- Draw repel item icon
-	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
-	Drawing.drawImage(repelImage, xOffset, yOffset)
+	local repelImage = Drawing.getImagePath("Repel")
+	if repelImage then
+		Drawing.drawImage(repelImage, xOffset, yOffset)
+	end
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21
