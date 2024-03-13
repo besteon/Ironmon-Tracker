@@ -769,11 +769,14 @@ function Drawing.getImagePath(imagePathType, value)
 		return nil
 	end
 
-	-- If path override exists and it meets the condition to be used
-	if type(imagePathObj.shouldUseOverride) == "function" and imagePathObj:shouldUseOverride(value) then
-		local overridePath = imagePathObj:getOverridePath(value)
-		if not Utils.isNilOrEmpty(overridePath) then
-			return overridePath
+	-- If an override is provided for this path, use that
+	if type(imagePathObj.getOverridePath) == "function" then
+		-- If no condition is required, just use the path; otherwise first check the use-condition
+		if not imagePathObj.shouldUseOverride or (type(imagePathObj.shouldUseOverride) == "function" and imagePathObj:shouldUseOverride(value)) then
+			local overridePath = imagePathObj:getOverridePath(value)
+			if not Utils.isNilOrEmpty(overridePath) then
+				return overridePath
+			end
 		end
 	end
 
