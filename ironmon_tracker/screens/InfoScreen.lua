@@ -322,10 +322,10 @@ function InfoScreen.showNextPokemon(delta)
 	local nextPokemonId = InfoScreen.infoLookup + delta
 
 	if nextPokemonId < 1 then
-		nextPokemonId = 411
+		nextPokemonId = #PokemonData.Pokemon
 	elseif nextPokemonId > 251 and nextPokemonId < 277 then
 		nextPokemonId = Utils.inlineIf(delta > 0, 277, 251)
-	elseif nextPokemonId > 411 then
+	elseif nextPokemonId > #PokemonData.Pokemon then
 		nextPokemonId = 1
 	end
 
