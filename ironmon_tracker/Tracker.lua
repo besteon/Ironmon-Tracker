@@ -410,7 +410,7 @@ function Tracker.getNote(pokemonID)
 	return trackedPokemon.note or ""
 end
 
---- If the Pokemon has the move "Hidden Power" (id=237), return it's tracked type (if set); otherwise default type value = unknown
+--- If the Pokemon has the move "Hidden Power", return it's tracked type (if set); otherwise default type value = unknown
 --- @param pokemon table? (Optional) The Pokemon data object to use for checking if hidden power type is tracked; default: currently viewed mon
 --- @return string
 function Tracker.getHiddenPowerType(pokemon)

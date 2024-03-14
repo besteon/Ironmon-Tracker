@@ -468,7 +468,7 @@ function CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(slotNumber)
 			local typeToAdd
 			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] then
 				typeToAdd = moveInternal.type
-			elseif move.id == 237 then -- 237 = Hidden Power, but only use if it's type is set/tracked
+			elseif move.id == MoveData.Values.HiddenPowerId then -- But only use if it's type is set/tracked
 				local hiddenPowerType = Tracker.getHiddenPowerType(pokemon)
 				if hiddenPowerType ~= MoveData.HIDDEN_POWER_NOT_SET then
 					typeToAdd = hiddenPowerType
