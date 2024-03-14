@@ -96,6 +96,12 @@ function Battle.initialize()
 	Battle.lastEnemyMoveId = 0
 	Battle.enemyHasAttacked = false
 	Battle.firstActionTaken = false
+	Battle.Combatants = {
+		LeftOwn = 1,
+		LeftOther = 1,
+		RightOwn = 2,
+		RightOther = 2,
+	}
 end
 
 --- Returns true if the player is in an active battle and battle game data is available to be used
