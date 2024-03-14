@@ -129,10 +129,10 @@ function MoveData.buildData(forced)
 			moveData.pp = moveInfo.pp
 
 			-- Don't overwrite manually entered data for moves with special powers (randomizer sets them to "1")
-			if moveInfo.power ~= "1" then
+			if moveInfo.power ~= "1" or forced then
 				moveData.power = moveInfo.power
 			end
-			if moveData.power ~= "0" then
+			if moveData.power ~= "0" or forced then
 				moveData.category = MoveData.TypeToCategory[moveData.type]
 			end
 		end
