@@ -366,6 +366,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "13",
@@ -562,6 +563,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "33",
@@ -723,6 +725,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "50",
@@ -901,6 +904,7 @@ MoveData.Moves = {
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
 		priority = "-- 5",
+		variablepower = true,
 	},
 	{
 		id = "69",
@@ -911,6 +915,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "70",
@@ -1030,6 +1035,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "83",
@@ -1102,6 +1108,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "91",
@@ -1205,6 +1212,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "102",
@@ -1350,6 +1358,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "118",
@@ -1646,6 +1655,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "150",
@@ -1767,6 +1777,7 @@ MoveData.Moves = {
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "163",
@@ -2534,6 +2545,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
 		priority = "-- 5",
+		variablepower = true,
 	},
 	{
 		id = "244",
@@ -2647,6 +2659,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "256",
@@ -2912,6 +2925,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "284",
@@ -3341,6 +3355,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "330",
