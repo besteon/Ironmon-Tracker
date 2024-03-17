@@ -78,7 +78,7 @@ function Tracker.initialize()
 end
 
 --- @param slotNumber number Which party slot (1-6) to get
---- @param isOwn boolean? True for the Player's team, false for the Enemy Trainer's team
+--- @param isOwn boolean? (Optional) True for the Player's team, false for the Enemy Trainer's team; default=true
 --- @param excludeEggs boolean? (Optional) If true, avoid Pokémon that are eggs; default=true
 --- @return table? pokemon All of the game data known about this Pokémon; nil if it doesn't exist
 function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)

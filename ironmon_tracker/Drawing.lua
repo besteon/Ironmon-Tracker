@@ -34,6 +34,8 @@ Drawing.AnimatedPokemon = {
 }
 
 ---Each different type of image that could be drawn. An optional override check & path can be defined, which will be used instead
+---getOverridePath: If specified, will *always* use this override path instead of the default
+---shouldUseOverride: If specified, will *only* use the override path if the condition defined in this function is met
 Drawing.ImagePaths = {
 	PokemonIcon = {
 		getDefaultPath = function(self, value)
@@ -772,7 +774,7 @@ function Drawing.getImagePath(imagePathType, value)
 	-- If an override is provided for this path, use that
 	if type(imagePathObj.getOverridePath) == "function" then
 		-- If no condition is required, just use the path; otherwise first check the use-condition
-		if not imagePathObj.shouldUseOverride or (type(imagePathObj.shouldUseOverride) == "function" and imagePathObj:shouldUseOverride(value)) then
+		if imagePathObj.shouldUseOverride == nil or (type(imagePathObj.shouldUseOverride) == "function" and imagePathObj:shouldUseOverride(value)) then
 			local overridePath = imagePathObj:getOverridePath(value)
 			if not Utils.isNilOrEmpty(overridePath) then
 				return overridePath
