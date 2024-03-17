@@ -248,7 +248,7 @@ MGBA.Screens = {
 
 			-- Automatically default to showing a random Move
 			if self.moveId == nil or self.moveId == 0 then
-				self.moveId = math.random(MoveData.totalMoves)
+				self.moveId = math.random(#MoveData.Moves)
 			end
 
 			if self.data == nil or (self.moveId ~= nil and self.moveId ~= self.data.m.id) then
@@ -971,15 +971,14 @@ MGBA.CommandMap = {
 				return
 			end
 
-			local hiddenpowerMoveId = 237
-			local hiddenpowerName = MoveData.Moves[hiddenpowerMoveId].name or "Hidden Power"
+			local hiddenpowerName = MoveData.Moves[MoveData.Values.HiddenPowerId].name or "Hidden Power"
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemonViewed = Battle.getViewedPokemon(true) or {}
 			if not PokemonData.isValid(pokemonViewed.pokemonID) then
 				printf(" %s", Resources.MGBACommands.HiddenPowerError2)
 				return
-			elseif not Utils.pokemonHasMove(pokemonViewed, hiddenpowerMoveId) then
+			elseif not Utils.pokemonHasMove(pokemonViewed, MoveData.Values.HiddenPowerId) then
 				printf(" %s %s.", Resources.MGBACommands.HiddenPowerError3, hiddenpowerName)
 				return
 			end

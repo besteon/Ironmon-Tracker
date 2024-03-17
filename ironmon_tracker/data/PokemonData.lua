@@ -1,5 +1,24 @@
 PokemonData = {}
 
+PokemonData.Values = {
+	EggId = 412,
+	GhostId = 413, -- Pokémon Tower's Silph Scope Ghost
+	DefaultBaseFriendship = 70,
+	FriendshipRequiredToEvo = 220,
+}
+
+-- https://github.com/pret/pokefirered/blob/0c17a3b041a56f176f23145e4a4c0ae758f8d720/include/pokemon.h#L208-L236
+PokemonData.Addresses = {
+	offsetBaseStats = 0x0,
+	offsetTypes = 0x6,
+	offsetExpYield = 0x9,
+	offsetGenderRatio = 0x10,
+	offsetBaseFriendship = 0x12,
+	offsetAbilities = 0x16,
+
+	sizeofExpYield = 1,
+}
+
 PokemonData.IsRand = {
 	types = false,
 	abilities = false,
@@ -129,7 +148,7 @@ PokemonData.Evolutions = {
 }
 
 function PokemonData.initialize()
-	PokemonData.buildPokemonData()
+	PokemonData.buildData()
 	PokemonData.checkIfDataIsRandomized()
 end
 
@@ -183,23 +202,23 @@ function PokemonData.updateResources()
 end
 
 ---Read in PokemonData from game memory: https://github.com/pret/pokefirered/blob/master/include/pokemon.h#L208
-function PokemonData.buildPokemonData()
+function PokemonData.buildData()
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
 		pokemon.pokemonID = id
 
 		if id < 252 or id > 276 then -- Skip fake Pokemon
-			local addrOffset = GameSettings.gBaseStats + (id * 0x1C)
+			local addrOffset = GameSettings.gBaseStats + (id * Program.Addresses.sizeofBaseStatsPokemon)
 
 			-- BST (6 bytes)
-			local baseHPAttack = Memory.readword(addrOffset + 0x00)
-			local baseDefenseSpeed = Memory.readword(addrOffset + 0x02)
-			local baseSpASpD = Memory.readword(addrOffset + 0x04)
+			local baseHPAttack = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats)
+			local baseDefenseSpeed = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 2)
+			local baseSpASpD = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 4)
 			pokemon.bstCalculated = Utils.getbits(baseHPAttack, 0, 8) + Utils.getbits(baseHPAttack, 8, 8)
 				+ Utils.getbits(baseDefenseSpeed, 0, 8) + Utils.getbits(baseDefenseSpeed, 8, 8)
 				+ Utils.getbits(baseSpASpD, 0, 8) + Utils.getbits(baseSpASpD, 8, 8)
 
 			-- Types (2 bytes)
-			local typesData = Memory.readword(addrOffset + 0x06)
+			local typesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetTypes)
 			local typeOne = Utils.getbits(typesData, 0, 8)
 			local typeTwo = Utils.getbits(typesData, 8, 8)
 			pokemon.types = {
@@ -207,14 +226,18 @@ function PokemonData.buildPokemonData()
 				typeOne ~= typeTwo and PokemonData.TypeIndexMap[typeTwo] or PokemonData.Types.EMPTY,
 			}
 
-			-- Exp Yield (1 byte)
-			pokemon.expYield = Memory.readbyte(addrOffset + 0x09)
+			-- Exp Yield
+			if PokemonData.Addresses.sizeofExpYield == 2 then
+				pokemon.expYield = Memory.readword(addrOffset + PokemonData.Addresses.offsetExpYield)
+			else
+				pokemon.expYield = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetExpYield)
+			end
 
 			-- Base Friendship (1 byte)
-			pokemon.friendshipBase = Memory.readbyte(addrOffset + 0x12)
+			pokemon.friendshipBase = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetBaseFriendship)
 
 			-- Abilities (2 bytes)
-			local abilitiesData = Memory.readword(addrOffset + 0x16)
+			local abilitiesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetAbilities)
 			pokemon.abilities = {
 				Utils.getbits(abilitiesData, 0, 8),
 				Utils.getbits(abilitiesData, 8, 8),
@@ -244,7 +267,7 @@ function PokemonData.checkIfDataIsRandomized()
 	elseif lapras.abilities[1] ~= 11 or lapras.abilities[2] ~= 75 then -- 11 = Water Absorb, 75 = Shell Armor
 		PokemonData.IsRand.abilities = true
 	end
-	if bulbasaur.friendshipBase ~= 70 or lapras.friendshipBase ~= 70 then
+	if bulbasaur.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship or lapras.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship then
 		PokemonData.IsRand.friendshipBase = true
 	end
 	if bulbasaur.expYield ~= 64 or lapras.expYield ~= 219 then
@@ -266,13 +289,19 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	return pokemon.abilities[abilityNum + 1] or 0 -- abilityNum stored from memory as [0 or 1]
 end
 
+---Returns true if the pokemonId is a valid, existing id of a pokemon in PokemonData.Pokemon
+---@param pokemonID number
+---@return boolean
 function PokemonData.isValid(pokemonID)
 	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= #PokemonData.Pokemon
 end
 
+---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
+---@param pokemonID number
+---@return boolean
 function PokemonData.isImageIDValid(pokemonID)
-	--Eggs (412), Ghosts (413), and placeholder (0)
-	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413 or pokemonID == 0
+	-- 0 is a valid placeholder id
+	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
 end
 
 local idInternalToNat = {

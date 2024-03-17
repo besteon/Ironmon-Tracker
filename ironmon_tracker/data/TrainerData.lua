@@ -116,15 +116,19 @@ TrainerData.BlankTrainer = {
 }
 
 function TrainerData.initialize()
+	TrainerData.buildData()
+end
+
+function TrainerData.buildData()
 	TrainerData.Trainers = {}
 	TrainerData.GymTMs = {}
 	TrainerData.FinalTrainer = {}
-	if GameSettings.game == 1 then
+	if GameSettings.game == 1 then -- Ruby / Sapphire
 		TrainerData.setupTrainersAsRubySapphire()
 	elseif GameSettings.game == 2 then
-		TrainerData.setupTrainersAsEmerald()
+		TrainerData.setupTrainersAsEmerald() -- Emerald
 	elseif GameSettings.game == 3 then
-		TrainerData.setupTrainersAsFRLG()
+		TrainerData.setupTrainersAsFRLG() -- FireRed / LeafGreen
 	end
 end
 

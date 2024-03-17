@@ -141,7 +141,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	-- If there's a nickname that's different that the original Pokémon name and option is on, use that name
 	if Options["Show nicknames"] and not Utils.isNilOrEmpty(viewedPokemon.nickname) and Utils.toLowerUTF8(pokemonInternal.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
-	elseif viewedPokemon.pokemonID == 413 then -- Ghost
+	elseif viewedPokemon.pokemonID == PokemonData.Values.GhostId then
 		data.p.name = viewedPokemon.name or Constants.BLANKLINE
 	else
 		data.p.name = pokemonInternal.name or viewedPokemon.name or Constants.BLANKLINE
@@ -154,8 +154,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
 	data.p.curExp = viewedPokemon.currentExp or 0
 	data.p.totalExp = viewedPokemon.totalExp or 100
-	data.p.friendship = viewedPokemon.friendship or 70 -- Current value; 70 is default for most Pokémon
-	data.p.friendshipBase = pokemonInternal.friendshipBase or 70 -- The starting value of the Pokémon
+	data.p.friendship = viewedPokemon.friendship or PokemonData.Values.DefaultBaseFriendship -- Current value
+	data.p.friendshipBase = pokemonInternal.friendshipBase or PokemonData.Values.DefaultBaseFriendship -- The starting value of the Pokémon
 
 	-- Add: Stats, Stages, and Nature
 	data.p.gender = viewedPokemon.gender
@@ -272,7 +272,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		move.starred = not Utils.isNilOrEmpty(stars[i])
 
 		-- Update: Specific Moves
-		if move.id == 237 then -- 237 = Hidden Power
+		if move.id == MoveData.Values.HiddenPowerId then
 			if data.x.viewingOwn then
 				move.type = Tracker.getHiddenPowerType(viewedPokemon)
 			else
@@ -280,10 +280,10 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			end
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
-			if move.id == 311 then -- 311 = Weather Ball
+			if move.id == MoveData.Values.WeatherBallId then
 				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
 				move.category = MoveData.TypeToCategory[move.type]
-			elseif move.id == 67 and Battle.inActiveBattle() and opposingPokemon ~= nil then -- 67 = Low Kick
+			elseif move.id == MoveData.Values.LowKickId and Battle.inActiveBattle() and opposingPokemon ~= nil then
 				local targetWeight
 				if opposingPokemon.weight ~= nil then
 					targetWeight = opposingPokemon.weight
@@ -294,11 +294,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 				end
 				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
 			elseif data.x.viewingOwn then
-				if move.id == 175 or move.id == 179 then -- 175 = Flail, 179 = Reversal
+				if move.id == MoveData.Values.FlailId or move.id == MoveData.Values.ReversalId then
 					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.id == 284 or move.id == 323 then -- 284 = Eruption, 323 = Water Spout
+				elseif move.id == MoveData.Values.EruptionId or move.id == MoveData.Values.WaterSpoutId then
 					move.power = Utils.calculateHighHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.id == 216 or move.id == 218 then -- 216 = Return, 218 = Frustration
+				elseif move.id == MoveData.Values.ReturnId or move.id == MoveData.Values.FrustrationId then
 					move.power = Utils.calculateFriendshipBasedDamage(move.power, viewedPokemon.friendship)
 				end
 			end
@@ -470,7 +470,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	local ownLeadPokemon = Battle.getViewedPokemon(true)
 	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownLeadPokemon, move.id)
 
-	if moveId == 237 and Utils.pokemonHasMove(ownLeadPokemon, 237) then -- 237 = Hidden Power
+	if moveId == MoveData.Values.HiddenPowerId and Utils.pokemonHasMove(ownLeadPokemon, MoveData.Values.HiddenPowerId) then
 		data.m.type = Tracker.getHiddenPowerType(ownLeadPokemon)
 		data.m.category = MoveData.TypeToCategory[data.m.type]
 		data.x.ownHasHiddenPower = true
