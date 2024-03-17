@@ -43,6 +43,7 @@ Input.StatHighlighter = {
 	end,
 	resetSelectedStat = function(self)
 		self.statIndex = 1
+		self.framesSinceInput = self.framesHighlightMax
 	end,
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
