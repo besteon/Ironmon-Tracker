@@ -272,10 +272,16 @@ function NavigationMenu.drawCredits(canvas)
 
 	-- Draw box
 	gui.drawRectangle(canvas.x, canvas.y, canvas.w, canvas.h, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
-	-- Draw the original Espeon gif image
-	local originalIconSet = Options.IconSetMap[1]
-	local espeonImage = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
-	Drawing.drawImage(espeonImage, canvas.x + 104, canvas.y, 32, 32)
+
+	-- Draw the Espeon gif image
+	local espeonImagePath = Drawing.getImagePath("PokemonIcon", "196")
+	if not espeonImagePath then
+		local originalIconSet = Options.IconSetMap[1]
+		espeonImagePath = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
+	end
+	if espeonImagePath then
+		Drawing.drawImage(espeonImagePath, canvas.x + 104, canvas.y, 32, 32)
+	end
 
 	local textLineY = canvas.y + 4
 	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)

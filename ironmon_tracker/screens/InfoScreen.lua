@@ -218,15 +218,15 @@ InfoScreen.Buttons = {
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 113, Constants.SCREEN.MARGIN + 40, 10, 10 },
 		isVisible = function()
-			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= 237 then return false end
+			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= MoveData.Values.HiddenPowerId then return false end
 			-- Only reveal the HP set arrows if the player's active Pokemon has the move
 			local pokemon = Battle.getViewedPokemon(true) or {}
-			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
+			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, MoveData.Values.HiddenPowerId)
 		end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or {}
-			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, MoveData.Values.HiddenPowerId) then
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
@@ -254,7 +254,7 @@ InfoScreen.Buttons = {
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or {}
-			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, MoveData.Values.HiddenPowerId) then
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
@@ -322,10 +322,10 @@ function InfoScreen.showNextPokemon(delta)
 	local nextPokemonId = InfoScreen.infoLookup + delta
 
 	if nextPokemonId < 1 then
-		nextPokemonId = 411
+		nextPokemonId = #PokemonData.Pokemon
 	elseif nextPokemonId > 251 and nextPokemonId < 277 then
 		nextPokemonId = Utils.inlineIf(delta > 0, 277, 251)
-	elseif nextPokemonId > 411 then
+	elseif nextPokemonId > #PokemonData.Pokemon then
 		nextPokemonId = 1
 	end
 

@@ -78,7 +78,7 @@ function Tracker.initialize()
 end
 
 --- @param slotNumber number Which party slot (1-6) to get
---- @param isOwn boolean True for the Player's team, false for the Enemy Trainer's team
+--- @param isOwn boolean? (Optional) True for the Player's team, false for the Enemy Trainer's team; default=true
 --- @param excludeEggs boolean? (Optional) If true, avoid Pokémon that are eggs; default=true
 --- @return table? pokemon All of the game data known about this Pokémon; nil if it doesn't exist
 function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
@@ -403,14 +403,14 @@ end
 --- @param pokemonID number
 --- @return string
 function Tracker.getNote(pokemonID)
-	if pokemonID == 413 then -- Ghost
+	if pokemonID == PokemonData.Values.GhostId then
 		return "Spoooky!"
 	end
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.note or ""
 end
 
---- If the Pokemon has the move "Hidden Power" (id=237), return it's tracked type (if set); otherwise default type value = unknown
+--- If the Pokemon has the move "Hidden Power", return it's tracked type (if set); otherwise default type value = unknown
 --- @param pokemon table? (Optional) The Pokemon data object to use for checking if hidden power type is tracked; default: currently viewed mon
 --- @return string
 function Tracker.getHiddenPowerType(pokemon)
@@ -456,7 +456,7 @@ end
 --- @return table pokemon A mostly empty set of Pokémon game data, with some info hidden because it's the story ghost encounter
 function Tracker.getGhostPokemon()
 	local defaultPokemon = Tracker.getDefaultPokemon()
-	defaultPokemon.pokemonID = 413
+	defaultPokemon.pokemonID = PokemonData.Values.GhostId
 	defaultPokemon.name = Resources.TrackerScreen.UnidentifiedGhost or "Ghost"
 	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
 	return defaultPokemon
