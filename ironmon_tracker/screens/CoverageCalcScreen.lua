@@ -17,6 +17,11 @@ CoverageCalcScreen = {
 local SCREEN = CoverageCalcScreen
 local TAB_HEIGHT = 12
 
+SCREEN.OrderedTypeKeys = {
+	"NORMAL", "FIGHTING", "FLYING", "POISON", "GROUND", "ROCK", "BUG", "GHOST", "STEEL",
+	"FIRE", "WATER", "GRASS", "ELECTRIC", "PSYCHIC", "ICE", "DRAGON", "DARK",
+}
+
 SCREEN.Buttons = {
 	AddMoveType = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -291,11 +296,7 @@ function CoverageCalcScreen.createButtons()
 
 	-- MOVE TYPES VIEW
 	buttonsToAdd = {}
-	local orderedTypeKeys = {
-		"NORMAL", "FIGHTING", "FLYING", "POISON", "GROUND", "ROCK", "BUG", "GHOST", "STEEL",
-		"FIRE", "WATER", "GRASS", "ELECTRIC", "PSYCHIC", "ICE", "DRAGON", "DARK",
-	}
-	for _, typeKey in ipairs(orderedTypeKeys) do
+	for _, typeKey in ipairs(SCREEN.OrderedTypeKeys or {}) do
 		local moveType = PokemonData.Types[typeKey]
 		local button = createMoveTypeBtn(moveType)
 		button.isVisible = function(self) return SCREEN.currentView == SCREEN.Views.MoveTypes end

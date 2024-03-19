@@ -25,7 +25,12 @@ function AbilityData.updateResources()
 end
 
 ---Currently unused; builds the AbilityData from game memory.
-function AbilityData.buildData()
+---@param forced boolean? Optional, forces the data to be read in from the game
+function AbilityData.buildData(forced)
+	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
+	-- 	return
+	-- end
+
 	-- Not currently necessary, as this data doesn't really change.
 end
 
