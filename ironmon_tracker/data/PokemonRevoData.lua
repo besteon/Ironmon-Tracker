@@ -1,10 +1,10 @@
-PokemonRevoData = {}
-
--- By default, none of the revo data is loaded/available until its requested at least once
-local revoData
+PokemonRevoData = {
+	-- By default, none of the revo data is loaded/available until its requested at least once
+	RevoData = nil
+}
 
 function PokemonRevoData.initialize()
-	revoData = nil
+	PokemonRevoData.RevoData = nil
 end
 
 --- Looks up the table of randomized evolution percentages for a Pokémon
@@ -13,10 +13,10 @@ end
 --- @return table?
 function PokemonRevoData.getEvoTable(pokemonID, targetEvoId)
 	PokemonRevoData.tryLoadData()
-	if not PokemonData.isValid(pokemonID) or not revoData[pokemonID] then
+	if not PokemonData.isValid(pokemonID) or not PokemonRevoData.RevoData[pokemonID] then
 		return nil
 	end
-	local revo = revoData[pokemonID]
+	local revo = PokemonRevoData.RevoData[pokemonID]
 	-- Check if the pokemon only has one possible evolution normally
 	if not revo.options then
 		return revo
@@ -34,16 +34,16 @@ end
 --- @return table?
 function PokemonRevoData.getEvoOptions(pokemonID)
 	PokemonRevoData.tryLoadData()
-	if not PokemonData.isValid(pokemonID) or not revoData[pokemonID] then
+	if not PokemonData.isValid(pokemonID) or not PokemonRevoData.RevoData[pokemonID] then
 		return nil
 	end
-	return revoData[pokemonID].options
+	return PokemonRevoData.RevoData[pokemonID].options
 end
 
 --- Loads all the random evolution data, required for the above functions
 function PokemonRevoData.tryLoadData()
-	if revoData then return end
-	revoData = {
+	if PokemonRevoData.RevoData then return end
+	PokemonRevoData.RevoData = {
 		[1] = { -- Bulbasaur
 			{ id = 33, perc = 8.03001, }, { id = 30, perc = 7.99644, }, { id = 153, perc = 7.73453, }, { id = 278, perc = 7.72096, }, { id = 24, perc = 7.59937, }, { id = 192, perc = 6.85774, }, { id = 93, perc = 6.59241, }, { id = 70, perc = 5.64746, }, { id = 294, perc = 5.61731, }, { id = 168, perc = 5.50174, }, { id = 15, perc = 5.47087, }, { id = 114, perc = 5.46305, }, { id = 44, perc = 5.24971, }, { id = 363, perc = 4.97741, }, { id = 47, perc = 4.95787, }, { id = 211, perc = 3.92817, }, { id = 388, perc = 0.19443, }, { id = 379, perc = 0.0545, }, { id = 189, perc = 0.04749, }, { id = 369, perc = 0.04354, }, { id = 49, perc = 0.03523, }, { id = 42, perc = 0.03451, }, { id = 88, perc = 0.03231, }, { id = 299, perc = 0.02772, }, { id = 109, perc = 0.02534, }, { id = 102, perc = 0.02512, }, { id = 296, perc = 0.02471, }, { id = 188, perc = 0.02413, }, { id = 344, perc = 0.02408, }, { id = 72, perc = 0.02305, }, { id = 307, perc = 0.01802, }, { id = 182, perc = 0.00602, }, { id = 368, perc = 0.00589, }, { id = 345, perc = 0.00346, }, { id = 300, perc = 0.00261, }, { id = 71, perc = 0.00108, }, { id = 45, perc = 0.00094, }, { id = 297, perc = 0.00076, },
 		},

@@ -538,7 +538,14 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", LogTabPokemonDetails.Colors.text)
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return string.format("%02d  %s", moveInfo.level, moveInfo.name) end,
+			getText = function(self)
+				-- add this customization for the Nat. Dex rom hack
+				if moveInfo.level == 0 then
+					return string.format("Evo  %s", moveInfo.name)
+				else
+					return string.format("%02d  %s", moveInfo.level, moveInfo.name)
+				end
+			end,
 			textColor = moveColor,
 			moveId = moveInfo.id,
 			tab = LogTabPokemonDetails.Tabs.LevelMoves,

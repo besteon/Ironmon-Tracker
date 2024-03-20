@@ -298,8 +298,9 @@ end
 ---@param errMessage string
 ---@param moreInfoBtnLabel string? Optional label for a "More Info" button
 ---@param moreInfoFunc function? Optional function to execute for "More Info" button
+---@return number? formId The id of the form handle that is created
 function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
-	if not Main.IsOnBizhawk() then return end -- Only Bizhawk allows popup form windows
+	if not Main.IsOnBizhawk() then return nil end -- Only Bizhawk allows popup form windows
 
 	client.pause()
 	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
@@ -318,6 +319,7 @@ function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 	if type(moreInfoFunc) == "function" then
 		forms.button(form, moreInfoBtnLabel or "(?)", moreInfoFunc, 20, 80, 110, 22)
 	end
+	return form
 end
 
 function Main.AfterStartupScreenRedirect()

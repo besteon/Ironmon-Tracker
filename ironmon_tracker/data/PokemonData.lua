@@ -202,7 +202,11 @@ function PokemonData.updateResources()
 end
 
 ---Read in PokemonData from game memory: https://github.com/pret/pokefirered/blob/master/include/pokemon.h#L208
-function PokemonData.buildData()
+---@param forced boolean? Optional, forces the data to be read in from the game
+function PokemonData.buildData(forced)
+	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
+	-- 	return
+	-- end
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
 		pokemon.pokemonID = id
 
