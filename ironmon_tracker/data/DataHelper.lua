@@ -1028,20 +1028,42 @@ end
 ---@param params string?
 ---@return string response
 function DataHelper.EventRequests.getRoute(params)
-	local routeId = getRouteIdOrDefault(params)
+	-- Check for optional parameters
+	local paramsLower = Utils.toLowerUTF8(params or "")
+	local option
+	for key, val in pairs(RouteData.EncounterArea or {}) do
+		if Utils.containsText(paramsLower, val, true) then
+			paramsLower = Utils.replaceText(paramsLower, Utils.toLowerUTF8(val), "", true)
+			option = key
+			break
+		end
+	end
+	-- If option keywords were removed, trim any whitespace
+	if option then
+		-- Removes duplicate, consectutive whitespaces, and leading/trailer whitespaces
+		paramsLower = ((paramsLower:gsub("(%s)%s+", "%1")):gsub("^%s*(.-)%s*$", "%1"))
+	end
+
+	local routeId = getRouteIdOrDefault(paramsLower)
 	local route = RouteData.Info[routeId or false]
 	if not route then
 		return buildDefaultResponse(params)
 	end
 
 	local info = {}
-	-- Check for trainers in the route
-	if route.trainers and #route.trainers > 0 then
+	-- Check for trainers in the route, but only if a specific encounter area wasnt requested
+	if not option and route.trainers and #route.trainers > 0 then
 		local defeatedTrainers, totalTrainers = Program.getDefeatedTrainersByLocation(routeId)
 		table.insert(info, string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainers, totalTrainers))
 	end
 	-- Check for wilds in the route
-	local encounterArea = RouteData.getNextAvailableEncounterArea(routeId, RouteData.EncounterArea.TRAINER) -- for now, default to the first area type (usually Walking)
+	local encounterArea
+	if option then
+		encounterArea = RouteData.EncounterArea[option] or RouteData.EncounterArea.LAND
+	else
+		-- Default to the first area type (usually Walking)
+		encounterArea = RouteData.getNextAvailableEncounterArea(routeId, RouteData.EncounterArea.TRAINER)
+	end
 	local wildIds = RouteData.getEncounterAreaPokemon(routeId, encounterArea)
 	if #wildIds > 0 then
 		local seenIds = Tracker.getRouteEncounters(routeId, encounterArea or RouteData.EncounterArea.LAND)
@@ -1058,7 +1080,12 @@ function DataHelper.EventRequests.getRoute(params)
 		table.insert(info, wildsText)
 	end
 
-	local prefix = string.format("%s %s", route.name, OUTPUT_CHAR)
+	local prefix
+	if option then
+		prefix = string.format("%s: %s %s", route.name, Utils.firstToUpperEachWord(encounterArea), OUTPUT_CHAR)
+	else
+		prefix = string.format("%s %s", route.name, OUTPUT_CHAR)
+	end
 	return buildResponse(prefix, info)
 end
 
