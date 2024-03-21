@@ -107,6 +107,19 @@ function Utils.split(s, delimiter, trimWhitespace)
 	return result
 end
 
+---Replaces text in a string with some other text; can choose to match only whole words
+---@param source string The text to search through
+---@param find string The text to find within the `source`
+---@param replace string Used to replace the `find` text within the `source`
+---@param onlyWholeWords boolean? Optional, if true will only match wholewords for `find`
+---@return string
+function Utils.replaceText(source, find, replace, onlyWholeWords)
+	if onlyWholeWords then
+		find = '%f[%a]'..find..'%f[%A]'
+	end
+	return (source:gsub(find,replace))
+end
+
 -- Format "START" as "Start", and "a" as "A"
 function Utils.formatControls(gbaButtons)
 	local controlCombination = ""
