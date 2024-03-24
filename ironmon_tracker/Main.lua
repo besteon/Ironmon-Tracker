@@ -198,6 +198,7 @@ function Main.Run()
 		elseif Main.updateRequested then
 			UpdateScreen.performUpdate()
 		elseif Main.forceRestart then
+			Main.ExitSafely(false)
 			IronmonTracker.startTracker()
 		end
 	else
