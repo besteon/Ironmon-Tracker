@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "4", patch = "4" }
+Main.Version = { major = "8", minor = "5", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -34,8 +34,12 @@ function Main.Initialize()
 		crashedOccurred = false,
 	}
 	Main.currentSeed = 1
-	Main.loadNextSeed = false
 	Main.hasRunOnce = false
+
+	-- Game loop control variables
+	Main.loadNextSeed = false -- When enabled, exits the game loop to safely load a new game rom
+	Main.updateRequested = false -- When enabled, exits the game loop to safely shut down and self-update the Tracker
+	Main.forceRestart = false -- When enabled, exits the game loop to refresh and reload all Tracker scripts
 
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
@@ -184,7 +188,7 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
-		while not Main.loadNextSeed and not Main.updateRequested do
+		while not (Main.loadNextSeed or Main.updateRequested or Main.forceRestart) do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
@@ -193,6 +197,9 @@ function Main.Run()
 			Main.LoadNextRom()
 		elseif Main.updateRequested then
 			UpdateScreen.performUpdate()
+		elseif Main.forceRestart then
+			Main.ExitSafely(false)
+			IronmonTracker.startTracker()
 		end
 	else
 		MGBA.printStartupInstructions()
@@ -327,7 +334,7 @@ function Main.AfterStartupScreenRedirect()
 		return
 	end
 
-	if Main.CrashReport and Main.CrashReport.crashedOccurred then
+	if CrashRecoveryScreen.isEnabled() and Main.CrashReport and Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
 		return
