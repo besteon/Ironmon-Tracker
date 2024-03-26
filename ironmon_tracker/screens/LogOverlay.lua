@@ -260,19 +260,20 @@ function LogOverlay.initialize()
 	end
 
 	if Options["Open Book Play Mode"] then
-		local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
-
-		if not Utils.isNilOrEmpty(logpath) then
-			RandomizerLog.loadedLogPath = logpath
-			local success = RandomizerLog.parseLog(logpath)
-
-			if success then
-				LogOverlay.buildAllTabs()
-				LogOverlay.Windower.currentTab = LogTabPokemon
-				LogSearchScreen.resetSearchSortFilter()
-				LogOverlay.refreshActiveTabGrid()
+		-- Delay parsing data for open book until Tracker and custom extensions are fully loaded
+		Program.addFrameCounter("LoadOpenBookLog", 5, function()
+			local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
+			if not Utils.isNilOrEmpty(logpath) then
+				RandomizerLog.loadedLogPath = logpath
+				local success = RandomizerLog.parseLog(logpath)
+				if success then
+					LogOverlay.buildAllTabs()
+					LogOverlay.Windower.currentTab = LogTabPokemon
+					LogSearchScreen.resetSearchSortFilter()
+					LogOverlay.refreshActiveTabGrid()
+				end
 			end
-		end
+		end, 1)
 	end
 end
 
