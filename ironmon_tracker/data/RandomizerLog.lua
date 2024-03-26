@@ -1,5 +1,10 @@
 -- A collection of tools for viewing a Randomized Pokémon game log
-RandomizerLog = {}
+RandomizerLog = {
+	-- Developer settings
+	Settings = {
+		UsePokemonNamesFromLog = true,
+	},
+}
 
 RandomizerLog.Patterns = {
 	RandomizerVersion = "Randomizer Version:%s*([^%s]+)%s*$", -- Note: log file line 1 does NOT start with "Rando..."
@@ -803,17 +808,25 @@ function RandomizerLog.areLanguagesMismatched()
 	return GameSettings.language:upper() ~= Resources.currentLanguage.Key:upper()
 end
 
--- Returns the Pokemon name, either determined from internal Tracker information or from the log itself (for custom names)
+-- Returns the Pokemon name, either from the log itself (for custom names) or from internal Tracker data
 function RandomizerLog.getPokemonName(pokemonID)
 	if not PokemonData.isValid(pokemonID) then
 		return Constants.BLANKLINE
 	end
 
+	local pokemonInternalName = PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
+	local pokemonLogName = RandomizerLog.Data.Pokemon[pokemonID].Name or pokemonInternalName
+
 	-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
 	if RandomizerLog.areLanguagesMismatched() then
-		return PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
+		return pokemonInternalName
+	end
+
+	-- By default, display the literal name as it appears in the log
+	if RandomizerLog.Settings.UsePokemonNamesFromLog then
+		return pokemonLogName
 	else
-		return RandomizerLog.Data.Pokemon[pokemonID].Name or PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
+		return pokemonInternalName
 	end
 end
 

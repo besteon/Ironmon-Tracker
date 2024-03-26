@@ -142,8 +142,8 @@ function MoveData.buildData(forced)
 				moveInternal.power = moveInfo.power
 			end
 
-			-- For moves with actual power, update their type categories if the move's type changed
-			if moveInternal.power ~= "0" and moveInfo.type ~= moveInternal.type then
+			-- For non-status moves with actual power, update their type categories if the move's type changed
+			if moveInternal.power ~= "0" and moveInfo.type ~= moveInternal.type and moveInternal.category ~= MoveData.Categories.STATUS then
 				moveInternal.category = MoveData.TypeToCategory[moveInfo.type]
 			end
 

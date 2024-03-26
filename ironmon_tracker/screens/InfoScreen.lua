@@ -294,6 +294,10 @@ InfoScreen.Buttons = {
 
 InfoScreen.TemporaryButtons = {}
 
+function InfoScreen.initialize()
+	InfoScreen.clearScreenData()
+end
+
 function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.prevScreen = InfoScreen.viewScreen
 	InfoScreen.prevScreenInfo = InfoScreen.infoLookup
@@ -716,18 +720,21 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 	Drawing.drawText(offsetX, botOffsetY, Resources.InfoScreen.LabelLearnMove .. ":", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
-	local boxWidth = 16
+	local NUM_MOVES = #data.p.movelvls
+	local MOVES_PER_ROW = NUM_MOVES <= 16 and 8 or 9
+	local boxWidth = NUM_MOVES <= 16 and 16 or 15
 	local boxHeight = 13
-	if #data.p.movelvls == 0 then -- If the Pokemon learns no moves at all
+	local boxStart = NUM_MOVES <= 16 and 5 or 1
+	if NUM_MOVES == 0 then -- If the Pokemon learns no moves at all
 		Drawing.drawText(offsetX + 6, botOffsetY, Resources.InfoScreen.LabelNoMoves, Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
-	for i, moveLvl in ipairs(data.p.movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
-		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns
-		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
+	for i, moveLvl in ipairs(data.p.movelvls) do
+		local nextBoxX = ((i - 1) % MOVES_PER_ROW) * boxWidth
+		local nextBoxY = Utils.inlineIf(i <= MOVES_PER_ROW, 0, 1) * boxHeight -- 2 possible rows
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
 
-		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+		gui.drawRectangle(offsetX + nextBoxX + boxStart + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
+		gui.drawRectangle(offsetX + nextBoxX + boxStart, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 		-- Indicate which moves have already been learned if the Pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
@@ -739,12 +746,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 			nextBoxTextColor = Theme.COLORS["Positive text"]
 		end
 
-		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
+		Drawing.drawText(offsetX + nextBoxX + boxStart + 2 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + (linespacing * 3) - 2
 
 	-- If the moves-to-learn only takes up one row, move up the weakness data
-	if #data.p.movelvls <= 8 then
+	if NUM_MOVES <= MOVES_PER_ROW then
 		botOffsetY = botOffsetY - linespacing
 	end
 

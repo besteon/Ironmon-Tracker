@@ -487,6 +487,16 @@ function FileManager.buildSpritePath(animationType, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
+-- Returns a properly formatted folder path where randomizer settings files are located; includes trailing slash
+function FileManager.getRandomizerSettingsPath()
+	local listOfPaths = {
+		FileManager.Folders.TrackerCode,
+		FileManager.Folders.RandomizerSettings,
+		"", -- Necessary to include a trailing slash, helps with appending a filename
+	}
+	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
+end
+
 -- Returns a properly formatted folder path where custom code files are located; includes trailing slash
 function FileManager.getCustomFolderPath()
 	local listOfPaths = {

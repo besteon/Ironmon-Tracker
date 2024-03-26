@@ -1,4 +1,9 @@
 GameSettings = {}
+
+GameSettings.RomHackSupport = {
+	NatDex = true, -- Support for Nat. Dex added as of v8.5.0
+}
+
 GameSettings.ABILITIES = {}
 
 -- Moved the 1st/2nd/3rd values to be set alongside other EWRAM/IWRAM addresses. 4th/5th/6th values are supposedly the Japanese addresses (not used right now)
