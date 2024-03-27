@@ -703,7 +703,7 @@ function Drawing.setAnimatedPokemon(pokemonID)
 	end
 
 	-- Verify this pokemon's name exists, otherwise skip it
-	local lowerPokemonName = Resources.Default.Game.PokemonNames[pokemonID]
+	local lowerPokemonName = Utils.toLowerUTF8(Resources.Default.Game.PokemonNames[pokemonID])
 	if Utils.isNilOrEmpty(lowerPokemonName) then
 		return
 	end
