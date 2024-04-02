@@ -692,6 +692,7 @@ ScreenResources{
 		MenuCheckForUpdates = "Check for Updates",
 		MenuNewUpdateVailable = "New Update Available",
 		MenuLanguage = "Language",
+		MenuExtensions = "Extensions",
 		MenuCommands = "Commands",
 		MenuBasicCommands = "Basic Commands",
 		MenuOtherCommands = "Other Commands",
@@ -745,6 +746,7 @@ ScreenResources{
 		OptionRandomizerJar = "Randomizer JAR",
 		OptionSourceRom = "Source ROM",
 		OptionSettingsFile = "Settings File",
+		OptionAllowCustomCode = "Allow custom code to run",
 		AnimatedPopoutRequired = "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up.",
 		JarFileRequired = "A '.jar' file is required; please enter the full file path to your Randomizer JAR file.",
 		GbaFileRequired = "A '.gba' file is required; please enter the full file path to your GBA ROM file.",
@@ -797,6 +799,10 @@ ScreenResources{
 		LanguageChangeWith = "Change your language with",
 		LanguageHeaderTag = "Tag",
 		LanguageHeaderLang = "Language",
+		ExtensionsInstallNewWith = "Install new extensions with",
+		ExtensionsInstalledExtensions = "Installed Extensions",
+		ExtensionsEnableDisable = "Enable/disable with",
+
 		CommandsDesc = "To use, type into below textbox. Example command",
 		CommandsUsageSyntax = "Usage Syntax",
 		CommandsExampleUsage = "Example Usage",
@@ -919,6 +925,9 @@ ScreenResources{
 		LanguageError1 = "Where 'language' is the name or # of a language. Check the Language sidebar menu.",
 		LanguageError2 = "Unable to find language",
 		LanguageSuccess = "The Tracker's display language has been updated.",
+		InstallExtDesc = "Installs new Extension files from the Tracker's extensions folder.",
+		InstallExtSuccess1 = "New extensions have been installed!",
+		InstallExtSuccess2 = "No new extension files found in the Tracker's extensions folder.",
 	},
 }
 
