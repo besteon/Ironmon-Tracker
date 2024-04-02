@@ -29,7 +29,7 @@ end
 
 function MGBA.clearConsole()
 	-- This "clears" the Console for mGBA
-	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+	printf(string.rep("\n", 30))
 end
 
 function MGBA.printStartupInstructions()
@@ -152,6 +152,17 @@ MGBA.Screens = {
 		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildLanguage, self.displayLines, nil)
+		end,
+	},
+	Extensions = {
+		getTitle = function(self)
+			return Resources.MGBA.MenuExtensions
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildExtensions, self.displayLines, nil)
 		end,
 	},
 
@@ -372,7 +383,8 @@ MGBA.Screens = {
 -- Controls the display order of the TextBuffers in the mGBA Scripting window
 MGBA.OrderedScreens = {
 	MGBA.Screens.SettingsMenu,
-	MGBA.Screens.TrackerSetup, MGBA.Screens.GameplayOptions, MGBA.Screens.QuickloadSetup, MGBA.Screens.UpdateCheck, MGBA.Screens.Language,
+	MGBA.Screens.TrackerSetup, MGBA.Screens.GameplayOptions, MGBA.Screens.QuickloadSetup, MGBA.Screens.UpdateCheck,
+	MGBA.Screens.Language, MGBA.Screens.Extensions,
 
 	MGBA.Screens.CommandMenu,
 	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsOther,
@@ -447,7 +459,7 @@ end
 -- Ordered list of options that can be changed via the OPTION "#" function.
 -- Each has 'optionKey'/'themeKey', 'displayName', 'updateSelf', and 'getValue'; many defined in MGBA.buildOptionMapDefaults()
 MGBA.OptionMap = {
-	-- TRACKER SETUP (#1-#7, #10-#13)
+	-- TRACKER SETUP
 	[1] = {
 		optionKey = "Right justified numbers",
 		getText = function() return Resources.MGBA.OptionRightJustifiedNumbers end,
@@ -529,7 +541,7 @@ MGBA.OptionMap = {
 		optionKey = "Load next seed",
 		getText = function() return Resources.MGBA.OptionQuickload end,
 	},
-	-- GAMEPLAY OPTIONS (#20-28)
+	-- GAMEPLAY OPTIONS
 	[20] = {
 		optionKey = "Auto swap to enemy",
 		getText = function() return Resources.MGBA.OptionAutoswapEnemy end,
@@ -583,11 +595,7 @@ MGBA.OptionMap = {
 		optionKey = "Reveal info if randomized",
 		getText = function() return Resources.MGBA.OptionRevealRandomizedInfo end,
 	},
-	[29] = {
-		optionKey = "Autodetect language from game",
-		getText = function() return Resources.MGBA.OptionAutodetectGameLanguage end,
-	},
-	-- QUICKLOAD SETUP (#30-#35)
+	-- QUICKLOAD SETUP
 	[30] = {
 		optionKey = "Use premade ROMs",
 		getText = function() return Resources.MGBA.OptionPremadeRoms end,
@@ -616,7 +624,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[32] = {
+	[32] = { -- Currently not revealed
 		optionKey = "ROMs Folder",
 		getText = function() return Resources.MGBA.OptionRomsFolder end,
 		getValue = function(self)
@@ -632,7 +640,7 @@ MGBA.OptionMap = {
 			-- return false, "Invalid ROMs folder; please enter the full folder path to your ROMs folder."
 		end,
 	},
-	[33] = {
+	[33] = { -- Currently not revealed
 		optionKey = "Randomizer JAR",
 		getText = function() return Resources.MGBA.OptionRandomizerJar end,
 		getValue = function(self)
@@ -654,7 +662,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[34] = {
+	[34] = { -- Currently not revealed
 		optionKey = "Source ROM",
 		getText = function() return Resources.MGBA.OptionSourceRom end,
 		getValue = function(self)
@@ -676,7 +684,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[35] = {
+	[35] = { -- Currently not revealed
 		optionKey = "Settings File",
 		getText = function() return Resources.MGBA.OptionSettingsFile end,
 		getValue = function(self)
@@ -698,7 +706,59 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
+	-- LANGUAGE SETTINGS
+	[40] = {
+		optionKey = "Autodetect language from game",
+		getText = function() return Resources.MGBA.OptionAutodetectGameLanguage end,
+	},
+	-- EXTENSION SETTINGS
+	[50] = { -- Currently not revealed
+		optionKey = "Enable custom extensions",
+		getText = function() return Resources.MGBA.OptionAllowCustomCode end,
+	},
 }
+
+function MGBA.buildExtensionOptionMaps()
+	local sortedKeyNames = {}
+	for key, ext in pairs(CustomCode.ExtensionLibrary or {}) do
+		local name = Utils.formatSpecialCharacters(ext.selfObject and ext.selfObject.name or key)
+		if #name > 26 then -- column width of Extension screen
+			name = name:sub(1, 26)
+		end
+		local extInfo = {
+			key = key,
+			name = name,
+		}
+		table.insert(sortedKeyNames, extInfo)
+	end
+	table.sort(sortedKeyNames, function(a, b) return a.name < b.name end)
+
+	local optId = MGBADisplay.OptionValues.EXTENSIONS
+	for i, keyName in ipairs(sortedKeyNames) do
+		MGBA.OptionMap[optId + i] = {
+			extKey = keyName.key,
+			getText = function() return keyName.name end,
+			getValue = function(self)
+				local ext = CustomCode.ExtensionLibrary[self.extKey] or {}
+				return ext.isEnabled and MGBADisplay.Symbols.OptionEnabled or MGBADisplay.Symbols.OptionDisabled
+			end,
+			updateSelf = function(self, params)
+				local ext = CustomCode.ExtensionLibrary[self.extKey]
+				if not ext then
+					return false
+				end
+				if ext.isEnabled then
+					CustomCode.disableExtension(self.extKey)
+				else
+					CustomCode.enableExtension(self.extKey)
+				end
+				Main.SaveSettings(true)
+				Program.redraw(true)
+				return true
+			end,
+		}
+	end
+end
 
 -- Build out functions for the boolean Options
 function MGBA.buildOptionMapDefaults()
@@ -792,8 +852,8 @@ MGBA.CommandMap = {
 				return
 			end
 
-			if command.description ~= nil then
-				printf(" %s", command.description)
+			if type(command.getDesc) == "function" then
+				printf(" %s", command.getDesc())
 				printf("")
 			end
 			if command.usageSyntax ~= nil then
@@ -1227,6 +1287,24 @@ MGBA.CommandMap = {
 			printf(" %s (%s)", Resources.MGBACommands.LanguageSuccess, languageFound.DisplayName)
 		end,
 	},
+	["INSTALLEXT"] = {
+		getDesc = function(self) return Resources.MGBACommands.InstallExtDesc end,
+		usageSyntax = 'INSTALLEXT()',
+		usageExample = 'INSTALLEXT()',
+		execute = function(self, params)
+			local prevCount = CustomCode.ExtensionCount
+			CustomCode.refreshExtensionList()
+			MGBA.buildExtensionOptionMaps()
+			local numInstalled = CustomCode.ExtensionCount - prevCount
+
+			if numInstalled > 0 then
+				printf(" (%s) %s", numInstalled, Resources.MGBACommands.InstallExtSuccess1)
+			else
+				printf(" %s", Resources.MGBACommands.InstallExtSuccess2)
+			end
+			Program.redraw(true)
+		end,
+	},
 }
 
 -- Global functions required by mGBA input prompts
@@ -1323,3 +1401,7 @@ function randomball(...) RANDOMBALL(...) end
 function LANGUAGE(...) MGBA.CommandMap["LANGUAGE"]:execute(...) end
 function Language(...) LANGUAGE(...) end
 function language(...) LANGUAGE(...) end
+
+function INSTALLEXT(...) MGBA.CommandMap["INSTALLEXT"]:execute(...) end
+function InstallExt(...) INSTALLEXT(...) end
+function installext(...) INSTALLEXT(...) end
