@@ -273,13 +273,15 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: OPTION \"# %s\"", Resources.MGBAScreens.GeneralSetupChange, Resources.MGBAScreens.GeneralSetupButtons))
 		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupControls), Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupGBAButtons)))
-		for i = MGBADisplay.OptionValues.CONTROLS, MGBADisplay.OptionValues.CONTROLS + 3, 1 do
+		-- View, Cycle, Mark stat
+		for i = MGBADisplay.OptionValues.CONTROLS, MGBADisplay.OptionValues.CONTROLS + 2, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(controlBar, i, opt:getText(), opt:getValue()))
 			end
 		end
-		local qid = MGBADisplay.OptionValues.CONTROLS + 3 -- "Quickload"
+		-- New Runs
+		local qid = MGBADisplay.OptionValues.CONTROLS + 3
 		if MGBA.OptionMap[qid] ~= nil then
 			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid]:getText(), MGBA.OptionMap[qid]:getValue()))
 		end
