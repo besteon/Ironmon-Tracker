@@ -317,15 +317,38 @@ end
 
 -- Helper functions; likely move these elsewhere
 local function parseBallChoice(input)
-	if input == "l" or Utils.containsText(input, "left") then
-		return "Left", 1
-	elseif input == "r" or Utils.containsText(input, "right") then
-		return "Right", 3
-	elseif input == "m" or Utils.containsText(input, "mid") then
-		return "Middle", 2
-	else
-		return "Random", TrackerScreen.randomlyChooseBall() or math.random(3)
+	local ballEventKeys = {
+		"CR_PickBallOnce",
+		"CR_PickBallUntilOut",
+	}
+	local keywordToBallNumber = {
+		{ optionKey = "O_WordForLeft", number = 1, },
+		{ optionKey = "O_WordForMiddle", number = 2, },
+		{ optionKey = "O_WordForRight", number = 3, },
+		{ optionKey = "O_WordForRandom", number = TrackerScreen.randomlyChooseBall() or math.random(3), },
+	}
+
+	-- Check each ball pick event for choice keywords, return if match
+	for _, eventKey in ipairs(ballEventKeys) do
+		local event = EventHandler.Events[eventKey]
+		if event then
+			for _, info in ipairs(keywordToBallNumber) do
+				local keyword = tostring(event[info.optionKey] or "")
+				if not Utils.isNilOrEmpty(keyword) then
+					-- Matches if entire input is exactly the first letter of the word, or the word is contained within it
+					if input == keyword:sub(1, 1) or Utils.containsText(input, keyword, true) then
+						return keyword, info.number
+					end
+				end
+			end
+		end
 	end
+
+	-- Otherwise, default to a random ball choice
+	local event = EventHandler.Events["CR_PickBallOnce"] or {}
+	local keyword = tostring(event["O_WordForRandom"] or "")
+	local ballNumber = TrackerScreen.randomlyChooseBall() or math.random(3)
+	return keyword, ballNumber
 end
 
 local function changeStarterFavorite(pokemonName, slotNumber)
@@ -541,10 +564,17 @@ EventHandler.DefaultEvents = {
 	CR_PickBallOnce = {
 		Type = EventHandler.EventTypes.Reward,
 		RewardId = "",
-		Options = { "O_SendMessage", "O_AutoComplete", "O_RequireChosenMon" },
+		Options = {
+			"O_SendMessage", "O_AutoComplete", "O_RequireChosenMon",
+			"O_WordForLeft", "O_WordForMiddle", "O_WordForRight", "O_WordForRandom",
+		},
 		O_SendMessage = true,
 		O_AutoComplete = true,
 		O_RequireChosenMon = true,
+		O_WordForLeft = "Left",
+		O_WordForMiddle = "Mid",
+		O_WordForRight = "Right",
+		O_WordForRandom = "Random",
 		Process = function(self, request)
 			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
@@ -611,10 +641,17 @@ EventHandler.DefaultEvents = {
 	CR_PickBallUntilOut = {
 		Type = EventHandler.EventTypes.Reward,
 		RewardId = "",
-		Options = { "O_SendMessage", "O_AutoComplete", "O_RequireChosenMon" },
+		Options = {
+			"O_SendMessage", "O_AutoComplete", "O_RequireChosenMon",
+			"O_WordForLeft", "O_WordForMiddle", "O_WordForRight", "O_WordForRandom",
+		},
 		O_SendMessage = true,
 		O_AutoComplete = true,
 		O_RequireChosenMon = true,
+		O_WordForLeft = "Left",
+		O_WordForMiddle = "Mid",
+		O_WordForRight = "Right",
+		O_WordForRandom = "Random",
 		Process = function(self, request)
 			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then

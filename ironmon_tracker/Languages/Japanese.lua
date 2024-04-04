@@ -643,6 +643,10 @@ ScreenResources{
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
+		O_WordForLeft = "Word for Left",
+		O_WordForMiddle = "Word for Middle",
+		O_WordForRight = "Word for Right",
+		O_WordForRandom = "Word for Random",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
 		TabCommands = "Commands",
 		TabRewards = "Rewards",
