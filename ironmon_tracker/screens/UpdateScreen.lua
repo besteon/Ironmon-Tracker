@@ -317,8 +317,6 @@ end
 -- end
 
 function UpdateScreen.beginAutoUpdate()
-	local imageCacheClearDelay = 60 -- 1 seconds
-	local updateStartDelay = 60 * 5 + 2 -- about 5 seconds
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
@@ -327,10 +325,13 @@ function UpdateScreen.beginAutoUpdate()
 		Tracker.saveData()
 	end
 
+	local updateStartDelay
 	if Main.IsOnBizhawk() then
 		-- Required to make Bizhawk release images so that they can be replaced
 		Drawing.allowCachedImages = false
-		Drawing.clearImageCache(imageCacheClearDelay)
+		Drawing.clearImageCache()
+		Drawing.clearImageCache(60) -- delay 1 second, then clear again
+		updateStartDelay = 60 * 2 + 2 -- delay 2 seconds, so images can uncache and unlock
 	else
 		updateStartDelay = 15
 	end
