@@ -643,6 +643,10 @@ ScreenResources{
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
+		O_WordForLeft = "Word for Left",
+		O_WordForMiddle = "Word for Middle",
+		O_WordForRight = "Word for Right",
+		O_WordForRandom = "Word for Random",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
 		TabCommands = "Commands",
 		TabRewards = "Rewards",
@@ -696,6 +700,7 @@ ScreenResources{
 		MenuCheckForUpdates = "Check for Updates", -- NEEDS TRANSLATION
 		MenuNewUpdateVailable = "New Update Available", -- NEEDS TRANSLATION
 		MenuLanguage = "Language", -- NEEDS TRANSLATION
+		MenuExtensions = "Extensions", -- NEEDS TRANSLATION
 		MenuCommands = "Commands", -- NEEDS TRANSLATION
 		MenuBasicCommands = "Basic Commands", -- NEEDS TRANSLATION
 		MenuOtherCommands = "Other Commands", -- NEEDS TRANSLATION
@@ -749,6 +754,7 @@ ScreenResources{
 		OptionRandomizerJar = "Randomizer JAR", -- NEEDS TRANSLATION
 		OptionSourceRom = "Source ROM", -- NEEDS TRANSLATION
 		OptionSettingsFile = "Settings File", -- NEEDS TRANSLATION
+		OptionAllowCustomCode = "Allow custom code to run", -- NEEDS TRANSLATION
 		AnimatedPopoutRequired = "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up.", -- NEEDS TRANSLATION
 		JarFileRequired = "A '.jar' file is required; please enter the full file path to your Randomizer JAR file.", -- NEEDS TRANSLATION
 		GbaFileRequired = "A '.gba' file is required; please enter the full file path to your GBA ROM file.", -- NEEDS TRANSLATION
@@ -801,6 +807,9 @@ ScreenResources{
 		LanguageChangeWith = "Change your language with", -- NEEDS TRANSLATION
 		LanguageHeaderTag = "Tag", -- NEEDS TRANSLATION
 		LanguageHeaderLang = "Language", -- NEEDS TRANSLATION
+		ExtensionsInstallNewWith = "Install new extensions with", -- NEEDS TRANSLATION
+		ExtensionsInstalledExtensions = "Installed Extensions", -- NEEDS TRANSLATION
+		ExtensionsEnableDisable = "Enable/disable with", -- NEEDS TRANSLATION
 		CommandsDesc = "To use, type into below textbox. Example command", -- NEEDS TRANSLATION
 		CommandsUsageSyntax = "Usage Syntax", -- NEEDS TRANSLATION
 		CommandsExampleUsage = "Example Usage", -- NEEDS TRANSLATION
@@ -923,6 +932,9 @@ ScreenResources{
 		LanguageError1 = "Where 'language' is the name or # of a language. Check the Language sidebar menu.", -- NEEDS TRANSLATION
 		LanguageError2 = "Unable to find language", -- NEEDS TRANSLATION
 		LanguageSuccess = "The Tracker's display language has been updated.", -- NEEDS TRANSLATION
+		InstallExtDesc = "Installs new Extension files from the Tracker's extensions folder.", -- NEEDS TRANSLATION
+		InstallExtSuccess1 = "New extensions have been installed!", -- NEEDS TRANSLATION
+		InstallExtSuccess2 = "No new extension files found in the Tracker's extensions folder.", -- NEEDS TRANSLATION
 	},
 }
 

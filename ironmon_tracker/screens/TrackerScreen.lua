@@ -1389,8 +1389,11 @@ function TrackerScreen.drawBallPicker()
 		else
 			topText = string.format("%s:", Resources.TrackerScreen.RandomBallUserChosen)
 		end
-		if direction == "Random" then
-			botText = botText .. string.format(" (%s)", Utils.firstToUpper(direction))
+
+		local event = EventHandler.Events["CR_PickBallOnce"] or {}
+		local wordForRandom = tostring(event["O_WordForRandom"] or "Random")
+		if Utils.containsText(direction, wordForRandom, true) then
+			botText = botText .. string.format(" (%s)", Resources.TrackerScreen.RandomBallRandom)
 		end
 		botColor = Theme.COLORS["Positive text"]
 	else

@@ -1,4 +1,13 @@
-MGBADisplay = {}
+MGBADisplay = {
+	OptionValues = {
+		GENERAL_SETUP = 1,
+		CONTROLS = 11,
+		GAMEPLAY = 20,
+		NEW_RUNS = 30,
+		LANGUAGE = 40,
+		EXTENSIONS = 50,
+	},
+}
 
 MGBADisplay.Symbols = {
 	EmptyLine = "",
@@ -254,7 +263,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
-		for i = 1, 9, 1 do
+		for i = MGBADisplay.OptionValues.GENERAL_SETUP, MGBADisplay.OptionValues.CONTROLS - 1, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -264,13 +273,15 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: OPTION \"# %s\"", Resources.MGBAScreens.GeneralSetupChange, Resources.MGBAScreens.GeneralSetupButtons))
 		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupControls), Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupGBAButtons)))
-		for i = 10, 12, 1 do
+		-- View, Cycle, Mark stat
+		for i = MGBADisplay.OptionValues.CONTROLS, MGBADisplay.OptionValues.CONTROLS + 2, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(controlBar, i, opt:getText(), opt:getValue()))
 			end
 		end
-		local qid = 13 -- "Quickload"
+		-- New Runs
+		local qid = MGBADisplay.OptionValues.CONTROLS + 3
 		if MGBA.OptionMap[qid] ~= nil then
 			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid]:getText(), MGBA.OptionMap[qid]:getValue()))
 		end
@@ -288,7 +299,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
-		for i = 20, 28, 1 do
+		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 8, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -315,7 +326,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8('%s: %s', Resources.MGBAScreens.QuickloadChooseMode, MGBA.CommandMap["OPTION"].usageSyntax))
 		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.QuickloadMode), Utils.toUpperUTF8(Resources.MGBAScreens.QuickloadSelected)))
 
-		for i = 30, 31, 1 do
+		for i = MGBADisplay.OptionValues.NEW_RUNS, MGBADisplay.OptionValues.NEW_RUNS + 1, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -323,8 +334,12 @@ MGBADisplay.LineBuilder = {
 		end
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
+		local batchOptionId = MGBADisplay.OptionValues.NEW_RUNS
+		local generateOptionId = MGBADisplay.OptionValues.NEW_RUNS + 1
+
 		-- local fileBar = "%-2s %-30s"
-		if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBADisplay.Symbols.OptionEnabled then
+		if MGBA.OptionMap[batchOptionId] ~= nil and MGBA.OptionMap[batchOptionId]:getValue() == MGBADisplay.Symbols.OptionEnabled then
+			-- NOTE: If you UNCOMMON THIS CODE, don't use hardcoded option values like "32"
 			-- local romFolderId = 32
 			-- local opt = MGBA.OptionMap[romFolderId]
 			-- if opt ~= nil then
@@ -342,7 +357,8 @@ MGBADisplay.LineBuilder = {
 			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadMultipleRoms))
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
-		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.OptionEnabled then
+		elseif MGBA.OptionMap[generateOptionId] ~= nil and MGBA.OptionMap[generateOptionId]:getValue() == MGBADisplay.Symbols.OptionEnabled then
+			-- NOTE: If you UNCOMMON THIS CODE, don't use hardcoded option values like "33"
 			-- for i = 33, 35, 1 do
 			-- 	local opt = MGBA.OptionMap[i]
 			-- 	if opt ~= nil then
@@ -436,10 +452,36 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
 
-		local optionAutodetectId = 29
+		local optionAutodetectId = MGBADisplay.OptionValues.LANGUAGE
 		local opt = MGBA.OptionMap[optionAutodetectId]
 		if opt ~= nil then
 			table.insert(lines, Utils.formatUTF8(optionBar, optionAutodetectId, opt:getText(), opt:getValue()))
+		end
+
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+
+		return lines
+	end,
+	buildExtensions = function()
+		local lines = {}
+
+		local optionBar = "%-2s %-26s [%s]"
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.Extensions:getTitle()))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.ExtensionsInstallNewWith))
+		table.insert(lines, Utils.formatUTF8(" %s", "INSTALLEXT()"))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.ExtensionsInstalledExtensions))
+		table.insert(lines, "")
+		table.insert(lines, Utils.formatUTF8("%s: OPTION \"#\"", Resources.MGBAScreens.ExtensionsEnableDisable))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
+
+		for i = 1, CustomCode.ExtensionCount, 1 do
+			local optId = MGBADisplay.OptionValues.EXTENSIONS + i
+			local opt = MGBA.OptionMap[optId]
+			if opt ~= nil then
+				table.insert(lines, Utils.formatUTF8(optionBar, optId, opt:getText(), opt:getValue()))
+			end
 		end
 
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)

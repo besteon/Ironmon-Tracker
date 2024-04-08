@@ -1,4 +1,7 @@
 CustomCode = {
+	-- The number of currently installed extensions
+	ExtensionCount = 0,
+
 	-- When an extension's code errors, that is logged here and then printed.
 	-- Future errors of the same message are not printed, to avoid cluttering the Lua Console.
 	KnownErrors = {},
@@ -19,9 +22,15 @@ function CustomCode.isEnabled()
 end
 
 function CustomCode.initialize()
+	CustomCode.printedLoadedExts = false
+	CustomCode.ExtensionCount = 0
 	CustomCode.KnownErrors = {}
 	CustomCode.EnabledExtensions = {}
+	CustomCode.loadKnownExtensions()
+end
 
+-- Loads all installed extensions during Tracker startup. Known extensions are determined by Main.LoadSettings()
+function CustomCode.loadKnownExtensions()
 	local filesLoaded = {
 		successful = {},
 		failed = {},
@@ -49,15 +58,26 @@ function CustomCode.initialize()
 		end
 	end
 
-	if #filesLoaded.successful > 0 then
-		local listAsString = table.concat(filesLoaded.successful, ", ")
-		print(string.format("%s: %s", Resources.CustomCode.ExtensionsLoaded, listAsString))
+	CustomCode.ExtensionCount = #filesLoaded.successful
+
+	if not Main.IsOnBizhawk() then
+		MGBA.buildExtensionOptionMaps()
 	end
-	-- For now, don't display old extension files that failed to load
-	-- if #filesLoaded.failed > 0 then
-	-- 	local listAsString = table.concat(filesLoaded.failed, ", ")
-	-- 	print(string.format("%s: %s", Resources.CustomCode.ExtensionsMissing, listAsString))
-	-- end
+
+	if not CustomCode.printedLoadedExts then
+		if #filesLoaded.successful > 0 then
+			table.sort(filesLoaded.successful, function(a, b) return a < b end)
+			local listAsString = table.concat(filesLoaded.successful, ", ")
+			print(string.format("> %s: %s", Resources.CustomCode.ExtensionsLoaded, listAsString))
+		end
+		-- For now, don't display old, uninstalled extension files that failed to load
+		-- if #filesLoaded.failed > 0 then
+		-- table.sort(filesLoaded.failed, function(a, b) return a < b end)
+		-- 	local listAsString = table.concat(filesLoaded.failed, ", ")
+		-- 	print(string.format("> %s: %s", Resources.CustomCode.ExtensionsMissing, listAsString))
+		-- end
+		CustomCode.printedLoadedExts = true
+	end
 end
 
 -- Loads a single extension based on its key (filename) and returns it. Doesn't enable it by default
@@ -102,6 +122,7 @@ function CustomCode.loadExtension(extensionKey)
 
 	-- Keep known attributes of existing extension, replace others with newly loaded pieces
 	local loadedExtension = CustomCode.ExtensionLibrary[extensionKey]
+	loadedExtension.key = extensionKey
 	loadedExtension.isEnabled = loadedExtension.isEnabled or false
 	loadedExtension.isLoaded = true
 	loadedExtension.selfObject = selfObject
@@ -158,7 +179,7 @@ function CustomCode.disableExtension(extensionKey)
 	-- Remove the extension from the EnabledExtensions list, preventing its functions from being called
 	local indexFound = -1
 	for i, ext in ipairs(CustomCode.EnabledExtensions) do
-		if ext.selfObject.name == extension.selfObject.name then
+		if ext.key == extensionKey then
 			indexFound = i
 			break
 		end
@@ -170,7 +191,7 @@ end
 
 function CustomCode.refreshExtensionList()
 	-- Used to help remove any inactive or missing extension files
-	local activeExtensions = {}
+	local installedExtensions = {}
 
 	local customFolderPath = FileManager.getCustomFolderPath()
 	local customFiles = FileManager.getFilesFromDirectory(customFolderPath)
@@ -184,19 +205,24 @@ function CustomCode.refreshExtensionList()
 			if CustomCode.ExtensionLibrary[name] == nil then
 				CustomCode.loadExtension(name)
 			end
-			activeExtensions[name] = true
+			installedExtensions[name] = true
 		end
 	end
 
+	-- Recount the number of installed extensions
+	CustomCode.ExtensionCount = 0
+
 	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
-		if not activeExtensions[extensionKey] then
+		if installedExtensions[extensionKey] then
+			CustomCode.ExtensionCount = CustomCode.ExtensionCount + 1
+		else
 			CustomCode.disableExtension(extensionKey)
 			CustomCode.ExtensionLibrary[extensionKey] = nil
 			Main.RemoveMetaSetting("extensions", extensionKey)
 		end
 	end
-	collectgarbage()
 
+	collectgarbage()
 	Main.SaveSettings(true)
 end
 
