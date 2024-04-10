@@ -42,6 +42,8 @@ RandomizerLog.Sectors = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Movesets"),
 		-- Matches: pokemon
 		NextMonPattern = "^%d+%s(.-)%s*%->",
+		-- Matches: movename
+		EvoMovePattern = "^Learned upon evolution:%s(.*)",
 		-- Matches: level, movename
 		MovePattern = "^Level%s(%d+)%s?%s?:%s(.*)",
 	},
@@ -424,8 +426,13 @@ function RandomizerLog.parseMoveSets(logLines)
 			 -- First six lines are redundant Base Sets (also don't trust these will exist), and skip current line
 			index = index + 7
 
+			-- Check first if the first move is a special "Learned upon evolution" move
+			local level = "0"
+			local movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.EvoMovePattern)
+			if movename == nil then
+				level, movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.MovePattern)
+			end
 			-- Search for each listed level-up move
-			local level, movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.MovePattern)
 			while level ~= nil and movename ~= nil do
 				local nextMove = {
 					level = tonumber(RandomizerLog.formatInput(level)) or 0,
