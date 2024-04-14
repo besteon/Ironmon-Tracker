@@ -1198,6 +1198,9 @@ function TrackerScreen.drawStatsArea(data)
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
 		if Battle.isViewingOwn then
 			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
+			if not Options["Color stat numbers by nature"] then
+				textColor = Theme.COLORS["Default text"]
+			end
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		else
 			if Options["Open Book Play Mode"] then

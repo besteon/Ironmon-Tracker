@@ -294,6 +294,7 @@ ScreenResources{
 		PromptSelectPreset = "Select a Theme preset to preview", -- NEEDS TRANSLATION
 		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
 		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
+		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
 		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
 		OptionTextShadows = "Text shadows", -- NEEDS TRANSLATION
 		ButtonEditColors = "Edit Theme Colors", -- NEEDS TRANSLATION
