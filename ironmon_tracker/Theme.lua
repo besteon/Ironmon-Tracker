@@ -56,11 +56,28 @@ Theme.Manager = {
 }
 
 Theme.Buttons = {
+	ColorStatNumber = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		getText = function(self) return Resources.ThemeScreen.OptionColorStatNumber end,
+		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 97, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 97, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		optionKey = "Color stat numbers by nature",
+		toggleState = false,
+		isVisible = function() return Theme.Screen.displayingThemeManager end,
+		updateSelf = function(self)
+			self.toggleState = (Options[self.optionKey] == true)
+		end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Theme.settingsUpdated = true
+			-- Theme.refreshThemePreview()
+		end
+	},
 	MoveTypeEnabled = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		getText = function(self) return Resources.ThemeScreen.OptionColorBar end,
-		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, 8, 8 },
-		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 108, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 108, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		updateSelf = function(self)
@@ -77,8 +94,8 @@ Theme.Buttons = {
 	DrawTextShadows = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		getText = function(self) return Resources.ThemeScreen.OptionTextShadows end,
-		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, 8, 8 },
-		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 119, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 119, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = Theme.DRAW_TEXT_SHADOWS,
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		updateSelf = function(self) self.toggleState = Theme.DRAW_TEXT_SHADOWS end,
@@ -705,9 +722,9 @@ function Theme.drawThemeLibrary()
 	}
 	local botbox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
-		y = topbox.y + topbox.height + 13,
+		y = topbox.y + topbox.height,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = 45,
+		height = 58,
 	}
 
 	-- Draw header text
@@ -726,7 +743,9 @@ function Theme.drawThemeLibrary()
 
 	-- Draw bottom Theme screen view box and its header
 	gui.drawRectangle(botbox.x, botbox.y, botbox.width, botbox.height, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
-	Drawing.drawText(botbox.x + 0, botbox.y - 11, Resources.ThemeScreen.HeaderActiveThemeOptions .. ":", Theme.COLORS["Header text"], headerShadow)
+
+	-- No room currently for this text
+	-- Drawing.drawText(botbox.x + 0, botbox.y - 11, Resources.ThemeScreen.HeaderActiveThemeOptions .. ":", Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw all buttons
 	for _, button in pairs(Theme.Buttons) do

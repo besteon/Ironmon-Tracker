@@ -292,6 +292,7 @@ ScreenResources{
 		PromptSelectPreset = "Select a Theme preset to preview",
 		PromptSaveAsTitle = "Save Theme As",
 		PromptEnterNameForTheme = "Enter a name for this Theme",
+		OptionColorStatNumber = "Color stat numbers by nature ",
 		OptionColorBar = "Show color bar for move types",
 		OptionTextShadows = "Text shadows",
 		ButtonEditColors = "Edit Theme Colors",
