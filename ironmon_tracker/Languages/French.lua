@@ -1,213 +1,213 @@
 ScreenResources{
 	GameOverScreenQuotes = {
-		"What's the matter trainer?", -- NEEDS TRANSLATION
-		"What will the trainer do now?", -- NEEDS TRANSLATION
-		"Oh! Another failure!", -- NEEDS TRANSLATION
-		"Boom!", -- NEEDS TRANSLATION
-		"Devastating!", -- NEEDS TRANSLATION
-		"Gone! It didn't stand a chance!", -- NEEDS TRANSLATION
-		"Can strategy overcome the level disadvantage?", -- NEEDS TRANSLATION
-		"It's in no condition to fight!", -- NEEDS TRANSLATION
-		"This is a battle between obviously mismatched Pokémon.", -- NEEDS TRANSLATION
-		"The Pokémon returns to its Poké Ball.", -- NEEDS TRANSLATION
-		"Down! That didn't take much!", -- NEEDS TRANSLATION
-		"That one hurt!", -- NEEDS TRANSLATION
-		"And there goes the battle!", -- NEEDS TRANSLATION
-		"What a wild turn of events!", -- NEEDS TRANSLATION
-		"Taken down on the word go!", -- NEEDS TRANSLATION
-		"Woah! That was overpowering!", -- NEEDS TRANSLATION
-		"It's finally taken down!", -- NEEDS TRANSLATION
-		"Harsh blow!", -- NEEDS TRANSLATION
-		"That was brutal!", -- NEEDS TRANSLATION
-		"Nailed the weak spot!", -- NEEDS TRANSLATION
-		"Hey! What's it doing? Down it goes!", -- NEEDS TRANSLATION
+		"Quel est le problème dresseur?", -- What's the matter trainer?
+		"Que va faire le dresseur maintenant?", -- What will the trainer do now?
+		"Oh! Un autre échec!", -- Oh! Another failure!
+		"Boom!",
+		"Dévastateur!", -- Devastating!
+		"Disparu! Il n'avait aucune chance!", -- Gone! It didn't stand a chance!
+		"La stratégie peut-elle surmonter le désavantage de niveau?", -- Can strategy overcome the level disadvantage?
+		"Il n'est en aucun état de se battre!", -- "It's in no condition to fight!
+		"C'est une bataille entre Pokémons évidemment incomparables.", -- This is a battle between obviously mismatched Pokémon.
+		"Le Pokémon retourne dans sa Poké Ball.", -- The Pokémon returns to its Poké Ball.
+		"À terre! Ça n'a pas pris grand-chose!", -- Down! That didn't take much!
+		"Celui-là fait mal!", -- That one hurt!
+		"Et ainsi va la bataille!", -- And there goes the battle!
+		"Quel revirement fou!", -- What a wild turn of events!
+		"Abattu sur le champs!", -- Taken down on the word go!
+		"Woah! C'était surpuissant!", -- Woah! That was overpowering!
+		"Il est enfin à terre!", -- It's finally taken down!
+		"Coup dur!", -- Harsh blow!
+		"C'était brutal!", -- That was brutal!
+		"Trouvé le point faible!", -- Nailed the weak spot!
+		"Hey! Qu'est-ce que ça fait? Au revoir!", -- Hey! What's it doing? Down it goes!
 	},
 	AllScreens = {
-		Back = "Back", -- NEEDS TRANSLATION
-		Yes = "Yes", -- NEEDS TRANSLATION
-		No = "No", -- NEEDS TRANSLATION
-		OK = "OK", -- NEEDS TRANSLATION
-		Cancel = "Cancel", -- NEEDS TRANSLATION
-		Preview = "Preview", -- NEEDS TRANSLATION
-		Save = "Save", -- NEEDS TRANSLATION
-		Close = "Close", -- NEEDS TRANSLATION
-		Clear = "Clear", -- NEEDS TRANSLATION
-		Import = "Import", -- NEEDS TRANSLATION
-		Export = "Export", -- NEEDS TRANSLATION
-		Lookup = "Look up", -- NEEDS TRANSLATION
-		Page = "Page", -- NEEDS TRANSLATION
+		Back = "Retour",
+		Yes = "Oui",
+		No = "Non",
+		OK = "OK",
+		Cancel = "Annuler",
+		Preview = "Aperçu",
+		Save = "Svg", -- Other options: "Sauvegarder", "sauv.", "sauve."
+		Close = "Fermer",
+		Clear = "Effacer", -- Other options: "Eff."
+		Import = "Importer", -- "Import" works too
+		Export = "Exporter", -- "Export" works too
+		Lookup = "Chercher",
+		Page = "Page",
 	},
 	PokemonEvolutionDetails = {
 		-- abbreviation: appears on the main Tracker Screen
 		-- short: used for the log viewer
 		-- detailed: used for Pokémon Info Look up
 		LEVEL = {
-			short = "Lv.", -- NEEDS TRANSLATION
-			detailed = "Level", -- NEEDS TRANSLATION
+			short = "N.", -- or "Niv."
+			detailed = "Niveau",
 		},
 		FRIEND = {
-			abbreviation = "FRIEND", -- NEEDS TRANSLATION
-			short = "Friend", -- NEEDS TRANSLATION
-			detailed = "Friendship", -- NEEDS TRANSLATION
+			abbreviation = "AMITIÉ", -- Apperently it is "Bonheur" if I use the term used in games
+			short = "Amitié",
+			detailed = "Amitié",
 		},
 		FRIEND_READY = {
-			abbreviation = "READY", -- NEEDS TRANSLATION
+			abbreviation = "PRÊT",
 		},
 		THUNDER = {
-			abbreviation = "THUNDER", -- NEEDS TRANSLATION
-			short = "Thunder", -- NEEDS TRANSLATION
-			detailed = "Pierrefoudre",
+			abbreviation = "FOUDRE",
+			short = "Foudre",
+			detailed = "Pierre Foudre",
 		},
 		FIRE = {
-			abbreviation = "FIRE", -- NEEDS TRANSLATION
-			short = "Fire", -- NEEDS TRANSLATION
+			abbreviation = "FEU",
+			short = "Feu",
 			detailed = "Pierre Feu",
 		},
 		WATER = {
-			abbreviation = "WATER", -- NEEDS TRANSLATION
-			short = "Water", -- NEEDS TRANSLATION
+			abbreviation = "EAU",
+			short = "Eau",
 			detailed = "Pierre Eau",
 		},
 		MOON = {
-			abbreviation = "MOON", -- NEEDS TRANSLATION
-			short = "Moon", -- NEEDS TRANSLATION
+			abbreviation = "LUNE",
+			short = "Lune",
 			detailed = "Pierre Lune",
 		},
 		LEAF = {
-			abbreviation = "LEAF", -- NEEDS TRANSLATION
-			short = "Leaf", -- NEEDS TRANSLATION
-			detailed = "Pierreplante",
+			abbreviation = "PLANTE",
+			short = "Plante",
+			detailed = "Pierre Plante",
 		},
 		SUN = {
-			abbreviation = "SUN", -- NEEDS TRANSLATION
-			short = "Sun", -- NEEDS TRANSLATION
-			detailed = "Pierresoleil",
+			abbreviation = "SOLEIL",
+			short = "Soleil",
+			detailed = "Pierre Soleil",
 		},
 		LEAF_SUN = {
-			abbreviation = "LF/SN", -- NEEDS TRANSLATION
+			abbreviation = "PL/SL", -- subjective, could be changed if confusing
 		},
 		WATER30 = {
-			abbreviation = "30/WTR", -- NEEDS TRANSLATION
+			abbreviation = "30/EAU",
 		},
 		WATER37 = {
-			abbreviation = "37/WTR", -- NEEDS TRANSLATION
+			abbreviation = "37/EAU",
 		},
 		EEVEE_STONES = {
-			abbreviation = "STONE", -- NEEDS TRANSLATION
-			detailed = "5 Diff. Stones", -- NEEDS TRANSLATION
+			abbreviation = "PIERRE",
+			detailed = "5 Pierres Diff.",
 		},
 	},
 	TrackerScreen = {
-		HPAbbreviation = "HP", -- NEEDS TRANSLATION
-		LevelAbbreviation = "Lv", -- NEEDS TRANSLATION
-		RandomBallChosen = "Randomly chosen ball", -- NEEDS TRANSLATION
-		RandomBallUserChosen = "Chosen ball", -- NEEDS TRANSLATION
-		RandomBallUserPicks = "picks", -- NEEDS TRANSLATION
-		RandomBallLeft = "Left", -- NEEDS TRANSLATION
-		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
-		RandomBallRight = "Right", -- NEEDS TRANSLATION
-		RandomBallRandom = "Random", -- NEEDS TRANSLATION
-		HealsInBag = "Heals", -- NEEDS TRANSLATION
-		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
-		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
-		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
-		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
-		BattleSeenOnTrainers = "Seen on trainers", -- NEEDS TRANSLATION
-		BattleTeam = "Team", -- NEEDS TRANSLATION
-		StatHP = "HP", -- NEEDS TRANSLATION
-		StatATK = "ATK", -- NEEDS TRANSLATION
-		StatDEF = "DEF", -- NEEDS TRANSLATION
-		StatSPA = "SPA", -- NEEDS TRANSLATION
-		StatSPD = "SPD", -- NEEDS TRANSLATION
-		StatSPE = "SPE", -- NEEDS TRANSLATION
+		HPAbbreviation = "PV",
+		LevelAbbreviation = "NIV",
+		RandomBallChosen = "Balle choisie aléa", -- Or "Balle choisie aléatoirement"
+		RandomBallUserChosen = "Balle choisie",
+		RandomBallUserPicks = "choix",
+		RandomBallLeft = "Gauche",
+		RandomBallMiddle = "Milieu",
+		RandomBallRight = "Droite",
+		RandomBallRandom = "Aléa", -- Or "Aléatoire"
+		HealsInBag = "Soins",
+		UnidentifiedGhost = "Spectre", -- Other options: "fantôme", "esprit"
+		BattleNewEncounter = "Nouv. rencontre", -- Or "Nouvelle rencontre"
+		BattleLastSeen = "Dernier vu",
+		BattleSeenInTheWild = "Vu à l'état sauvage", -- Other options: "Vu dans la nature", "Vu dans nature", "Sauvages vus" *not recommended
+		BattleSeenOnTrainers = "Vu sur dresseurs", -- Other options: 
+		BattleTeam = "Équipe", -- "Équi" works well too
+		StatHP = "PV",
+		StatATK = "ATQ",
+		StatDEF = "DEF",
+		StatSPA = "ASP", -- not sure
+		StatSPD = "DSP", -- not sure
+		StatSPE = "VIT",
 		StatBST = "BST", -- NEEDS TRANSLATION
-		StatAccuracy = "Acc", -- NEEDS TRANSLATION
-		StatEvasion = "Eva", -- NEEDS TRANSLATION
-		HeaderMoves = "Moves", -- NEEDS TRANSLATION
-		HeaderPP = "PP", -- NEEDS TRANSLATION
-		HeaderPow = "Pow", -- NEEDS TRANSLATION
-		HeaderAcc = "Acc", -- NEEDS TRANSLATION
-		LeaveANote = "Leave a note", -- NEEDS TRANSLATION
-		DamageTaken = "damage", -- NEEDS TRANSLATION
-		DamageTakenInTeams = "Total received", -- NEEDS TRANSLATION
-		PedometerSteps = "Steps", -- NEEDS TRANSLATION
-		PedometerGoal = "Goal", -- NEEDS TRANSLATION
-		PedometerTotal = "Total", -- NEEDS TRANSLATION
-		PedometerReset = "Reset", -- NEEDS TRANSLATION
-		EncounterWalking = "Walking", -- NEEDS TRANSLATION
-		EncounterSurfing = "Surfing", -- NEEDS TRANSLATION
-		EncounterUnderwater = "Underwater", -- NEEDS TRANSLATION
-		EncounterStatic = "Static", -- NEEDS TRANSLATION
-		EncounterRockSmash = "RockSmash", -- NEEDS TRANSLATION
-		EncounterSuperRod = "Super Rod", -- NEEDS TRANSLATION
-		EncounterGoodRod = "Good Rod", -- NEEDS TRANSLATION
-		EncounterOldRod = "Old Rod", -- NEEDS TRANSLATION
-		EncounterSeenPokemon = "Seen Pokémon", -- NEEDS TRANSLATION
-		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
-		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
-		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
-		PromptStepsTitle = "Choose a Step Goal", -- NEEDS TRANSLATION
-		PromptStepsDesc1 = "Pedometer will change color when your goal is reached.", -- NEEDS TRANSLATION
-		PromptStepsDesc2 = "Set to 0 to turn off", -- NEEDS TRANSLATION
-		PromptStepsEnterGoal = "How many steps to reach your goal?", -- NEEDS TRANSLATION
+		StatAccuracy = "Pré",
+		StatEvasion = "Esq", -- "Eva" for "Evasion" (french too) works too, but I think the word in games is "Esquive"
+		HeaderMoves = "Capacités",
+		HeaderPP = "PP",
+		HeaderPow = "Pouv",
+		HeaderAcc = "Pré", 
+		LeaveANote = "Laisser une note",
+		DamageTaken = "dégât",
+		DamageTakenInTeams = "Total subit",
+		PedometerSteps = "Pas",
+		PedometerGoal = "But",
+		PedometerTotal = "Total",
+		PedometerReset = "Reset", -- Is it fine? Correct word is "Réinitialiser"
+		EncounterWalking = "Marchant",
+		EncounterSurfing = "Surfant",
+		EncounterUnderwater = "Sous l'eau",
+		EncounterStatic = "Statique",
+		EncounterRockSmash = "Éclate-Roc",
+		EncounterSuperRod = "Super canne",
+		EncounterGoodRod = "Bonne canne",
+		EncounterOldRod = "Vielle canne",
+		EncounterSeenPokemon = "Pokémons vus",
+		PromptNoteDesc = "Entrez une courte note pour",
+		PromptNoteAbilityDesc = "Définir un ou deux talents pour",
+		PromptNoteClearAbilities = "Effacer talents",
+		PromptStepsTitle = "Choisir un but de pas",
+		PromptStepsDesc1 = "Le podomètre changera de couleur lorsque votre objectif sera atteint.",
+		PromptStepsDesc2 = "Réglez sur 0 pour éteindre",
+		PromptStepsEnterGoal = "Combien de pas pour atteindre votre objectif?",
 	},
 	StartupScreen = {
-		Title = "Ironmon Tracker", -- NEEDS TRANSLATION
-		Version = "Version", -- NEEDS TRANSLATION
-		Game = "Game", -- NEEDS TRANSLATION
-		Attempts = "Attempts", -- NEEDS TRANSLATION
-		TrackedDataMsgLabel = "Tracker Notes", -- NEEDS TRANSLATION
-		TrackedDataMsgLoadSuccess = "Loaded from last play session.", -- NEEDS TRANSLATION
-		TrackedDataMsgNewGame = "New game started.", -- NEEDS TRANSLATION
-		TrackedDataMsgAutoDisabled = "Auto saving / loading is OFF.", -- NEEDS TRANSLATION
-		TrackedDataMsgError = "Error loading file.", -- NEEDS TRANSLATION
-		HeaderFavorites = "Favorite Pokémon", -- NEEDS TRANSLATION
-		HeaderControls = "GBA Controls", -- NEEDS TRANSLATION
-		ControlsSwapView = "Swap viewed Pokémon", -- NEEDS TRANSLATION
-		ControlsQuickload = "Load New Run", -- NEEDS TRANSLATION
-		ControlsEraseGameSave = "Erase game save data", -- NEEDS TRANSLATION
-		PromptChooseAPokemonTitle = "Choose a Pokémon", -- NEEDS TRANSLATION
-		PromptChooseAPokemonDesc = "Choose a Pokémon to show during startup", -- NEEDS TRANSLATION
-		PromptChooseAPokemonByAttempt = "Based on attempt #", -- NEEDS TRANSLATION
-		PromptChooseAPokemonByRandom = "Random each time", -- NEEDS TRANSLATION
-		PromptChooseAPokemonNone = "None", -- NEEDS TRANSLATION
+		Title = "Trackeur Ironmon",
+		Version = "Version",
+		Game = "Jeu",
+		Attempts = "Tentatives", -- or "essais"
+		TrackedDataMsgLabel = "Notes du trackeur",
+		TrackedDataMsgLoadSuccess = "Chargé depuis la dernière session.",
+		TrackedDataMsgNewGame = "Nouvelle partie commencée",
+		TrackedDataMsgAutoDisabled = "Sauvegarde/chargement automatique est OFF.",
+		TrackedDataMsgError = "Erreur chargement fichier.",
+		HeaderFavorites = "Pokémons favoris",
+		HeaderControls = "Controles GBA",
+		ControlsSwapView = "Échanger le Pokémon vu", -- Unsure
+		ControlsQuickload = "Charger nouvelle partie",
+		ControlsEraseGameSave = "Effacer données du jeu sauvé",
+		PromptChooseAPokemonTitle = "Choisissez un Pokémon",
+		PromptChooseAPokemonDesc = "Choisissez un Pokémon à afficher au démarrage",
+		PromptChooseAPokemonByAttempt = "Basé sur la tentative #",
+		PromptChooseAPokemonByRandom = "Au hasard à chaque fois",
+		PromptChooseAPokemonNone = "Aucun",
 	},
 	NavigationMenu = {
-		Title = "Tracker Settings", -- NEEDS TRANSLATION
-		ButtonSetup = "Setup", -- NEEDS TRANSLATION
-		ButtonGameplay = "Gameplay", -- NEEDS TRANSLATION
-		ButtonTheme = "Theme", -- NEEDS TRANSLATION
-		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION
-		ButtonExtras = "Extras", -- NEEDS TRANSLATION
-		ButtonQuickload = "New Runs", -- NEEDS TRANSLATION
-		ButtonLanguage = "Language", -- NEEDS TRANSLATION
-		ButtonUpdate = "Update", -- NEEDS TRANSLATION
-		ButtonExtensions = "Extensions", -- NEEDS TRANSLATION
-		ButtonCredits = "Credits", -- NEEDS TRANSLATION
-		ButtonHelp = "Help", -- NEEDS TRANSLATION
-		CreditsCreatedBy = "Created by", -- NEEDS TRANSLATION
-		CreditsContributors = "Contributors", -- NEEDS TRANSLATION
-		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Help Wiki.", -- NEEDS TRANSLATION
+		Title = "Réglages du trackeur",
+		ButtonSetup = "Options",
+		ButtonGameplay = "Gameplay", -- NEEDS TRANSLATION maybe
+		ButtonTheme = "Thème",
+		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION maybe
+		ButtonExtras = "Extras",
+		ButtonQuickload = "Nouv. part.",
+		ButtonLanguage = "Langue",
+		ButtonUpdate = "Mise à jour",
+		ButtonExtensions = "Extensions",
+		ButtonCredits = "Crédits",
+		ButtonHelp = "Aide",
+		CreditsCreatedBy = "Créé par",
+		CreditsContributors = "Contributeurs",
+		MessageCheckConsole = "Consultez la console Lua pour un lien vers le wiki d'aide du trackeur.",
 	},
 	SetupScreen = {
-		Title = "Tracker Setup", -- NEEDS TRANSLATION
-		TabGeneral = "General", -- NEEDS TRANSLATION
-		TabCarousel = "Carousel", -- NEEDS TRANSLATION
-		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
-		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
-		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
-		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
-		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
-		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
-		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
-		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
-		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
-		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
-		LabelSpeedSetting = "Speed", -- NEEDS TRANSLATION
-		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION
-		CarouselNotes = "Notes on Pokémon", -- NEEDS TRANSLATION
+		Title = "Options du Trackeur",
+		TabGeneral = "Général",
+		TabCarousel = "Carrousel",
+		PokemonIconSetLabel = "Ensemble d'icônes Pokémon",
+		PokemonIconSetAuthor = "Ajouté par",
+		OptionShowTeamView = "Montrer la vue d'équipe",
+		OptionRightJustifiedNumbers = "Nombres justifiés à droite",
+		OptionShowNicknames = "Montrer surnoms",
+		OptionTrackPCHeals = "Suivre soins du PC",
+		OptionPCHealsCountDown = "Soins du PC déduient", -- unsure
+		OptionAllowSpritesToWalk = "Marche",
+		ButtonEditControls = "Contrôles",
+		ButtonManageData = "Gérer les données",
+		OptionAllowCarouselRotation = "Autoriser la rotation de la boîte inférieure",
+		LabelInfoToShow = "Informations à montrer",
+		LabelSpeedSetting = "Vitesse",
+		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION maybe?
+		CarouselNotes = "Notes sur Pokémon",
 		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION
 		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
