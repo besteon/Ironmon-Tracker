@@ -70,7 +70,6 @@ Theme.Buttons = {
 		onClick = function(self)
 			self.toggleState = Options.toggleSetting(self.optionKey)
 			Theme.settingsUpdated = true
-			-- Theme.refreshThemePreview()
 		end
 	},
 	MoveTypeEnabled = {
