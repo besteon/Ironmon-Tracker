@@ -1258,7 +1258,8 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Inidicate there are more moves being tracked than can fit on screen
 	if not Battle.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + 30, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
+		local movesAsterisk = 1 + Utils.calcWordPixelLength(Resources.TrackerScreen.HeaderMoves)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + movesAsterisk, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
