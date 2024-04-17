@@ -163,8 +163,9 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
-			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
-
+			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then
+				return
+			end
 			local routeInfo = {
 				mapId = Program.GameData.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
@@ -180,15 +181,21 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				if Options["Open Book Play Mode"] then
-					local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 0) -- 0 is the first ability
-					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
-				else
-					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
-				end
+			local pokemon = Tracker.getViewedPokemon() or {}
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
+			end
+			local abilityId
+			if Options["Open Book Play Mode"] then
+				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 0) -- 0 is the first ability
+			else
+				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID) or {}
+				abilityId = trackedAbilities[1].id or 0
+			end
+			if AbilityData.isValid(abilityId) then
+				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
+			else
+				TrackerScreen.openNotePadWindow(pokemon.pokemonID)
 			end
 		end
 	},
@@ -200,18 +207,23 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				local abilityId
-				if Battle.isViewingOwn then
-					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
-				elseif Options["Open Book Play Mode"] then
-					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
-				else
-					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-					abilityId = trackedAbilities[2].id
-				end
+			local pokemon = Tracker.getViewedPokemon() or {}
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
+			end
+			local abilityId
+			if Battle.isViewingOwn then
+				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+			elseif Options["Open Book Play Mode"] then
+				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
+			else
+				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+				abilityId = trackedAbilities[2].id
+			end
+			if AbilityData.isValid(abilityId) then
 				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
+			else
+				TrackerScreen.openNotePadWindow(pokemon.pokemonID)
 			end
 		end
 	},
@@ -233,12 +245,16 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 69, 81, 10, 10 },
 		boxColors = { "Header text", "Main background" },
 		isVisible = function()
-			local viewedPokemon = Tracker.getViewedPokemon()
-			return viewedPokemon ~= nil and PokemonData.isValid(viewedPokemon.pokemonID)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			return PokemonData.isValid(pokemon.pokemonID)
 		end,
 		onClick = function(self)
-			local viewedPokemon = Tracker.getViewedPokemon()
-			if viewedPokemon ~= nil and MoveHistoryScreen.buildOutHistory(viewedPokemon.pokemonID, viewedPokemon.level) then
+			local pokemon = Tracker.getViewedPokemon() or {}
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
+			end
+			local hasMoves = MoveHistoryScreen.buildOutHistory(pokemon.pokemonID, pokemon.level)
+			if hasMoves then
 				Program.changeScreenView(MoveHistoryScreen)
 			end
 		end
@@ -252,10 +268,11 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				TrackerScreen.openNotePadWindow(pokemon.pokemonID)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
 			end
+			TrackerScreen.openNotePadWindow(pokemon.pokemonID)
 		end
 	},
 	LastAttackSummary = {
@@ -1181,6 +1198,9 @@ function TrackerScreen.drawStatsArea(data)
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
 		if Battle.isViewingOwn then
 			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
+			if not Options["Color stat numbers by nature"] then
+				textColor = Theme.COLORS["Default text"]
+			end
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		else
 			if Options["Open Book Play Mode"] then
@@ -1238,7 +1258,8 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Inidicate there are more moves being tracked than can fit on screen
 	if not Battle.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + 30, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
+		local movesAsterisk = 1 + Utils.calcWordPixelLength(Resources.TrackerScreen.HeaderMoves)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + movesAsterisk, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move

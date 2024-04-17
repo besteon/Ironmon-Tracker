@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 public class CPHInline
 {
 	// Internal Streamerbot Properties
-	private const string VERSION = "1.0.5"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const string VERSION = "1.0.6"; // Used to compare against known version # in Tracker code, to check if this code needs updating
 	private const bool DEBUG_LOG_EVENTS = false;
 	private const string GVAR_ConnectionDataFolder = "connectionDataFolder"; // "data" folder override global variable; define is Streamerbot
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
@@ -19,13 +19,19 @@ public class CPHInline
 	private const string OUTBOUND_FILENAME = @"Tracker-Requests.json"; // Located inside the DATA_FOLDER
 	private const int TEXT_UPDATE_FREQUENCY = 1; // # of seconds
 	private const string COMMAND_ACTION_ID = "0f58bcaf-4a93-442b-b66d-774ee5ba954d";
-	private const string COMMAND_REGEX = @"^!([A-Za-z0-9\-\.]+)\s*(.*)";
+	private const char COMMAND_PREFIX = '!';
 	private const string INVISIBLE_CHAR = "󠀀"; // U+E0000 (this is *not* an empty string)
 	private const string SOURCE_STREAMERBOT = "Streamerbot";
 	private const string REQUEST_COMPLETE = "Complete";
+	//private const string PLATFORM_TWITCH = "twitch"; // Not currently unused for any explicit checks
+	private const string PLATFORM_YOUTUBE = "youtube";
+	private const int TWITCH_MESSAGE_CAP = 499;
+	private const int YOUTUBE_MESSAGE_CAP = 200;
 
 	// Internal Streamerbot Data Variables
 	private bool _isConnected { get; set; }
+	private string _commandRegex { get; set; }
+
 	private string _inboundFile { get; set; }
 	private string _outboundFile { get; set; }
 	private Dictionary<string,bool> _allowedEvents { get; set; }
@@ -42,6 +48,7 @@ public class CPHInline
 		try
 		{
 			_isConnected = false;
+			_commandRegex = "^" + COMMAND_PREFIX + @"([A-Za-z0-9\-\.]+)\s*(.*)";
 			_allowedEvents = new Dictionary<string,bool>();
 			_commandRoles = new Dictionary<string,bool>()
 			{
@@ -109,7 +116,7 @@ public class CPHInline
 	// https://wiki.streamer.bot/en/Commands
 	public void ProcessCommandEvent()
 	{
-		Match matchesCommand = Regex.Match(VARS.RawInput, COMMAND_REGEX, RegexOptions.IgnoreCase);
+		Match matchesCommand = Regex.Match(VARS.RawInput, _commandRegex, RegexOptions.IgnoreCase);
 		if (!matchesCommand.Success)
 			return;
 
@@ -139,6 +146,7 @@ public class CPHInline
 			EventKey = string.Empty, // Lazily ask the server to automatically figure out which command event is triggering
 			CreatedAt = GetTime(),
 			Username = VARS.User,
+			Platform = VARS.UserType, // 'twitch' or 'youtube'
 			Args = new Dictionary<string, object>()
 		};
 		request.Args.Add("Command", command);
@@ -161,6 +169,7 @@ public class CPHInline
 			EventKey = string.Empty, // Lazily ask the server to automatically figure out which channel reward is triggering
 			CreatedAt = GetTime(),
 			Username = VARS.User,
+			Platform = VARS.UserType, // 'twitch' or 'youtube'
 			Args = new Dictionary<string, object>()
 		};
 		request.Args.Add("RewardName", VARS.RewardName);
@@ -285,7 +294,9 @@ public class CPHInline
 						SetOptionalGlobalVariables(response);
 						CompleteIfChannelRedeem(response);
 						if (!string.IsNullOrEmpty(response.Message))
-							CPH.SendMessage(response.Message, true);
+						{
+							SendChatMessage(response.Message, response.Platform);
+						}
 					}
 					break;
 				// ALREADY_REPORTED = 208, -- The request is a duplicate of another recent request, no additional response message will be sent
@@ -361,6 +372,23 @@ public class CPHInline
 		return false;
 	}
 
+	private void SendChatMessage(string msg, string platform)
+	{
+		// A simple check if the response was meant for Youtube platform only
+		if (!string.IsNullOrEmpty(platform) && platform.ToLower().Equals(PLATFORM_YOUTUBE))
+		{
+			var chunks = SplitMessageIntoChunks(msg, YOUTUBE_MESSAGE_CAP);
+			foreach (string msgChunk in chunks)
+				CPH.SendYouTubeMessage(msgChunk.TrimStart(COMMAND_PREFIX), true);
+		}
+		else
+		{
+			var chunks = SplitMessageIntoChunks(msg, TWITCH_MESSAGE_CAP);
+			foreach (string msgChunk in chunks)
+				CPH.SendMessage(msgChunk.TrimStart(COMMAND_PREFIX), true);
+		}
+	}
+
 	private void SendStreamerbotStart(string guid = "")
 	{
 		CPH.LogInfo($"START: Starting Tracker communication. Connecting...");
@@ -375,6 +403,7 @@ public class CPHInline
 			EventKey = "TS_Start",
 			CreatedAt = now - 1, // Prioritize resolving this request before any others made at this point in time
 			Username = "Streamer.bot Internal",
+			Platform = "None",
 			Args = new Dictionary<string, object>()
 		};
 		requestStart.Args.Add("Source", SOURCE_STREAMERBOT);
@@ -387,6 +416,7 @@ public class CPHInline
 			EventKey = "TS_UpdateEvents",
 			CreatedAt = now,
 			Username = "Streamer.bot Internal",
+			Platform = "None",
 			Args = new Dictionary<string, object>()
 		};
 		requestEvents.Args.Add("Source", SOURCE_STREAMERBOT);
@@ -408,6 +438,7 @@ public class CPHInline
 			EventKey = "TS_Stop",
 			CreatedAt = GetTime() + 1, // Delay to resolve this request after any others made at this point in time
 			Username = "Streamer.bot Internal",
+			Platform = "None",
 			Args = new Dictionary<string, object>()
 		};
 		request.Args.Add("Source", SOURCE_STREAMERBOT);
@@ -438,6 +469,7 @@ public class CPHInline
 			EventKey = "TS_GetRewardsList",
 			CreatedAt = GetTime(),
 			Username = "Streamer.bot Internal",
+			Platform = "None",
 			Args = new Dictionary<string, object>()
 		};
 		request.Args.Add("Source", SOURCE_STREAMERBOT);
@@ -529,6 +561,18 @@ public class CPHInline
 		return (int)t.TotalSeconds;
 	}
 
+	private IEnumerable<string> SplitMessageIntoChunks(string msg, int chunkSize)
+	{
+		if (string.IsNullOrEmpty(msg) || chunkSize < 1)
+			return Enumerable.Empty<string>();
+
+		var charCount = 0;
+		var lines = msg.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+		return lines.GroupBy(w => (charCount += (((charCount % chunkSize) + w.Length + 1 >= chunkSize)
+				? chunkSize - (charCount % chunkSize) : 0) + w.Length + 1) / chunkSize)
+			.Select(g => string.Join(" ", g.ToArray()));
+	}
+
 	private CancellationTokenSource _reoccuringTokenSrc { get; set; }
 	private void CreateReoccuringFileReader()
 	{
@@ -558,6 +602,7 @@ public class CPHInline
 		public string EventKey { get; set; }
 		public int CreatedAt { get; set; }
 		public string Username { get; set; }
+		public string Platform { get; set; }
 		public Dictionary<string,object> Args { get; set; }
 	}
 
@@ -568,6 +613,7 @@ public class CPHInline
 		public int CreatedAt { get; set; }
 		public int StatusCode { get; set; }
 		public string Message { get; set; }
+		public string Platform { get; set; }
 		public Dictionary<string,object>? AdditionalInfo { get; set; }
 		public Dictionary<string,object>? GlobalVars { get; set; }
 	}

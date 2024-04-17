@@ -598,6 +598,11 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	Drawing.drawText(x + 36, y + 15, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
 	Drawing.drawText(x + 36, y + 18, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
 
+	if not Options["Color stat numbers by nature"] then
+		Drawing.drawText(x + 45, y + 3, "---", themeColors["Default text"], nil, fontSize, fontFamily)
+		Drawing.drawText(x + 45, y + 12, "---", themeColors["Default text"], nil, fontSize, fontFamily)
+	end
+
 	-- Draw "header"
 	Drawing.drawText(x, y + 23, "------- --- ---     ---  ----  ----", themeColors["Header text"], nil, fontSize, fontFamily)
 

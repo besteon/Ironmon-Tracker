@@ -38,6 +38,7 @@ Options = {
 	["Display play time"] = false,
 	["Display gender"] = false,
 	["Game timer location"] = "LowerRight",
+	["Color stat numbers by nature"] = false,
 	["Dev branch updates"] = false,
 	["Welcome message"] = "", -- Default is empty, which will display the GBA Controls
 	["Startup favorites"] = "1,4,7",

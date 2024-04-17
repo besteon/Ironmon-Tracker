@@ -42,6 +42,16 @@ Network.Options = {
 	["CustomCommandRole"] = "", -- Currently unused, not supported
 }
 
+-- In some cases, allow a mismatch between Tracker code and Streamerbot code
+-- This simply offers convenience for the end user, such that they aren't forced to update to continue using it
+Network.DeprecatedVersions = {
+	-- On version 1.0.5 of Streamerbot code, the message cap limit was assumed to be checked by the Tracker, not Streamerbot itself
+	-- This override forces the Tracker to check the message cap
+	["1.0.5"] = function()
+		RequestHandler.REQUIRES_MESSAGE_CAP = true
+	end,
+}
+
 function Network.initialize()
 	-- Clear and reload Event and Request information
 	EventHandler.reset()
@@ -59,10 +69,15 @@ function Network.initialize()
 end
 
 ---Checks current version of the Tracker's Network code against the Streamerbot code version
----@param version string
-function Network.checkVersion(version)
-	Network.currentStreamerbotVersion = version
-	Network.requiresUpdating = Utils.isNewerVersion(Network.STREAMERBOT_VERSION, version)
+---@param externalVersion string
+function Network.checkVersion(externalVersion)
+	local changeFunc = Network.DeprecatedVersions[externalVersion or ""]
+	if type(changeFunc) == "function" then
+		changeFunc()
+	end
+
+	Network.currentStreamerbotVersion = externalVersion
+	Network.requiresUpdating = Utils.isNewerVersion(Network.STREAMERBOT_VERSION, externalVersion)
 	if Network.requiresUpdating then
 		Network.openUpdateRequiredPrompt()
 	end
