@@ -182,14 +182,17 @@ function SetupScreen.createTabs()
 	local tabPadding = 6
 
 	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
-		local tabText = Resources.SetupScreen[tab.resourceKey]
-		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getText = function(self) return Resources.SetupScreen[tab.resourceKey] end,
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
-			box = {	startX, startY, tabWidth, TAB_HEIGHT },
+			box = {
+				startX,
+				startY,
+				(tabPadding * 2) + Utils.calcWordPixelLength(Resources.SetupScreen[tab.resourceKey]),
+				TAB_HEIGHT
+			},
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
 				self.textColor = self.isSelected and SCREEN.Colors.highlight or SCREEN.Colors.text
@@ -218,7 +221,7 @@ function SetupScreen.createTabs()
 				Program.redraw(true)
 			end,
 		}
-		startX = startX + tabWidth
+		startX = startX + (tabPadding * 2) + Utils.calcWordPixelLength(Resources.SetupScreen[tab.resourceKey])
 	end
 end
 
@@ -266,11 +269,15 @@ function SetupScreen.createButtons()
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	startY = Constants.SCREEN.MARGIN + 38
 
-	local speedText = string.format("%s:", Resources.SetupScreen.LabelSpeedSetting)
 	SCREEN.Buttons.CarouselSpeedHeader = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return speedText end,
-		box = {	startX - 3, startY, Utils.calcWordPixelLength(speedText) + 5, 11 },
+		getText = function(self) return string.format("%s:", Resources.SetupScreen.LabelSpeedSetting) end,
+		box = {
+			startX - 3,
+			startY,
+			Utils.calcWordPixelLength(string.format("%s:", Resources.SetupScreen.LabelSpeedSetting)) + 5,
+			11
+		},
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Carousel end,
 	}
 	startX = startX + 32
