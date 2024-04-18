@@ -370,7 +370,7 @@ end
 function SetupScreen.openEditControlsWindow()
 	local form = Utils.createBizhawkForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
 
-	forms.label(form, Resources.SetupScreen.PromptEditControllerDesc, 39, 10, 410, 20)
+	forms.label(form, Resources.SetupScreen.PromptEditControllerDesc, 19, 10, 410, 20)
 
 	local controlKeyMap = {
 		{"Load next seed", "PromptEditControllerLoadNext", },
@@ -380,19 +380,20 @@ function SetupScreen.openEditControlsWindow()
 	}
 
 	local inputTextboxes = {}
-	local offsetX = 90
+	local col1X = 70
+	local col2X = 220
 	local offsetY = 35
 
 	for i, controlTuple in ipairs(controlKeyMap) do
 		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
-		forms.label(form, controlLabel, offsetX, offsetY, 105, 20)
-		inputTextboxes[i] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, offsetX + 110, offsetY - 2)
+		forms.label(form, controlLabel, col1X, offsetY, col2X - col1X, 20)
+		inputTextboxes[i] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, col2X, offsetY - 2)
 		offsetY = offsetY + 24
 	end
 
 	-- Buttons
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
-	forms.button(form, saveCloseLabel, function()
+	local btnSave = forms.button(form, saveCloseLabel, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
 			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[i] or ""))
 			if not Utils.isNilOrEmpty(controlCombination) then
@@ -403,18 +404,21 @@ function SetupScreen.openEditControlsWindow()
 		Program.redraw(true)
 
 		Utils.closeBizhawkForm(form)
-	end, 45, offsetY + 5, 105, 25)
+	end, 45, offsetY + 5)
+	forms.setproperty(btnSave, "AutoSize", true)
 
-	forms.button(form, Resources.SetupScreen.PromptEditControllerResetDefault, function()
+	local btnReset = forms.button(form, Resources.SetupScreen.PromptEditControllerResetDefault, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
 			local default = Options.Defaults.CONTROLS[controlTuple[1]]
 			forms.settext(inputTextboxes[i], default or "")
 		end
-	end, 175, offsetY + 5, 120, 25)
+	end, 175, offsetY + 5)
+	forms.setproperty(btnReset, "AutoSize", true)
 
-	forms.button(form, Resources.AllScreens.Cancel, function()
+	local btnClose = forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
-	end, 320, offsetY + 5, 75, 25)
+	end, 320, offsetY + 5)
+	forms.setproperty(btnClose, "AutoSize", true)
 end
 
 -- USER INPUT FUNCTIONS
