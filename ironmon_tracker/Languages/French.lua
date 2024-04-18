@@ -20,7 +20,7 @@ ScreenResources{
 		"Coup dur!", -- Harsh blow!
 		"C'était brutal!", -- That was brutal!
 		"Trouvé le point faible!", -- Nailed the weak spot!
-		"Hey! Qu'est-ce que ça fait? Au revoir!", -- Hey! What's it doing? Down it goes!
+		"Hey! Qu'est-ce que ça fait? Bye bye!", -- Hey! What's it doing? Down it goes!
 	},
 	AllScreens = {
 		Back = "Retour",
@@ -123,7 +123,7 @@ ScreenResources{
 		StatBST = "BST", -- NEEDS TRANSLATION
 		StatAccuracy = "Pré", -- not sure
 		StatEvasion = "Esq", -- "Eva" for "Evasion" (same in french and english) works too, but I think the word in games is "Esquive"
-		HeaderMoves = "Capacités",
+		HeaderMoves = "Capacités", -- 2 char too long for the specific scenario "Capacités*XX/XX(XX)" because it will go above PP
 		HeaderPP = "PP",
 		HeaderPow = "Pui", -- unsure, for "Puissance" the word used in games.
 		HeaderAcc = "Pré", -- unsure, for "Précision" the word used in games
@@ -206,25 +206,25 @@ ScreenResources{
 		OptionAllowCarouselRotation = "Rotation boîte inférieure", -- unsure, missing the word "Autoriser" which mean "Allow"
 		LabelInfoToShow = "Informations à montrer",
 		LabelSpeedSetting = "Vitesse",
-		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION maybe?
+		CarouselBadges = "Badges de gyms",
 		CarouselNotes = "Notes sur Pokémon",
-		CarouselRouteInfo = "Pokémons sauvages de la zone",
+		CarouselRouteInfo = "Pokémons sauvages de la zone", -- not clear enough, directly translate to "Wild pokemon of the area"
 		CarouselTrainers = "Dresseurs vaincus dans la zone",
-		CarouselLastAttack = "Dégât dernière attaque",
+		CarouselLastAttack = "Dégât de la dernière attaque",
 		CarouselPedometer = "Pédomètre",
 		PromptEditControllerTitle = "Entrées du contrôleur", -- unsure
 		PromptEditControllerDesc = "Modifiez les boutons GBA pour le trackeur. Boutons disponibles: A, B, L, R, Start, Select",
-		PromptEditControllerLoadNext = "Charger la graine suivante",
+		PromptEditControllerLoadNext = "Charger la graine suivante", -- Issue: too long?
 		PromptEditControllerToggleView = "Basculer la vue",
-		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
-		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
-		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
+		PromptEditControllerCycleStats = "Parcourir les stats", -- maybe replace "stats" for the complete "statistiques"
+		PromptEditControllerMarkStat = "Marquer la stat", -- "une" instead of "la"? maybe replace "stats" for the complete "statistiques"
+		PromptEditControllerResetDefault = "Réinitialiser par défaut", -- unsure
 	},
 	ExtrasScreen = {
-		Title = "Tracker Extras", -- NEEDS TRANSLATION
-		TabTools = "Tools", -- NEEDS TRANSLATION
-		TabOptions = "Options", -- NEEDS TRANSLATION
-		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
+		Title = "Extras du Trackeur",
+		TabTools = "Outils",
+		TabOptions = "Options",
+		ButtonViewLogs = "Registre",
 		ButtonCoverageCalculator = "Coverage Calculator", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
@@ -292,7 +292,6 @@ ScreenResources{
 		PromptSelectPreset = "Select a Theme preset to preview", -- NEEDS TRANSLATION
 		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
 		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
-		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
 		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
 		OptionTextShadows = "Text shadows", -- NEEDS TRANSLATION
 		ButtonEditColors = "Edit Theme Colors", -- NEEDS TRANSLATION
