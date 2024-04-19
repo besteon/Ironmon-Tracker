@@ -366,7 +366,7 @@ function UpdateScreen.performUpdate()
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
 		-- Close any open pop-up forms
-		ExternalUI.closeBizhawkForm()
+		ExternalUI.BizForms.destroyForm()
 		Drawing.AnimatedPokemon:destroy()
 		-- Restart the Tracker code
 		IronmonTracker.startTracker()

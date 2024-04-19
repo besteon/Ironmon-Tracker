@@ -371,10 +371,10 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 		onCloseFunc = Utils.closeBizhawkForm
 	end
 
-	ExternalUI.closeBizhawkForm()
+	ExternalUI.BizForms.destroyForm()
 	Input.resumeMouse = false -- closing any active form resumes inputs, which we don't want yet
 	local form = forms.newform(width, height, title, onCloseFunc)
-	Program.activeFormId = form
+	ExternalUI.BizForms.ActiveFormId = form
 	Utils.setFormLocation(form, x, y)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
 		local property = "BlocksInputWhenFocused"
@@ -386,12 +386,9 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 	return form
 end
 
+-- Deprecated
 function Utils.closeBizhawkForm(form)
-	form = form or Program.activeFormId
-	client.unpause()
-	forms.destroy(form)
-	Program.activeFormId = 0
-	Input.resumeMouse = true
+	ExternalUI.BizForms.destroyForm(form)
 end
 
 function Utils.randomPokemonID()

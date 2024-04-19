@@ -518,25 +518,27 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonImport, 515, 125)
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.ButtonImport, 515, 125)
+	if not form then return end
 
-	forms.label(form, Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10, 300, 20)
-	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
-	forms.button(form, Resources.AllScreens.Import, function()
+	form:createLabel(Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10)
+	local importTextBox = form:createTextBox("", 10, 30, 480, 20)
+	form:createButton(Resources.AllScreens.Import, 212, 55, function()
 		local formInput = forms.gettext(importTextBox)
-		if formInput ~= nil then
-			-- Check if the import was successful
-			local success = Theme.importThemeFromText(formInput, true)
-			if success then
-				Theme.refreshThemePreview()
-			else
-				print("Error importing Theme Config string:")
-				print(">> " .. formInput)
-				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
-			end
+		if Utils.isNilOrEmpty(formInput) then
+			return
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 55)
+		-- Check if the import was successful
+		local success = Theme.importThemeFromText(formInput, true)
+		if success then
+			Theme.refreshThemePreview()
+			Utils.closeBizhawkForm(form)
+		else
+			print("Error importing Theme Config string:")
+			print(">> " .. formInput)
+			Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
+		end
+	end)
 end
 
 function Theme.openExportWindow()

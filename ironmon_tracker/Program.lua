@@ -275,7 +275,6 @@ function Program.initialize()
 	Program.inStartMenu = false
 	Program.inCatchingTutorial = false
 	Program.hasCompletedTutorial = false
-	Program.activeFormId = 0
 	Program.lastActiveTimestamp = os.time()
 	Program.Frames.waitToDraw = 1
 	Program.Frames.highAccuracyUpdate = 0
@@ -379,7 +378,7 @@ end
 
 -- Deprecated
 function Program.destroyActiveForm()
-	ExternalUI.closeBizhawkForm()
+	ExternalUI.BizForms.destroyForm()
 end
 
 function Program.update()
