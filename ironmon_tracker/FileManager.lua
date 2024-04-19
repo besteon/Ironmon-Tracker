@@ -101,6 +101,7 @@ FileManager.LuaCode = {
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
+	{ name = "ExternalUI", filepath = "ExternalUI.lua", },
 	{ name = "Theme", filepath = "Theme.lua", },
 	{ name = "ColorPicker", filepath = "ColorPicker.lua", },
 	{ name = "Input", filepath = "Input.lua", },

@@ -371,7 +371,7 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 		onCloseFunc = Utils.closeBizhawkForm
 	end
 
-	Program.destroyActiveForm()
+	ExternalUI.closeBizhawkForm()
 	Input.resumeMouse = false -- closing any active form resumes inputs, which we don't want yet
 	local form = forms.newform(width, height, title, onCloseFunc)
 	Program.activeFormId = form

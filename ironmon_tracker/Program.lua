@@ -377,10 +377,9 @@ function Program.goBackToPreviousScreen()
 	Program.redraw(true)
 end
 
+-- Deprecated
 function Program.destroyActiveForm()
-	if Program.activeFormId ~= nil and Program.activeFormId ~= 0 then
-		Utils.closeBizhawkForm(Program.activeFormId)
-	end
+	ExternalUI.closeBizhawkForm()
 end
 
 function Program.update()

@@ -1,6 +1,7 @@
 -- Defines all ways to interact with an emulator's external UI components, such as form popups
 ExternalUI = {}
 
+-- Contains information related to Bizhawk forms (the popup windows)
 ExternalUI.BizForms = {
 	-- The current active form popup window; only 1 can be open at any given time
 	ActiveFormId = 0,
@@ -16,14 +17,18 @@ ExternalUI.BizForms = {
 	},
 }
 
+function ExternalUI.initialize()
+	ExternalUI.BizForms.ActiveFormId = 0
+end
+
 ---Creates a form popup through Bizhawk Lua function
 ---@param title string?
----@param width number?
----@param height number?
----@param x number?
----@param y number?
----@param onCloseFunc function?
----@param blockInput boolean?
+---@param width number
+---@param height number
+---@param x number? Optional
+---@param y number? Optional
+---@param onCloseFunc function? Optional
+---@param blockInput boolean? Optional, default is true
 ---@return table|nil form An IBizhawkForm object representing the created form; or nil if can't create
 function ExternalUI.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockInput)
 	if not Main.IsOnBizhawk() then
@@ -81,7 +86,7 @@ function ExternalUI.createBizhawkForm(title, width, height, x, y, onCloseFunc, b
 end
 
 ---Safely closes a specific form, or the active open form popup if none provided
----@param formOrId table|number|nil
+---@param formOrId table|number|nil Optional
 function ExternalUI.closeBizhawkForm(formOrId)
 	if not Main.IsOnBizhawk() then return end
 	formOrId = formOrId or {}
@@ -105,6 +110,8 @@ end
 
 --- BIZHAWK FORM OBJECT
 
+--- An object representing a Bizhawk form popup. Contains useful Bizhawk Lua functions to create controls:
+--- Button, Checkbox, Dropdown, Label, TextBox
 ExternalUI.IBizhawkForm = {
 	-- This value is set after the form is created; do not define it yourself
 	ControlId = 0,
@@ -137,7 +144,7 @@ ExternalUI.IBizhawkForm = {
 	---@param text string
 	---@param x number
 	---@param y number
-	---@param clickFunc function? Optional, note that most checkboxes do not need a click func
+	---@param clickFunc function? Optional, note that you usually don't need a click func for this
 	---@return number|nil controlId
 	createCheckbox = function(self, text, x, y, clickFunc)
 		local controlId = forms.checkbox(self.ControlId, text, x, y)
@@ -155,9 +162,10 @@ ExternalUI.IBizhawkForm = {
 	---@param width number?
 	---@param height number?
 	---@param startItem string?
-	---@param sortAlphabetically boolean?
+	---@param sortAlphabetically boolean? Optional, default is true
+	---@param clickFunc function? Optional, note that you usually don't need a click func for this
 	---@return number|nil controlId
-	createDropdown = function(self, itemList, x, y, width, height, startItem, sortAlphabetically)
+	createDropdown = function(self, itemList, x, y, width, height, startItem, sortAlphabetically, clickFunc)
 		sortAlphabetically = (sortAlphabetically ~= false) -- default to true
 		local controlId = forms.dropdown(self.ControlId, {["Init"]="..."}, x, y, width, height)
 		forms.setdropdownitems(controlId, itemList, sortAlphabetically)
@@ -167,10 +175,68 @@ ExternalUI.IBizhawkForm = {
 			forms.settext(controlId, startItem)
 		end
 		_helper.tryAutoSize(controlId, width, height)
+		if type(clickFunc) == "function" then
+			forms.addclick(controlId, clickFunc)
+		end
 		return controlId
 	end,
+
+	---Creates a Label Control element for a Bizhawk form, returning the id of the created control
+	---@param text string
+	---@param x number
+	---@param y number
+	---@param width number?
+	---@param height number?
+	---@param monospaced boolean? Optional, if true will use a a monospaced font: Courier New (size 8)
+	---@param clickFunc function? Optional, note that you usually don't need a click func for this
+	---@return number|nil controlId
+	createLabel = function(self, text, x, y, width, height, monospaced, clickFunc)
+		monospaced = (monospaced == true) -- default to false
+		local controlId = forms.label(self.ControlId, text, x, y, width, height, monospaced)
+		_helper.tryAutoSize(controlId, width, height)
+		if type(clickFunc) == "function" then
+			forms.addclick(controlId, clickFunc)
+		end
+		return controlId
+	end,
+
+	---Creates a TextBox Control element for a Bizhawk form, returning the id of the created control
+	---@param text string
+	---@param x number
+	---@param y number
+	---@param width number?
+	---@param height number?
+	---@param boxtype string? Optional, restricts the textbox input; available options: HEX, SIGNED, UNSIGNED
+	---@param multiline boolean? Optional, if true will enable the standard winform multi-line property
+	---@param monospaced boolean? Optional, if true will use a a monospaced font: Courier New (size 8)
+	---@param scrollbars string? Optional when using multiline; available options: Vertical, Horizontal, Both, None
+	---@param clickFunc function? Optional, note that you usually don't need a click func for this
+	---@return number|nil controlId
+	createTextBox = function(self, text, x, y, width, height, boxtype, multiline, monospaced, scrollbars, clickFunc)
+		multiline = (multiline == true) -- default to false
+		monospaced = (monospaced == true) -- default to false
+		local controlId = forms.textbox(self.ControlId, text, width, height, boxtype, x, y, multiline, monospaced, scrollbars)
+		_helper.tryAutoSize(controlId, width, height)
+		if type(clickFunc) == "function" then
+			forms.addclick(controlId, clickFunc)
+		end
+		return controlId
+	end,
+
+	getText = function(self, controlId)
+		return forms.gettext(controlId) or ""
+	end,
+	setText = function(self, controlId, text)
+		forms.settext(controlId, text or "")
+	end,
+	isChecked = function(self, controlId)
+		forms.ischecked(controlId)
+	end,
+	close = function(self)
+		ExternalUI.closeBizhawkForm(self)
+	end,
 }
----Creates and returns a new IBizhawkForm object; use UIControls.createBizhawkForm instead of calling this directly
+---Creates and returns a new IBizhawkForm object; use `createBizhawkForm` to create a form popup instead of calling this directly
 ---@param o? table Optional initial object table
 ---@return table form An IBizhawkForm object
 function ExternalUI.IBizhawkForm:new(o)
