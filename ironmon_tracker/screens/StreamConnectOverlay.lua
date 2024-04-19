@@ -1354,11 +1354,10 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 end
 
 function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
-	local path = Network.Options[modeKey] or ""
+	local path = tostring(Network.Options[modeKey] or "")
 	local filterOptions = "Json File (*.JSON)|*.json|All files (*.*)|*.*"
-	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile("SELECT ANY JSON FILE", path, filterOptions)
-	if not Utils.isNilOrEmpty(filepath) then
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT ANY JSON FILE", path, filterOptions)
+	if success then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
 		filepath = filepath:sub(0, (filepath:match(pattern) or 1) - 1)
@@ -1374,7 +1373,6 @@ function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 		end
 		Main.SaveSettings(true)
 	end
-	Utils.tempEnableBizhawkSound()
 	SCREEN.refreshButtons()
 	Program.redraw(true)
 end

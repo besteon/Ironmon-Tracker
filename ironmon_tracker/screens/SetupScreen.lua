@@ -368,9 +368,9 @@ function SetupScreen.createButtons()
 end
 
 function SetupScreen.openEditControlsWindow()
-	local form = Utils.createBizhawkForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
+	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
 
-	forms.label(form, Resources.SetupScreen.PromptEditControllerDesc, 19, 10, 410, 20)
+	form:createLabel(Resources.SetupScreen.PromptEditControllerDesc, 19, 10)
 
 	local controlKeyMap = {
 		{"Load next seed", "PromptEditControllerLoadNext", },
@@ -386,39 +386,34 @@ function SetupScreen.openEditControlsWindow()
 
 	for i, controlTuple in ipairs(controlKeyMap) do
 		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
-		forms.label(form, controlLabel, col1X, offsetY, col2X - col1X, 20)
-		inputTextboxes[i] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, col2X, offsetY - 2)
+		form:createLabel(controlLabel, col1X, offsetY)
+		inputTextboxes[i] = form:createTextBox(Options.CONTROLS[controlTuple[1]], col2X, offsetY - 2, 140, 21)
 		offsetY = offsetY + 24
 	end
 
 	-- Buttons
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
-	local btnSave = forms.button(form, saveCloseLabel, function()
+	form:createButton(saveCloseLabel, 45, offsetY + 5, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
-			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[i] or ""))
+			local text = ExternalUI.BizForms.getText(inputTextboxes[i])
+			local controlCombination = Utils.formatControls(text)
 			if not Utils.isNilOrEmpty(controlCombination) then
 				Options.CONTROLS[controlTuple[1]] = controlCombination
 			end
 		end
 		Main.SaveSettings(true)
 		Program.redraw(true)
-
-		Utils.closeBizhawkForm(form)
-	end, 45, offsetY + 5)
-	forms.setproperty(btnSave, "AutoSize", true)
-
-	local btnReset = forms.button(form, Resources.SetupScreen.PromptEditControllerResetDefault, function()
+		form:destroy()
+	end)
+	form:createButton(Resources.SetupScreen.PromptEditControllerResetDefault, 175, offsetY + 5, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
-			local default = Options.Defaults.CONTROLS[controlTuple[1]]
-			forms.settext(inputTextboxes[i], default or "")
+			local defaultText = Options.Defaults.CONTROLS[controlTuple[1]] or ""
+			ExternalUI.BizForms.setText(inputTextboxes[i], defaultText)
 		end
-	end, 175, offsetY + 5)
-	forms.setproperty(btnReset, "AutoSize", true)
-
-	local btnClose = forms.button(form, Resources.AllScreens.Cancel, function()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 320, offsetY + 5, function()
 		Utils.closeBizhawkForm(form)
-	end, 320, offsetY + 5)
-	forms.setproperty(btnClose, "AutoSize", true)
+	end)
 end
 
 -- USER INPUT FUNCTIONS

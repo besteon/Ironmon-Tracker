@@ -6,14 +6,20 @@ ExternalUI.BizForms = {
 	-- The current active form popup window; only 1 can be open at any given time
 	ActiveFormId = 0,
 
-	-- Options to modify form control elements; usually these values remain unmodified
+	-- Options to modify form control elements; usually don't change these
 	AUTO_SIZE_CONTROLS = true,
 
+	-- Enum representing the different types of controls that can be created for a form
+	ControlTypes = {
+		Button = 1, Checkbox = 2, Dropdown = 3, Label = 4, TextBox = 5,
+	},
 	Properties = {
 		AUTO_SIZE = "AutoSize", -- For most form elements
 		BLOCK_INPUT = "BlocksInputWhenFocused", -- For the main form popup
 		AUTO_COMPLETE_SOURCE = "AutoCompleteSource", -- For dropdown boxes
 		AUTO_COMPLETE_MODE = "AutoCompleteMode", -- For dropdown boxes
+		MAX_LENGTH = "MaxLength", -- For textboxes
+		FORE_COLOR = "ForeColor", -- For most form elements
 	},
 }
 
@@ -29,18 +35,10 @@ end
 ---@param y number? Optional
 ---@param onCloseFunc function? Optional
 ---@param blockInput boolean? Optional, default is true
----@return IBizhawkForm|nil form An IBizhawkForm object representing the created form; or nil if can't create
+---@return IBizhawkForm form An IBizhawkForm object representing the created form
 function ExternalUI.BizForms.createForm(title, width, height, x, y, onCloseFunc, blockInput)
-	if not Main.IsOnBizhawk() then
-		return nil
-	end
-
 	-- Close the active form popup that's currently open, if any (only one at a time allowed to be open)
 	ExternalUI.BizForms.destroyForm()
-
-	-- Disable mouse inputs on the emulator window until the form is closed
-	Input.allowMouse = false
-	Input.resumeMouse = false
 
 	-- Prepare the form to be created, defining defaults
 	local form = ExternalUI.IBizhawkForm:new({
@@ -48,6 +46,10 @@ function ExternalUI.BizForms.createForm(title, width, height, x, y, onCloseFunc,
 		BlockInput = (blockInput ~= false),
 		OnCloseFunc = onCloseFunc,
 	})
+
+	if not Main.IsOnBizhawk() then
+		return form
+	end
 
 	local function safelyCloseForm()
 		Input.resumeMouse = true
@@ -58,14 +60,15 @@ function ExternalUI.BizForms.createForm(title, width, height, x, y, onCloseFunc,
 		if type(form.OnCloseFunc) == "function" then
 			form:OnCloseFunc()
 		end
-		ExternalUI.BizForms.destroyForm(form)
-		if form.ControlId then
-			forms.destroy(form.ControlId)
-			if ExternalUI.BizForms.ActiveFormId == form.ControlId then
-				ExternalUI.BizForms.ActiveFormId = 0
-			end
+		if ExternalUI.BizForms.ActiveFormId == form.ControlId then
+			ExternalUI.BizForms.ActiveFormId = 0
 		end
+		form:destroy()
 	end
+
+	-- Disable mouse inputs on the emulator window until the form is closed
+	Input.allowMouse = false
+	Input.resumeMouse = false
 
 	-- Create the form through Bizhawk
 	form.ControlId = forms.newform(form.Width, form.Height, form.Title, safelyCloseForm)
@@ -107,11 +110,31 @@ function ExternalUI.BizForms.destroyForm(formOrId)
 	ExternalUI.BizForms.ActiveFormId = 0
 end
 
+---Pauses emulation and opens a standard openfile dialog prompt; returns the chosen filepath, or an empty string if cancelled
+---@param filename string
+---@param directory string Often uses/includes `FileManager.dir`
+---@param filterOptions string Example: "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
+---@return string filepath, boolean success
+function ExternalUI.BizForms.openFilePrompt(filename, directory, filterOptions)
+	local filepath = ""
+	if not Main.IsOnBizhawk() then
+		return filepath, false
+	end
+	-- Disable the sound, since the openfile dialog will cause their emulation to stutter
+	Utils.tempDisableBizhawkSound()
+	filepath = forms.openfile(filename, directory, filterOptions)
+	Utils.tempEnableBizhawkSound()
+	local success = not Utils.isNilOrEmpty(filepath)
+	return filepath, success
+end
+
 ---Gets the text caption for a given form Control element, usually from a textbox or dropdown
 ---@param controlId number
 ---@return string
 function ExternalUI.BizForms.getText(controlId)
-	if (controlId or 0) == 0 then return "" end
+	if (controlId or 0) == 0 or not Main.IsOnBizhawk() then
+		return ""
+	end
 	return forms.gettext(controlId) or ""
 end
 
@@ -119,7 +142,9 @@ end
 ---@param controlId number
 ---@param text string?
 function ExternalUI.BizForms.setText(controlId, text)
-	if (controlId or 0) == 0 then return end
+	if (controlId or 0) == 0 or not Main.IsOnBizhawk() then
+		return
+	end
 	forms.settext(controlId, text or "")
 end
 
@@ -127,14 +152,39 @@ end
 ---@param controlId number
 ---@return boolean
 function ExternalUI.BizForms.isChecked(controlId)
-	if (controlId or 0) == 0 then return false end
+	if (controlId or 0) == 0 or not Main.IsOnBizhawk() then
+		return false
+	end
 	return forms.ischecked(controlId)
+end
+
+---Gets a string representation of the value of a property of a Control
+---@param controlId number
+---@param property string
+---@return string
+function ExternalUI.BizForms.getProperty(controlId, property)
+	if (controlId or 0) == 0 or not property or not Main.IsOnBizhawk() then
+		return ""
+	end
+	return forms.getproperty(controlId, property) or ""
+end
+
+---Attempts to set the given property of the widget with the given value.
+---Note: not all properties will be able to be represented for the control to accept
+---@param controlId number
+---@param property string
+---@param value any?
+function ExternalUI.BizForms.setProperty(controlId, property, value)
+	if (controlId or 0) == 0 or not property or not Main.IsOnBizhawk() then
+		return
+	end
+	forms.setproperty(controlId, property, value or "")
 end
 
 --- HELPER FUNCTIONS
 local _helper = {}
-
 function _helper.tryAutoSize(controlId, width, height)
+	if not Main.IsOnBizhawk() then return end
 	if ExternalUI.BizForms.AUTO_SIZE_CONTROLS and not width and not height then
 		forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_SIZE, true)
 	end
@@ -150,6 +200,8 @@ ExternalUI.IBizhawkForm = {
 	ControlId = 0,
 	-- Optional code to run when the form is closed
 	OnCloseFunc = function() end,
+	-- Table of created Bizhawk controls: key=id, val=ControlType
+	CreatedControls = {},
 
 	-- After the Bizhawk form itself is created, the following attributes cannot be changed
 	Title = "Tracker Form",
@@ -159,7 +211,7 @@ ExternalUI.IBizhawkForm = {
 	Height = 600,
 	BlockInput = true, -- Disable mouse inputs on the emulator window until the form is closed
 
-	close = function(self)
+	destroy = function(self)
 		ExternalUI.BizForms.destroyForm(self)
 	end,
 }
@@ -185,10 +237,12 @@ end
 ---@param y number
 ---@param width number? Optional
 ---@param height number? Optional
----@return number|nil controlId
+---@return number controlId
 function ExternalUI.IBizhawkForm:createButton(text, x, y, clickFunc, width, height)
+	if not Main.IsOnBizhawk() then return 0 end
 	local controlId = forms.button(self.ControlId, text, clickFunc, x, y, width, height)
 	_helper.tryAutoSize(controlId, width, height)
+	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Button
 	return controlId
 end
 
@@ -197,13 +251,15 @@ end
 ---@param x number
 ---@param y number
 ---@param clickFunc function? Optional, note that you usually don't need a click func for this
----@return number|nil controlId
+---@return number controlId
 function ExternalUI.IBizhawkForm:createCheckbox(text, x, y, clickFunc)
+	if not Main.IsOnBizhawk() then return 0 end
 	local controlId = forms.checkbox(self.ControlId, text, x, y)
 	_helper.tryAutoSize(controlId)
 	if type(clickFunc) == "function" then
 		forms.addclick(controlId, clickFunc)
 	end
+	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Checkbox
 	return controlId
 end
 
@@ -216,8 +272,9 @@ end
 ---@param startItem string?
 ---@param sortAlphabetically boolean? Optional, default is true
 ---@param clickFunc function? Optional, note that you usually don't need a click func for this
----@return number|nil controlId
+---@return number controlId
 function ExternalUI.IBizhawkForm:createDropdown(itemList, x, y, width, height, startItem, sortAlphabetically, clickFunc)
+	if not Main.IsOnBizhawk() then return 0 end
 	sortAlphabetically = (sortAlphabetically ~= false) -- default to true
 	local controlId = forms.dropdown(self.ControlId, {["Init"]="..."}, x, y, width, height)
 	forms.setdropdownitems(controlId, itemList, sortAlphabetically)
@@ -230,6 +287,7 @@ function ExternalUI.IBizhawkForm:createDropdown(itemList, x, y, width, height, s
 	if type(clickFunc) == "function" then
 		forms.addclick(controlId, clickFunc)
 	end
+	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Dropdown
 	return controlId
 end
 
@@ -241,14 +299,16 @@ end
 ---@param height number?
 ---@param monospaced boolean? Optional, if true will use a a monospaced font: Courier New (size 8)
 ---@param clickFunc function? Optional, note that you usually don't need a click func for this
----@return number|nil controlId
+---@return number controlId
 function ExternalUI.IBizhawkForm:createLabel(text, x, y, width, height, monospaced, clickFunc)
+	if not Main.IsOnBizhawk() then return 0 end
 	monospaced = (monospaced == true) -- default to false
 	local controlId = forms.label(self.ControlId, text, x, y, width, height, monospaced)
 	_helper.tryAutoSize(controlId, width, height)
 	if type(clickFunc) == "function" then
 		forms.addclick(controlId, clickFunc)
 	end
+	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Label
 	return controlId
 end
 
@@ -263,8 +323,9 @@ end
 ---@param monospaced boolean? Optional, if true will use a a monospaced font: Courier New (size 8)
 ---@param scrollbars string? Optional when using multiline; available options: Vertical, Horizontal, Both, None
 ---@param clickFunc function? Optional, note that you usually don't need a click func for this
----@return number|nil controlId
+---@return number controlId
 function ExternalUI.IBizhawkForm:createTextBox(text, x, y, width, height, boxtype, multiline, monospaced, scrollbars, clickFunc)
+	if not Main.IsOnBizhawk() then return 0 end
 	multiline = (multiline == true) -- default to false
 	monospaced = (monospaced == true) -- default to false
 	local controlId = forms.textbox(self.ControlId, text, width, height, boxtype, x, y, multiline, monospaced, scrollbars)
@@ -272,5 +333,6 @@ function ExternalUI.IBizhawkForm:createTextBox(text, x, y, width, height, boxtyp
 	if type(clickFunc) == "function" then
 		forms.addclick(controlId, clickFunc)
 	end
+	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.TextBox
 	return controlId
 end

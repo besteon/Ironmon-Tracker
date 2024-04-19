@@ -326,24 +326,24 @@ function Network.getStreamerbotCode()
 end
 
 function Network.openUpdateRequiredPrompt()
-	local form = Utils.createBizhawkForm("Streamerbot Update Required", 350, 150, 100, 50)
+	local form = ExternalUI.BizForms.createForm("Streamerbot Update Required", 350, 150)
 	local x, y, lineHeight = 20, 20, 20
-	forms.label(form, string.format("Streamerbot Tracker Integration code requires an update."), x, y, 330, 20)
+	form:createLabel(string.format("Streamerbot Tracker Integration code requires an update."), x, y)
 	y = y + lineHeight
-	forms.label(form, string.format("You must re-import the code to continue using Stream Connect."), x, y, 330, 20)
+	form:createLabel(string.format("You must re-import the code to continue using Stream Connect."), x, y)
 	y = y + lineHeight
 	-- Bottom row buttons
 	y = y + 10
-	forms.button(form, Resources.StreamConnect.PromptNetworkShowMe, function()
-		Utils.closeBizhawkForm(form)
+	form:createButton(Resources.StreamConnect.PromptNetworkShowMe, 40, y, function()
+		form:destroy()
 		StreamConnectOverlay.openGetCodeWindow()
-	end, 40, y, 80, lineHeight + 5)
-	forms.button(form, Resources.StreamConnect.PromptNetworkTurnOff, function()
+	end)
+	form:createButton(Resources.StreamConnect.PromptNetworkTurnOff, 150, y, function()
 		Network.Options["AutoConnectStartup"] = false
 		Main.SaveSettings(true)
 		Network.closeConnections()
-		Utils.closeBizhawkForm(form)
-	end, 150, y, 150, lineHeight + 5)
+		form:destroy()
+	end)
 end
 
 -- Not supported

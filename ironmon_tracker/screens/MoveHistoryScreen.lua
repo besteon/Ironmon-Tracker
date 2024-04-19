@@ -152,7 +152,7 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 end
 
 function MoveHistoryScreen.openPokemonInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.MoveHistoryScreen.PromptPokemonTitle, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.MoveHistoryScreen.PromptPokemonTitle, 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(MoveHistoryScreen.pokemonID) then
@@ -162,24 +162,19 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(form, Resources.MoveHistoryScreen.PromptPokemonDesc .. ":", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-	forms.settext(pokedexDropdown, pokemonName)
+	form:createLabel(Resources.MoveHistoryScreen.PromptPokemonDesc .. ":", 49, 10)
+	local pokedexDropdown = form:createDropdown(pokedexData, 50, 30, 145, 30, pokemonName)
 
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local pokemonNameFromForm = ExternalUI.BizForms.getText(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
-
 		if pokemonId ~= nil and pokemonId ~= 0 then
 			if MoveHistoryScreen.buildOutHistory(pokemonId) then
 				Program.redraw(true)
 			end
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 -- USER INPUT FUNCTIONS
