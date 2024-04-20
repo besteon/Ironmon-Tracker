@@ -39,7 +39,23 @@ function ExternalUI.initialize()
 end
 
 --- HELPER FUNCTIONS
+local _forms = {}
 local _helper = {}
+local formsOverrides = {
+	"newform", "destroy", "button", "checkbox", "dropdown", "label", "textbox", "pictureBox",
+	"addclick", "openfile", "gettext", "settext", "ischecked", "getproperty", "setproperty",
+	"setdropdownitems",
+}
+for _, func in ipairs(formsOverrides) do
+	_forms[func] = function(...)
+		-- Workaround for Lua 5.1 (Bizhawk 2.8) compatibility with mixed nil params
+		if Main.emulator == Main.EMU.BIZHAWK28 then
+			return forms[func](unpack({...}))
+		end
+		---@diagnostic disable-next-line: deprecated
+		return forms[func](table.unpack({...}))
+	end
+end
 function _helper.formToId(formOrId)
 	if type(formOrId) == "table" and formOrId.ControlId then
 		return formOrId.ControlId
@@ -52,7 +68,7 @@ end
 function _helper.tryAutoSize(controlId, width, height)
 	if not Main.IsOnBizhawk() then return end
 	if ExternalUI.BizForms.AUTO_SIZE_CONTROLS and not width and not height then
-		forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_SIZE, true)
+		_forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_SIZE, true)
 	end
 end
 
@@ -105,7 +121,7 @@ function ExternalUI.BizForms.createForm(title, width, height, x, y, onCloseFunc,
 	end
 
 	-- Create the form through Bizhawk
-	form.ControlId = forms.newform(form.Width, form.Height, form.Title, safelyCloseForm)
+	form.ControlId = _forms.newform(form.Width, form.Height, form.Title, safelyCloseForm)
 
 	-- Remember this form, and apply any other adjustments like screen centering
 	ExternalUI.BizForms.ActiveFormId = form.ControlId
@@ -131,7 +147,7 @@ function ExternalUI.BizForms.destroyForm(formOrId)
 	Input.resumeMouse = true
 	client.unpause()
 	if (controlId or 0) ~= 0 then
-		forms.destroy(controlId)
+		_forms.destroy(controlId)
 	end
 	if ExternalUI.BizForms.ActiveFormId == controlId then
 		ExternalUI.BizForms.ActiveFormId = 0
@@ -165,7 +181,7 @@ function ExternalUI.BizForms.openFilePrompt(filename, directory, filterOptions)
 	end
 	-- Disable the sound, since the openfile dialog will cause their emulation to stutter
 	Utils.tempDisableBizhawkSound()
-	filepath = forms.openfile(filename, directory, filterOptions)
+	filepath = _forms.openfile(filename, directory, filterOptions)
 	Utils.tempEnableBizhawkSound()
 	local success = not Utils.isNilOrEmpty(filepath)
 	return filepath, success
@@ -178,7 +194,7 @@ function ExternalUI.BizForms.getText(controlId)
 	if (controlId or 0) == 0 or not Main.IsOnBizhawk() then
 		return ""
 	end
-	return forms.gettext(controlId) or ""
+	return _forms.gettext(controlId) or ""
 end
 
 ---Sets the text caption for a given form Control element, usually for a textbox or dropdown
@@ -188,7 +204,7 @@ function ExternalUI.BizForms.setText(controlId, text)
 	if (controlId or 0) == 0 or not Main.IsOnBizhawk() then
 		return
 	end
-	forms.settext(controlId, text or "")
+	_forms.settext(controlId, text or "")
 end
 
 ---Returns true if the Checkbox control is checked; false otherwise
@@ -198,7 +214,7 @@ function ExternalUI.BizForms.isChecked(controlId)
 	if (controlId or 0) == 0 or not Main.IsOnBizhawk() then
 		return false
 	end
-	return forms.ischecked(controlId)
+	return _forms.ischecked(controlId)
 end
 
 ---Sets the value of the Checkbox control; true/false
@@ -218,7 +234,7 @@ function ExternalUI.BizForms.getProperty(controlId, property)
 	if (controlId or 0) == 0 or not property or not Main.IsOnBizhawk() then
 		return ""
 	end
-	return forms.getproperty(controlId, property) or ""
+	return _forms.getproperty(controlId, property) or ""
 end
 
 ---Attempts to set the given property of the widget with the given value.
@@ -230,7 +246,7 @@ function ExternalUI.BizForms.setProperty(controlId, property, value)
 	if (controlId or 0) == 0 or not property or value == nil or not Main.IsOnBizhawk() then
 		return
 	end
-	forms.setproperty(controlId, property, value)
+	_forms.setproperty(controlId, property, value)
 end
 
 --- BIZHAWK FORM OBJECT
@@ -283,7 +299,7 @@ end
 ---@return number controlId
 function ExternalUI.IBizhawkForm:createButton(text, x, y, clickFunc, width, height)
 	if not Main.IsOnBizhawk() then return 0 end
-	local controlId = forms.button(self.ControlId, text, clickFunc, x, y, width, height)
+	local controlId = _forms.button(self.ControlId, text, clickFunc, x, y, width, height)
 	_helper.tryAutoSize(controlId, width, height)
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Button
 	return controlId
@@ -297,10 +313,10 @@ end
 ---@return number controlId
 function ExternalUI.IBizhawkForm:createCheckbox(text, x, y, clickFunc)
 	if not Main.IsOnBizhawk() then return 0 end
-	local controlId = forms.checkbox(self.ControlId, text, x, y)
+	local controlId = _forms.checkbox(self.ControlId, text, x, y)
 	_helper.tryAutoSize(controlId)
 	if type(clickFunc) == "function" then
-		forms.addclick(controlId, clickFunc)
+		_forms.addclick(controlId, clickFunc)
 	end
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Checkbox
 	return controlId
@@ -319,16 +335,16 @@ end
 function ExternalUI.IBizhawkForm:createDropdown(itemList, x, y, width, height, startItem, sortAlphabetically, clickFunc)
 	if not Main.IsOnBizhawk() then return 0 end
 	sortAlphabetically = (sortAlphabetically ~= false) -- default to true
-	local controlId = forms.dropdown(self.ControlId, {["Init"]="..."}, x, y, width, height)
-	forms.setdropdownitems(controlId, itemList, sortAlphabetically)
-	forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_COMPLETE_SOURCE, "ListItems")
-	forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_COMPLETE_MODE, "Append")
+	local controlId = _forms.dropdown(self.ControlId, {["Init"]="..."}, x, y, width, height)
+	_forms.setdropdownitems(controlId, itemList, sortAlphabetically)
+	_forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_COMPLETE_SOURCE, "ListItems")
+	_forms.setproperty(controlId, ExternalUI.BizForms.Properties.AUTO_COMPLETE_MODE, "Append")
 	if startItem then
-		forms.settext(controlId, startItem)
+		_forms.settext(controlId, startItem)
 	end
 	_helper.tryAutoSize(controlId, width, height)
 	if type(clickFunc) == "function" then
-		forms.addclick(controlId, clickFunc)
+		_forms.addclick(controlId, clickFunc)
 	end
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Dropdown
 	return controlId
@@ -345,11 +361,10 @@ end
 ---@return number controlId
 function ExternalUI.IBizhawkForm:createLabel(text, x, y, width, height, monospaced, clickFunc)
 	if not Main.IsOnBizhawk() then return 0 end
-	monospaced = (monospaced == true) -- default to false
-	local controlId = forms.label(self.ControlId, text, x, y, width, height, monospaced)
+	local controlId = _forms.label(self.ControlId, text, x, y, width, height, monospaced)
 	_helper.tryAutoSize(controlId, width, height)
 	if type(clickFunc) == "function" then
-		forms.addclick(controlId, clickFunc)
+		_forms.addclick(controlId, clickFunc)
 	end
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Label
 	return controlId
@@ -369,12 +384,11 @@ end
 ---@return number controlId
 function ExternalUI.IBizhawkForm:createTextBox(text, x, y, width, height, boxtype, multiline, monospaced, scrollbars, clickFunc)
 	if not Main.IsOnBizhawk() then return 0 end
-	multiline = (multiline == true) -- default to false
-	monospaced = (monospaced == true) -- default to false
-	local controlId = forms.textbox(self.ControlId, text, width, height, boxtype, x, y, multiline, monospaced, scrollbars)
+	boxtype = boxtype or ""
+	local controlId = _forms.textbox(self.ControlId, text, width, height, boxtype, x, y, multiline, monospaced, scrollbars)
 	_helper.tryAutoSize(controlId, width, height)
 	if type(clickFunc) == "function" then
-		forms.addclick(controlId, clickFunc)
+		_forms.addclick(controlId, clickFunc)
 	end
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.TextBox
 	return controlId
@@ -389,10 +403,10 @@ end
 ---@return number controlId
 function ExternalUI.IBizhawkForm:createPictureBox(x, y, width, height, clickFunc)
 	if not Main.IsOnBizhawk() then return 0 end
-	local controlId = forms.pictureBox(self.ControlId, x, y, width, height)
+	local controlId = _forms.pictureBox(self.ControlId, x, y, width, height)
 	_helper.tryAutoSize(controlId, width, height)
 	if type(clickFunc) == "function" then
-		forms.addclick(controlId, clickFunc)
+		_forms.addclick(controlId, clickFunc)
 	end
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.PictureBox
 	return controlId

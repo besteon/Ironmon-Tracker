@@ -284,9 +284,9 @@ function ExtrasScreen.openEditTimerPrompt()
 	form:createLabel("H", 60, 10)
 	form:createLabel("M", 130, 10)
 	form:createLabel("S", 200, 10)
-	local hourBox = form:createTextBox(tostring(hour), 50, 30, 40, 30, "SIGNED", nil, true)
-	local minBox = form:createTextBox(tostring(min), 120, 30, 40, 30, "SIGNED", nil, true)
-	local secBox = form:createTextBox(tostring(sec), 190, 30, 40, 30, "SIGNED", nil, true)
+	local hourBox = form:createTextBox(tostring(hour), 50, 30, 40, 30, "SIGNED", false, true)
+	local minBox = form:createTextBox(tostring(min), 120, 30, 40, 30, "SIGNED", false, true)
+	local secBox = form:createTextBox(tostring(sec), 190, 30, 40, 30, "SIGNED", false, true)
 	form:createButton(Resources.AllScreens.Save, 72, 60, function()
 		hour = tonumber(ExternalUI.BizForms.getText(hourBox)) or 0
 		min = tonumber(ExternalUI.BizForms.getText(minBox)) or 0

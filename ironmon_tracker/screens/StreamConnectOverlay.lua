@@ -1235,7 +1235,7 @@ function StreamConnectOverlay.openEventOptionsPrompt(event)
 		elseif type(currentValue) == "string" or type(currentValue) == "number" then
 			local optionText = Resources.StreamConnect[optionKey] or optionKey or Constants.BLANKLINE
 			form:createLabel(optionText .. ":", x, y)
-			optionsInForm[optionKey] = form:createTextBox(tostring(currentValue), x + rightColOffset, y, 92, 19, nil)
+			optionsInForm[optionKey] = form:createTextBox(tostring(currentValue), x + rightColOffset, y, 92, 19)
 			y = y + lineHeight
 		end
 	end
@@ -1386,7 +1386,7 @@ function StreamConnectOverlay.openGetCodeWindow()
 	y = y + lineHeight
 	form:createLabel('3. Restart Streamerbot.', x, y)
 	y = y + lineHeight
-	form:createTextBox(codeText, x - 1, y, 763, 442, nil, true, true, "Vertical")
+	form:createTextBox(codeText, x - 1, y, 763, 442, "", true, true, "Vertical")
 	form:createLabel(string.format("Streamerbot Code Version: %s", Network.STREAMERBOT_VERSION), x, 530)
 	form:createButton(Resources.AllScreens.Close, 350, 530, function()
 		form:destroy()

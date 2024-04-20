@@ -844,7 +844,7 @@ function TrackerScreen.openEditStepGoalWindow()
 	form:createLabel(Resources.TrackerScreen.PromptStepsDesc1, 36, 10)
 	form:createLabel(string.format("[%s]", Resources.TrackerScreen.PromptStepsDesc2), 110, 28)
 	form:createLabel(Resources.TrackerScreen.PromptStepsEnterGoal, 58, 50)
-	local textBox = form:createTextBox(currentSteps, 60, 70, 200, 30, "UNSIGNED", nil, true)
+	local textBox = form:createTextBox(currentSteps, 60, 70, 200, 30, "UNSIGNED", false, true)
 	form:createButton(Resources.AllScreens.Save, 82, 100, function()
 		local formInput = ExternalUI.BizForms.getText(textBox)
 		if not Utils.isNilOrEmpty(formInput) then

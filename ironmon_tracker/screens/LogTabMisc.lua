@@ -162,7 +162,7 @@ function LogTabMisc.openRandomizerShareWindow()
 	local multilineOutput = table.concat(shareExport, " " .. newline)
 
 	form:createLabel(Resources.LogOverlay.PromptShareSeedDesc, 9, 10)
-	form:createTextBox(multilineOutput, 10, 35, 480, 120, nil, true, false, "Vertical")
+	form:createTextBox(multilineOutput, 10, 35, 480, 120, "", true, false, "Vertical")
 	form:createButton(Resources.AllScreens.Close, 212, 165, function()
 		form:destroy()
 	end)

@@ -7,8 +7,8 @@ function ColorPicker.new(colorkey)
 	self.width = 220
 	self.height = 330
 
-	self.xPos = client.xpos() + client.screenwidth() / 2 - self.width / 2
-	self.yPos = client.ypos() + client.screenheight() / 2 - self.height / 2
+	self.xPos = 150
+	self.yPos = 10
 
 	self.circleRadius = 75
 	self.circleCenter = {85,85}
@@ -21,11 +21,8 @@ function ColorPicker.new(colorkey)
 	self.green = 0
 	self.blue = 0
 
-	self.mainForm = nil
 	self.mainCanvas = nil
 	self.colorTextBox = nil
-	self.saveButton = nil
-	self.cancelButton = nil
 
 	self.valueSliderY = 10
 	self.ellipsesPos = {85,85}
@@ -163,14 +160,15 @@ function ColorPicker:show()
 	local tryClose = function()
 		self:onClose()
 	end
-	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.PromptColorPickerTitle, self.width, self.height, self.xPos, self.yPos, tryClose)
+	local title = Resources.ThemeScreen.PromptColorPickerTitle
+	local form = ExternalUI.BizForms.createForm(title, self.width, self.height, self.xPos, self.yPos, tryClose)
 	self.colorTextBox = form:createTextBox("", 90, 218, 65, 10, "HEX", false, true)
 	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
-	self.saveButton = form:createButton(saveAndClose, 15, 250, function()
+	form:createButton(saveAndClose, 15, 250, function()
 		self:onSave()
 		form:destroy()
 	end)
-	self.cancelButton = form:createButton(Resources.AllScreens.Cancel, 125, 250, function()
+	form:createButton(Resources.AllScreens.Cancel, 125, 250, function()
 		self:onClose()
 		form:destroy()
 	end)

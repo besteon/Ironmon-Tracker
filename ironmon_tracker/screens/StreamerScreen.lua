@@ -132,7 +132,7 @@ function StreamerScreen.openEditAttemptsWindow()
 	local form = ExternalUI.BizForms.createForm(Resources.StreamerScreen.PromptEditAttemptsTitle, 320, 130)
 
 	form:createLabel(Resources.StreamerScreen.PromptEditAttemptsDesc, 48, 10)
-	local textBox = form:createTextBox(tostring(Main.currentSeed), 50, 30, 200, 30, "UNSIGNED", nil, true)
+	local textBox = form:createTextBox(tostring(Main.currentSeed), 50, 30, 200, 30, "UNSIGNED", false, true)
 	form:createButton(Resources.AllScreens.Save, 72, 60, function()
 		local formInput = ExternalUI.BizForms.getText(textBox)
 		if not Utils.isNilOrEmpty(formInput) then
@@ -157,7 +157,7 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 	welcomeMsg = Utils.encodeDecodeForSettingsIni(welcomeMsg, false)
 
 	form:createLabel(Resources.StreamerScreen.PromptEditWelcomeDesc, 9, 10)
-	local welcomeTextBox = form:createTextBox(welcomeMsg, 10, 35, 480, 120, nil, true, false, "Vertical")
+	local welcomeTextBox = form:createTextBox(welcomeMsg, 10, 35, 480, 120, "", true, false, "Vertical")
 	form:createButton(Resources.AllScreens.Save, 120, 165, function()
 		local newMessage = Utils.formatSpecialCharacters(ExternalUI.BizForms.getText(welcomeTextBox))
 		newMessage = Utils.encodeDecodeForSettingsIni(newMessage, true)
