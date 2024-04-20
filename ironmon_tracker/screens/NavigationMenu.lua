@@ -140,6 +140,13 @@ NavigationMenu.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	PokemonIcon = {
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 104, Constants.SCREEN.MARGIN + 10, 32, 32 },
+		isVisible = function() return NavigationMenu.showCredits end,
+		pokemonID = 196, -- Espeon
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
+	},
 	Credits = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.NavigationMenu.ButtonCredits end,
@@ -273,15 +280,7 @@ function NavigationMenu.drawCredits(canvas)
 	-- Draw box
 	gui.drawRectangle(canvas.x, canvas.y, canvas.w, canvas.h, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
 
-	-- Draw the Espeon gif image
-	local espeonImagePath = Drawing.getImagePath("PokemonIcon", "196")
-	if not espeonImagePath then
-		local originalIconSet = Options.IconSetMap[1]
-		espeonImagePath = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
-	end
-	if espeonImagePath then
-		Drawing.drawImage(espeonImagePath, canvas.x + 104, canvas.y, 32, 32)
-	end
+	Drawing.drawButton(NavigationMenu.Buttons.PokemonIcon, canvas.shadow)
 
 	local textLineY = canvas.y + 4
 	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)

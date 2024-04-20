@@ -182,14 +182,17 @@ function SetupScreen.createTabs()
 	local tabPadding = 6
 
 	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
-		local tabText = Resources.SetupScreen[tab.resourceKey]
-		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getText = function(self) return Resources.SetupScreen[tab.resourceKey] end,
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
-			box = {	startX, startY, tabWidth, TAB_HEIGHT },
+			box = {
+				startX,
+				startY,
+				(tabPadding * 2) + Utils.calcWordPixelLength(Resources.SetupScreen[tab.resourceKey]),
+				TAB_HEIGHT
+			},
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
 				self.textColor = self.isSelected and SCREEN.Colors.highlight or SCREEN.Colors.text
@@ -218,7 +221,7 @@ function SetupScreen.createTabs()
 				Program.redraw(true)
 			end,
 		}
-		startX = startX + tabWidth
+		startX = startX + (tabPadding * 2) + Utils.calcWordPixelLength(Resources.SetupScreen[tab.resourceKey])
 	end
 end
 
@@ -266,11 +269,15 @@ function SetupScreen.createButtons()
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	startY = Constants.SCREEN.MARGIN + 38
 
-	local speedText = string.format("%s:", Resources.SetupScreen.LabelSpeedSetting)
 	SCREEN.Buttons.CarouselSpeedHeader = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return speedText end,
-		box = {	startX - 3, startY, Utils.calcWordPixelLength(speedText) + 5, 11 },
+		getText = function(self) return string.format("%s:", Resources.SetupScreen.LabelSpeedSetting) end,
+		box = {
+			startX - 3,
+			startY,
+			Utils.calcWordPixelLength(string.format("%s:", Resources.SetupScreen.LabelSpeedSetting)) + 5,
+			11
+		},
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Carousel end,
 	}
 	startX = startX + 32
@@ -363,7 +370,7 @@ end
 function SetupScreen.openEditControlsWindow()
 	local form = Utils.createBizhawkForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
 
-	forms.label(form, Resources.SetupScreen.PromptEditControllerDesc, 39, 10, 410, 20)
+	forms.label(form, Resources.SetupScreen.PromptEditControllerDesc, 19, 10, 410, 20)
 
 	local controlKeyMap = {
 		{"Load next seed", "PromptEditControllerLoadNext", },
@@ -373,19 +380,20 @@ function SetupScreen.openEditControlsWindow()
 	}
 
 	local inputTextboxes = {}
-	local offsetX = 90
+	local col1X = 70
+	local col2X = 220
 	local offsetY = 35
 
 	for i, controlTuple in ipairs(controlKeyMap) do
 		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
-		forms.label(form, controlLabel, offsetX, offsetY, 105, 20)
-		inputTextboxes[i] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, offsetX + 110, offsetY - 2)
+		forms.label(form, controlLabel, col1X, offsetY, col2X - col1X, 20)
+		inputTextboxes[i] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, col2X, offsetY - 2)
 		offsetY = offsetY + 24
 	end
 
 	-- Buttons
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
-	forms.button(form, saveCloseLabel, function()
+	local btnSave = forms.button(form, saveCloseLabel, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
 			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[i] or ""))
 			if not Utils.isNilOrEmpty(controlCombination) then
@@ -396,18 +404,21 @@ function SetupScreen.openEditControlsWindow()
 		Program.redraw(true)
 
 		Utils.closeBizhawkForm(form)
-	end, 45, offsetY + 5, 105, 25)
+	end, 45, offsetY + 5)
+	forms.setproperty(btnSave, "AutoSize", true)
 
-	forms.button(form, Resources.SetupScreen.PromptEditControllerResetDefault, function()
+	local btnReset = forms.button(form, Resources.SetupScreen.PromptEditControllerResetDefault, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
 			local default = Options.Defaults.CONTROLS[controlTuple[1]]
 			forms.settext(inputTextboxes[i], default or "")
 		end
-	end, 175, offsetY + 5, 120, 25)
+	end, 175, offsetY + 5)
+	forms.setproperty(btnReset, "AutoSize", true)
 
-	forms.button(form, Resources.AllScreens.Cancel, function()
+	local btnClose = forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
-	end, 320, offsetY + 5, 75, 25)
+	end, 320, offsetY + 5)
+	forms.setproperty(btnClose, "AutoSize", true)
 end
 
 -- USER INPUT FUNCTIONS

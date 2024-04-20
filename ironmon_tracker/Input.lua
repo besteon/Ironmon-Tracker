@@ -3,6 +3,7 @@ Input = {
 	prevJoypadInput = {},
 	joypadUsedRecently = false,
 	currentColorPicker = nil,
+	allowNewRunCombo = false, -- Disable button combo for 1 second to prevents accidental, consectuive triggers
 	allowMouse = true, -- Accepts input from Mouse; false will ignore all clicks
 	allowJoypad = true, -- Accepts input from Joypad controller; false will ignore joystick/buttons
 	resumeMouse = false, -- Set to true to enable corresponding input on the next frame
@@ -62,12 +63,17 @@ Input.StatHighlighter = {
 }
 
 function Input.initialize()
+	Input.allowNewRunCombo = false
 	Input.allowMouse = true
 	Input.allowJoypad = true
 	Input.resumeMouse = false
 	Input.resumeJoypad = false
 	-- Add compatibility for deprecated functions
 	Input.togglePokemonViewed = Battle.togglePokemonViewed
+	-- Delay 1 second before enabling the New Run button combo
+	Program.addFrameCounter("EnableAllowNewRunCombo", 60, function()
+		Input.allowNewRunCombo = true
+	end, 1, true)
 end
 
 function Input.checkForInput()
@@ -151,7 +157,7 @@ function Input.checkJoypadInput()
 		Input.StatHighlighter:markSelectedStat()
 	end
 
-	if not Main.loadNextSeed then
+	if not Main.loadNextSeed and Input.allowNewRunCombo then
 		local allPressed = true
 		for button in string.gmatch(quickloadBtns, '([^,%s]+)') do
 			if not joypad[button] then

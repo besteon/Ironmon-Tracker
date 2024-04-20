@@ -150,14 +150,17 @@ function ExtrasScreen.createTabs()
 	local tabPadding = 6
 
 	for _, tuple in ipairs(tabs) do
-		local tabText = Resources.ExtrasScreen[tuple[2]]
-		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		ExtrasScreen.Buttons["Tab" .. tuple[1]] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getText = function(self) return Resources.ExtrasScreen[tuple[2]] end,
 			tab = ExtrasScreen.Tabs[tuple[1]],
 			isSelected = false,
-			box = {	startX, startY, tabWidth, tabHeight },
+			box = {
+				startX,
+				startY,
+				(tabPadding * 2) + Utils.calcWordPixelLength(Resources.ExtrasScreen[tuple[2]]),
+				tabHeight
+			},
 			updateSelf = function(self)
 				self.isSelected = (self.tab == ExtrasScreen.currentTab)
 				self.textColor = self.isSelected and ExtrasScreen.Colors.highlight or ExtrasScreen.Colors.text
@@ -186,7 +189,7 @@ function ExtrasScreen.createTabs()
 				Program.redraw(true)
 			end,
 		}
-		startX = startX + tabWidth
+		startX = startX + (tabPadding * 2) + Utils.calcWordPixelLength(Resources.ExtrasScreen[tuple[2]])
 	end
 end
 
