@@ -434,7 +434,7 @@ function InfoScreen.openRouteInfoWindow()
 	routeName = Utils.formatSpecialCharacters(routeName)
 
 	form:createLabel(Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10)
-	local routeDropdown = form:createDropdown(RouteData.AvailableRoutes, 50, 30, 145, 30, routeName)
+	local routeDropdown = form:createDropdown(RouteData.AvailableRoutes, 50, 30, 145, 30, routeName, false)
 	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
 		local dropdownSelection = ExternalUI.BizForms.getText(routeDropdown)
 		local mapId
