@@ -423,7 +423,7 @@ function InfoScreen.openPokemonInfoWindow()
 			InfoScreen.infoLookup = pokemonId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
+		form:destroy()
 	end)
 end
 

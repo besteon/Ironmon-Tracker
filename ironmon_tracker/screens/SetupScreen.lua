@@ -412,7 +412,7 @@ function SetupScreen.openEditControlsWindow()
 		end
 	end)
 	form:createButton(Resources.AllScreens.Cancel, 320, offsetY + 5, function()
-		Utils.closeBizhawkForm(form)
+		form:destroy()
 	end)
 end
 
