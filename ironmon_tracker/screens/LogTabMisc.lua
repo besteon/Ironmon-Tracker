@@ -149,10 +149,8 @@ function LogTabMisc.refreshButtons()
 end
 
 function LogTabMisc.openRandomizerShareWindow()
-	local form = Utils.createBizhawkForm(Resources.LogOverlay.PromptShareSeedTitle, 515, 235)
-
+	local form = ExternalUI.BizForms.createForm(Resources.LogOverlay.PromptShareSeedTitle, 515, 235)
 	local newline = "\r\n"
-
 	local shareExport = {}
 	for _, button in ipairs(Utils.getSortedList(LogTabMisc.Buttons)) do
 		local infoString = string.format("%s %s", button:getText(), button:getValue())
@@ -161,12 +159,13 @@ function LogTabMisc.openRandomizerShareWindow()
 		end
 		table.insert(shareExport, infoString)
 	end
+	local multilineOutput = table.concat(shareExport, " " .. newline)
 
-	forms.label(form, Resources.LogOverlay.PromptShareSeedDesc, 9, 10, 495, 20)
-	forms.textbox(form, table.concat(shareExport, " " .. newline), 480, 120, nil, 10, 35, true, false, "Vertical")
-	forms.button(form, Resources.AllScreens.Close, function()
-		Utils.closeBizhawkForm(form)
-	end, 212, 165)
+	form:createLabel(Resources.LogOverlay.PromptShareSeedDesc, 9, 10)
+	form:createTextBox(multilineOutput, 10, 35, 480, 120, "", true, false, "Vertical")
+	form:createButton(Resources.AllScreens.Close, 212, 165, function()
+		form:destroy()
+	end)
 end
 
 -- USER INPUT FUNCTIONS

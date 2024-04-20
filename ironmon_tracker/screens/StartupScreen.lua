@@ -95,7 +95,7 @@ StartupScreen.Buttons = {
 }
 
 function StartupScreen.initialize()
-	StartupScreen.setPokemonIcon(Options["Startup Pokemon displayed"])
+	StartupScreen.setPokemonIcon(tostring(Options["Startup Pokemon displayed"]))
 
 	for _, button in pairs(StartupScreen.Buttons) do
 		if button.textColor == nil then
@@ -125,6 +125,7 @@ function StartupScreen.refreshButtons()
 	end
 end
 
+---@param displayOption string
 function StartupScreen.setPokemonIcon(displayOption)
 	local pokemonID = Utils.randomPokemonID()
 
@@ -156,7 +157,7 @@ function StartupScreen.setPokemonIcon(displayOption)
 end
 
 function StartupScreen.openChoosePokemonWindow()
-	local form = Utils.createBizhawkForm(Resources.StartupScreen.PromptChooseAPokemonTitle, 330, 145)
+	local form = ExternalUI.BizForms.createForm(Resources.StartupScreen.PromptChooseAPokemonTitle, 330, 145)
 
 	local dropdownOptions = {
 		string.format("-- %s", Resources.StartupScreen.PromptChooseAPokemonByAttempt),
@@ -169,13 +170,6 @@ function StartupScreen.openChoosePokemonWindow()
 		table.insert(allPokemon, opt)
 	end
 	table.insert(allPokemon, "...................................") -- A spacer to separate special options
-
-	forms.label(form,Resources.StartupScreen.PromptChooseAPokemonDesc, 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-
 	local initialChoice
 	if Options["Startup Pokemon displayed"] == Options.StartupIcon.attempts then
 		initialChoice = dropdownOptions[1]
@@ -186,32 +180,31 @@ function StartupScreen.openChoosePokemonWindow()
 	else
 		initialChoice = PokemonData.Pokemon[Options["Startup Pokemon displayed"] or "1"].name
 	end
-	forms.settext(pokedexDropdown, initialChoice)
 
-	forms.button(form, Resources.AllScreens.Save, function()
-		local optionSelected = forms.gettext(pokedexDropdown)
+	form:createLabel(Resources.StartupScreen.PromptChooseAPokemonDesc, 49, 10)
+	local pokedexDropdown = form:createDropdown(allPokemon, 50, 30, 145, 30, initialChoice)
 
-		if optionSelected == dropdownOptions[1] then
-			optionSelected = Options.StartupIcon.attempts
-		elseif optionSelected == dropdownOptions[2] then
-			optionSelected = Options.StartupIcon.random
-		elseif optionSelected == dropdownOptions[3] then
-			optionSelected = Options.StartupIcon.none
-		elseif optionSelected ~= "..................................." then
+	form:createButton(Resources.AllScreens.Save, 200, 29, function()
+		local choice = ExternalUI.BizForms.getText(pokedexDropdown)
+		if choice == dropdownOptions[1] then
+			choice = Options.StartupIcon.attempts
+		elseif choice == dropdownOptions[2] then
+			choice = Options.StartupIcon.random
+		elseif choice == dropdownOptions[3] then
+			choice = Options.StartupIcon.none
+		elseif choice ~= "..................................." then
 			-- The option is a Pokemon's name and needs to be convered to an ID
-			optionSelected = PokemonData.getIdFromName(optionSelected) or -1
+			choice = tostring(PokemonData.getIdFromName(choice) or -1)
 		end
-
-		StartupScreen.setPokemonIcon(optionSelected)
+		StartupScreen.setPokemonIcon(choice)
 		Program.redraw(true)
 		Main.SaveSettings(true)
+		form:destroy()
+	end)
 
-		Utils.closeBizhawkForm(form)
-	end, 200, 29)
-
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 120, 69)
+	form:createButton(Resources.AllScreens.Cancel, 120, 69, function()
+		form:destroy()
+	end)
 end
 
 -- USER INPUT FUNCTIONS

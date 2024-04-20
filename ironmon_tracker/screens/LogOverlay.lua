@@ -525,13 +525,10 @@ function LogOverlay.getLogFileFromPrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
-	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if Utils.isNilOrEmpty(filepath) then
-		filepath = nil
+	local filepath, success = ExternalUI.BizForms.openFilePrompt(suggestedFileName, workingDir, filterOptions)
+	if not success then
+		return nil
 	end
-	Utils.tempEnableBizhawkSound()
-
 	return filepath
 end
 

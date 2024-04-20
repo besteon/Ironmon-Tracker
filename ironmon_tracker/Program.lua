@@ -275,7 +275,6 @@ function Program.initialize()
 	Program.inStartMenu = false
 	Program.inCatchingTutorial = false
 	Program.hasCompletedTutorial = false
-	Program.activeFormId = 0
 	Program.lastActiveTimestamp = os.time()
 	Program.Frames.waitToDraw = 1
 	Program.Frames.highAccuracyUpdate = 0
@@ -377,10 +376,9 @@ function Program.goBackToPreviousScreen()
 	Program.redraw(true)
 end
 
+-- Deprecated
 function Program.destroyActiveForm()
-	if Program.activeFormId ~= nil and Program.activeFormId ~= 0 then
-		Utils.closeBizhawkForm(Program.activeFormId)
-	end
+	ExternalUI.BizForms.destroyForm()
 end
 
 function Program.update()

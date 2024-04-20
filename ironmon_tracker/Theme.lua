@@ -518,89 +518,80 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonImport, 515, 125)
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.ButtonImport, 515, 125)
 
-	forms.label(form, Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10, 300, 20)
-	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
-	forms.button(form, Resources.AllScreens.Import, function()
-		local formInput = forms.gettext(importTextBox)
-		if formInput ~= nil then
-			-- Check if the import was successful
-			local success = Theme.importThemeFromText(formInput, true)
-			if success then
-				Theme.refreshThemePreview()
-			else
-				print("Error importing Theme Config string:")
-				print(">> " .. formInput)
-				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
-			end
+	form:createLabel(Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10)
+	local importTextBox = form:createTextBox("", 10, 30, 480, 20)
+	form:createButton(Resources.AllScreens.Import, 212, 55, function()
+		local formInput = ExternalUI.BizForms.getText(importTextBox)
+		if Utils.isNilOrEmpty(formInput) then
+			return
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 55)
+		-- Check if the import was successful
+		local success = Theme.importThemeFromText(formInput, true)
+		if success then
+			Theme.refreshThemePreview()
+			form:destroy()
+		else
+			print("Error importing Theme Config string:")
+			print(">> " .. formInput)
+			Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
+		end
+	end)
 end
 
 function Theme.openExportWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonExport, 515, 150)
-
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.ButtonExport, 515, 150)
 	local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex]
-
 	local themeLabel = string.format("%s: %s", Resources.ThemeScreen.PromptThemeFor, themePreset:getText())
-	forms.label(form, themeLabel, 9, 10, 300, 20)
-	forms.label(form, Resources.ThemeScreen.PromptCopyThemeCode .. ":", 9, 30, 300, 20)
-	forms.textbox(form, themePreset.code or "", 480, 20, nil, 10, 55)
-	forms.button(form, Resources.AllScreens.Close, function()
-		Utils.closeBizhawkForm(form)
-	end, 212, 80)
+	form:createLabel(themeLabel, 9, 10)
+	form:createLabel(Resources.ThemeScreen.PromptCopyThemeCode .. ":", 9, 30)
+	form:createTextBox(themePreset.code or "", 10, 55, 480, 20)
+	form:createButton(Resources.AllScreens.Close, 212, 80, function()
+		form:destroy()
+	end)
 end
 
 function Theme.openPresetsWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.Title, 360, 105)
-
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.Title, 360, 105)
 	local themeNameList = {}
 	for _, themePreset in ipairs(Theme.Presets) do
 		table.insert(themeNameList, themePreset:getText())
 	end
 
-	forms.label(form, Resources.ThemeScreen.PromptSelectPreset .. ":", 49, 10, 250, 20)
-	local presetDropdown = forms.dropdown(form, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
-	forms.setdropdownitems(presetDropdown, themeNameList, false) -- Required to prevent alphabetizing the list
-	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
-
-	forms.button(form, Resources.AllScreens.Preview, function()
-		local themeName = forms.gettext(presetDropdown)
-
+	form:createLabel(Resources.ThemeScreen.PromptSelectPreset .. ":", 49, 10)
+	local dropdown = form:createDropdown(themeNameList, 50, 30, 145, 30, nil, false)
+	form:createButton(Resources.AllScreens.Preview, 212, 29, function()
+		local themeName = ExternalUI.BizForms.getText(dropdown)
 		for index, themePreset in ipairs(Theme.Presets) do
 			if themePreset:getText() == themeName then
 				Theme.Screen.currentPreviewIndex = index
 				break
 			end
 		end
-
 		local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex or Theme.PresetsIndex.ACTIVE]
 		Theme.refreshButtons()
 		Theme.Buttons.RemoveTheme:resetButtonToDefault()
 		Theme.importThemeFromText(themePreset.code, false)
-
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function Theme.openSaveCurrentThemeWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.PromptSaveAsTitle, 350, 145)
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.PromptSaveAsTitle, 350, 145)
 
-	forms.label(form, Resources.ThemeScreen.PromptEnterNameForTheme .. ":", 18, 10, 330, 20)
-	local saveTextBox = forms.textbox(form, "", 290, 30, nil, 20, 30)
-	forms.setproperty(saveTextBox, "MaxLength", 80)
+	form:createLabel(Resources.ThemeScreen.PromptEnterNameForTheme .. ":", 18, 10)
+	local nameTextbox = form:createTextBox("", 20, 30, 290, 30)
+	ExternalUI.BizForms.setProperty(nameTextbox, ExternalUI.BizForms.Properties.MAX_LENGTH, 80)
 
-	Theme.Manager.SaveNewWarning = forms.label(form, "", 18, 55, 330, 20)
-	forms.setproperty(Theme.Manager.SaveNewWarning, "ForeColor", "Red")
+	Theme.Manager.SaveNewWarning = form:createLabel("", 18, 55, 330, 20)
+	ExternalUI.BizForms.setProperty(Theme.Manager.SaveNewWarning, ExternalUI.BizForms.Properties.FORE_COLOR, "Red")
 
-	Theme.Manager.SaveNewConfirm = forms.button(form, Resources.AllScreens.Save, function()
+	Theme.Manager.SaveNewConfirm = form:createButton(Resources.AllScreens.Save, 91, 75, function()
 		-- Clear out warning texts
-		forms.settext(Theme.Manager.SaveNewWarning, "")
+		ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "")
 
-		local themeName = forms.gettext(saveTextBox)
+		local themeName = ExternalUI.BizForms.getText(nameTextbox)
 		if Utils.isNilOrEmpty(themeName) then
 			return
 		end
@@ -618,18 +609,18 @@ function Theme.openSaveCurrentThemeWindow()
 		-- Check a few conditions that would prevent the user from using a particular Theme name
 		if existingPresetIndex == Theme.PresetsIndex.ACTIVE or existingPresetIndex == Theme.PresetsIndex.DEFAULT then
 			-- Don't allow importing "Active Theme (Custom)" or "Default Theme" as that is reserved
-			forms.settext(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
-			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
 		elseif themeName:find("%x%x%x%x%x%x") then
 			-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
-			forms.settext(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
-			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
-		elseif existingPreset ~= nil and forms.gettext(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
+		elseif existingPreset ~= nil and ExternalUI.BizForms.getText(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
 			-- If the Theme name is already in use, warn the user first
-			forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
-			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
 			return
 		end
 		Theme.Manager.SaveNewWarning = nil
@@ -655,12 +646,11 @@ function Theme.openSaveCurrentThemeWindow()
 		-- Add the saved theme to the presets file and refresh
 		FileManager.addCustomThemeToFile(themeName, themeCode)
 		Theme.refreshThemePreview()
-
-		Utils.closeBizhawkForm(form)
-	end, 91, 75)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 176, 75)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 176, 75, function()
+		form:destroy()
+	end)
 end
 
 -- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist

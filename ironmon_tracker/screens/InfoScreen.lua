@@ -338,7 +338,7 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
@@ -348,15 +348,10 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	forms.label(form, Resources.InfoScreen.PromptLookupMove .. ":", 49, 10, 250, 20)
-	local moveDropdown = forms.dropdown(form, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
-	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
-	forms.setproperty(moveDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(moveDropdown, "AutoCompleteMode", "Append")
-	forms.settext(moveDropdown, moveName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local moveNameFromForm = forms.gettext(moveDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupMove .. ":", 49, 10)
+	local moveDropdown = form:createDropdown(allmovesData, 50, 30, 145, 30, moveName)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local moveNameFromForm = ExternalUI.BizForms.getText(moveDropdown)
 		local moveId
 
 		for id, data in pairs(MoveData.Moves) do
@@ -370,12 +365,12 @@ function InfoScreen.openMoveInfoWindow()
 			InfoScreen.infoLookup = moveId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.openAbilityInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
@@ -386,15 +381,10 @@ function InfoScreen.openAbilityInfoWindow()
 	local allAbilitiesData = {}
 	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
 
-	forms.label(form, Resources.InfoScreen.PromptLookupAbility .. ":", 49, 10, 250, 20)
-	local abilityDropdown = forms.dropdown(form, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
-	forms.setdropdownitems(abilityDropdown, allAbilitiesData, true) -- true = alphabetize the list
-	forms.setproperty(abilityDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(abilityDropdown, "AutoCompleteMode", "Append")
-	forms.settext(abilityDropdown, abilityName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local abilityNameFromForm = forms.gettext(abilityDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupAbility .. ":", 49, 10)
+	local abilityDropdown = form:createDropdown(allAbilitiesData, 50, 30, 145, 30, abilityName)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local abilityNameFromForm = ExternalUI.BizForms.getText(abilityDropdown)
 		local abilityId
 
 		for id, data in pairs(AbilityData.Abilities) do
@@ -408,12 +398,12 @@ function InfoScreen.openAbilityInfoWindow()
 			InfoScreen.infoLookup = abilityId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.openPokemonInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(InfoScreen.infoLookup) then -- infoLookup = pokemonID
@@ -423,40 +413,30 @@ function InfoScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(form, Resources.InfoScreen.PromptLookupPokemon .. ":", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-	forms.settext(pokedexDropdown, pokemonName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupPokemon .. ":", 49, 10)
+	local pokedexDropdown = form:createDropdown(pokedexData, 50, 30, 145, 30, pokemonName)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local pokemonNameFromForm = ExternalUI.BizForms.getText(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
 		if pokemonId ~= nil and pokemonId ~= 0 then
 			InfoScreen.infoLookup = pokemonId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.openRouteInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 	routeName = Utils.formatSpecialCharacters(routeName)
 
-	forms.label(form, Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10, 250, 20)
-	local routeDropdown = forms.dropdown(form, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
-	forms.setdropdownitems(routeDropdown, RouteData.AvailableRoutes, false) -- true = alphabetize the list
-	forms.setproperty(routeDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(routeDropdown, "AutoCompleteMode", "Append")
-	forms.settext(routeDropdown, routeName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local dropdownSelection = forms.gettext(routeDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10)
+	local routeDropdown = form:createDropdown(RouteData.AvailableRoutes, 50, 30, 145, 30, routeName, false)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local dropdownSelection = ExternalUI.BizForms.getText(routeDropdown)
 		local mapId
 
 		for id, data in pairs(RouteData.Info) do
@@ -479,8 +459,8 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)

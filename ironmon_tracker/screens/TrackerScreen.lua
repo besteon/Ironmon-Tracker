@@ -792,68 +792,61 @@ end
 function TrackerScreen.openNotePadWindow(pokemonId)
 	if not PokemonData.isValid(pokemonId) then return end
 
+	local BLANK = Constants.BLANKLINE
 	local pokemonName = PokemonData.Pokemon[pokemonId].name
-	local form = Utils.createBizhawkForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
+	local form = ExternalUI.BizForms.createForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
 
-	forms.label(form, string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10, 300, 20)
-	local noteTextBox = forms.textbox(form, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
+	form:createLabel(string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10)
+	local noteTextBox = form:createTextBox(Tracker.getNote(pokemonId), 10, 30, 430, 20)
+	form:createLabel(string.format("%s %s:", Resources.TrackerScreen.PromptNoteAbilityDesc, pokemonName), 9, 60)
 
 	local abilityList = {}
-	table.insert(abilityList, Constants.BLANKLINE)
+	table.insert(abilityList, BLANK)
 	abilityList = AbilityData.populateAbilityDropdown(abilityList)
 
-	forms.label(form, string.format("%s %s:", Resources.TrackerScreen.PromptNoteAbilityDesc, pokemonName), 9, 60, 220, 20)
-	local abilityOneDropdown = forms.dropdown(form, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
-	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
-	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(abilityOneDropdown, "AutoCompleteMode", "Append")
-	local abilityTwoDropdown = forms.dropdown(form, {["Init"]="Loading Ability2"}, 10, 110, 145, 30)
-	forms.setdropdownitems(abilityTwoDropdown, abilityList, true) -- true = alphabetize list
-	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
-
 	local trackedAbilities = Tracker.getAbilities(pokemonId)
-	local trackedAbility1 = trackedAbilities[1].id
-	local trackedAbility2 = trackedAbilities[2].id
-
-	if AbilityData.isValid(trackedAbility1) then
-		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbility1].name)
+	local trackedAbility1 = BLANK
+	local trackedAbility2 = BLANK
+	if AbilityData.isValid(trackedAbilities[1].id) then
+		trackedAbility1 = AbilityData.Abilities[trackedAbilities[1].id].name
 	end
-	if AbilityData.isValid(trackedAbility2) then
-		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbility2].name)
+	if AbilityData.isValid(trackedAbilities[2].id) then
+		trackedAbility2 = AbilityData.Abilities[trackedAbilities[2].id].name
 	end
+	local abilityOneDropdown = form:createDropdown(abilityList, 10, 80, 145, 30, trackedAbility1)
+	local abilityTwoDropdown = form:createDropdown(abilityList, 10, 110, 145, 30, trackedAbility2)
 
 	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
-	forms.button(form, saveAndClose, function()
-		local formInput = forms.gettext(noteTextBox)
+	form:createButton(saveAndClose, 80, 145, function()
+		local formInput = ExternalUI.BizForms.getText(noteTextBox)
 		if formInput ~= nil then
-			local abilityOneText = forms.gettext(abilityOneDropdown)
-			local abilityTwoText = forms.gettext(abilityTwoDropdown)
+			local abilityOneText = ExternalUI.BizForms.getText(abilityOneDropdown)
+			local abilityTwoText = ExternalUI.BizForms.getText(abilityTwoDropdown)
 			Tracker.TrackNote(pokemonId, formInput)
 			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 80, 145, 105, 25)
-	forms.button(form, Resources.TrackerScreen.PromptNoteClearAbilities, function()
-		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
-		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
-	end, 195, 145, 105, 25)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 310, 145, 55, 25)
+		form:destroy()
+	end)
+	form:createButton(Resources.TrackerScreen.PromptNoteClearAbilities, 195, 145, function()
+		ExternalUI.BizForms.setText(abilityOneDropdown, BLANK)
+		ExternalUI.BizForms.setText(abilityTwoDropdown, BLANK)
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 310, 145, function()
+		form:destroy()
+	end)
 end
 
 function TrackerScreen.openEditStepGoalWindow()
-	local form = Utils.createBizhawkForm(Resources.TrackerScreen.PromptStepsTitle, 350, 170)
+	local form = ExternalUI.BizForms.createForm(Resources.TrackerScreen.PromptStepsTitle, 350, 170)
+	local currentSteps = tostring(Program.Pedometer.goalSteps or 0)
 
-	forms.label(form, Resources.TrackerScreen.PromptStepsDesc1, 36, 10, 300, 20)
-	forms.label(form, string.format("[%s]", Resources.TrackerScreen.PromptStepsDesc2), 110, 28, 300, 20)
-	forms.label(form, Resources.TrackerScreen.PromptStepsEnterGoal, 58, 50, 300, 20)
-	local textBox = forms.textbox(form, (Program.Pedometer.goalSteps or 0), 200, 30, "UNSIGNED", 60, 70)
-
-	forms.button(form, Resources.AllScreens.Save, function()
-		local formInput = forms.gettext(textBox)
+	form:createLabel(Resources.TrackerScreen.PromptStepsDesc1, 36, 10)
+	form:createLabel(string.format("[%s]", Resources.TrackerScreen.PromptStepsDesc2), 110, 28)
+	form:createLabel(Resources.TrackerScreen.PromptStepsEnterGoal, 58, 50)
+	local textBox = form:createTextBox(currentSteps, 60, 70, 200, 30, "UNSIGNED", false, true)
+	form:createButton(Resources.AllScreens.Save, 82, 100, function()
+		local formInput = ExternalUI.BizForms.getText(textBox)
 		if not Utils.isNilOrEmpty(formInput) then
 			local newStepGoal = tonumber(formInput)
 			if newStepGoal ~= nil then
@@ -861,11 +854,11 @@ function TrackerScreen.openEditStepGoalWindow()
 				Program.redraw(true)
 			end
 		end
-		Utils.closeBizhawkForm(form)
-	end, 82, 100)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 167, 100)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 167, 100, function()
+		form:destroy()
+	end)
 end
 
 function TrackerScreen.randomlyChooseBall()
