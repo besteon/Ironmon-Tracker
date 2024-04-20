@@ -613,8 +613,8 @@ function Theme.openSaveCurrentThemeWindow()
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
 		elseif themeName:find("%x%x%x%x%x%x") then
-			-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
-			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
+			-- Don't allow six consectutive hexcode characters, as this screws with parsing it later
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectutive hexcode characters (0-9A-F)")
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
 		elseif existingPreset ~= nil and ExternalUI.BizForms.getText(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then

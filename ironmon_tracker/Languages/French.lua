@@ -1784,7 +1784,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
+			Description = "Endures attacks for two consectutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Metronome",
