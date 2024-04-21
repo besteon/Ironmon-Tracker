@@ -278,11 +278,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			else
 				move.type = MoveData.HIDDEN_POWER_NOT_SET
 			end
-			move.category = MoveData.TypeToCategory[move.type]
+			move.category = MoveData.getCategory(move.id, move.type)
 		elseif Options["Calculate variable damage"] then
 			if move.id == MoveData.Values.WeatherBallId then
 				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
-				move.category = MoveData.TypeToCategory[move.type]
+				move.category = MoveData.getCategory(move.id, move.type)
 			elseif move.id == MoveData.Values.LowKickId and Battle.inActiveBattle() and opposingPokemon ~= nil then
 				local targetWeight
 				if opposingPokemon.weight ~= nil then
@@ -480,7 +480,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 
 	if moveId == MoveData.Values.HiddenPowerId and Utils.pokemonHasMove(ownLeadPokemon, MoveData.Values.HiddenPowerId) then
 		data.m.type = Tracker.getHiddenPowerType(ownLeadPokemon)
-		data.m.category = MoveData.TypeToCategory[data.m.type]
+		data.m.category = MoveData.getCategory(moveId, data.m.type)
 		data.x.ownHasHiddenPower = true
 	end
 
@@ -488,7 +488,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	if hideSomeInfo then
 		if MoveData.IsRand.moveType then
 			data.m.type = PokemonData.Types.UNKNOWN
-			if data.m.category ~= MoveData.Categories.STATUS then
+			if data.m.category ~= MoveData.Categories.STATUS and not MoveData.IsRand.moveCategory then
 				data.m.category = Constants.HIDDEN_INFO
 			end
 		end

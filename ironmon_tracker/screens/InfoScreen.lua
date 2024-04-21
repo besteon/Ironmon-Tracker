@@ -830,7 +830,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	if LogOverlay.isDisplayed and RandomizerLog.Data.Moves[moveId] then
 		local moveLog = RandomizerLog.Data.Moves[moveId]
 		moveType = moveLog.type or PokemonData.Types.EMPTY
-		moveCategory = MoveData.TypeToCategory[moveType] or MoveData.Categories.NONE
+		moveCategory = MoveData.getCategory(moveId, moveType)
 		movePP = moveLog.pp ~= 0 and moveLog.pp or Constants.BLANKLINE
 		movePower = moveLog.power ~= 0 and moveLog.power or Constants.BLANKLINE
 		moveAcc = moveLog.acc ~= 0 and moveLog.acc or Constants.BLANKLINE
