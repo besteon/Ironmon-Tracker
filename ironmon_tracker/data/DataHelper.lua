@@ -116,7 +116,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	local targetInfo = Battle.getDoublesCursorTargetInfo()
 	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
-	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- currently used exclusively for Low Kick weight calcs
+	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- For Low Kick weight calcs and OHKO moves
 	local useOpenBookInfo = not data.x.viewingOwn and Options["Open Book Play Mode"]
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
@@ -293,6 +293,14 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 					targetWeight = 0
 				end
 				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
+			elseif MoveData.isOHKO(move.id) and Battle.inActiveBattle() and opposingPokemon ~= nil then
+				local levelDiff = viewedPokemon.level - opposingPokemon.level
+				if levelDiff > 0 then
+					local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+					move.accuracy = tostring(math.min(accAsNum + levelDiff, 100))
+				elseif levelDiff < 0 then
+					move.accuracy = "X " -- Ineffective against higher level pokemon
+				end
 			elseif data.x.viewingOwn then
 				if move.id == MoveData.Values.FlailId or move.id == MoveData.Values.ReversalId then
 					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)

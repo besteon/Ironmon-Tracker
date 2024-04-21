@@ -108,6 +108,13 @@ MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected b
 	["353"] = true, -- Doom Desire
 }
 
+MoveData.IsOHKOMove = {
+	[ "12"] = true, -- Guillotine
+	[ "32"] = true, -- Horn Drill
+	[ "90"] = true, -- Fissure
+	["329"] = true, -- Sheer Cold
+}
+
 function MoveData.initialize()
 	MoveData.buildData()
 end
@@ -220,6 +227,13 @@ end
 ---@return boolean
 function MoveData.isValid(moveId)
 	return moveId ~= nil and moveId >= 1 and moveId <= #MoveData.Moves
+end
+
+---Returns true if the move is a One-Hit KO move (i.e. Sheer Cold)
+---@param moveId number|string
+---@return boolean
+function MoveData.isOHKO(moveId)
+	return MoveData.IsOHKOMove[tostring(moveId)] ~= nil
 end
 
 MoveData.BlankMove = {
