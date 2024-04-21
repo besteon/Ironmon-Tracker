@@ -311,6 +311,7 @@ function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 
 	client.pause()
 	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
+	-- Create the form directly through Bizhawk and not ExternalUI, as it's possible that UI has not been loaded yet
 	local form = forms.newform(400, 150, formTitle, function() client.unpause() end)
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )

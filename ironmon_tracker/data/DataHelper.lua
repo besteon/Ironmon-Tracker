@@ -116,7 +116,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	local targetInfo = Battle.getDoublesCursorTargetInfo()
 	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
-	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- currently used exclusively for Low Kick weight calcs
+	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- For Low Kick weight calcs and OHKO moves
 	local useOpenBookInfo = not data.x.viewingOwn and Options["Open Book Play Mode"]
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
@@ -278,11 +278,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			else
 				move.type = MoveData.HIDDEN_POWER_NOT_SET
 			end
-			move.category = MoveData.TypeToCategory[move.type]
+			move.category = MoveData.getCategory(move.id, move.type)
 		elseif Options["Calculate variable damage"] then
 			if move.id == MoveData.Values.WeatherBallId then
 				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
-				move.category = MoveData.TypeToCategory[move.type]
+				move.category = MoveData.getCategory(move.id, move.type)
 			elseif move.id == MoveData.Values.LowKickId and Battle.inActiveBattle() and opposingPokemon ~= nil then
 				local targetWeight
 				if opposingPokemon.weight ~= nil then
@@ -293,6 +293,14 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 					targetWeight = 0
 				end
 				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
+			elseif MoveData.isOHKO(move.id) and Battle.inActiveBattle() and opposingPokemon ~= nil then
+				local levelDiff = viewedPokemon.level - opposingPokemon.level
+				if levelDiff > 0 then
+					local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+					move.accuracy = tostring(math.min(accAsNum + levelDiff, 100))
+				elseif levelDiff < 0 then
+					move.accuracy = "X " -- Ineffective against higher level pokemon
+				end
 			elseif data.x.viewingOwn then
 				if move.id == MoveData.Values.FlailId or move.id == MoveData.Values.ReversalId then
 					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
@@ -472,7 +480,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 
 	if moveId == MoveData.Values.HiddenPowerId and Utils.pokemonHasMove(ownLeadPokemon, MoveData.Values.HiddenPowerId) then
 		data.m.type = Tracker.getHiddenPowerType(ownLeadPokemon)
-		data.m.category = MoveData.TypeToCategory[data.m.type]
+		data.m.category = MoveData.getCategory(moveId, data.m.type)
 		data.x.ownHasHiddenPower = true
 	end
 
@@ -480,7 +488,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	if hideSomeInfo then
 		if MoveData.IsRand.moveType then
 			data.m.type = PokemonData.Types.UNKNOWN
-			if data.m.category ~= MoveData.Categories.STATUS then
+			if data.m.category ~= MoveData.Categories.STATUS and not MoveData.IsRand.moveCategory then
 				data.m.category = Constants.HIDDEN_INFO
 			end
 		end

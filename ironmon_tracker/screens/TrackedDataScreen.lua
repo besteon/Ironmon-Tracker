@@ -115,27 +115,25 @@ function TrackedDataScreen.refreshButtons()
 end
 
 function TrackedDataScreen.openSaveDataPrompt()
-	local form = Utils.createBizhawkForm(Resources.TrackedDataScreen.PromptHeaderSave, 290, 130)
-
+	local form = ExternalUI.BizForms.createForm(Resources.TrackedDataScreen.PromptHeaderSave, 290, 130)
 	local suggestedFileName = GameSettings.getRomName() or ""
-
 	local enterFilename = string.format("%s:", Resources.TrackedDataScreen.PromptEnterFilename)
-	forms.label(form, enterFilename, 18, 10, 300, 20)
-	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
-	forms.label(form, ".TDAT", 219, 32, 45, 20)
-	forms.button(form, Resources.TrackedDataScreen.ButtonSaveData, function()
-		local formInput = forms.gettext(saveTextBox)
+	form:createLabel(enterFilename, 18, 10)
+	local nameTextbox = form:createTextBox(suggestedFileName, 20, 30, 200, 30)
+	form:createLabel(".TDAT", 219, 32)
+	form:createButton(Resources.TrackedDataScreen.ButtonSaveData, 55, 60, function()
+		local formInput = ExternalUI.BizForms.getText(nameTextbox)
 		if not Utils.isNilOrEmpty(formInput) then
 			if formInput:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				formInput = formInput .. FileManager.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(formInput)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 55, 60)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 140, 60)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 140, 60, function()
+		form:destroy()
+	end)
 end
 
 function TrackedDataScreen.openLoadDataPrompt()
@@ -147,10 +145,8 @@ function TrackedDataScreen.openLoadDataPrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
-	Utils.tempDisableBizhawkSound()
-
-	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if not Utils.isNilOrEmpty(filepath) then
+	local filepath, success = ExternalUI.BizForms.openFilePrompt(suggestedFileName, workingDir, filterOptions)
+	if success then
 		local playtime = Tracker.Data.playtime
 		local loadStatus = Tracker.loadData(filepath, true)
 		Tracker.Data.playtime = playtime
@@ -166,8 +162,6 @@ function TrackedDataScreen.openLoadDataPrompt()
 			print("> " .. filepath)
 		end
 	end
-
-	Utils.tempEnableBizhawkSound()
 end
 
 -- USER INPUT FUNCTIONS

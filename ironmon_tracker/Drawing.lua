@@ -14,19 +14,18 @@ Drawing.AnimatedPokemon = {
 	TRANSPARENCY_COLOR = "Magenta",
 	POPUP_WIDTH = 250,
 	POPUP_HEIGHT = 250,
-	show = function(self) forms.setproperty(self.pictureBox, "Visible", true) end,
-	hide = function(self) forms.setproperty(self.pictureBox, "Visible", false) end,
+	show = function(self) ExternalUI.BizForms.setProperty(self.pictureBox, ExternalUI.BizForms.Properties.VISIBLE, true) end,
+	hide = function(self) ExternalUI.BizForms.setProperty(self.pictureBox, ExternalUI.BizForms.Properties.VISIBLE, false) end,
 	create = function(self) Drawing.setupAnimatedPictureBox() end,
 	destroy = function(self)
-		if self.formWindow and self.formWindow ~= 0 then
-			forms.destroy(self.formWindow)
-			self.formWindow = 0
+		if self.formWindow then
+			self.formWindow:destroy()
 		end
 	end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
-	isVisible = function(self) return self.formWindow and self.formWindow ~= 0 end,
-	formWindow = 0,
+	isVisible = function(self) return self.formWindow ~= nil end,
+	formWindow = nil,
 	pictureBox = 0,
 	addonMissing = 0,
 	pokemonID = 0,
@@ -666,27 +665,40 @@ function Drawing.setupAnimatedPictureBox()
 
 	Drawing.AnimatedPokemon:destroy()
 
-	local form = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon")
-	forms.setproperty(form, "AllowTransparency", true)
-	forms.setproperty(form, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
-	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
+
+	local form = ExternalUI.IBizhawkForm:new({
+		Title = "Animated Pokemon",
+		Width = Drawing.AnimatedPokemon.POPUP_WIDTH,
+		Height = Drawing.AnimatedPokemon.POPUP_HEIGHT,
+		X = 1,
+		Y = Constants.SCREEN.HEIGHT + bottomAreaPadding,
+		BlockInput = false,
+	})
+	-- Create the form directly through Bizhawk and not ExternalUI, to allow it as an additional popup window
+	form.ControlId = forms.newform(form.Width, form.Height, form.Title)
+	ExternalUI.BizForms.setWindowLocation(form, form.X, form.Y)
+
+	ExternalUI.BizForms.setProperty(form.ControlId, ExternalUI.BizForms.Properties.ALLOW_TRANSPARENCY, true)
+	ExternalUI.BizForms.setProperty(form.ControlId, ExternalUI.BizForms.Properties.BACK_COLOR, Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	ExternalUI.BizForms.setProperty(form.ControlId, ExternalUI.BizForms.Properties.TRANSPARENCY_KEY, Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		local property = "BlocksInputWhenFocused"
-		if not Utils.isNilOrEmpty(forms.getproperty(form, property)) then
-			forms.setproperty(form, property, true)
+		local property = ExternalUI.BizForms.Properties.BLOCK_INPUT
+		if not Utils.isNilOrEmpty(ExternalUI.BizForms.getProperty(form.ControlId, property)) then
+			ExternalUI.BizForms.setProperty(form.ControlId, property, form.BlockInput)
 		end
 	end
 
-	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
-	Utils.setFormLocation(form, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
+	-- This gets resized later
+	local pictureBox = form:createPictureBox(1, 1, 1, 1)
+	-- The PictureBox is sized equal to the size of the image that it contains.
+	ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.AUTO_SIZE, 2)
+	ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.VISIBLE, false)
 
-	local pictureBox = forms.pictureBox(form, 1, 1, 1, 1) -- This gets resized later
-	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.
-	forms.setproperty(pictureBox, "Visible", false)
-
-	local addonMissing = forms.label(form, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
-	forms.setproperty(addonMissing, "BackColor", "White")
-	forms.setproperty(addonMissing, "Visible", false)
+	local addonText = "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info."
+	local addonMissing = form:createLabel(addonText, 25, 55, 185, 90)
+	ExternalUI.BizForms.setProperty(addonMissing, ExternalUI.BizForms.Properties.BACK_COLOR, "White")
+	ExternalUI.BizForms.setProperty(addonMissing, ExternalUI.BizForms.Properties.VISIBLE, false)
 
 	Drawing.AnimatedPokemon.formWindow = form
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
@@ -723,16 +735,16 @@ function Drawing.setAnimatedPokemon(pokemonID)
 		if fileExists then
 			-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
 			local pictureBox = Drawing.AnimatedPokemon.pictureBox
-			forms.setproperty(pictureBox, "Visible", false)
-			forms.setproperty(pictureBox, "ImageLocation", "")
-			forms.setproperty(pictureBox, "Left", 1)
-			forms.setproperty(pictureBox, "Top", 1)
-			forms.setproperty(pictureBox, "Width", 1)
-			forms.setproperty(pictureBox, "Height", 1)
-			forms.setproperty(pictureBox, "ImageLocation", imagePath)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.VISIBLE, false)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.IMAGE_LOCATION, "")
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.LEFT, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.TOP, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.WIDTH, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.HEIGHT, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.IMAGE_LOCATION, imagePath)
 			Drawing.AnimatedPokemon.requiresRelocating = true
 		end
-		forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
+		ExternalUI.BizForms.setProperty(Drawing.AnimatedPokemon.addonMissing, ExternalUI.BizForms.Properties.VISIBLE, not fileExists)
 	elseif fileExists then
 		-- For mGBA, duplicate the image file so it can be rendered by external programs
 		local animatedImageFile = FileManager.prependDir(FileManager.Files.Other.ANIMATED_POKEMON)
@@ -747,9 +759,9 @@ function Drawing.relocateAnimatedPokemon()
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
 	-- If the image is the same, then attempt to relocate it based on it's height
-	local imageY = tonumber(forms.getproperty(pictureBox, "Top"))
-	local imageHeight = tonumber(forms.getproperty(pictureBox, "Height"))
-	local imageWidth = tonumber(forms.getproperty(pictureBox, "Width"))
+	local imageY = tonumber(ExternalUI.BizForms.getProperty(pictureBox, ExternalUI.BizForms.Properties.TOP))
+	local imageHeight = tonumber(ExternalUI.BizForms.getProperty(pictureBox, ExternalUI.BizForms.Properties.HEIGHT))
+	local imageWidth = tonumber(ExternalUI.BizForms.getProperty(pictureBox, ExternalUI.BizForms.Properties.WIDTH))
 
 	-- Only relocate exactly once, 1=starting height of the box
 	if imageY ~= nil and imageHeight ~= nil then
@@ -758,9 +770,9 @@ function Drawing.relocateAnimatedPokemon()
 
 		-- If picture box hasn't been relocated yet, move it such that it's drawn from the bottom up
 		if bottomUpY ~= imageY then
-			forms.setproperty(pictureBox, "Top", bottomUpY)
-			forms.setproperty(pictureBox, "Left", leftRightX)
-			forms.setproperty(pictureBox, "Visible", true)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.TOP, bottomUpY)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.LEFT, leftRightX)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.VISIBLE, true)
 			Drawing.AnimatedPokemon.requiresRelocating = (imageHeight == 1) -- Keep updating until the height is known
 		end
 	end

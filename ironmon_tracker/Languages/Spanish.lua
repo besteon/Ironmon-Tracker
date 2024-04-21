@@ -287,11 +287,15 @@ ScreenResources{
 		ButtonImport = "Import theme", -- NEEDS TRANSLATION
 		ButtonExport = "Export theme", -- NEEDS TRANSLATION
 		PromptEnterThemeCode = "Enter a theme code string to import (Ctrl+V to paste)", -- NEEDS TRANSLATION
+		PromptImportError = "Error importing: Invalid theme code.", -- NEEDS TRANSLATION
 		PromptThemeFor = "Theme for", -- NEEDS TRANSLATION
 		PromptCopyThemeCode = "Copy the theme code below (Ctrl+C)", -- NEEDS TRANSLATION
 		PromptSelectPreset = "Select a Theme preset to preview", -- NEEDS TRANSLATION
 		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
 		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
+		PromptCantUseReserved = "Cannot use a reserved Theme name.", -- NEEDS TRANSLATION
+		PromptCantUseConsectutiveChars = "Name cannot have 6 consectutive hexcode characters (0-9A-F)", -- NEEDS TRANSLATION
+		PromptNameAlreadyInUse = "A Theme with that name already exists. Overwrite?", -- NEEDS TRANSLATION
 		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
 		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
 		OptionTextShadows = "Text shadows", -- NEEDS TRANSLATION
@@ -687,6 +691,9 @@ ScreenResources{
 		StatusConnTypeWebSockets = "WebSockets",
 		StatusConnTypeHttp = "Http",
 		OptionAutoConnectStartup = "Auto-connect on startup",
+		PromptUpdateTitle = "Streamerbot Update Required",
+		PromptUpdateDesc1 = "Streamerbot Tracker Integration code requires an update.",
+		PromptUpdateDesc2 = "You must re-import the code to continue using Stream Connect.",
 		PromptNetworkShowMe = "Show Me",
 		PromptNetworkTurnOff = "Turn Off Stream Connect",
 		PromptDefault = "Default",
@@ -1784,7 +1791,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
+			Description = "Endures attacks for two consectutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Metronome",

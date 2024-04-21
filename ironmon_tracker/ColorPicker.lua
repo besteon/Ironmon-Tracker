@@ -7,8 +7,8 @@ function ColorPicker.new(colorkey)
 	self.width = 220
 	self.height = 330
 
-	self.xPos = client.xpos() + client.screenwidth() / 2 - self.width / 2
-	self.yPos = client.ypos() + client.screenheight() / 2 - self.height / 2
+	self.xPos = 150
+	self.yPos = 10
 
 	self.circleRadius = 75
 	self.circleCenter = {85,85}
@@ -21,11 +21,8 @@ function ColorPicker.new(colorkey)
 	self.green = 0
 	self.blue = 0
 
-	self.mainForm = nil
 	self.mainCanvas = nil
 	self.colorTextBox = nil
-	self.saveButton = nil
-	self.cancelButton = nil
 
 	self.valueSliderY = 10
 	self.ellipsesPos = {85,85}
@@ -57,7 +54,7 @@ function ColorPicker:initializeColorWheelSlider()
 	self:HEX_to_RGB(colorText)
 	self:RGB_to_HSL()
 	self:convertHSVtoColorPicker()
-	forms.settext(self.colorTextBox,string.sub(colorText,3))
+	ExternalUI.BizForms.setText(self.colorTextBox, string.sub(colorText, 3))
 end
 
 function ColorPicker:setColor()
@@ -79,7 +76,7 @@ end
 
 function ColorPicker:updateCirclePreview()
 	local circleCenter = self.circleCenter
-	local clickPos = {forms.getMouseX(self.mainCanvas),forms.getMouseY(self.mainCanvas)}
+	local clickPos = {forms.getMouseX(self.mainCanvas), forms.getMouseY(self.mainCanvas)}
 	local x,y = clickPos[1],clickPos[2]
 	local distanceToRadius = ColorPicker.distance(clickPos,circleCenter)
 	if distanceToRadius > self.circleRadius then
@@ -103,14 +100,14 @@ function ColorPicker:updateCirclePreview()
 			self.val = 50
 		end
 		self:setColor()
-		forms.settext(self.colorTextBox,string.sub(self.color,5))
+		ExternalUI.BizForms.setText(self.colorTextBox, string.sub(self.color, 5))
 		self.ellipsesPos = {x,y}
 		self:drawMainCanvas()
 	end
 end
 
 function ColorPicker:updateVSlider()
-	local clickPos = {forms.getMouseX(self.mainCanvas),forms.getMouseY(self.mainCanvas)}
+	local clickPos = {forms.getMouseX(self.mainCanvas), forms.getMouseY(self.mainCanvas)}
 	local y = clickPos[2]
 	y = math.min(160,y)
 	y = math.max(10,y)
@@ -118,7 +115,7 @@ function ColorPicker:updateVSlider()
 	local val = 100-((y-10)/150 * 100)
 	self.val = val
 	self:setColor()
-	forms.settext(self.colorTextBox,string.sub(self.color,5))
+	ExternalUI.BizForms.setText(self.colorTextBox, string.sub(self.color, 5))
 	self:drawMainCanvas()
 end
 
@@ -133,7 +130,6 @@ function ColorPicker:drawMainCanvas()
 	local sliderX = 178
 	local sliderY = self.valueSliderY
 	forms.drawRectangle(self.mainCanvas,sliderX,sliderY,14,4,nil,nil)
-
 	forms.drawRectangle(self.mainCanvas,15,173,30,30,nil,tonumber(self.color))
 
 	local colorResourceKeys = {
@@ -152,7 +148,6 @@ function ColorPicker:drawMainCanvas()
 
 	local colorKeyLabel = Resources.ThemeScreen[colorResourceKeys[self.colorkey] or ""] or "???"
 	forms.drawText(self.mainCanvas,50,179,colorKeyLabel,Drawing.Colors.WHITE,0x00000000,14,"Arial")
-
 	local hexLabel = string.format("%s:", Resources.ThemeScreen.PromptColorPickerHexColor)
 	forms.drawText(self.mainCanvas,14,221,hexLabel,Drawing.Colors.WHITE,0x00000000,14,"Arial")
 
@@ -162,23 +157,30 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
-	local closeFormFunc = function()
-		Utils.closeBizhawkForm(self.mainForm)
+	local tryClose = function()
 		self:onClose()
 	end
-	self.mainForm = Utils.createBizhawkForm(Resources.ThemeScreen.PromptColorPickerTitle, self.width, self.height, 0, 0, closeFormFunc)
-	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
+	local title = Resources.ThemeScreen.PromptColorPickerTitle
+	local form = ExternalUI.BizForms.createForm(title, self.width, self.height, self.xPos, self.yPos, tryClose)
+	self.colorTextBox = form:createTextBox("", 90, 218, 65, 10, "HEX", false, true)
 	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
-	self.saveButton = forms.button(self.mainForm,saveAndClose, function() self:onSave() end,15,250,95,30)
-	self.cancelButton = forms.button(self.mainForm,Resources.AllScreens.Cancel, closeFormFunc,125,250,65,30)
-	self.mainCanvas = forms.pictureBox(self.mainForm,0,0,250,300)
-	forms.setlocation(self.mainForm,self.xPos,self.yPos)
+	form:createButton(saveAndClose, 15, 250, function()
+		self:onSave()
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 125, 250, function()
+		self:onClose()
+		form:destroy()
+	end)
+	self.mainCanvas = form:createPictureBox(0, 0, 250, 300)
 
 	self:initializeColorWheelSlider()
 	self:drawMainCanvas()
 
 	-- Required when Bizhawk configuration is set to pause the game when any menu opens, blocks mouse inputs
-	client.unpause()
+	if Main.IsOnBizhawk() then
+		client.unpause()
+	end
 
 	-- Changes the tracker screen back to the main screen so you can see theme updates live
 	Program.changeScreenView(TrackerScreen)
@@ -191,8 +193,6 @@ end
 function ColorPicker:onSave()
 	-- Save the color from the colorpicker over the theme's original color, then close then window
 	self.originalColor = self.color
-	Utils.closeBizhawkForm(self.mainForm)
-	self:onClose()
 end
 
 function ColorPicker:onClose()
@@ -204,7 +204,7 @@ end
 
 function ColorPicker:handleInput()
 	if not self.draggingColor and not self.draggingValueSlider then
-		local colorText = forms.gettext(self.colorTextBox)
+		local colorText = ExternalUI.BizForms.getText(self.colorTextBox)
 		if #colorText == 6 then
 			self.color = "0xFF"..colorText
 			self:HEX_to_RGB(colorText)
@@ -220,7 +220,7 @@ function ColorPicker:handleInput()
 		elseif self.draggingValueSlider then
 			self:updateVSlider()
 		else
-			local clickPos = {forms.getMouseX(self.mainCanvas),forms.getMouseY(self.mainCanvas)}
+			local clickPos = {forms.getMouseX(self.mainCanvas), forms.getMouseY(self.mainCanvas)}
 			if not self.draggingColor then
 				local distanceToCenter = ColorPicker.distance(clickPos,self.circleCenter)
 				if distanceToCenter >= 0 and distanceToCenter <= self.circleRadius then

@@ -2,6 +2,7 @@ GameSettings = {}
 
 GameSettings.RomHackSupport = {
 	NatDex = true, -- Support for Nat. Dex added as of v8.5.0
+	PhysSpecSplit = true, -- Support for Moves having the Physical/Special split
 }
 
 GameSettings.ABILITIES = {}
