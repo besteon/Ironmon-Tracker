@@ -326,11 +326,11 @@ function Network.getStreamerbotCode()
 end
 
 function Network.openUpdateRequiredPrompt()
-	local form = ExternalUI.BizForms.createForm("Streamerbot Update Required", 350, 150)
+	local form = ExternalUI.BizForms.createForm(Resources.StreamConnect.PromptUpdateTitle, 350, 150)
 	local x, y, lineHeight = 20, 20, 20
-	form:createLabel(string.format("Streamerbot Tracker Integration code requires an update."), x, y)
+	form:createLabel(Resources.StreamConnect.PromptUpdateDesc1, x, y)
 	y = y + lineHeight
-	form:createLabel(string.format("You must re-import the code to continue using Stream Connect."), x, y)
+	form:createLabel(Resources.StreamConnect.PromptUpdateDesc2, x, y)
 	y = y + lineHeight
 	-- Bottom row buttons
 	y = y + 10

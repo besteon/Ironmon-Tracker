@@ -533,9 +533,8 @@ function Theme.openImportWindow()
 			Theme.refreshThemePreview()
 			form:destroy()
 		else
-			print("Error importing Theme Config string:")
-			print(">> " .. formInput)
-			Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
+			local errorMsg = string.format("%s\n\n%s", Resources.ThemeScreen.PromptImportError, formInput)
+			Main.DisplayError(errorMsg)
 		end
 	end)
 end
@@ -609,17 +608,17 @@ function Theme.openSaveCurrentThemeWindow()
 		-- Check a few conditions that would prevent the user from using a particular Theme name
 		if existingPresetIndex == Theme.PresetsIndex.ACTIVE or existingPresetIndex == Theme.PresetsIndex.DEFAULT then
 			-- Don't allow importing "Active Theme (Custom)" or "Default Theme" as that is reserved
-			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptCantUseReserved)
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
 		elseif themeName:find("%x%x%x%x%x%x") then
 			-- Don't allow six consectutive hexcode characters, as this screws with parsing it later
-			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectutive hexcode characters (0-9A-F)")
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptCantUseConsectutiveChars)
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
 		elseif existingPreset ~= nil and ExternalUI.BizForms.getText(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
 			-- If the Theme name is already in use, warn the user first
-			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptNameAlreadyInUse)
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
 			return
 		end
