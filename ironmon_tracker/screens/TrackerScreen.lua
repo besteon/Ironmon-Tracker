@@ -29,8 +29,17 @@ TrackerScreen.Buttons = {
 		iconColors = { "Intermediate text" },
 		isHighlighted = true,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 84, Constants.SCREEN.MARGIN + 10, 12, 12 },
-		isVisible = function(self) return (Tracker.getViewedPokemon() or {}).isShiny end,
+		isVisible = function(self)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			return pokemon.isShiny or (pokemon.hasPokerus and Battle.isViewingOwn)
+		end,
 		updateSelf = function(self)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			if pokemon.isShiny and self.image ~= Constants.PixelImages.SPARKLES then
+				self.image = Constants.PixelImages.SPARKLES
+			elseif pokemon.hasPokerus and self.image ~= Constants.PixelImages.VIRUS then
+				self.image = Constants.PixelImages.VIRUS
+			end
 			self.iconColors[1] = self.isHighlighted and "Intermediate text" or "Default text"
 		end,
 		onClick = function(self)
