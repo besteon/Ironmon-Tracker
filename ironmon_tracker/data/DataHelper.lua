@@ -1048,7 +1048,7 @@ function DataHelper.EventRequests.getRoute(params)
 	end
 	-- If option keywords were removed, trim any whitespace
 	if option then
-		-- Removes duplicate, consectutive whitespaces, and leading/trailer whitespaces
+		-- Removes duplicate, consecutive whitespaces, and leading/trailer whitespaces
 		paramsLower = ((paramsLower:gsub("(%s)%s+", "%1")):gsub("^%s*(.-)%s*$", "%1"))
 	end
 

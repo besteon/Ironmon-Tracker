@@ -294,7 +294,7 @@ ScreenResources{
 		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
 		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
 		PromptCantUseReserved = "Cannot use a reserved Theme name.", -- NEEDS TRANSLATION
-		PromptCantUseConsectutiveChars = "Name cannot have 6 consectutive hexcode characters (0-9A-F)", -- NEEDS TRANSLATION
+		PromptCantUseConsecutiveChars = "Name cannot have 6 consecutive hexcode characters (0-9A-F)", -- NEEDS TRANSLATION
 		PromptNameAlreadyInUse = "A Theme with that name already exists. Overwrite?", -- NEEDS TRANSLATION
 		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
 		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
@@ -1791,7 +1791,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consectutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
+			Description = "Endures attacks for two consecutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Metronome",
