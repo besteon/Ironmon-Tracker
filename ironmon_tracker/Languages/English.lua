@@ -294,7 +294,7 @@ ScreenResources{
 		PromptSaveAsTitle = "Save Theme As",
 		PromptEnterNameForTheme = "Enter a name for this Theme",
 		PromptCantUseReserved = "Cannot use a reserved Theme name.",
-		PromptCantUseConsectutiveChars = "Name cannot have 6 consectutive hexcode characters (0-9A-F)",
+		PromptCantUseConsecutiveChars = "Name cannot have 6 consecutive hexcode characters (0-9A-F)",
 		PromptNameAlreadyInUse = "A Theme with that name already exists. Overwrite?",
 		OptionColorStatNumber = "Color stat numbers by nature ",
 		OptionColorBar = "Show color bar for move types",
@@ -555,6 +555,7 @@ ScreenResources{
 		LabelRandomSeed = "Random Seed",
 		LabelSettingsString = "Settings String",
 		ButtonShareSeed = "Share Seed",
+		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs",
 		CheckboxShowPreEvolutions = "Show Pre Evolutions",
 		CheckboxCustomTrainerNames = "Custom Trainer Names",
 		CheckboxOpenBookMode = "Open Book Play Mode",
@@ -2204,7 +2205,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consectutive turns. Deals damage equal to twice the damage received.",
+			Description = "Endures attacks for two consecutive turns. Deals damage equal to twice the damage received.",
 		},
 		{
 			NameKey = "Metronome",
