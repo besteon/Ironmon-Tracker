@@ -258,22 +258,19 @@ function QuickloadScreen.verifyOptions()
 end
 
 function QuickloadScreen.handleSetRomFolder(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
-
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT A ROM", path, filterOptions)
-	if not Utils.isNilOrEmpty(file) then
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", knownpath, filterOptions)
+	if success then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
-		file = file:sub(0, (file:match(pattern) or 1) - 1)
+		filepath = filepath:sub(0, (filepath:match(pattern) or 1) - 1)
 
-		if Utils.isNilOrEmpty(file) then
+		if Utils.isNilOrEmpty(filepath) then
 			Options.FILES[button.optionKey] = ""
 			button.isSet = false
 		else
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
@@ -281,74 +278,60 @@ function QuickloadScreen.handleSetRomFolder(button)
 
 		Main.SaveSettings(true)
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetRandomizerJar(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
-
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT JAR", path, filterOptions)
-	if not Utils.isNilOrEmpty(file) then
-		local extension = FileManager.extractFileExtensionFromPath(file)
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT JAR", knownpath, filterOptions)
+	if success then
+		local extension = FileManager.extractFileExtensionFromPath(filepath)
 		if extension == "jar" then
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			Main.SaveSettings(true)
 		else
 			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
 		end
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetSourceRom(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
-
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT A ROM", path, filterOptions)
-	if not Utils.isNilOrEmpty(file) then
-		local extension = FileManager.extractFileExtensionFromPath(file)
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", knownpath, filterOptions)
+	if success then
+		local extension = FileManager.extractFileExtensionFromPath(filepath)
 		if extension == "gba" then
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			Main.SaveSettings(true)
 		else
 			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
 		end
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetCustomSettings(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 
 	-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
-	if Utils.isNilOrEmpty(path) or not FileManager.fileExists(path) then
-		path = FileManager.getRandomizerSettingsPath()
+	if Utils.isNilOrEmpty(knownpath) or not FileManager.fileExists(knownpath) then
+		knownpath = FileManager.getRandomizerSettingsPath()
 	end
 
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT RNQS", path, filterOptions)
-	if not Utils.isNilOrEmpty(file) then
-		local extension = FileManager.extractFileExtensionFromPath(file)
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT RNQS", knownpath, filterOptions)
+	if success then
+		local extension = FileManager.extractFileExtensionFromPath(filepath)
 		if extension == "rnqs" then
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice or force-create a new one if it doesn't exist
 			Main.ReadAttemptsCount(true)
@@ -357,10 +340,8 @@ function QuickloadScreen.handleSetCustomSettings(button)
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 -- USER INPUT FUNCTIONS

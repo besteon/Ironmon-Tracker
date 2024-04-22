@@ -47,6 +47,7 @@ Options = {
 	["Enable crash recovery"] = true,
 	["Enable custom extensions"] = true,
 	["Show Team View"] = false,
+	["Show unlearnable Gym TMs"] = true,
 	["Show Pre Evolutions"] = false,
 	["Use Custom Trainer Names"] = false,
 	["Open Book Play Mode"] = false,

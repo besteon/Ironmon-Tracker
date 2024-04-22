@@ -129,12 +129,12 @@ function StreamerScreen.refreshButtons()
 end
 
 function StreamerScreen.openEditAttemptsWindow()
-	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptEditAttemptsTitle, 320, 130)
+	local form = ExternalUI.BizForms.createForm(Resources.StreamerScreen.PromptEditAttemptsTitle, 320, 130)
 
-	forms.label(form, Resources.StreamerScreen.PromptEditAttemptsDesc, 48, 10, 300, 20)
-	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
-	forms.button(form, Resources.AllScreens.Save, function()
-		local formInput = forms.gettext(textBox)
+	form:createLabel(Resources.StreamerScreen.PromptEditAttemptsDesc, 48, 10)
+	local textBox = form:createTextBox(tostring(Main.currentSeed), 50, 30, 200, 30, "UNSIGNED", false, true)
+	form:createButton(Resources.AllScreens.Save, 72, 60, function()
+		local formInput = ExternalUI.BizForms.getText(textBox)
 		if not Utils.isNilOrEmpty(formInput) then
 			local newAttemptsCount = tonumber(formInput)
 			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
@@ -143,37 +143,34 @@ function StreamerScreen.openEditAttemptsWindow()
 				Program.redraw(true)
 			end
 		end
-		Utils.closeBizhawkForm(form)
-	end, 72, 60)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 157, 60)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 157, 60, function()
+		form:destroy()
+	end)
 end
 
 function StreamerScreen.openEditWelcomeMessageWindow()
-	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptEditWelcomeTitle, 515, 235)
+	local form = ExternalUI.BizForms.createForm(Resources.StreamerScreen.PromptEditWelcomeTitle, 515, 235)
 
 	local welcomeMsg = Utils.formatSpecialCharacters(Options["Welcome message"])
 	welcomeMsg = Utils.encodeDecodeForSettingsIni(welcomeMsg, false)
 
-	forms.label(form, Resources.StreamerScreen.PromptEditWelcomeDesc, 9, 10, 495, 20)
-	local welcomeTextBox = forms.textbox(form, welcomeMsg, 480, 120, nil, 10, 35, true, false, "Vertical")
-	forms.button(form, Resources.AllScreens.Save, function()
-		local newMessage = Utils.formatSpecialCharacters(forms.gettext(welcomeTextBox))
+	form:createLabel(Resources.StreamerScreen.PromptEditWelcomeDesc, 9, 10)
+	local welcomeTextBox = form:createTextBox(welcomeMsg, 10, 35, 480, 120, "", true, false, "Vertical")
+	form:createButton(Resources.AllScreens.Save, 120, 165, function()
+		local newMessage = Utils.formatSpecialCharacters(ExternalUI.BizForms.getText(welcomeTextBox))
 		newMessage = Utils.encodeDecodeForSettingsIni(newMessage, true)
 		Options["Welcome message"] = newMessage
 		Main.SaveSettings(true)
-
-		Utils.closeBizhawkForm(form)
-	end, 120, 165)
-
-	forms.button(form, Resources.AllScreens.Clear, function()
-		forms.settext(welcomeTextBox, "")
-	end, 205, 165)
-
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 290, 165)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Clear, 205, 165, function()
+		ExternalUI.BizForms.setText(welcomeTextBox, "")
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 290, 165, function()
+		form:destroy()
+	end)
 end
 
 function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
@@ -182,30 +179,23 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 		initPokemonID = Utils.randomPokemonID()
 	end
 
-	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptChooseFavoriteTitle, 330, 145)
+	local form = ExternalUI.BizForms.createForm(Resources.StreamerScreen.PromptChooseFavoriteTitle, 330, 145)
 
 	local allPokemon = PokemonData.namesToList()
+	local pokemonName = PokemonData.Pokemon[initPokemonID].name
 
-	forms.label(form, Resources.StreamerScreen.PromptChooseFavoriteDesc, 24, 10, 300, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-	forms.settext(pokedexDropdown, PokemonData.Pokemon[initPokemonID].name)
-
-	forms.button(form, Resources.AllScreens.Save, function()
-		local optionSelected = forms.gettext(pokedexDropdown)
+	form:createLabel(Resources.StreamerScreen.PromptChooseFavoriteDesc, 24, 10)
+	local pokedexDropdown = form:createDropdown(allPokemon, 50, 30, 145, 30, pokemonName)
+	form:createButton(Resources.AllScreens.Save, 200, 29, function()
+		local optionSelected = ExternalUI.BizForms.getText(pokedexDropdown)
 		iconButton.pokemonID = PokemonData.getIdFromName(optionSelected) or 0
-
 		StreamerScreen.saveFavorites()
 		Program.redraw(true)
-
-		Utils.closeBizhawkForm(form)
-	end, 200, 29)
-
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 120, 69)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 120, 69, function()
+		form:destroy()
+	end)
 end
 
 function StreamerScreen.loadFavorites()
