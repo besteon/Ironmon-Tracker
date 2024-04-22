@@ -147,6 +147,7 @@ Constants.OrderedLists = {
 		"Enable crash recovery",
 		"Enable custom extensions",
 		"Show Team View",
+		"Show unlearnable Gym TMs",
 		"Show Pre Evolutions",
 		"Use Custom Trainer Names",
 		"Open Book Play Mode",

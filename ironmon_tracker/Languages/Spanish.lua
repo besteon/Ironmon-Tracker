@@ -555,6 +555,7 @@ ScreenResources{
 		LabelRandomSeed = "Random Seed", -- NEEDS TRANSLATION
 		LabelSettingsString = "Settings String", -- NEEDS TRANSLATION
 		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
+		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
 		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
 		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION

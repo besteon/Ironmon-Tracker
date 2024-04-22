@@ -555,6 +555,7 @@ ScreenResources{
 		LabelRandomSeed = "Random Seed",
 		LabelSettingsString = "Settings String",
 		ButtonShareSeed = "Share Seed",
+		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs",
 		CheckboxShowPreEvolutions = "Show Pre Evolutions",
 		CheckboxCustomTrainerNames = "Custom Trainer Names",
 		CheckboxOpenBookMode = "Open Book Play Mode",
