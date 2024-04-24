@@ -257,7 +257,7 @@ ScreenResources{
 		OptionDetermineFriendship = "Determine friendship readiness",
 		OptionCountEnemyPP = "Count enemy PP usage",
 		OptionShowLastDamage = "Show last damage calcs",
-		OptionRevealRandomizedInfo = "Reveal info if randomized",
+		OptionRevealRandomizedInfo = "Show random move/type data",
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup",
@@ -751,7 +751,7 @@ ScreenResources{
 		OptionCalculateVariableDamage = "Calculate variable damage",
 		OptionCountEnemyPP = "Count enemy PP usage",
 		OptionShowLastDamage = "Show last damage calcs",
-		OptionRevealRandomizedInfo = "Reveal info if randomized",
+		OptionRevealRandomizedInfo = "Show random move/type data",
 		OptionAutodetectGameLanguage = "Autodetect game language",
 		OptionPremadeRoms = "Use premade ROMs",
 		OptionGenerateRom = "Generate a ROM each time",

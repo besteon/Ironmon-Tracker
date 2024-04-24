@@ -322,15 +322,6 @@ function FileManager.tryOsExecute(command, errorFile)
 	return success, FileManager.readLinesFromFile(tempOutputFile)
 end
 
--- Currently unused, use FileManager.tryOsExecute instead.
--- Attempts to execute a popen command, returning two results: success, file. Remember to safely close the file (check for nil twice)
--- function FileManager.tryPOpen(command)
--- 	if command == nil then return false, command end
--- 	local function executeCommand() return io.popen(command) end
--- 	local success, ret, _ = xpcall(executeCommand, debug.traceback) -- 3rd return is error message
--- 	return (success and ret ~= nil), ret
--- end
-
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
 function FileManager.loadLuaFile(filename, silenceErrors)
 	-- First try and load the file from the folder that contains most/all the Tracker lua code
