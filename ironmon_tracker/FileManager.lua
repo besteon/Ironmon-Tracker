@@ -101,10 +101,11 @@ FileManager.LuaCode = {
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
+	{ name = "ExternalUI", filepath = "ExternalUI.lua", },
 	{ name = "Theme", filepath = "Theme.lua", },
 	{ name = "ColorPicker", filepath = "ColorPicker.lua", },
-	{ name = "Input", filepath = "Input.lua", },
 	{ name = "Program", filepath = "Program.lua", },
+	{ name = "Input", filepath = "Input.lua", },
 	{ name = "Battle", filepath = "Battle.lua", },
 	{ name = "Pickle", filepath = "Pickle.lua", },
 	{ name = "Tracker", filepath = "Tracker.lua", },
@@ -320,15 +321,6 @@ function FileManager.tryOsExecute(command, errorFile)
 	end
 	return success, FileManager.readLinesFromFile(tempOutputFile)
 end
-
--- Currently unused, use FileManager.tryOsExecute instead.
--- Attempts to execute a popen command, returning two results: success, file. Remember to safely close the file (check for nil twice)
--- function FileManager.tryPOpen(command)
--- 	if command == nil then return false, command end
--- 	local function executeCommand() return io.popen(command) end
--- 	local success, ret, _ = xpcall(executeCommand, debug.traceback) -- 3rd return is error message
--- 	return (success and ret ~= nil), ret
--- end
 
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
 function FileManager.loadLuaFile(filename, silenceErrors)

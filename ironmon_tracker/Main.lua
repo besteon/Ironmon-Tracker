@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "5", patch = "2" }
+Main.Version = { major = "8", minor = "5", patch = "3" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -19,13 +19,10 @@ Main.EMU = {
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
-	Main.Version.remindMe = false -- Temporarily disabled (was: true), as no explicitly visible way to "remind me later" that is clear and intuitive
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
-	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
-	-- Main.Version.updateAfterRestart = false -- Currently unused, leaving in for now in case the new stuff doesn't work out
 	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
 	Main.Version.showReleaseNotes = true
 
@@ -311,6 +308,7 @@ function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 
 	client.pause()
 	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
+	-- Create the form directly through Bizhawk and not ExternalUI, as it's possible that UI has not been loaded yet
 	local form = forms.newform(400, 150, formTitle, function() client.unpause() end)
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
@@ -347,12 +345,6 @@ function Main.AfterStartupScreenRedirect()
 		UpdateScreen.refreshButtons()
 		Main.SaveSettings(true)
 	end
-
-	-- Currently unused
-	-- if Main.Version.updateAfterRestart and not Main.hasRunOnce then
-	-- 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-	-- 	Program.changeScreenView(UpdateScreen)
-	-- end
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -395,8 +387,8 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			-- Ignore patch numbers when checking to notify for a new release
 			local newVersionAvailable = not Main.isOnLatestVersion(string.format("%s.%s.0", major, minor))
 
-			-- Other than choosing to be reminded, only notify when a release comes out that is different than the last recorded newest release
-			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion -- NOTE: "remindMe" temporarily disabled (always false)
+			-- Only notify when a release comes out that is different than the last recorded newest release
+			local shouldNotify = Main.Version.latestAvailable ~= latestReleasedVersion
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
@@ -952,9 +944,6 @@ function Main.LoadSettings()
 
 	-- [CONFIG]
 	if settings.config ~= nil then
-		if settings.config.RemindMeLater ~= nil then
-			-- Main.Version.remindMe = settings.config.RemindMeLater -- Temporarily disabled
-		end
 		if settings.config.LatestAvailableVersion ~= nil then
 			Main.Version.latestAvailable = settings.config.LatestAvailableVersion
 		end
@@ -964,10 +953,6 @@ function Main.LoadSettings()
 		if settings.config.ShowUpdateNotification ~= nil then
 			Main.Version.showUpdate = settings.config.ShowUpdateNotification
 		end
-		-- Currently unused
-		-- if settings.config.UpdateAfterRestart ~= nil then
-		-- 	Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
-		-- end
 		if settings.config.ShowReleaseNotes ~= nil then
 			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
 		end
@@ -1089,12 +1074,9 @@ function Main.SaveSettings(forced)
 	settings.extensions = settings.extensions or {}
 
 	-- [CONFIG]
-	-- settings.config.RemindMeLater = Main.Version.remindMe -- Temporarily disabled
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
-	-- Currently unused
-	-- settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
 	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do

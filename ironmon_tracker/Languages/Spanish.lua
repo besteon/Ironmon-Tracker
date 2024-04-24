@@ -257,7 +257,7 @@ ScreenResources{
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
-		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
+		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
@@ -287,11 +287,15 @@ ScreenResources{
 		ButtonImport = "Import theme", -- NEEDS TRANSLATION
 		ButtonExport = "Export theme", -- NEEDS TRANSLATION
 		PromptEnterThemeCode = "Enter a theme code string to import (Ctrl+V to paste)", -- NEEDS TRANSLATION
+		PromptImportError = "Error importing: Invalid theme code.", -- NEEDS TRANSLATION
 		PromptThemeFor = "Theme for", -- NEEDS TRANSLATION
 		PromptCopyThemeCode = "Copy the theme code below (Ctrl+C)", -- NEEDS TRANSLATION
 		PromptSelectPreset = "Select a Theme preset to preview", -- NEEDS TRANSLATION
 		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
 		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
+		PromptCantUseReserved = "Cannot use a reserved Theme name.", -- NEEDS TRANSLATION
+		PromptCantUseConsecutiveChars = "Name cannot have 6 consecutive hexcode characters (0-9A-F)", -- NEEDS TRANSLATION
+		PromptNameAlreadyInUse = "A Theme with that name already exists. Overwrite?", -- NEEDS TRANSLATION
 		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
 		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
 		OptionTextShadows = "Text shadows", -- NEEDS TRANSLATION
@@ -551,6 +555,7 @@ ScreenResources{
 		LabelRandomSeed = "Random Seed", -- NEEDS TRANSLATION
 		LabelSettingsString = "Settings String", -- NEEDS TRANSLATION
 		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
+		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
 		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
 		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION
@@ -687,6 +692,9 @@ ScreenResources{
 		StatusConnTypeWebSockets = "WebSockets",
 		StatusConnTypeHttp = "Http",
 		OptionAutoConnectStartup = "Auto-connect on startup",
+		PromptUpdateTitle = "Streamerbot Update Required",
+		PromptUpdateDesc1 = "Streamerbot Tracker Integration code requires an update.",
+		PromptUpdateDesc2 = "You must re-import the code to continue using Stream Connect.",
 		PromptNetworkShowMe = "Show Me",
 		PromptNetworkTurnOff = "Turn Off Stream Connect",
 		PromptDefault = "Default",
@@ -745,7 +753,7 @@ ScreenResources{
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
-		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
+		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION
@@ -1784,7 +1792,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
+			Description = "Endures attacks for two consecutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Metronome",

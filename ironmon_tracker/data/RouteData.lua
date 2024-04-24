@@ -93,9 +93,6 @@ function RouteData.initialize()
 
 	RouteData.combineRouteAreas()
 	RouteData.populateAvailableRoutes(maxMapId)
-
-	-- At some point we might want to implement this so that wild encounter data is automatic
-	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function RouteData.populateAvailableRoutes(maxMapId)
@@ -317,84 +314,6 @@ function RouteData.getIndexForGameVersion()
 		return 3
 	else
 		return 1
-	end
-end
-
--- Currently unused, as it only pulls randomized data and not vanilla pokemon data
-function RouteData.readWildPokemonInfoFromMemory()
-	GameSettings.gWildMonHeaders = 0x083c9d28 -- size:00000a64
-
-	local landCount = 12
-	local waterCount = 5
-	local rockCount = 5
-	local fishCount = 10
-	local monInfoSize = 5
-	local headerInfoSize = 2 + landCount * monInfoSize + waterCount * monInfoSize + rockCount * monInfoSize + fishCount * monInfoSize
-	local numHeaders = 5
-
-	local mapNone = 0x7F7F
-	local mapUndefined = 0xFFFF
-	local landOffset = 0x02
-	local waterOffset = landOffset + landCount * monInfoSize
-	local rockOffset = waterOffset + waterCount * monInfoSize
-	local fishOffset = rockOffset + rockCount * monInfoSize
-
-	-- struct WildPokemonHeader
-	-- {
-	-- 	u8 mapGroup;
-	-- 	u8 mapNum;
-	-- 	const struct WildPokemonInfo *landMonsInfo;
-	-- 	const struct WildPokemonInfo *waterMonsInfo;
-	-- 	const struct WildPokemonInfo *rockSmashMonsInfo;
-	-- 	const struct WildPokemonInfo *fishingMonsInfo;
-	-- };
-
-	-- struct WildPokemonInfo
-	-- {
-	-- 	u8 encounterRate;
-	-- 	const struct WildPokemon[] {u8 minLevel, u8 maxLevel, u16 species};
-	-- };
-
-	local headerInfo = {}
-	for headerIndex = 1, numHeaders, 1 do
-		local headerStart = GameSettings.gWildMonHeaders + (headerIndex - 1) * headerInfoSize
-		local landStart = headerStart + landOffset
-		local waterStart = headerStart + waterOffset
-		local rockStart = headerStart + rockOffset
-		local fishStart = headerStart + fishOffset
-
-		headerInfo[headerIndex] = {
-			mapGroup = Memory.readbyte(headerStart + 0x00),
-			mapNum = Memory.readbyte(headerStart + 0x01),
-		}
-
-		-- print(headerInfo[headerIndex])
-
-		headerInfo[headerIndex].landMonsInfo = {}
-		for monIndex = 1, landCount, 1 do
-			local monInfoAddress = landStart + (monIndex - 1) * monInfoSize
-			headerInfo[headerIndex].landMonsInfo[monIndex] = {
-				pokemonID = Memory.readword(monInfoAddress + 0x3),
-				rate = Memory.readbyte(monInfoAddress),
-				minLv = Memory.readbyte(monInfoAddress + 0x1),
-				maxLv = Memory.readbyte(monInfoAddress + 0x2),
-			}
-			-- print(headerInfo[headerIndex].landMonsInfo[monIndex])
-		end
-
-		headerInfo[headerIndex].waterMonsInfo = {}
-
-		headerInfo[headerIndex].rockMonsInfo = {}
-
-		headerInfo[headerIndex].fishMonsInfo = {}
-
-		-- local headerBytes = {}
-		-- print("----- HEADER " .. headerIndex .. " -----")
-		-- for i=1, headerInfoSize, 1 do
-		-- 	local byte = Memory.readbyte(headerStart + i - 1)
-		-- 	headerBytes[i] = byte
-		-- end
-		-- print(headerBytes)
 	end
 end
 

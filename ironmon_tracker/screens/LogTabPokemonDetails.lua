@@ -600,7 +600,8 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	-- LEARNABLE TMS
 	-- Add unlearnable Gym TMs
 	local gymTMsToAdd = {}
-	for gymNum, gymInfoTM in ipairs(TrainerData.GymTMs or {}) do
+	local TMsToCheck = Options["Show unlearnable Gym TMs"] and TrainerData.GymTMs or {}
+	for gymNum, gymInfoTM in ipairs(TMsToCheck) do
 		-- Check if the pokemon can already learn this gym TM
 		local found
 		for _, tmInfo in ipairs(data.p.tmmoves) do
@@ -629,10 +630,17 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	-- Non-Gym TMs have a value of "9" for gymNum
 	local sortGymsFirst = function(a, b) return (a.gymNum * 1000 + a.tm) < (b.gymNum * 1000 + b.tm) end
 	table.sort(data.p.tmmoves, sortGymsFirst)
+	local numGymTMs = 0
+	for _, tmInfo in ipairs(data.p.tmmoves) do
+		if not tmInfo.gymNum or tmInfo.gymNum > 8 then
+			break
+		end
+		numGymTMs = numGymTMs + 1
+	end
 
 	-- Add a spacer to separate Gym TMs from regular TMs
 	table.insert(data.p.tmmoves, 1, { label = Resources.LogOverlay.LabelGymTMs})
-	table.insert(data.p.tmmoves, 10, { label = Resources.LogOverlay.LabelOtherTMs})
+	table.insert(data.p.tmmoves, numGymTMs + 2, { label = Resources.LogOverlay.LabelOtherTMs})
 
 	offsetY = 0
 	for i, tmInfo in ipairs(data.p.tmmoves) do
@@ -650,7 +658,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		end
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return moveText end,
+			getCustomText = function(self) return moveText end,
 			textColor = moveColor,
 			moveId = tmInfo.moveId,
 			tab = LogTabPokemonDetails.Tabs.TmMoves,
@@ -659,6 +667,12 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			isVisible = function(self) return LogTabPokemonDetails.Pager.currentTab == self.tab and LogTabPokemonDetails.Pager.currentPage == self.pageVisible end,
 			draw = function (self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
+				local color = Theme.COLORS[self.textColor]
+				if tmInfo.unlearnable then
+					color = color - 0x60000000
+				end
+				Drawing.drawText(x + 1, y, self:getCustomText(), color, shadowcolor)
+				-- Physical/Special icon, if applicable
 				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
 					local move = MoveData.Moves[self.moveId]
 					local image
@@ -668,12 +682,12 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 						image = Constants.PixelImages.SPECIAL
 					end
 					if image then
-						Drawing.drawImageAsPixels(image, x + moveCategoryOffset, y + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+						Drawing.drawImageAsPixels(image, x + moveCategoryOffset, y + 2, { color }, shadowcolor)
 					end
 				end
 				-- If the TM can't be learned, strikethrough
 				if tmInfo.unlearnable then
-					local moveW = Utils.calcWordPixelLength(self:getText())
+					local moveW = Utils.calcWordPixelLength(self:getCustomText())
 					local lessOpacity = Theme.COLORS["Negative text"] - 0x40000000
 					gui.drawLine(x + 1, y + 6, x + moveW + 4, y + 6, lessOpacity)
 				end
