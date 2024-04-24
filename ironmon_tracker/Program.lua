@@ -365,17 +365,6 @@ function Program.changeScreenView(screen)
 	Program.redraw(true)
 end
 
--- TODO: Currently unused, implement later
-function Program.goBackToPreviousScreen()
-	Utils.printDebug("DEBUG: From %s previous screens.", #Program.previousScreens)
-	if #Program.previousScreens == 0 then
-		Program.currentScreen = TrackerScreen
-	else
-		Program.currentScreen = table.remove(Program.previousScreens)
-	end
-	Program.redraw(true)
-end
-
 -- Deprecated
 function Program.destroyActiveForm()
 	ExternalUI.BizForms.destroyForm()
