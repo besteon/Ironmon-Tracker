@@ -48,26 +48,6 @@ StartupScreen.Buttons = {
 		isVisible = function() return not Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) end,
 		onClick = function(self) Program.changeScreenView(StreamerScreen) end
 	},
-	-- EraseGame = { -- Currently unused
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "< Press" end,
-	-- 	textColor = "Lower box text",
-	-- 	boxColors = { "Lower box border", "Lower box background" },
-	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
-	-- 	isVisible = function() return false and Utils.isNilOrEmpty(Options["Welcome message"]) end, -- TODO: For now, we aren't using this button
-	-- 	onClick = function(self)
-	-- 		if Main.IsOnBizhawk() then
-	-- 			local joypadButtons = {
-	-- 				Up = true,
-	-- 				B = true,
-	-- 				Select = true,
-	-- 			}
-	-- 			joypad.set(joypadButtons)
-	-- 			Main.frameAdvance()
-	-- 			joypad.set(joypadButtons)
-	-- 		end
-	-- 	end
-	-- },
 	PokemonFavorite1 = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 90, 32, 44 },
