@@ -3076,7 +3076,7 @@ GameResources{
 		},
 		{
 			NameKey = "Iron Defense",
-			Description = "Deals raises the user's Defense stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Raises the user's Defense stat by two stages.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Block",
@@ -3084,7 +3084,7 @@ GameResources{
 		},
 		{
 			NameKey = "Howl",
-			Description = "Deals raises the user's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Raises the user's Attack stat by one stage.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Dragon Claw",
