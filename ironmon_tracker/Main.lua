@@ -1029,6 +1029,16 @@ function Main.LoadSettings()
 		end
 	end
 
+	-- [OVERRIDES]
+	if settings.overrides ~= nil then
+		for key, _ in pairs(Options.Overrides or {}) do
+			local optionValue = settings.overrides[key]
+			if optionValue ~= nil then
+				Options.Overrides[key] = optionValue
+			end
+		end
+	end
+
 	-- [EXTENSIONS]
 	CustomCode.ExtensionLibrary = {}
 	if settings.extensions ~= nil then
@@ -1071,6 +1081,7 @@ function Main.SaveSettings(forced)
 	settings.controls = settings.controls or {}
 	settings.theme = settings.theme or {}
 	settings.network = settings.network or {}
+	settings.overrides = settings.overrides or {}
 	settings.extensions = settings.extensions or {}
 
 	-- [CONFIG]
@@ -1111,6 +1122,11 @@ function Main.SaveSettings(forced)
 	-- [NETWORK]
 	for key, val in pairs(Network.Options or {}) do
 		settings.network[key] = val
+	end
+
+	-- [OVERRIDES]
+	for key, val in pairs(Options.Overrides or {}) do
+		settings.overrides[key] = val
 	end
 
 	-- [EXTENSIONS]
