@@ -496,7 +496,8 @@ function Main.LoadNextRom()
 	if nextRomInfo ~= nil then
 		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
 		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
-		local backupfilepath = FileManager.prependDir(FileManager.Folders.BackupSaves) .. FileManager.slash .. backUpName
+		local backupFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.BackupSaves, true)
+		local backupfilepath = backupFolder .. backUpName
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 		Tracker.resetData()
@@ -583,11 +584,12 @@ function Main.GetNextRomFromFolder()
 	-- The Attempts filename for premade roms folders is based on the prefix of the rom: e.g. "FireRedKaizo" from "FireRedKaizo42.gba"
 	local romprefix = string.match(nextRomName, '[^0-9]+') or ""
 	local attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
+	local attemptsFolder = FileManager.getPathOverride("Attempt Counts") or FileManager.dir
 
 	return {
 		fileName = nextRomName,
 		filePath = nextRomPath,
-		attemptsFilePath = FileManager.prependDir(attemptsFileName),
+		attemptsFilePath = attemptsFolder .. attemptsFileName,
 	}
 end
 
@@ -614,14 +616,17 @@ function Main.GenerateNextRom()
 	-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
 	local settingsFileName = FileManager.extractFileNameFromPath(files.settingsList[1])
 	local attemptsFileName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
+	local attemptsFolder = FileManager.getPathOverride("Attempt Counts") or FileManager.dir
+
 	local nextRomName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
-	local nextRomPath = FileManager.prependDir(nextRomName)
+	local nextRomFolder = FileManager.getPathOverride("ROMs and Logs") or FileManager.dir
+	local nextRomPath = nextRomFolder .. nextRomName
 
 	local previousRomName = Main.SaveCurrentRom(nextRomName)
 
 	-- mGBA only, need to unload current ROM but loading another temp ROM
 	if previousRomName ~= nil and not Main.IsOnBizhawk() then
-		emu:loadFile(FileManager.prependDir(previousRomName))
+		emu:loadFile(nextRomFolder .. previousRomName)
 	end
 
 	local javaPath = Options.PATHS["Java Path"]
@@ -638,7 +643,8 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local errorLogFilepath = FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)
+	local errorFolderpath = FileManager.getPathOverride("Randomizer Error Log") or FileManager.dir
+	local errorLogFilepath = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 	local success, fileLines = FileManager.tryOsExecute(javacommand, errorLogFilepath)
 
 	if success then
@@ -669,7 +675,7 @@ function Main.GenerateNextRom()
 		else
 			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
 			moreInfoLabel = "View Error Log"
-			moreinfoUrl = FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)
+			moreinfoUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 		end
 		local err2 = "~~~ The Randomizer program failed to generate a ROM ~~~"
 		print("> " .. err1)
@@ -681,7 +687,7 @@ function Main.GenerateNextRom()
 	return {
 		fileName = nextRomName,
 		filePath = nextRomPath,
-		attemptsFilePath = FileManager.prependDir(attemptsFileName),
+		attemptsFilePath = attemptsFolder .. attemptsFileName,
 	}
 end
 
@@ -711,7 +717,7 @@ function Main.GetQuickloadFiles()
 		end
 		fileLists.quickloadPath = Options.FILES["ROMs Folder"] -- Assumes absolute path
 	else
-		fileLists.quickloadPath = FileManager.prependDir(FileManager.Folders.Quickload .. FileManager.slash)
+		fileLists.quickloadPath = FileManager.prependDir(FileManager.Folders.Quickload, true)
 	end
 
 	local listsByExtension = {
@@ -801,15 +807,18 @@ function Main.SaveCurrentRom(filename)
 		return nil
 	end
 
-	local filenameCopy = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, FileManager.PostFixes.PREVIOUSATTEMPT)
-	local filepath = FileManager.prependDir(filename)
-	local filepathCopy = FileManager.prependDir(filenameCopy)
+	local folderpath = FileManager.getPathOverride("ROMs and Logs") or FileManager.dir
 
+	local filenameCopy = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, FileManager.PostFixes.PREVIOUSATTEMPT)
+	local filepath = folderpath .. filename
+	local filepathCopy = folderpath .. filenameCopy
+
+	-- If the copy succeeds, also copy the matching log file
 	if FileManager.CopyFile(filepath, filepathCopy, "overwrite") then
 		local logFilename = filename .. FileManager.Extensions.RANDOMIZER_LOGFILE
 		local logFilenameCopy = filenameCopy .. FileManager.Extensions.RANDOMIZER_LOGFILE
-		local logpath = FileManager.prependDir(logFilename)
-		local logpathCopy = FileManager.prependDir(logFilenameCopy)
+		local logpath = folderpath .. logFilename
+		local logpathCopy = folderpath .. logFilenameCopy
 
 		FileManager.CopyFile(logpath, logpathCopy, "overwrite")
 
@@ -824,6 +833,8 @@ end
 --- @return string attemptsFilePath Filepath to an attempts file
 function Main.GetAttemptsFile(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
+
+	local attemptsFolder = FileManager.getPathOverride("Attempt Counts") or FileManager.dir
 
 	-- If temp quickload files are available, use those instead of spending resources to look them up
 	local quickloadFiles = Main.tempQuickloadFiles
@@ -841,14 +852,14 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	end
 	if settingsFileName ~= nil then
 		attemptsFileName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
-		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
+		attemptsFilePath = FileManager.getPathIfExists(attemptsFolder .. attemptsFileName)
 
 		-- Return early if an attemptsFilePath has been found
 		if attemptsFilePath ~= nil then
 			return attemptsFilePath
 		elseif forceUseSettingsFile then
 			-- Force return a filepath to an attempts file to be created based off settings file
-			return FileManager.prependDir(attemptsFileName)
+			return attemptsFolder .. attemptsFileName
 		end
 	end
 
@@ -868,12 +879,7 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
 
 	attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
-	attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
-
-	-- Otherwise, create an attempts file using the name provided by the emulator itself
-	if attemptsFilePath == nil then
-		attemptsFilePath = FileManager.prependDir(string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS))
-	end
+	attemptsFilePath = attemptsFolder .. attemptsFileName
 
 	return attemptsFilePath
 end
@@ -1022,7 +1028,7 @@ function Main.LoadSettings()
 	-- [NETWORK]
 	if settings.network ~= nil then
 		for key, _ in pairs(Network.Options or {}) do
-			local optionValue = settings.network[key]
+			local optionValue = settings.network[string.gsub(key, " ", "_")]
 			if optionValue ~= nil then
 				Network.Options[key] = optionValue
 			end
@@ -1032,7 +1038,7 @@ function Main.LoadSettings()
 	-- [OVERRIDES]
 	if settings.overrides ~= nil then
 		for key, _ in pairs(Options.Overrides or {}) do
-			local optionValue = settings.overrides[key]
+			local optionValue = settings.overrides[string.gsub(key, " ", "_")]
 			if optionValue ~= nil then
 				Options.Overrides[key] = optionValue
 			end
@@ -1121,12 +1127,14 @@ function Main.SaveSettings(forced)
 
 	-- [NETWORK]
 	for key, val in pairs(Network.Options or {}) do
-		settings.network[key] = val
+		local encodedKey = string.gsub(key, " ", "_")
+		settings.network[encodedKey] = val
 	end
 
 	-- [OVERRIDES]
 	for key, val in pairs(Options.Overrides or {}) do
-		settings.overrides[key] = val
+		local encodedKey = string.gsub(key, " ", "_")
+		settings.overrides[encodedKey] = val
 	end
 
 	-- [EXTENSIONS]

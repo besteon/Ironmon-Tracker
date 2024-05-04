@@ -79,8 +79,8 @@ Options.Overrides = {
 	["Backup Saves"] = "", -- Gameover game saves; @ /saved_games/..
 	["Network Requests"] = "", -- Saved requests between sessions; @ /ironmon_tracker/network/..
 	["Randomizer Error Log"] = "", -- Log output from java Randomizer; @ /..
-	["ROM and Logs"] = "", -- Generated from New Runs; @ /..
-	["Theme Presets"] = "", -- All preloaded * user theme codes; @ /..
+	["ROMs and Logs"] = "", -- Generated from New Runs (Quickload); @ /..
+	["Theme Presets"] = "", -- All preloaded & user theme codes; @ /..
 	["Tracker Data"] = "", -- Auto saved .TDAT files; @ /..
 }
 

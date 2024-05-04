@@ -156,7 +156,8 @@ function CrashRecoveryScreen.logCrashReport(crashedOccurred)
 		gameName = GameSettings.fullVersionName,
 		romHash = GameSettings.getRomHash(),
 	}
-	FileManager.writeTableToFile(crashReport, FileManager.Files.CRASH_REPORT)
+	local filepath = FileManager.prependDir(FileManager.Files.CRASH_REPORT)
+	FileManager.writeTableToFile(crashReport, filepath)
 end
 
 function CrashRecoveryScreen.startSavingBackups()
