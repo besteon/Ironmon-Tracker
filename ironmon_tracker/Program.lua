@@ -430,7 +430,24 @@ function Program.update()
 			-- Check if a Pokemon in the player's party is learning a move, if so track it
 			local learnedInfoTable = Program.getLearnedMoveInfoTable()
 			if learnedInfoTable.pokemonID ~= nil then
+				-- start level
 				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
+				-- track max possible level
+				local data = DataHelper.buildPokemonInfoDisplay(learnedInfoTable.pokemonID)
+				local totalLearnableMoves = #data.p.movelvls
+				-- TODO: this works in most scenarios, but need to figure out handling 2 other things: mons that learn multiple
+				-- 		moves at the same level, and mons
+				for i, moveLvl in ipairs(data.p.movelvls) do
+					if moveLvl == learnedInfoTable.level then
+						-- Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, i)
+						if totalLearnableMoves >= i + 4 then
+							Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, data.p.movelvls[i + 4] - 1)
+						else
+							Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, 100)
+						end
+						break
+					end
+				end
 			end
 
 			if Options["Display repel usage"] and not Battle.inActiveBattle() then
