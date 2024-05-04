@@ -275,7 +275,7 @@ TrackerScreen.Buttons = {
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
-		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES and not Battle.isViewingOwn end,
 		onClick = function(self)
 			local pokemon = Tracker.getViewedPokemon() or {}
 			if not PokemonData.isValid(pokemon.pokemonID) then
