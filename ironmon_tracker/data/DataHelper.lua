@@ -280,6 +280,9 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		for key, value in pairs(moveToCopy) do
 			data.m.moves[i][key] = value
 		end
+		if i > #definitelyKnownMoves then
+			data.m.moves[i].name = data.m.moves[i].name .. "*"
+		end
 
 		local move = data.m.moves[i]
 
