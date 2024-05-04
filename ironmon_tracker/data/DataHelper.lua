@@ -245,6 +245,15 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID)
+	local definitelyKnownMoves = {}
+	local maybeKnownMoves = {}
+	for _, move in ipairs(trackedMoves) do
+		if move.minLv <= data.p.level and move.maxLv >= data.p.level then
+			table.insert(definitelyKnownMoves, move)
+		else
+			table.insert(maybeKnownMoves, move)
+		end
+	end
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
 		if data.x.viewingOwn or useOpenBookInfo then
@@ -254,7 +263,13 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			end
 		else
 			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-			local trackedMove = trackedMoves[i] or {}
+			local trackedMove
+			if (i <= #definitelyKnownMoves) then
+				trackedMove = definitelyKnownMoves[i]
+			else
+				-- todo: consider marking this with a bit to display asterisk next to it
+				trackedMove = maybeKnownMoves[i - #definitelyKnownMoves]
+			end
 			if MoveData.isValid(trackedMove.id) then
 				moveToCopy = MoveData.Moves[trackedMove.id]
 			end
