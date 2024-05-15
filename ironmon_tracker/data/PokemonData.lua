@@ -145,6 +145,13 @@ PokemonData.Evolutions = {
 		detailed = { "Level 37", "Water Stone", },
 		evoItemIds = { 97 },
 	},
+	-- Water stone item or at level 37 (reverse order)
+	WATER37_REV = {
+		abbreviation = "WTR/37",
+		short = { "Water", "Lv.37", },
+		detailed = { "Water Stone", "Level 37", },
+		evoItemIds = { 97 },
+	},
 }
 
 function PokemonData.initialize()
@@ -199,6 +206,9 @@ function PokemonData.updateResources()
 	PE.WATER37.abbreviation = RPED.WATER37.abbreviation
 	PE.WATER37.short = { RPED.LEVEL.short .. "37", RPED.WATER.short, }
 	PE.WATER37.detailed = { RPED.LEVEL.detailed .. " 37", RPED.WATER.detailed, }
+	PE.WATER37_REV.abbreviation = RPED.WATER37_REV.abbreviation
+	PE.WATER37_REV.short = { RPED.WATER.short, RPED.LEVEL.short .. "37", }
+	PE.WATER37_REV.detailed = { RPED.WATER.detailed, RPED.LEVEL.detailed .. " 37", }
 end
 
 ---Read in PokemonData from game memory: https://github.com/pret/pokefirered/blob/master/include/pokemon.h#L208
@@ -879,7 +889,7 @@ PokemonData.Pokemon = {
 	},
 	{
 		name = "Poliwhirl",
-		evolution = PokemonData.Evolutions.WATER37, -- Level 37 replaces trade evolution for Politoed
+		evolution = PokemonData.Evolutions.WATER37_REV, -- Level 37 replaces trade evolution for Politoed
 		bst = 385,
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51 }, { 7, 13, 19, 27, 35, 43, 51 } },
 		weight = 20.0

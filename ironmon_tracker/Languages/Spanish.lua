@@ -92,6 +92,9 @@ ScreenResources{
 		WATER37 = {
 			abbreviation = "37/WTR", -- NEEDS TRANSLATION
 		},
+		WATER37_REV = {
+			abbreviation = "WTR/37", -- NEEDS TRANSLATION
+		},
 		EEVEE_STONES = {
 			abbreviation = "STONE", -- NEEDS TRANSLATION
 			detailed = "5 Diff. Stones", -- NEEDS TRANSLATION
