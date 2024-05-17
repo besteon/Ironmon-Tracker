@@ -1779,6 +1779,30 @@ end
 
 ---@param params string?
 ---@return string response
+function DataHelper.EventRequests.getBallQueue(params)
+	local prefix = string.format("%s %s", "BallQueue", OUTPUT_CHAR)
+
+	local info = {}
+
+	local queueSize = 0
+	for _, _ in pairs(EventHandler.Queues.BallRedeems.Requests or {}) do
+		queueSize = queueSize + 1
+	end
+	if queueSize == 0 then
+		return buildResponse(prefix, "The pick ball queue is empty.")
+	end
+	table.insert(info, string.format("%s: %s", "Size", queueSize))
+
+	local request = EventHandler.Queues.BallRedeems.ActiveRequest
+	if request and request.Username then
+		table.insert(info, string.format("%s: %s - %s", "Current pick", request.Username, request.SanitizedInput or "N/A"))
+	end
+
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
 function DataHelper.EventRequests.getAbout(params)
 	local info = {}
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Version, Main.TrackerVersion))

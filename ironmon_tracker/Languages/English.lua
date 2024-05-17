@@ -92,6 +92,9 @@ ScreenResources{
 		WATER37 = {
 			abbreviation = "37/WTR",
 		},
+		WATER37_REV = {
+			abbreviation = "WTR/37",
+		},
 		EEVEE_STONES = {
 			abbreviation = "STONE",
 			detailed = "5 Diff. Stones",
@@ -3073,7 +3076,7 @@ GameResources{
 		},
 		{
 			NameKey = "Iron Defense",
-			Description = "Deals raises the user's Defense stat by two stages.",
+			Description = "Raises the user's Defense stat by two stages.",
 		},
 		{
 			NameKey = "Block",
@@ -3081,7 +3084,7 @@ GameResources{
 		},
 		{
 			NameKey = "Howl",
-			Description = "Deals raises the user's Attack stat by one stage.",
+			Description = "Raises the user's Attack stat by one stage.",
 		},
 		{
 			NameKey = "Dragon Claw",

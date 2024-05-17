@@ -1133,9 +1133,11 @@ MGBA.CommandMap = {
 			if filename:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
+			local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+			local filepath = folderpath .. filename
 
 			local playtime = Tracker.Data.playtime
-			local loadStatus = Tracker.loadData(FileManager.prependDir(filename))
+			local loadStatus = Tracker.loadData(filepath)
 			Tracker.Data.playtime = playtime
 			if loadStatus == Tracker.LoadStatusKeys.NEW_GAME then
 				printf(" %s", Resources.MGBACommands.LoadDataError2)

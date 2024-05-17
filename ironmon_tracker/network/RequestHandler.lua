@@ -283,7 +283,8 @@ end
 ---@return boolean success
 function RequestHandler.saveRequestsData()
 	RequestHandler.removedExcludedRequests()
-	local success = FileManager.encodeToJsonFile(FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
+	local folderpath = FileManager.getPathOverride("Network Requests") or FileManager.getNetworkPath()
+	local success = FileManager.encodeToJsonFile(folderpath .. FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
 	RequestHandler.lastSaveTime = os.time()
 	return (success == true)
 end
@@ -291,7 +292,8 @@ end
 --- Imports a list of IRequests from a data file; returns true if successful
 ---@return boolean success
 function RequestHandler.loadRequestsData()
-	local requests = FileManager.decodeJsonFile(FileManager.Files.REQUESTS_DATA)
+	local folderpath = FileManager.getPathOverride("Network Requests") or FileManager.getNetworkPath()
+	local requests = FileManager.decodeJsonFile(folderpath .. FileManager.Files.REQUESTS_DATA)
 	if requests then
 		RequestHandler.Requests = requests
 		return true

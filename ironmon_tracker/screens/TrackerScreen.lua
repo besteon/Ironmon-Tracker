@@ -18,6 +18,8 @@ TrackerScreen.Buttons = {
 			end
 			if Options["Open Book Play Mode"] then
 				LogOverlay.Windower:changeTab(LogTabPokemon)
+				LogSearchScreen.resetSearchSortFilter()
+				LogOverlay.refreshActiveTabGrid()
 				LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, pokemon.pokemonID)
 			end
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
@@ -43,7 +45,9 @@ TrackerScreen.Buttons = {
 			self.iconColors[1] = self.isHighlighted and "Intermediate text" or "Default text"
 		end,
 		onClick = function(self)
-			self:activatePulsing()
+			if self.image == Constants.PixelImages.SPARKLES then
+				self:activatePulsing()
+			end
 		end,
 		pulse = function(self)
 			self.isHighlighted = not self.isHighlighted
@@ -147,7 +151,16 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
 		isVisible = function() return Battle.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
 		onClick = function(self)
-			TrackerScreen.Buttons.PokemonIcon:onClick()
+			-- Default to pulling up the Routes info screen
+			LogOverlay.Windower:changeTab(LogTabRoutes)
+			LogSearchScreen.resetSearchSortFilter()
+			LogOverlay.refreshActiveTabGrid()
+			-- If a route is available, show that one specifically
+			local mapId = TrackerAPI.getMapId()
+			if RouteData.hasAnyEncounters(mapId) then
+				LogOverlay.Windower:changeTab(LogTabRouteDetails, 1, 1, mapId)
+			end
+			Program.redraw(true)
 		end
 	},
 	InvisibleStatsArea = {
@@ -275,7 +288,7 @@ TrackerScreen.Buttons = {
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
-		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES and not Battle.isViewingOwn end,
 		onClick = function(self)
 			local pokemon = Tracker.getViewedPokemon() or {}
 			if not PokemonData.isValid(pokemon.pokemonID) then
@@ -1105,7 +1118,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
 	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	Drawing.drawButton(TrackerScreen.Buttons.ShinyEffect, shadowcolor)
+
+	-- Temporary process to refresh the icon before it's first drawn
+	if TrackerScreen.Buttons.ShinyEffect:isVisible() then
+		TrackerScreen.Buttons.ShinyEffect:updateSelf()
+		Drawing.drawButton(TrackerScreen.Buttons.ShinyEffect, shadowcolor)
+	end
 
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
