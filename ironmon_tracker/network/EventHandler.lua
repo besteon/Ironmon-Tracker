@@ -549,6 +549,11 @@ EventHandler.DefaultEvents = {
 		Command = "!log",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.SanitizedInput) end,
 	},
+	CMD_BallQueue = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!ballqueue",
+		Fulfill = function(self, request) return DataHelper.EventRequests.getBallQueue(request.SanitizedInput) end,
+	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!about",
