@@ -216,6 +216,25 @@ function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	-- BATTLE_TYPE_TRAINER_TOWER		(1 << 19) // Used in pokeemerald as BATTLE_TYPE_FACTORY.
 end
 
+---Returns true if this route has any encounter data (trainers or wild)
+---@param mapId number
+---@return boolean
+function RouteData.hasAnyEncounters(mapId)
+	if not RouteData.hasRoute(mapId) then
+		return false
+	end
+	local route = RouteData.Info[mapId] or {}
+	if route.trainers ~= nil then
+		return true
+	end
+	for _, encounterArea in pairs(RouteData.EncounterArea or {}) do
+		if route[encounterArea] ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRoute(mapId) then return nil end
 
@@ -563,7 +582,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
 			},
 			[RouteData.EncounterArea.SUPERROD] = {
-				{ pokemonID = {116,98}, rate = {0.44,0.40}, minLv = 15, maxLv = 25, },
+				{ pokemonID = {116,98}, rate = {0.44,0.40}, minLv = 15, maxLv = {35,25}, },
 				{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
 				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
 				{ pokemonID = {-1,116}, rate = 0.04, minLv = 25, maxLv = 35, },

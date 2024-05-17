@@ -238,7 +238,7 @@ end
 
 -- Saves the currently loaded ROM, it's log file (if any), and the TDAT file to the Tracker's 'saved_games' folder
 function GameOverScreen.saveCurrentGameFiles()
-	local savePathDir = FileManager.prependDir(FileManager.Folders.SavedGames .. FileManager.slash)
+	local saveFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.SavedGames, true)
 
 	local romname, rompath, romnameToSave
 	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil then
@@ -270,13 +270,13 @@ function GameOverScreen.saveCurrentGameFiles()
 		return false
 	end
 
-	FileManager.createFolder(FileManager.prependDir(FileManager.Folders.SavedGames))
+	FileManager.createFolder(saveFolder)
 
-	local rompathToSave = savePathDir .. romnameToSave .. FileManager.Extensions.GBA_ROM
+	local rompathToSave = saveFolder .. romnameToSave .. FileManager.Extensions.GBA_ROM
 	-- Don't replace existing save games, instead make a new one based on current time
 	if FileManager.fileExists(rompathToSave) then
 		romnameToSave = string.format("%s %s", os.time(), romname)
-		rompathToSave = savePathDir .. romnameToSave .. FileManager.Extensions.GBA_ROM
+		rompathToSave = saveFolder .. romnameToSave .. FileManager.Extensions.GBA_ROM
 	end
 	if not FileManager.CopyFile(rompath, rompathToSave, "overwrite") then
 		print("> ERROR: Unable to save a copy of your game's ROM file.")
@@ -287,7 +287,7 @@ function GameOverScreen.saveCurrentGameFiles()
 	local logname = romname .. FileManager.Extensions.RANDOMIZER_LOGFILE
 	local logpath = rompath .. FileManager.Extensions.RANDOMIZER_LOGFILE
 	local lognameToSave = romnameToSave .. FileManager.Extensions.RANDOMIZER_LOGFILE
-	local logpathToSave = savePathDir .. lognameToSave
+	local logpathToSave = saveFolder .. lognameToSave
 	if not FileManager.CopyFile(logpath, logpathToSave, "overwrite") then
 		print("> ERROR: Unable to save a copy of your game's log file.")
 		print(logpath or logname or "Unknown LOG")
@@ -295,10 +295,11 @@ function GameOverScreen.saveCurrentGameFiles()
 	end
 
 	if Options["Auto save tracked game data"] then
+		Tracker.saveData()
 		local tdatname = GameSettings.getTrackerAutoSaveName()
-		local tdatpath = FileManager.prependDir(tdatname)
+		local tdatpath = (FileManager.getPathOverride("Tracker Data") or FileManager.dir) .. tdatname
 		local tdatnameToSave = romnameToSave .. FileManager.Extensions.TRACKED_DATA
-		local tdatpathToSave = savePathDir .. tdatnameToSave
+		local tdatpathToSave = saveFolder .. tdatnameToSave
 		if not FileManager.CopyFile(tdatpath, tdatpathToSave, "overwrite") then
 			print("> ERROR: Unable to save a copy of your game's tracked data file.")
 			print(tdatpath or tdatname or "Unknown TDAT")
@@ -306,9 +307,11 @@ function GameOverScreen.saveCurrentGameFiles()
 		end
 	end
 
-	local savestatePath = savePathDir .. romnameToSave .. FileManager.Extensions.BIZHAWK_SAVESTATE
-	---@diagnostic disable-next-line: undefined-global
-	savestate.save(savestatePath)
+	if Main.IsOnBizhawk() then
+		local savestatePath = saveFolder .. romnameToSave .. FileManager.Extensions.BIZHAWK_SAVESTATE
+		---@diagnostic disable-next-line: undefined-global
+		savestate.save(savestatePath)
+	end
 
 	return true
 end

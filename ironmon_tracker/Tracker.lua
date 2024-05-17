@@ -65,7 +65,9 @@ function Tracker.initialize()
 
 	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
-		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
+		local filename = GameSettings.getTrackerAutoSaveName()
+		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+		local filepath = folderpath .. filename
 		local loadStatus = Tracker.loadData(filepath)
 
 		-- If the autosave file doesn't exist, then this is a new game
@@ -478,14 +480,21 @@ end
 
 function Tracker.saveData(filename)
 	filename = filename or GameSettings.getTrackerAutoSaveName()
-	FileManager.writeTableToFile(Tracker.Data, filename)
+	local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+	local filepath = folderpath .. filename
+	FileManager.writeTableToFile(Tracker.Data, filepath)
 end
 
 -- Attempts to load Tracked data from the file 'filepath', sets and returns 'Tracker.LoadStatus' to a status from 'Tracker.LoadStatusKeys'
 -- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
 function Tracker.loadData(filepath, forced)
+	if not filepath then
+		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+		local filename = GameSettings.getTrackerAutoSaveName()
+		filepath = folderpath .. filename
+	end
+
 	-- Loose safety check to ensure a valid data file is loaded
-	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")

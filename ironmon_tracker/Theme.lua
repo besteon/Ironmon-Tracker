@@ -304,9 +304,13 @@ function Theme.resetPresets()
 end
 
 function Theme.loadPresets()
-	if not FileManager.fileExists(FileManager.Files.THEME_PRESETS) then return end
+	local folderpath = FileManager.getPathOverride("Theme Presets") or FileManager.dir
+	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
+	if not FileManager.fileExists(filepath) then
+		return
+	end
 
-	for index, line in ipairs(FileManager.readLinesFromFile(FileManager.Files.THEME_PRESETS)) do
+	for index, line in ipairs(FileManager.readLinesFromFile(filepath)) do
 		local firstHexIndex = line:find("%x%x%x%x%x%x")
 		if firstHexIndex ~= nil then
 			local themeCode = line:sub(firstHexIndex)
@@ -654,7 +658,9 @@ end
 
 -- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist
 function Theme.populateThemePresets()
-	if FileManager.fileExists(FileManager.Files.THEME_PRESETS) then
+	local folderpath = FileManager.getPathOverride("Theme Presets") or FileManager.dir
+	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
+	if FileManager.fileExists(filepath) then
 		return
 	end
 
