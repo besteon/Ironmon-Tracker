@@ -216,6 +216,25 @@ function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	-- BATTLE_TYPE_TRAINER_TOWER		(1 << 19) // Used in pokeemerald as BATTLE_TYPE_FACTORY.
 end
 
+---Returns true if this route has any encounter data (trainers or wild)
+---@param mapId number
+---@return boolean
+function RouteData.hasAnyEncounters(mapId)
+	if not RouteData.hasRoute(mapId) then
+		return false
+	end
+	local route = RouteData.Info[mapId] or {}
+	if route.trainers ~= nil then
+		return true
+	end
+	for _, encounterArea in pairs(RouteData.EncounterArea or {}) do
+		if route[encounterArea] ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRoute(mapId) then return nil end
 

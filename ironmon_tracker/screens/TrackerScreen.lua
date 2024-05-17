@@ -18,6 +18,8 @@ TrackerScreen.Buttons = {
 			end
 			if Options["Open Book Play Mode"] then
 				LogOverlay.Windower:changeTab(LogTabPokemon)
+				LogSearchScreen.resetSearchSortFilter()
+				LogOverlay.refreshActiveTabGrid()
 				LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, pokemon.pokemonID)
 			end
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
@@ -149,7 +151,16 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
 		isVisible = function() return Battle.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
 		onClick = function(self)
-			TrackerScreen.Buttons.PokemonIcon:onClick()
+			-- Default to pulling up the Routes info screen
+			LogOverlay.Windower:changeTab(LogTabRoutes)
+			LogSearchScreen.resetSearchSortFilter()
+			LogOverlay.refreshActiveTabGrid()
+			-- If a route is available, show that one specifically
+			local mapId = TrackerAPI.getMapId()
+			if RouteData.hasAnyEncounters(mapId) then
+				LogOverlay.Windower:changeTab(LogTabRouteDetails, 1, 1, mapId)
+			end
+			Program.redraw(true)
 		end
 	},
 	InvisibleStatsArea = {
