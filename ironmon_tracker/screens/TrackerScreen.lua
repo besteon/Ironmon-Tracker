@@ -43,7 +43,9 @@ TrackerScreen.Buttons = {
 			self.iconColors[1] = self.isHighlighted and "Intermediate text" or "Default text"
 		end,
 		onClick = function(self)
-			self:activatePulsing()
+			if self.image == Constants.PixelImages.SPARKLES then
+				self:activatePulsing()
+			end
 		end,
 		pulse = function(self)
 			self.isHighlighted = not self.isHighlighted
@@ -1105,7 +1107,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
 	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	Drawing.drawButton(TrackerScreen.Buttons.ShinyEffect, shadowcolor)
+
+	-- Temporary process to refresh the icon before it's first drawn
+	if TrackerScreen.Buttons.ShinyEffect:isVisible() then
+		TrackerScreen.Buttons.ShinyEffect:updateSelf()
+		Drawing.drawButton(TrackerScreen.Buttons.ShinyEffect, shadowcolor)
+	end
 
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
