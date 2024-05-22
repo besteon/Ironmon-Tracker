@@ -295,7 +295,34 @@ local function buildCommandsTab()
 			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnRename)
-		addRightAligned(btnRename)
+
+		-- Most commands don't have options, but if so, make room for a second button
+		if event.Options and #event.Options > 0 then
+			btnRename.updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+			end
+
+			local btnOptions = {
+				type = Constants.ButtonTypes.FULL_BORDER,
+				getText = function(self) return Resources.StreamConnect.ButtonOptions end,
+				textColor = SCREEN.Colors.text,
+				box = { -1, -1, -1, 11 },
+				boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+				isVisible = function(self) return buttonRow:isVisible() and event.Options and #event.Options > 0 end,
+				updateSelf = function(self)
+					self.box[2] = btnRename.box[2] + ROW_HEIGHT / 2
+					self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5 -- Auto resize
+				end,
+				onClick = function(self) StreamConnectOverlay.openEventOptionsPrompt(event) end,
+			}
+			btnOptions:updateSelf()
+			table.insert(SCREEN.Pager.Buttons, btnOptions)
+			btnRename.box[1] = _rightEdgeX - ROW_PADDING - btnRename.box[3]
+			btnOptions.box[1] = _rightEdgeX - ROW_PADDING - btnRename.box[3]
+			_rightEdgeX = btnRename.box[1] - ROW_PADDING
+		else
+			addRightAligned(btnRename)
+		end
 	end
 	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
@@ -1217,7 +1244,7 @@ end
 
 function StreamConnectOverlay.openEventOptionsPrompt(event)
 	local x, y, lineHeight = 20, 15, 20
-	local form = ExternalUI.BizForms.createForm("Edit Reward Options", 320, 130 + (#event.Options * lineHeight))
+	local form = ExternalUI.BizForms.createForm("Edit Options", 320, 130 + (#event.Options * lineHeight))
 
 	form:createLabel(event.Name, x, y)
 	y = y + lineHeight + 5

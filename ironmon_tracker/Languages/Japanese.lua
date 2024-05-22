@@ -658,6 +658,7 @@ ScreenResources{
 		O_WordForMiddle = "Word for Middle",
 		O_WordForRight = "Word for Right",
 		O_WordForRandom = "Word for Random",
+		O_ShowBallQueueOnStartup = "Show Ball Queue info on startup",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
 		TabCommands = "Commands",
 		TabRewards = "Rewards",

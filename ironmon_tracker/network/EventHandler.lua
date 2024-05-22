@@ -37,6 +37,14 @@ EventHandler.CommandRoles = {
 	Viewer = "Viewer", -- Unused
 }
 
+---Runs additional functions after Network attempts to connect
+function EventHandler.onStartup()
+	local eventBallQ = EventHandler.Events.CMD_BallQueue or {}
+	if eventBallQ.O_ShowBallQueueOnStartup and EventHandler.Queues.BallRedeems.ActiveRequest then
+		EventHandler.triggerEvent("CMD_BallQueue")
+	end
+end
+
 ---Clears out existing event info; similar to initialize(), but managed by Network
 function EventHandler.reset()
 	EventHandler.RewardsExternal = {}
@@ -552,6 +560,8 @@ EventHandler.DefaultEvents = {
 	CMD_BallQueue = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!ballqueue",
+		Options = { "O_ShowBallQueueOnStartup", },
+		O_ShowBallQueueOnStartup = false,
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBallQueue(request.SanitizedInput) end,
 	},
 	CMD_About = {
