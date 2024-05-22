@@ -635,6 +635,8 @@ ScreenResources{
 		CMD_Progress_Help = "> Displays fun progress percentages for the current game.",
 		CMD_Log_Name = "Log Randomizer Settings",
 		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
+		CMD_BallQueue_Name = "Ball Queue",
+		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
 		CMD_About_Name = "About the Tracker",
 		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
 		CMD_Help_Name = "Command Help",
@@ -654,6 +656,7 @@ ScreenResources{
 		O_WordForMiddle = "Word for Middle",
 		O_WordForRight = "Word for Right",
 		O_WordForRandom = "Word for Random",
+		O_ShowBallQueueOnStartup = "Show Ball Queue info on startup",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
 		TabCommands = "Commands",
 		TabRewards = "Rewards",
