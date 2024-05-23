@@ -39,9 +39,22 @@ EventHandler.CommandRoles = {
 
 ---Runs additional functions after Network attempts to connect
 function EventHandler.onStartup()
-	local eventBallQ = EventHandler.Events.CMD_BallQueue or {}
-	if eventBallQ.O_ShowBallQueueOnStartup and EventHandler.Queues.BallRedeems.ActiveRequest then
-		EventHandler.triggerEvent("CMD_BallQueue")
+	local settingsUpdated = false
+
+	local ballqEvent = EventHandler.Events.CMD_BallQueue or {}
+	local ballqRequest = EventHandler.Queues.BallRedeems.ActiveRequest
+	if ballqEvent.O_ShowBallQueueOnStartup and ballqRequest ~= nil then
+		-- Only show message if it wasn't shown the last startup
+		local lasGUID = Main.MetaSettings["network"].LastBallQueueGUID or ""
+		if lasGUID ~= ballqRequest.GUID then
+			EventHandler.triggerEvent("CMD_BallQueue")
+			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
+			settingsUpdated = true
+		end
+	end
+
+	if settingsUpdated then
+		Main.SaveSettings(true)
 	end
 end
 
