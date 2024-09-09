@@ -114,6 +114,7 @@ Constants.OrderedLists = {
 		"CarouselSpeed",
 		"Auto swap to enemy",
 		"Show random ball picker",
+		"Show heals as whole number",
 		"Hide stats until summary shown",
 		"Right justified numbers",
 		"Show nicknames",

@@ -235,6 +235,7 @@ ScreenResources{
 		ButtonEditTime = "Edit",
 		ButtonRelocateTime = "Relocate",
 		OptionShowRandomBallPicker = "Show random ball picker",
+		OptionShowHealsAsValue = "Show heals as whole number",
 		OptionDisplayRepelUsage = "Display repel usage",
 		OptionDisplayPedometer = "Display step pedometer",
 		OptionDisplayPlayTime = "Display play time",

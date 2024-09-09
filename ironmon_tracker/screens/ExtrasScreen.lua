@@ -81,18 +81,18 @@ ExtrasScreen.Buttons = {
 	TimerEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonEditTime end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 111, 24, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 134, 24, 11 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Options and Options["Display play time"] end,
 		draw = function(self, shadowcolor)
 			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-			Drawing.drawText(x, self.box[2] - 12, Resources.ExtrasScreen.LabelTimer .. ":", Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(x, self.box[2] - 13, Resources.ExtrasScreen.LabelTimer .. ":", Theme.COLORS[self.textColor], shadowcolor)
 		end,
 		onClick = function(self) ExtrasScreen.openEditTimerPrompt() end,
 	},
 	TimerRelocate = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonRelocateTime end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 111, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 134, 44, 11 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Options and Options["Display play time"] end,
 		onClick = function(self)
 			ExtrasScreen.relocateTimer()
@@ -196,6 +196,7 @@ end
 function ExtrasScreen.createButtons()
 	local optionKeyMap = {
 		{"Show random ball picker", "OptionShowRandomBallPicker", },
+		{"Show heals as whole number", "OptionShowHealsAsValue", },
 		{"Display repel usage", "OptionDisplayRepelUsage", },
 		{"Display pedometer", "OptionDisplayPedometer", },
 		{"Display play time", "OptionDisplayPlayTime", },
