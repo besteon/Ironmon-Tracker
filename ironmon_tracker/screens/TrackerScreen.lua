@@ -1072,7 +1072,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 	if Battle.isViewingOwn and data.p.id ~= 0 then
 		local healsInBagText = string.format("%s:", Resources.TrackerScreen.HealsInBag)
-		local healsValueText = string.format("%.0f%% %s (%s)", data.x.healperc, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
+		local healsValueText
+		if Options["Show heals as whole number"] then
+			healsValueText = string.format("%.0f %s (%s)", data.x.healvalue, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
+		else
+			healsValueText = string.format("%.0f%% %s (%s)", data.x.healperc, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
+		end
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, healsInBagText, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 68, healsValueText, Theme.COLORS["Default text"], shadowcolor)
 

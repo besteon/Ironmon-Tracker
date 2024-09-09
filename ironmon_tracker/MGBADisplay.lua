@@ -751,7 +751,12 @@ MGBADisplay.LineBuilder = {
 				lines[7] = Utils.formatUTF8(topFormattedLine, "", formattedStats.spd)
 			end
 
-			local availableHeals = Utils.formatUTF8("%s: %.0f%% (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healperc, data.x.healnum)
+			local availableHeals
+			if Options["Show heals as whole number"] then
+				availableHeals = Utils.formatUTF8("%s: %.0f (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healvalue, data.x.healnum)
+			else
+				availableHeals = Utils.formatUTF8("%s: %.0f%% (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healperc, data.x.healnum)
+			end
 			lines[8] = Utils.formatUTF8(topFormattedLine, availableHeals, formattedStats.spe)
 		else
 			lines[3] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.hp)
