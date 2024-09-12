@@ -1279,8 +1279,13 @@ function TrackerScreen.drawMovesArea(data)
 	local headerY = moveOffsetY - moveTableHeaderHeightDiff
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, headerY, data.m.nextmoveheader, headerColor, bgHeaderShadow)
 	-- Check if ball catch rate should be displayed instead of other header labels
-	if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
-		local CATCH_RATE = 0 -- TODO: REPLACE BELOW VARIABLE WITH VALUE FROM MEMORY AND DELETE THIS LINE; ENSURE BEFOREHAND VALUE IS A WHOLE NUMBER BETWEEN 0 AND 100
+	local enemyMon = Tracker.getPokemon(1,false)
+	if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter and enemyMon ~= nil then
+		local ball = 3 --Poke Ball ID
+		local terrain = 0
+		local turnCount = 0
+		--Passing ball, turnCount, and terrain as defaults of 0 as only Poke Ball is supported atm.
+		local CATCH_RATE = PokemonData.getCatchRatePercentage(enemyMon.pokemonID, enemyMon.status, ball, enemyMon.stats.hp, enemyMon.curHP, terrain, enemyMon.level, turnCount)
 		local catchText = string.format("%.0f%%  %s", CATCH_RATE, Resources.TrackerScreen.ToCatch)
 		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(catchText) - 2
 		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, catchText, headerColor, bgHeaderShadow)

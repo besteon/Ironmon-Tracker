@@ -787,8 +787,13 @@ MGBADisplay.LineBuilder = {
 		lines[6] = Utils.formatUTF8(topFormattedLine, data.p.line2, formattedStats.spa)
 
 		-- Squeeze in the ball catch rate text if option enabled
-		if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
-			local CATCH_RATE = 0 -- TODO: REPLACE BELOW VARIABLE WITH VALUE FROM MEMORY AND DELETE THIS LINE; ENSURE BEFOREHAND VALUE IS A WHOLE NUMBER BETWEEN 0 AND 100
+		local enemyMon = Tracker.getPokemon(1,false)
+		if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter and enemyMon ~= nil then
+			local ball = 3 --Poke Ball ID
+			local terrain = 0
+			local turnCount = 0
+			--Passing ball, turnCount, and terrain as defaults of 0 as only Poke Ball is supported atm.
+			local CATCH_RATE = PokemonData.getCatchRatePercentage(enemyMon.pokemonID, enemyMon.status, ball, enemyMon.stats.hp, enemyMon.curHP, terrain, enemyMon.level, turnCount)
 			local catchRateLine = string.format("%s: %.0f%%", Resources.MGBAScreens.TrackerCatchRate, CATCH_RATE)
 			table.insert(lines, catchRateLine)
 		else

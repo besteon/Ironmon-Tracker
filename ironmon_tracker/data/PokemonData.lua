@@ -11,6 +11,7 @@ PokemonData.Values = {
 PokemonData.Addresses = {
 	offsetBaseStats = 0x0,
 	offsetTypes = 0x6,
+	offsetCatchRate = 0x8,
 	offsetExpYield = 0x9,
 	offsetGenderRatio = 0x10,
 	offsetBaseFriendship = 0x12,
@@ -240,6 +241,9 @@ function PokemonData.buildData(forced)
 				typeOne ~= typeTwo and PokemonData.TypeIndexMap[typeTwo] or PokemonData.Types.EMPTY,
 			}
 
+			--Catch Rate (1 byte)
+			pokemon.catchRate = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetCatchRate)
+
 			-- Exp Yield
 			if PokemonData.Addresses.sizeofExpYield == 2 then
 				pokemon.expYield = Memory.readword(addrOffset + PokemonData.Addresses.offsetExpYield)
@@ -416,6 +420,75 @@ function PokemonData.getEffectiveness(pokemonID)
 	end
 
 	return effectiveness
+end
+
+---Returns whole number between 0 and 100 representing the percent likelihood to catch a pokemon
+---@param pokemonID number
+---@param status number
+---@param ball number
+---@param hpMax number
+---@param hpCurrent number
+---@param terrain number
+---@param level number
+---@param battleTurn number
+---@return number
+function PokemonData.getCatchRatePercentage(pokemonID, status, ball, hpMax, hpCurrent, terrain, level, battleTurn)
+	if not PokemonData.isValid(pokemonID) or hpCurrent == 0 then
+		return 0
+	end
+	local gameIndex = GameSettings.game
+	local pokemon = PokemonData.Pokemon[pokemonID]
+	local baseMultiplier = pokemon.catchRate
+	local statusMultiplier = 1
+	local statusMultipliers = {
+		[MiscData.StatusType.None] = 1,
+		[MiscData.StatusType.Burn] = 1.5,
+		[MiscData.StatusType.Freeze] = 2,
+		[MiscData.StatusType.Paralyze] = 1.5,
+		[MiscData.StatusType.Poison] = 1.5,
+		[MiscData.StatusType.Toxic] = 1.5,
+		[MiscData.StatusType.Sleep] = 2,
+	}
+	if statusMultipliers[status] ~= nil then
+		--Note: In R/S, toxic does not increase catch rate
+		if status == MiscData.StatusType.Toxic and (gameIndex == 1 or gameIndex == 2) then
+			statusMultiplier = 1
+		else
+			statusMultiplier = statusMultipliers[status]
+		end
+	end
+	local ballMultiplier = 10 --default poke ball rate
+	local ballMultipliers = {
+		[0] = 255, --Master Ball
+		[1] = 20, --Ultra Ball
+		[2] = 15, --Great Ball
+		[3] = 10, --Poke Ball
+		[4] = 15, --Safari Ball
+		[5] = 30, --Net Ball; only for WATER or BUG types
+		[6] = 35, --Dive Ball; only when map type is UNDERWATER
+		[7] = 40, --Nest Ball; subtract level of enemy, floor is 10
+		[8] = 30, --Repeat Ball; only if pokemon is flagged as caught already
+		[9] = 10, --Timer Ball; add turn counter, caps at 40
+		[10] = 10, --Luxury Ball
+		[11] = 10, --Premier Ball
+	}
+	--Leaving this here for the future, in case user can select a ball from a dropdown etc.
+	if ball ~= nil and ballMultipliers[ball] ~= nil then
+		if ball < 5 then
+			ballMultiplier = ballMultipliers[ball]
+		elseif ball == 5 and (pokemon.types[1] == PokemonData.Types.WATER or pokemon.types[2] == PokemonData.Types.WATER or pokemon.types[1] == PokemonData.Types.BUG or pokemon.types[2] == PokemonData.Types.BUG) then
+			ballMultiplier = ballMultipliers[status]
+		elseif ball == 6 and terrain == 3 then
+			ballMultiplier = ballMultipliers[status]
+		elseif ball == 7 then
+			ballMultiplier = math.max(10,40-level)
+		elseif ball == 8 then
+			ballMultiplier = 10
+		elseif ball == 9 then
+			ballMultiplier = math.min(10+battleTurn,40)
+		end
+	end
+	return math.floor(baseMultiplier * ballMultiplier / 10 * (1-(2*hpCurrent/hpMax/3)) * statusMultiplier/255*100)
 end
 
 PokemonData.TypeIndexMap = {
