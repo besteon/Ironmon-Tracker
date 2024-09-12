@@ -525,6 +525,46 @@ MGBADisplay.LineBuilder = {
 
 		return lines
 	end,
+	buildCommandsAdvanced = function()
+		local lines = {}
+
+		local commandBar = " %-13s%-s"
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.CommandsAdvanced:getTitle()))
+
+		local usageInstructions = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.CommandsDesc, MGBA.CommandMap["REVO"].usageExample)
+		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+
+		local commandList = {
+			MGBA.CommandMap["REVO"],
+			MGBA.CommandMap["COVERAGE"],
+			MGBA.CommandMap["PIVOTS"],
+			MGBA.CommandMap["DUNGEON"],
+			MGBA.CommandMap["PROGRESS"],
+			MGBA.CommandMap["HEALS"],
+			MGBA.CommandMap["TMS"],
+			MGBA.CommandMap["SEARCH"],
+			MGBA.CommandMap["SEARCHNOTES"],
+		}
+
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsUsageSyntax))
+		for _, command in ipairs(commandList) do
+			if command.usageSyntax ~= nil then
+				table.insert(lines, Utils.formatUTF8(" %s", command.usageSyntax))
+			end
+		end
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsExampleUsage))
+		for _, command in ipairs(commandList) do
+			if command.usageExample ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageExample)
+				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
+			end
+		end
+
+		return lines
+	end,
 	buildCommandsOther = function()
 		local lines = {}
 

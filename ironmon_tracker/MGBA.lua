@@ -186,6 +186,17 @@ MGBA.Screens = {
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildCommandsBasic, self.displayLines, nil)
 		end,
 	},
+	CommandsAdvanced = {
+		getTitle = function(self)
+			return Resources.MGBA.MenuAdvancedCommands
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildCommandsAdvanced, self.displayLines, nil)
+		end,
+	},
 	CommandsOther = {
 		getTitle = function(self)
 			return Resources.MGBA.MenuOtherCommands
@@ -388,7 +399,7 @@ MGBA.OrderedScreens = {
 	MGBA.Screens.Language, MGBA.Screens.Extensions,
 
 	MGBA.Screens.CommandMenu,
-	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsOther,
+	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsAdvanced, MGBA.Screens.CommandsOther,
 
 	MGBA.Screens.LookupMenu,
 	MGBA.Screens.LookupPokemon, MGBA.Screens.LookupMove, MGBA.Screens.LookupAbility, MGBA.Screens.LookupRoute,
@@ -1366,7 +1377,7 @@ MGBA.CommandMap = {
 	},
 	["SEARCH"] = {
 		getDesc = function(self) return Resources.StreamConnect.CMD_Search_Help end,
-		usageSyntax = 'SEARCH() | SEARCH "searchterm"',
+		usageSyntax = 'SEARCH() | SEARCH "word(s)"',
 		usageExample = 'SEARCH "Drizzle"',
 		execute = function(self, params)
 			printf(" %s", DataHelper.EventRequests.getSearch(params))
@@ -1374,7 +1385,7 @@ MGBA.CommandMap = {
 	},
 	["SEARCHNOTES"] = {
 		getDesc = function(self) return Resources.StreamConnect.CMD_SearchNotes_Help end,
-		usageSyntax = 'SEARCHNOTES() | SEARCHNOTES "searchterm"',
+		usageSyntax = 'SEARCHNOTES() | SEARCHNOTES "word(s)"',
 		usageExample = 'SEARCHNOTES "tanky"',
 		execute = function(self, params)
 			printf(" %s", DataHelper.EventRequests.getSearchNotes(params))
