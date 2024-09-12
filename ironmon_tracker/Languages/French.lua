@@ -719,6 +719,7 @@ ScreenResources{
 		MenuExtensions = "Extensions", -- NEEDS TRANSLATION
 		MenuCommands = "Commands", -- NEEDS TRANSLATION
 		MenuBasicCommands = "Basic Commands", -- NEEDS TRANSLATION
+		MenuAdvancedCommands = "Advanced Commands", -- NEEDS TRANSLATION
 		MenuOtherCommands = "Other Commands", -- NEEDS TRANSLATION
 		MenuInfoLookup = "Info Lookup", -- NEEDS TRANSLATION
 		MenuPokemon = "Pokémon", -- NEEDS TRANSLATION

@@ -501,9 +501,8 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 	else
 		statusBonus = statusBonusMap[status] or 1 -- default: none
 	end
-	statusBonus = statusBonus / 255 * 100
 
-	local percentage = math.floor(hpMultiplier * baseCatchRate * ballBonus * statusBonus)
+	local percentage = math.floor(hpMultiplier * baseCatchRate * ballBonus * statusBonus / 255 * 100)
 	if percentage < 0 then
 		return 0
 	elseif percentage > 100 then

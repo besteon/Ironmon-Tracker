@@ -717,6 +717,7 @@ ScreenResources{
 		MenuExtensions = "Extensions",
 		MenuCommands = "Commands",
 		MenuBasicCommands = "Basic Commands",
+		MenuAdvancedCommands = "Advanced Commands",
 		MenuOtherCommands = "Other Commands",
 		MenuInfoLookup = "Info Lookup",
 		MenuPokemon = "Pokémon",

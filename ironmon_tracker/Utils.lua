@@ -681,6 +681,11 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 		return false
 	end
 
+	-- The default Hidden Power type (NORMAL) can't happen; thus can't be stab
+	if moveType == PokemonData.Types.NORMAL and id == tostring(MoveData.Values.HiddenPowerId) then
+		return false
+	end
+
 	-- Check if the move's type matches any of the 'types' provided
 	for _, type in ipairs(comparedTypes) do
 		if moveType == type then
