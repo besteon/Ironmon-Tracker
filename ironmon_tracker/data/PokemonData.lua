@@ -11,6 +11,7 @@ PokemonData.Values = {
 PokemonData.Addresses = {
 	offsetBaseStats = 0x0,
 	offsetTypes = 0x6,
+	offsetCatchRate = 0x8,
 	offsetExpYield = 0x9,
 	offsetGenderRatio = 0x10,
 	offsetBaseFriendship = 0x12,
@@ -240,6 +241,9 @@ function PokemonData.buildData(forced)
 				typeOne ~= typeTwo and PokemonData.TypeIndexMap[typeTwo] or PokemonData.Types.EMPTY,
 			}
 
+			--Catch Rate (1 byte)
+			pokemon.catchRate = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetCatchRate)
+
 			-- Exp Yield
 			if PokemonData.Addresses.sizeofExpYield == 2 then
 				pokemon.expYield = Memory.readword(addrOffset + PokemonData.Addresses.offsetExpYield)
@@ -416,6 +420,97 @@ function PokemonData.getEffectiveness(pokemonID)
 	end
 
 	return effectiveness
+end
+
+---Returns whole number between 0 and 100 representing the percent likelihood to catch a pokemon
+---@param pokemonID number
+---@param hpMax number
+---@param hpCurrent number
+---@param level number? Optional, the Pokémon level, used only for Nest Ball; defaults to 5
+---@param status number? Optional, defaults to "None"
+---@param ball number? Optional, defaults to Poké Ball (item id = 3)
+---@param terrain number? Optional, defaults to 0 (no terrain); use 3 for UNDERWATER
+---@param battleTurn number? Optional, defaults to 0; first turn of a battle
+---@return number
+function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, ball, terrain, battleTurn)
+	if not PokemonData.isValid(pokemonID) or hpMax <= 0 or hpCurrent <= 0 then
+		return 0
+	end
+	level = level or 5
+	status = status or MiscData.StatusType.None
+	ball = ball or 3
+	terrain = terrain or 0
+	battleTurn = battleTurn or 0
+
+	-- Calculations based off of: https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
+
+	-- Determine HP multiplier
+	local roundedHPPercent = math.ceil(hpCurrent / hpMax * 10) / 10 -- Estimate wild Pokémon's HP percent; round to nearest 10th
+	local hpMultiplier = 1 - (2 * roundedHPPercent / 3)
+
+	-- Determine base catch rate
+	local pokemon = PokemonData.Pokemon[pokemonID]
+	local baseCatchRate = pokemon.catchRate or 0
+
+	-- Determine ball type bonus multiplier
+	local ballBonusMap = {
+		[0] = 255, --Master Ball
+		[1] = 20, --Ultra Ball
+		[2] = 15, --Great Ball
+		[3] = 10, --Poke Ball
+		[4] = 15, --Safari Ball
+		[5] = 30, --Net Ball; only for WATER or BUG types
+		[6] = 35, --Dive Ball; only when map type is UNDERWATER
+		[7] = 40, --Nest Ball; subtract level of enemy, floor is 10
+		[8] = 30, --Repeat Ball; only if pokemon is flagged as caught already
+		[9] = 10, --Timer Ball; add turn counter, caps at 40
+		[10] = 10, --Luxury Ball
+		[11] = 10, --Premier Ball
+	}
+	local ballBonus
+	if ball <= 4 or ball >= 10 then
+		ballBonus = ballBonusMap[ball] or 10 -- default: poké ball
+	elseif ball == 5 and (pokemon.types[1] == PokemonData.Types.WATER or pokemon.types[2] == PokemonData.Types.WATER or pokemon.types[1] == PokemonData.Types.BUG or pokemon.types[2] == PokemonData.Types.BUG) then
+		ballBonus = ballBonusMap[5]
+	elseif ball == 6 and terrain == 3 then -- terrain 3: UNDERWATER
+		ballBonus = ballBonusMap[6]
+	elseif ball == 7 then
+		ballBonus = math.max(10, 40 - level)
+	elseif ball == 8 then
+		-- Data not available yet for calculation, default to poké ball
+		ballBonus = 10
+	elseif ball == 9 then
+		ballBonus = math.min(10 + battleTurn, 40)
+	end
+	ballBonus = ballBonus / 10
+
+	-- Determine status bonus multiplier
+	local statusBonusMap = {
+		[MiscData.StatusType.None] = 1,
+		[MiscData.StatusType.Burn] = 1.5,
+		[MiscData.StatusType.Freeze] = 2,
+		[MiscData.StatusType.Paralyze] = 1.5,
+		[MiscData.StatusType.Poison] = 1.5,
+		[MiscData.StatusType.Toxic] = 1.5,
+		[MiscData.StatusType.Sleep] = 2,
+	}
+	local statusBonus
+	-- Note: In R/S, toxic does not increase catch rate
+	if status == MiscData.StatusType.Toxic and (GameSettings.game == 1 or GameSettings.game == 2) then
+		statusBonus = 1
+	else
+		statusBonus = statusBonusMap[status] or 1 -- default: none
+	end
+	statusBonus = statusBonus / 255 * 100
+
+	local percentage = math.floor(hpMultiplier * baseCatchRate * ballBonus * statusBonus)
+	if percentage < 0 then
+		return 0
+	elseif percentage > 100 then
+		return 100
+	else
+		return percentage
+	end
 end
 
 PokemonData.TypeIndexMap = {

@@ -130,6 +130,7 @@ ScreenResources{
 		HeaderPP = "ＰＰ",
 		HeaderPow = "威力",
 		HeaderAcc = "命中",
+		ToCatch = "to catch", -- NEEDS TRANSLATION
 		LeaveANote = "メモを残す",
 		DamageTaken = "ダメージ",
 		DamageTakenInTeams = "ダメージ合計",
@@ -238,6 +239,7 @@ ScreenResources{
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
@@ -763,6 +765,8 @@ ScreenResources{
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION
@@ -858,6 +862,7 @@ ScreenResources{
 		TrackerSpAttack = "SPA", -- NEEDS TRANSLATION
 		TrackerSpDefense = "SPD", -- NEEDS TRANSLATION
 		TrackerSpeed = "SPE", -- NEEDS TRANSLATION
+		TrackerCatchRate = "Catch rate", -- NEEDS TRANSLATION
 		TrackerSurvivalPCs = "Survival PCs", -- NEEDS TRANSLATION
 		TrackerHeals = "Heals", -- NEEDS TRANSLATION
 		TrackerLastSeen = "Last seen", -- NEEDS TRANSLATION

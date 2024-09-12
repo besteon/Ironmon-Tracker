@@ -1258,6 +1258,7 @@ function TrackerScreen.drawStatsArea(data)
 end
 
 function TrackerScreen.drawMovesArea(data)
+	local headerColor = Theme.COLORS["Header text"]
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 
@@ -1276,10 +1277,17 @@ function TrackerScreen.drawMovesArea(data)
 	-- Draw move headers
 	gui.defaultTextBackground(Theme.COLORS["Main background"])
 	local headerY = moveOffsetY - moveTableHeaderHeightDiff
-	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, headerY, data.m.nextmoveheader, Theme.COLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, headerY, Resources.TrackerScreen.HeaderPP, Theme.COLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, Theme.COLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, headerY, Resources.TrackerScreen.HeaderAcc, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, headerY, data.m.nextmoveheader, headerColor, bgHeaderShadow)
+	-- Check if ball catch rate should be displayed instead of other header labels
+	if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
+		local catchText = string.format("~ %.0f%%  %s", data.x.catchrate, Resources.TrackerScreen.ToCatch)
+		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(catchText) - 2
+		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, catchText, headerColor, bgHeaderShadow)
+	else
+		Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, headerY, Resources.TrackerScreen.HeaderPP, headerColor, bgHeaderShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, headerColor, bgHeaderShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, headerY, Resources.TrackerScreen.HeaderAcc, headerColor, bgHeaderShadow)
+	end
 
 	-- Inidicate there are more moves being tracked than can fit on screen
 	if not Battle.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
