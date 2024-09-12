@@ -3,7 +3,7 @@ MGBADisplay = {
 		GENERAL_SETUP = 1,
 		CONTROLS = 11,
 		GAMEPLAY = 20,
-		NEW_RUNS = 30,
+		NEW_RUNS = 35,
 		LANGUAGE = 40,
 		EXTENSIONS = 50,
 	},
@@ -299,7 +299,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
-		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 8, 1 do
+		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 10, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -785,7 +785,15 @@ MGBADisplay.LineBuilder = {
 
 		lines[5] = Utils.formatUTF8(topFormattedLine, data.p.line1, formattedStats.def)
 		lines[6] = Utils.formatUTF8(topFormattedLine, data.p.line2, formattedStats.spa)
-		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+
+		-- Squeeze in the ball catch rate text if option enabled
+		if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
+			local CATCH_RATE = 0 -- TODO: REPLACE BELOW VARIABLE WITH VALUE FROM MEMORY AND DELETE THIS LINE; ENSURE BEFOREHAND VALUE IS A WHOLE NUMBER BETWEEN 0 AND 100
+			local catchRateLine = string.format("%s: %.0f%%", Resources.MGBAScreens.TrackerCatchRate, CATCH_RATE)
+			table.insert(lines, catchRateLine)
+		else
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		end
 
 		-- Bottom five lines of the box: Move related stuff
 		local botFormattedLine = "%-18s%-3s%-7s  %-3s"

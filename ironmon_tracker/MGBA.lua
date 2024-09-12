@@ -595,8 +595,16 @@ MGBA.OptionMap = {
 		optionKey = "Reveal info if randomized",
 		getText = function() return Resources.MGBA.OptionRevealRandomizedInfo end,
 	},
-	-- QUICKLOAD SETUP
+	[29] = {
+		optionKey = "Show heals as whole number",
+		getText = function() return Resources.MGBA.OptionShowHealsAsValue end,
+	},
 	[30] = {
+		optionKey = "Show Poke Ball catch rate",
+		getText = function() return Resources.MGBA.OptionShowBallCatchRate end,
+	},
+	-- QUICKLOAD SETUP
+	[35] = {
 		optionKey = "Use premade ROMs",
 		getText = function() return Resources.MGBA.OptionPremadeRoms end,
 		updateSelf = function(self, params)
@@ -610,7 +618,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 		},
-	[31] = {
+	[36] = {
 		optionKey = "Generate ROM each time",
 		getText = function() return Resources.MGBA.OptionGenerateRom end,
 		updateSelf = function(self, params)
@@ -684,7 +692,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[35] = { -- Currently not revealed
+	[37] = { -- Currently not revealed
 		optionKey = "Settings File",
 		getText = function() return Resources.MGBA.OptionSettingsFile end,
 		getValue = function(self)

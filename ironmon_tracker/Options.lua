@@ -8,6 +8,7 @@ Options = {
 	["Auto swap to enemy"] = true,
 	["Show random ball picker"] = true,
 	["Show heals as whole number"] = false,
+	["Show Poke Ball catch rate"] = false,
 	["Hide stats until summary shown"] = false,
 	["Right justified numbers"] = false,
 	["Show physical special icons"] = true,

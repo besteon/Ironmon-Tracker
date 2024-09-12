@@ -197,6 +197,7 @@ function ExtrasScreen.createButtons()
 	local optionKeyMap = {
 		{"Show random ball picker", "OptionShowRandomBallPicker", },
 		{"Show heals as whole number", "OptionShowHealsAsValue", },
+		{"Show Poke Ball catch rate", "OptionShowBallCatchRate", },
 		{"Display repel usage", "OptionDisplayRepelUsage", },
 		{"Display pedometer", "OptionDisplayPedometer", },
 		{"Display play time", "OptionDisplayPlayTime", },
