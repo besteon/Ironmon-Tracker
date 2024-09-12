@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 -- mGBA Scripting Docs: https://mgba.io/docs/scripting.html
 -- Uses Lua 5.4
 MGBA = {}
@@ -1315,6 +1316,78 @@ MGBA.CommandMap = {
 			Program.redraw(true)
 		end,
 	},
+	["DUNGEON"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Dungeon_Help end,
+		usageSyntax = 'DUNGEON() | DUNGEON "name"',
+		usageExample = 'DUNGEON "Rock Tunnel"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getDungeon(params))
+		end,
+	},
+	["PIVOTS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Pivots_Help end,
+		usageSyntax = 'PIVOTS()',
+		usageExample = 'PIVOTS()',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getPivots(params))
+		end,
+	},
+	["REVO"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Revo_Help end,
+		usageSyntax = 'REVO() | REVO "name"',
+		usageExample = 'REVO "Pikachu"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getRevo(params))
+		end,
+	},
+	["COVERAGE"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Coverage_Help end,
+		usageSyntax = 'COVERAGE() | COVERAGE "type-list"',
+		usageExample = 'COVERAGE "water fire psychic"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getCoverage(params))
+		end,
+	},
+	["HEALS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Heals_Help end,
+		usageSyntax = 'HEALS() | HEALS "category"',
+		usageExample = 'HEALS "status"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getHeals(params))
+		end,
+	},
+	["TMS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_TMs_Help end,
+		usageSyntax = 'TMS() | TMS "#" | TMS "gym"',
+		usageExample = 'TMS "39"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getTMsHMs(params))
+		end,
+	},
+	["SEARCH"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Search_Help end,
+		usageSyntax = 'SEARCH() | SEARCH "searchterm"',
+		usageExample = 'SEARCH "Drizzle"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getSearch(params))
+		end,
+	},
+	["SEARCHNOTES"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_SearchNotes_Help end,
+		usageSyntax = 'SEARCHNOTES() | SEARCHNOTES "searchterm"',
+		usageExample = 'SEARCHNOTES "tanky"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getSearchNotes(params))
+		end,
+	},
+	["PROGRESS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Progress_Help end,
+		usageSyntax = 'PROGRESS()',
+		usageExample = 'PROGRESS()',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getProgress(params))
+		end,
+	},
 }
 
 -- Global functions required by mGBA input prompts
@@ -1415,3 +1488,39 @@ function language(...) LANGUAGE(...) end
 function INSTALLEXT(...) MGBA.CommandMap["INSTALLEXT"]:execute(...) end
 function InstallExt(...) INSTALLEXT(...) end
 function installext(...) INSTALLEXT(...) end
+
+function DUNGEON(...) MGBA.CommandMap["DUNGEON"]:execute(...) end
+function Dungeon(...) DUNGEON(...) end
+function dungeon(...) DUNGEON(...) end
+
+function PIVOTS(...) MGBA.CommandMap["PIVOTS"]:execute(...) end
+function Pivots(...) PIVOTS(...) end
+function pivots(...) PIVOTS(...) end
+
+function REVO(...) MGBA.CommandMap["REVO"]:execute(...) end
+function Revo(...) REVO(...) end
+function revo(...) REVO(...) end
+
+function COVERAGE(...) MGBA.CommandMap["COVERAGE"]:execute(...) end
+function Coverage(...) COVERAGE(...) end
+function coverage(...) COVERAGE(...) end
+
+function HEALS(...) MGBA.CommandMap["HEALS"]:execute(...) end
+function Heals(...) HEALS(...) end
+function heals(...) HEALS(...) end
+
+function TMS(...) MGBA.CommandMap["TMS"]:execute(...) end
+function TMs(...) TMS(...) end
+function tms(...) TMS(...) end
+
+function SEARCH(...) MGBA.CommandMap["SEARCH"]:execute(...) end
+function Search(...) SEARCH(...) end
+function search(...) SEARCH(...) end
+
+function SEARCHNOTES(...) MGBA.CommandMap["SEARCHNOTES"]:execute(...) end
+function SearchNotes(...) SEARCHNOTES(...) end
+function searchnotes(...) SEARCHNOTES(...) end
+
+function PROGRESS(...) MGBA.CommandMap["PROGRESS"]:execute(...) end
+function Progress(...) PROGRESS(...) end
+function progress(...) PROGRESS(...) end

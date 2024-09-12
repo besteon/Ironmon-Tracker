@@ -1221,6 +1221,7 @@ function DataHelper.EventRequests.getCoverage(params)
 	local onlyFullyEvolved = false
 	local moveTypes = {}
 	if not Utils.isNilOrEmpty(params) then
+		params = Utils.replaceText(params or "", ",%s*", " ") -- Remove any list commas
 		for _, word in ipairs(Utils.split(params, " ", true) or {}) do
 			if Utils.containsText(word, "evolve", true) or Utils.containsText(word, "fully", true) then
 				onlyFullyEvolved = true
