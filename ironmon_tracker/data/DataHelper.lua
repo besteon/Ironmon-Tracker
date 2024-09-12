@@ -397,6 +397,12 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.encounters = 0
 	end
 
+	if Options["Show Poke Ball catch rate"] and not data.x.viewingOwn and Battle.isWildEncounter then
+		data.x.catchrate = PokemonData.calcCatchRate(viewedPokemon.pokemonID, viewedPokemon.stats.hp, viewedPokemon.curHP, viewedPokemon.level, viewedPokemon.status)
+	else
+		data.x.catchrate = 0
+	end
+
 	data.x.extras = Program.getExtras()
 
 	return data

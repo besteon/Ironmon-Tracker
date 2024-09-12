@@ -788,8 +788,7 @@ MGBADisplay.LineBuilder = {
 
 		-- Squeeze in the ball catch rate text if option enabled
 		if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
-			local CATCH_RATE = 0 -- TODO: REPLACE BELOW VARIABLE WITH VALUE FROM MEMORY AND DELETE THIS LINE; ENSURE BEFOREHAND VALUE IS A WHOLE NUMBER BETWEEN 0 AND 100
-			local catchRateLine = string.format("%s: %.0f%%", Resources.MGBAScreens.TrackerCatchRate, CATCH_RATE)
+			local catchRateLine = string.format("%s: ~%.0f%%", Resources.MGBAScreens.TrackerCatchRate, data.x.catchrate)
 			table.insert(lines, catchRateLine)
 		else
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)

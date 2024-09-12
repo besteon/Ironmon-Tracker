@@ -694,6 +694,7 @@ Constants.Char = {
 	[">"] = { width = 4, },
 	["/"] = { width = 4, },
 	[":"] = { width = 1, },
+	["~"] = { width = 5, },
 	["a"] = { width = 4, },
 	["A"] = { width = 4, },
 	["b"] = { width = 4, },
