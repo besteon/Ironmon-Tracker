@@ -436,6 +436,8 @@ function PokemonData.getCatchRatePercentage(pokemonID, status, ball, hpMax, hpCu
 	if not PokemonData.isValid(pokemonID) or hpCurrent == 0 then
 		return 0
 	end
+	--Round to nearest 8th
+	local roundedHPPercent = math.ceil(hpCurrent/hpMax*8)/8
 	local gameIndex = GameSettings.game
 	local pokemon = PokemonData.Pokemon[pokemonID]
 	local baseMultiplier = pokemon.catchRate
@@ -488,7 +490,7 @@ function PokemonData.getCatchRatePercentage(pokemonID, status, ball, hpMax, hpCu
 			ballMultiplier = math.min(10+battleTurn,40)
 		end
 	end
-	return math.floor(baseMultiplier * ballMultiplier / 10 * (1-(2*hpCurrent/hpMax/3)) * statusMultiplier/255*100)
+	return math.floor(baseMultiplier * ballMultiplier / 10 * (1-(2*roundedHPPercent/3)) * statusMultiplier/255*100)
 end
 
 PokemonData.TypeIndexMap = {
