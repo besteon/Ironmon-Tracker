@@ -3,7 +3,7 @@ MGBADisplay = {
 		GENERAL_SETUP = 1,
 		CONTROLS = 11,
 		GAMEPLAY = 20,
-		NEW_RUNS = 30,
+		NEW_RUNS = 35,
 		LANGUAGE = 40,
 		EXTENSIONS = 50,
 	},
@@ -299,7 +299,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
-		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 8, 1 do
+		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 10, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -511,6 +511,46 @@ MGBADisplay.LineBuilder = {
 			if command.usageSyntax ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
 				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
+			end
+		end
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsExampleUsage))
+		for _, command in ipairs(commandList) do
+			if command.usageExample ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageExample)
+				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
+			end
+		end
+
+		return lines
+	end,
+	buildCommandsAdvanced = function()
+		local lines = {}
+
+		local commandBar = " %-13s%-s"
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.CommandsAdvanced:getTitle()))
+
+		local usageInstructions = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.CommandsDesc, MGBA.CommandMap["REVO"].usageExample)
+		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+
+		local commandList = {
+			MGBA.CommandMap["REVO"],
+			MGBA.CommandMap["COVERAGE"],
+			MGBA.CommandMap["PIVOTS"],
+			MGBA.CommandMap["DUNGEON"],
+			MGBA.CommandMap["PROGRESS"],
+			MGBA.CommandMap["HEALS"],
+			MGBA.CommandMap["TMS"],
+			MGBA.CommandMap["SEARCH"],
+			MGBA.CommandMap["SEARCHNOTES"],
+		}
+
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsUsageSyntax))
+		for _, command in ipairs(commandList) do
+			if command.usageSyntax ~= nil then
+				table.insert(lines, Utils.formatUTF8(" %s", command.usageSyntax))
 			end
 		end
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
@@ -751,7 +791,12 @@ MGBADisplay.LineBuilder = {
 				lines[7] = Utils.formatUTF8(topFormattedLine, "", formattedStats.spd)
 			end
 
-			local availableHeals = Utils.formatUTF8("%s: %.0f%% (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healperc, data.x.healnum)
+			local availableHeals
+			if Options["Show heals as whole number"] then
+				availableHeals = Utils.formatUTF8("%s: %.0f (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healvalue, data.x.healnum)
+			else
+				availableHeals = Utils.formatUTF8("%s: %.0f%% (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healperc, data.x.healnum)
+			end
 			lines[8] = Utils.formatUTF8(topFormattedLine, availableHeals, formattedStats.spe)
 		else
 			lines[3] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.hp)
@@ -780,7 +825,14 @@ MGBADisplay.LineBuilder = {
 
 		lines[5] = Utils.formatUTF8(topFormattedLine, data.p.line1, formattedStats.def)
 		lines[6] = Utils.formatUTF8(topFormattedLine, data.p.line2, formattedStats.spa)
-		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+
+		-- Squeeze in the ball catch rate text if option enabled
+		if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
+			local catchRateLine = string.format("%s: ~%.0f%%", Resources.MGBAScreens.TrackerCatchRate, data.x.catchrate)
+			table.insert(lines, catchRateLine)
+		else
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		end
 
 		-- Bottom five lines of the box: Move related stuff
 		local botFormattedLine = "%-18s%-3s%-7s  %-3s"

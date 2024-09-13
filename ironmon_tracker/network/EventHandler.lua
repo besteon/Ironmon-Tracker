@@ -37,6 +37,27 @@ EventHandler.CommandRoles = {
 	Viewer = "Viewer", -- Unused
 }
 
+---Runs additional functions after Network attempts to connect
+function EventHandler.onStartup()
+	local settingsUpdated = false
+
+	local ballqEvent = EventHandler.Events.CMD_BallQueue or {}
+	local ballqRequest = EventHandler.Queues.BallRedeems.ActiveRequest
+	if ballqEvent.O_ShowBallQueueOnStartup and ballqRequest ~= nil then
+		-- Only show message if it wasn't shown the last startup
+		local lasGUID = Main.MetaSettings["network"].LastBallQueueGUID or ""
+		if lasGUID ~= ballqRequest.GUID then
+			EventHandler.triggerEvent("CMD_BallQueue")
+			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
+			settingsUpdated = true
+		end
+	end
+
+	if settingsUpdated then
+		Main.SaveSettings(true)
+	end
+end
+
 ---Clears out existing event info; similar to initialize(), but managed by Network
 function EventHandler.reset()
 	EventHandler.RewardsExternal = {}
@@ -552,6 +573,8 @@ EventHandler.DefaultEvents = {
 	CMD_BallQueue = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!ballqueue",
+		Options = { "O_ShowBallQueueOnStartup", },
+		O_ShowBallQueueOnStartup = false,
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBallQueue(request.SanitizedInput) end,
 	},
 	CMD_About = {

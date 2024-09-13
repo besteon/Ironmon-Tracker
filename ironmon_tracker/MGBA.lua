@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 -- mGBA Scripting Docs: https://mgba.io/docs/scripting.html
 -- Uses Lua 5.4
 MGBA = {}
@@ -183,6 +184,17 @@ MGBA.Screens = {
 		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildCommandsBasic, self.displayLines, nil)
+		end,
+	},
+	CommandsAdvanced = {
+		getTitle = function(self)
+			return Resources.MGBA.MenuAdvancedCommands
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildCommandsAdvanced, self.displayLines, nil)
 		end,
 	},
 	CommandsOther = {
@@ -387,7 +399,7 @@ MGBA.OrderedScreens = {
 	MGBA.Screens.Language, MGBA.Screens.Extensions,
 
 	MGBA.Screens.CommandMenu,
-	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsOther,
+	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsAdvanced, MGBA.Screens.CommandsOther,
 
 	MGBA.Screens.LookupMenu,
 	MGBA.Screens.LookupPokemon, MGBA.Screens.LookupMove, MGBA.Screens.LookupAbility, MGBA.Screens.LookupRoute,
@@ -595,8 +607,16 @@ MGBA.OptionMap = {
 		optionKey = "Reveal info if randomized",
 		getText = function() return Resources.MGBA.OptionRevealRandomizedInfo end,
 	},
-	-- QUICKLOAD SETUP
+	[29] = {
+		optionKey = "Show heals as whole number",
+		getText = function() return Resources.MGBA.OptionShowHealsAsValue end,
+	},
 	[30] = {
+		optionKey = "Show Poke Ball catch rate",
+		getText = function() return Resources.MGBA.OptionShowBallCatchRate end,
+	},
+	-- QUICKLOAD SETUP
+	[35] = {
 		optionKey = "Use premade ROMs",
 		getText = function() return Resources.MGBA.OptionPremadeRoms end,
 		updateSelf = function(self, params)
@@ -610,7 +630,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 		},
-	[31] = {
+	[36] = {
 		optionKey = "Generate ROM each time",
 		getText = function() return Resources.MGBA.OptionGenerateRom end,
 		updateSelf = function(self, params)
@@ -684,7 +704,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[35] = { -- Currently not revealed
+	[37] = { -- Currently not revealed
 		optionKey = "Settings File",
 		getText = function() return Resources.MGBA.OptionSettingsFile end,
 		getValue = function(self)
@@ -1307,6 +1327,78 @@ MGBA.CommandMap = {
 			Program.redraw(true)
 		end,
 	},
+	["DUNGEON"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Dungeon_Help end,
+		usageSyntax = 'DUNGEON() | DUNGEON "name"',
+		usageExample = 'DUNGEON "Rock Tunnel"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getDungeon(params))
+		end,
+	},
+	["PIVOTS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Pivots_Help end,
+		usageSyntax = 'PIVOTS()',
+		usageExample = 'PIVOTS()',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getPivots(params))
+		end,
+	},
+	["REVO"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Revo_Help end,
+		usageSyntax = 'REVO() | REVO "name"',
+		usageExample = 'REVO "Pikachu"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getRevo(params))
+		end,
+	},
+	["COVERAGE"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Coverage_Help end,
+		usageSyntax = 'COVERAGE() | COVERAGE "type-list"',
+		usageExample = 'COVERAGE "water fire psychic"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getCoverage(params))
+		end,
+	},
+	["HEALS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Heals_Help end,
+		usageSyntax = 'HEALS() | HEALS "category"',
+		usageExample = 'HEALS "status"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getHeals(params))
+		end,
+	},
+	["TMS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_TMs_Help end,
+		usageSyntax = 'TMS() | TMS "#" | TMS "gym"',
+		usageExample = 'TMS "39"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getTMsHMs(params))
+		end,
+	},
+	["SEARCH"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Search_Help end,
+		usageSyntax = 'SEARCH() | SEARCH "word(s)"',
+		usageExample = 'SEARCH "Drizzle"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getSearch(params))
+		end,
+	},
+	["SEARCHNOTES"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_SearchNotes_Help end,
+		usageSyntax = 'SEARCHNOTES() | SEARCHNOTES "word(s)"',
+		usageExample = 'SEARCHNOTES "tanky"',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getSearchNotes(params))
+		end,
+	},
+	["PROGRESS"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Progress_Help end,
+		usageSyntax = 'PROGRESS()',
+		usageExample = 'PROGRESS()',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getProgress(params))
+		end,
+	},
 }
 
 -- Global functions required by mGBA input prompts
@@ -1407,3 +1499,39 @@ function language(...) LANGUAGE(...) end
 function INSTALLEXT(...) MGBA.CommandMap["INSTALLEXT"]:execute(...) end
 function InstallExt(...) INSTALLEXT(...) end
 function installext(...) INSTALLEXT(...) end
+
+function DUNGEON(...) MGBA.CommandMap["DUNGEON"]:execute(...) end
+function Dungeon(...) DUNGEON(...) end
+function dungeon(...) DUNGEON(...) end
+
+function PIVOTS(...) MGBA.CommandMap["PIVOTS"]:execute(...) end
+function Pivots(...) PIVOTS(...) end
+function pivots(...) PIVOTS(...) end
+
+function REVO(...) MGBA.CommandMap["REVO"]:execute(...) end
+function Revo(...) REVO(...) end
+function revo(...) REVO(...) end
+
+function COVERAGE(...) MGBA.CommandMap["COVERAGE"]:execute(...) end
+function Coverage(...) COVERAGE(...) end
+function coverage(...) COVERAGE(...) end
+
+function HEALS(...) MGBA.CommandMap["HEALS"]:execute(...) end
+function Heals(...) HEALS(...) end
+function heals(...) HEALS(...) end
+
+function TMS(...) MGBA.CommandMap["TMS"]:execute(...) end
+function TMs(...) TMS(...) end
+function tms(...) TMS(...) end
+
+function SEARCH(...) MGBA.CommandMap["SEARCH"]:execute(...) end
+function Search(...) SEARCH(...) end
+function search(...) SEARCH(...) end
+
+function SEARCHNOTES(...) MGBA.CommandMap["SEARCHNOTES"]:execute(...) end
+function SearchNotes(...) SEARCHNOTES(...) end
+function searchnotes(...) SEARCHNOTES(...) end
+
+function PROGRESS(...) MGBA.CommandMap["PROGRESS"]:execute(...) end
+function Progress(...) PROGRESS(...) end
+function progress(...) PROGRESS(...) end

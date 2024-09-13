@@ -66,6 +66,8 @@ function Network.initialize()
 	if Network.Options["AutoConnectStartup"] then
 		Network.tryConnect()
 	end
+
+	Program.addFrameCounter("NetworkEventStartup", 30, EventHandler.onStartup, 1, true)
 end
 
 ---Checks current version of the Tracker's Network code against the Streamerbot code version

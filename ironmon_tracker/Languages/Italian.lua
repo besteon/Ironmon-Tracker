@@ -130,6 +130,7 @@ ScreenResources{
 		HeaderPP = "PP", -- NEEDS TRANSLATION
 		HeaderPow = "Pow", -- NEEDS TRANSLATION
 		HeaderAcc = "Acc", -- NEEDS TRANSLATION
+		ToCatch = "to catch", -- NEEDS TRANSLATION
 		LeaveANote = "Leave a note", -- NEEDS TRANSLATION
 		DamageTaken = "damage", -- NEEDS TRANSLATION
 		DamageTakenInTeams = "Total received", -- NEEDS TRANSLATION
@@ -235,6 +236,8 @@ ScreenResources{
 		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
@@ -635,6 +638,8 @@ ScreenResources{
 		CMD_Progress_Help = "> Displays fun progress percentages for the current game.",
 		CMD_Log_Name = "Log Randomizer Settings",
 		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
+		CMD_BallQueue_Name = "Ball Queue",
+		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
 		CMD_About_Name = "About the Tracker",
 		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
 		CMD_Help_Name = "Command Help",
@@ -654,6 +659,7 @@ ScreenResources{
 		O_WordForMiddle = "Word for Middle",
 		O_WordForRight = "Word for Right",
 		O_WordForRandom = "Word for Random",
+		O_ShowBallQueueOnStartup = "Show Ball Queue info on startup",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
 		TabCommands = "Commands",
 		TabRewards = "Rewards",
@@ -713,6 +719,7 @@ ScreenResources{
 		MenuExtensions = "Extensions", -- NEEDS TRANSLATION
 		MenuCommands = "Commands", -- NEEDS TRANSLATION
 		MenuBasicCommands = "Basic Commands", -- NEEDS TRANSLATION
+		MenuAdvancedCommands = "Advanced Commands", -- NEEDS TRANSLATION
 		MenuOtherCommands = "Other Commands", -- NEEDS TRANSLATION
 		MenuInfoLookup = "Info Lookup", -- NEEDS TRANSLATION
 		MenuPokemon = "Pokémon", -- NEEDS TRANSLATION
@@ -757,6 +764,8 @@ ScreenResources{
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION
@@ -852,6 +861,7 @@ ScreenResources{
 		TrackerSpAttack = "SPA", -- NEEDS TRANSLATION
 		TrackerSpDefense = "SPD", -- NEEDS TRANSLATION
 		TrackerSpeed = "SPE", -- NEEDS TRANSLATION
+		TrackerCatchRate = "Catch rate", -- NEEDS TRANSLATION
 		TrackerSurvivalPCs = "Survival PCs", -- NEEDS TRANSLATION
 		TrackerHeals = "Heals", -- NEEDS TRANSLATION
 		TrackerLastSeen = "Last seen", -- NEEDS TRANSLATION

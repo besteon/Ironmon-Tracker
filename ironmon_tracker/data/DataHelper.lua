@@ -381,6 +381,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	-- MISC DATA (data.x)
 	data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
+	data.x.healvalue = math.min(99999, Program.GameData.Items.healingValue or 0) -- Max of 99999
 	data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
 	data.x.pcheals = Tracker.Data.centerHeals
 
@@ -394,6 +395,12 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.encounters = math.min(Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter), 999) -- Max 999
 	else
 		data.x.encounters = 0
+	end
+
+	if Options["Show Poke Ball catch rate"] and not data.x.viewingOwn and Battle.isWildEncounter then
+		data.x.catchrate = PokemonData.calcCatchRate(viewedPokemon.pokemonID, viewedPokemon.stats.hp, viewedPokemon.curHP, viewedPokemon.level, viewedPokemon.status)
+	else
+		data.x.catchrate = 0
 	end
 
 	data.x.extras = Program.getExtras()
@@ -1214,6 +1221,7 @@ function DataHelper.EventRequests.getCoverage(params)
 	local onlyFullyEvolved = false
 	local moveTypes = {}
 	if not Utils.isNilOrEmpty(params) then
+		params = Utils.replaceText(params or "", ",%s*", " ") -- Remove any list commas
 		for _, word in ipairs(Utils.split(params, " ", true) or {}) do
 			if Utils.containsText(word, "evolve", true) or Utils.containsText(word, "fully", true) then
 				onlyFullyEvolved = true

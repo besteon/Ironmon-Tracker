@@ -1239,6 +1239,7 @@ function Program.recalcLeadPokemonHealingInfo()
 	local items = Program.GameData.Items
 	items.healingTotal = 0
 	items.healingPercentage = 0
+	items.healingValue = 0
 
 	for itemID, quantity in pairs(items.HPHeals or {}) do
 		-- An arbitrary max value to prevent erroneous game data reads
@@ -1253,6 +1254,7 @@ function Program.recalcLeadPokemonHealingInfo()
 			end
 			items.healingTotal = items.healingTotal + quantity
 			items.healingPercentage = items.healingPercentage + percentageAmt
+			items.healingValue = items.healingValue + math.floor(percentageAmt * maxHP / 100 + 0.5)
 		end
 	end
 end
