@@ -445,8 +445,9 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 	-- Calculations based off of: https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
 
 	-- Determine HP multiplier
-	local roundedHPPercent = math.ceil(hpCurrent / hpMax * 10) / 10 -- Estimate wild Pokémon's HP percent; round to nearest 10th
-	local hpMultiplier = 1 - (2 * roundedHPPercent / 3)
+	local estimatedCurrHP = math.floor(math.ceil(hpCurrent / hpMax * 10) / 10 * hpMax)
+	local hpNumerator = hpMax * 3 - estimatedCurrHP * 2
+	local hpDenominator = hpMax * 3
 
 	-- Determine base catch rate
 	local pokemon = PokemonData.Pokemon[pokemonID]
@@ -482,7 +483,7 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 	elseif ball == 9 then
 		ballBonus = math.min(10 + battleTurn, 40)
 	end
-	ballBonus = ballBonus / 10
+	ballBonus = math.floor(ballBonus / 10)
 
 	-- Determine status bonus multiplier
 	local statusBonusMap = {
@@ -502,7 +503,17 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 		statusBonus = statusBonusMap[status] or 1 -- default: none
 	end
 
-	local percentage = math.floor(hpMultiplier * baseCatchRate * ballBonus * statusBonus / 255 * 100)
+	--Number between 0 and a lot; 255+ = caught
+	local rawCatchRate = math.floor(math.floor(baseCatchRate * ballBonus * hpNumerator / hpDenominator) * statusBonus)
+	local processedCatchRate = 0
+	local percentage = 0
+	if rawCatchRate > 254 then
+		percentage = 100
+	else
+		processedCatchRate = math.floor(1048560 / math.floor(math.sqrt(math.floor(math.sqrt(math.floor(16711680/rawCatchRate))))))
+		percentage = math.floor(processedCatchRate / 65535 * 100) / 100
+		percentage = math.floor(percentage * percentage * percentage * percentage * 100)
+	end
 	if percentage < 0 then
 		return 0
 	elseif percentage > 100 then
