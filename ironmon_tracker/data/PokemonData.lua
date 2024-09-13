@@ -508,7 +508,9 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 	local rawCatchRate = math.floor(math.floor(baseCatchRate * ballBonus * hpMultiplier) * statusBonus)
 	local processedCatchRate = 0
 	local percentage = 0
-	if rawCatchRate > 254 then
+	if rawCatchRate <=0 then
+		percentage = 0
+	elseif rawCatchRate > 254 then
 		percentage = 100
 	else
 		--Process rate is between 0 and 65535, represents chance of a 'ball shake'
