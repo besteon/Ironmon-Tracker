@@ -446,6 +446,8 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 
 	-- Determine HP multiplier
 	local estimatedCurrHP = math.floor(math.ceil(hpCurrent / hpMax * 10) / 10 * hpMax)
+
+	--2 Separate HP calculations for flooring purposes later
 	local hpNumerator = hpMax * 3 - estimatedCurrHP * 2
 	local hpDenominator = hpMax * 3
 
@@ -503,16 +505,18 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 		statusBonus = statusBonusMap[status] or 1 -- default: none
 	end
 
-	--Number between 0 and a lot; 255+ = caught
+	--Number between 0 and a lot; 255+ means guaranteed catch
 	local rawCatchRate = math.floor(math.floor(baseCatchRate * ballBonus * hpNumerator / hpDenominator) * statusBonus)
 	local processedCatchRate = 0
 	local percentage = 0
 	if rawCatchRate > 254 then
 		percentage = 100
 	else
+		--Process rate is between 0 and 65535, represents chance of a 'ball shake'
 		processedCatchRate = math.floor(1048560 / math.floor(math.sqrt(math.floor(math.sqrt(math.floor(16711680/rawCatchRate))))))
-		percentage = math.floor(processedCatchRate / 65535 * 100) / 100
-		percentage = math.floor(percentage * percentage * percentage * percentage * 100)
+		processedCatchRate = math.floor(processedCatchRate / 65535 * 100) / 100
+		--4 Ball shakes to catch. Technically comes out to dividing the original rate by 255, but using this formula to keep the cacluation consistent with the actual game's method
+		percentage = math.floor(processedCatchRate * processedCatchRate * processedCatchRate * processedCatchRate * 100)
 	end
 	if percentage < 0 then
 		return 0
