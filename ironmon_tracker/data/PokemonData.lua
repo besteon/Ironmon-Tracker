@@ -444,9 +444,11 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 
 	-- Calculations based off of: https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
 
-	-- Determine HP multiplier
-	local roundedHPPercent = math.ceil(hpCurrent / hpMax * 10) / 10 -- Estimate wild Pokémon's HP percent; round to nearest 10th
-	local hpMultiplier = 1 - (2 * roundedHPPercent / 3)
+	-- Estimate wild Pokémon's HP percent; round to nearest 10th
+	local estimatedCurrHP = math.floor(math.ceil(hpCurrent / hpMax * 10) / 10 * hpMax)
+
+	-- Changing to more closely resemble the actual in-game formula
+	local hpMultiplier = (hpMax * 3 - estimatedCurrHP * 2) / (hpMax * 3)
 
 	-- Determine base catch rate
 	local pokemon = PokemonData.Pokemon[pokemonID]
@@ -502,7 +504,21 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 		statusBonus = statusBonusMap[status] or 1 -- default: none
 	end
 
-	local percentage = math.floor(hpMultiplier * baseCatchRate * ballBonus * statusBonus / 255 * 100)
+	--Number between 0 and a lot; 255+ means guaranteed catch
+	local rawCatchRate = math.floor(math.floor(baseCatchRate * ballBonus * hpMultiplier) * statusBonus)
+	local processedCatchRate = 0
+	local percentage = 0
+	if rawCatchRate <=0 then
+		percentage = 0
+	elseif rawCatchRate > 254 then
+		percentage = 100
+	else
+		--Process rate is between 0 and 65535, represents chance of a 'ball shake'
+		processedCatchRate = math.floor(1048560 / math.floor(math.sqrt(math.floor(math.sqrt(math.floor(16711680/rawCatchRate))))))
+		processedCatchRate = math.floor(processedCatchRate / 65535 * 100) / 100
+		--4 Ball shakes to catch. Technically comes out to dividing the original rate by 255, but using this formula to keep the cacluation consistent with the actual game's method
+		percentage = math.floor(processedCatchRate * processedCatchRate * processedCatchRate * processedCatchRate * 100)
+	end
 	if percentage < 0 then
 		return 0
 	elseif percentage > 100 then
