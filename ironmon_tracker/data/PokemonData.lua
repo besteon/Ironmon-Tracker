@@ -444,7 +444,7 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 
 	-- Calculations based off of: https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
 
-	-- Determine HP multiplier
+	-- Estimate wild Pokémon's HP percent; round to nearest 10th
 	local estimatedCurrHP = math.floor(math.ceil(hpCurrent / hpMax * 10) / 10 * hpMax)
 
 	--2 Separate HP calculations for flooring purposes later
