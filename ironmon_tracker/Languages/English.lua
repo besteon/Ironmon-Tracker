@@ -614,7 +614,7 @@ ScreenResources{
 		CMD_Dungeon_Name = "Dungeon Info",
 		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
 		CMD_Pivots_Name = "Pivots Seen",
-		CMD_Pivots_Help = "name > Displays known early game wild encounters for an area.",
+		CMD_Pivots_Help = "> Displays known early game wild encounters for an area.",
 		CMD_Revo_Name = "Pokémon Random Evolutions",
 		CMD_Revo_Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		CMD_Coverage_Name = "Move Coverage Effectiveness",
