@@ -503,13 +503,11 @@ EventHandler.DefaultEvents = {
 		Command = "!dungeon",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
 	},
-	-- CMD_RemainingTrainers = {
-	-- 	Type = EventHandler.EventTypes.Command,
-	-- 	Name = "Remaining Trainers", -- TODO: Move to Resources file
-	-- 	Command = "!trainers",
-	-- 	Help = "> Displays a summary of trainers that have yet to be defeated.", -- TODO: Move to Resources file
-	-- 	Fulfill = function(self, request) return DataHelper.EventRequests.getRemainingTrainers(request.SanitizedInput) end,
-	-- },
+	CMD_Unfought = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!unfought",
+		Fulfill = function(self, request) return DataHelper.EventRequests.getUnfoughtTrainers(request.SanitizedInput) end,
+	},
 	CMD_Pivots = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!pivots",
