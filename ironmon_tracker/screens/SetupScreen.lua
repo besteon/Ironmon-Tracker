@@ -184,7 +184,7 @@ function SetupScreen.createTabs()
 	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return Resources.SetupScreen[tab.resourceKey] end,
+			getCustomText = function(self) return Resources.SetupScreen[tab.resourceKey] end,
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
 			box = {
@@ -212,8 +212,8 @@ function SetupScreen.createTabs()
 				if self.isSelected then
 					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
 				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self)
 				SCREEN.currentTab = self.tab

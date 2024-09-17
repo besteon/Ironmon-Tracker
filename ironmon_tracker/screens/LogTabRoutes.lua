@@ -137,7 +137,7 @@ function LogTabRoutes.buildPagedButtons()
 
 		local rowButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return routeName end,
+			getCustomText = function(self) return routeName end,
 			id = mapId,
 			numTrainers = route.numTrainers,
 			minTrainerLv = route.minTrainerLv,
@@ -163,7 +163,7 @@ function LogTabRoutes.buildPagedButtons()
 
 				local trainersInArea = (route.EncountersAreas["Trainers"] or {}).trainers or {}
 				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.RouteName then
-					if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
+					if Utils.containsText(self:getCustomText(), LogSearchScreen.searchText, true) then
 						return true
 					end
 				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
@@ -266,7 +266,7 @@ function LogTabRoutes.buildPagedButtons()
 
 				-- Route Name
 				textColor = Theme.COLORS[routeBar.cols[2].textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
-				Drawing.drawText(x + routeBar.cols[2].x + 3, y + centeredY, self:getText(), textColor, shadowcolor)
+				Drawing.drawText(x + routeBar.cols[2].x + 3, y + centeredY, self:getCustomText(), textColor, shadowcolor)
 
 				local col, text, centeredX
 				-- # Wilds and levels
