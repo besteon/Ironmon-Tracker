@@ -1132,9 +1132,89 @@ end
 
 ---@param params string?
 ---@return string response
-function DataHelper.EventRequests.getRemainingTrainers(params)
-	-- TODO: Implement in a later patch
-	return buildDefaultResponse(params)
+function DataHelper.EventRequests.getUnfoughtTrainers(params)
+	local allowPartialDungeons = Utils.containsText(params, "dungeon", true)
+	local includeSevii
+	if GameSettings.game == 3 then
+		includeSevii = Utils.containsText(params, "sevii", true)
+	else
+		includeSevii = true -- to allow routes above the sevii route id for RSE
+	end
+
+	local MAX_AREAS_TO_CHECK = 6
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local trainersToExclude = TrainerData.getExcludedTrainers()
+	local currentRouteId = TrackerAPI.getMapId()
+
+	-- Build a map of all trainers to what route they are on
+	local trainerToRoute = {}
+	for routeId, route in pairs(RouteData.Info or {}) do
+		local canUseRoute = (includeSevii or routeId < 230) -- find a way to check for dungeons
+		if canUseRoute and route.trainers and #route.trainers > 0 then
+			for _, trainerId in ipairs(route.trainers or {}) do
+				trainerToRoute[trainerId] = routeId
+			end
+		end
+	end
+
+	local info = {}
+	local checkedIds = {}
+	for _, trainerId in ipairs(TrainerData.OrderedIds or {}) do
+		if not checkedIds[trainerId] and not trainersToExclude[trainerId] and trainerToRoute[trainerId] then
+			-- Check area for defeated trainers and mark each trainer as checked
+			local routeId = trainerToRoute[trainerId] or -1
+			local route = RouteData.Info[routeId] or {}
+			local defeatedTrainers, totalTrainers
+			local ifDungeonAndIncluded = true -- true for non-dungeons, otherwise gets excluded if partially completed
+			if route.area ~= nil then
+				defeatedTrainers, totalTrainers = Program.getDefeatedTrainersByCombinedArea(route.area, saveBlock1Addr)
+				-- Don't include dungeons that are partially completed unless the player is currently there
+				if route.area.dungeon and #defeatedTrainers > 0 then
+					local isThere = false
+					for _, id in ipairs(route.area or {}) do
+						if id == currentRouteId then
+							isThere = true
+							break
+						end
+					end
+					ifDungeonAndIncluded = isThere or allowPartialDungeons
+				end
+				for _, areaRouteId in ipairs(route.area) do
+					local areaRoute = RouteData.Info[areaRouteId] or {}
+					for _, id in ipairs(areaRoute.trainers or {}) do
+						checkedIds[id] = true
+					end
+				end
+			elseif route.trainers and #route.trainers > 0 then
+				defeatedTrainers, totalTrainers = Program.getDefeatedTrainersByLocation(routeId, saveBlock1Addr)
+				-- Don't include dungeons that are partially completed unless the player is currently there
+				if route.dungeon and #defeatedTrainers > 0 and currentRouteId ~= routeId then
+					ifDungeonAndIncluded = allowPartialDungeons
+				end
+				for _, id in ipairs(route.trainers) do
+					checkedIds[id] = true
+				end
+			end
+
+			-- Add to info if area has unfought trainers (not all defeated)
+			if defeatedTrainers and totalTrainers and #defeatedTrainers < totalTrainers and ifDungeonAndIncluded then
+				local routeName = route.area and route.area.name or route.name
+				local routeText = string.format("%s (%s/%s)", routeName, #defeatedTrainers, totalTrainers)
+				table.insert(info, routeText)
+			end
+
+			if #info >= MAX_AREAS_TO_CHECK then
+				table.insert(info, "...")
+				break
+			end
+		end
+	end
+	if #info == 0 then
+		table.insert(info, "All available trainers have been defeated!")
+	end
+
+	local prefix = string.format("%s %s", "Unfought Trainers", OUTPUT_CHAR)
+	return buildResponse(prefix, info, ", ")
 end
 
 ---@param params string?

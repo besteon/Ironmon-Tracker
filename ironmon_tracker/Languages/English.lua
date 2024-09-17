@@ -613,6 +613,8 @@ ScreenResources{
 		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
 		CMD_Dungeon_Name = "Dungeon Info",
 		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
+		CMD_Unfought_Name = "Unfought Trainers",
+		CMD_Unfought_Help = "[dungeon] [sevii]> Displays a summary of areas with trainers that have yet to be defeated. Use 'dungeon' to include partially completed dungeons.",
 		CMD_Pivots_Name = "Pivots Seen",
 		CMD_Pivots_Help = "> Displays known early game wild encounters for an area.",
 		CMD_Revo_Name = "Pokémon Random Evolutions",

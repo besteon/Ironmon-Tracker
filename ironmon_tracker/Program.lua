@@ -1147,10 +1147,11 @@ end
 
 --- Returns a list of trainerIds of trainers defeated in the combined area (Use RouteData.CombinedAreas), as well as the total number of trainers in those areas
 --- @param mapIdList table
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
 --- @return table defeatedTrainers, number totalTrainers
-function Program.getDefeatedTrainersByCombinedArea(mapIdList)
+function Program.getDefeatedTrainersByCombinedArea(mapIdList, saveBlock1Addr)
 	if type(mapIdList) ~= "table" then return {}, 0 end
-	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
 	local totalTrainers = 0
 	local defeatedTrainers = {}
 	for _, mapId in ipairs(mapIdList) do
