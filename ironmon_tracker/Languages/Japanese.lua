@@ -837,6 +837,7 @@ ScreenResources{
 		CommandsUsageSyntax = "Usage Syntax", -- NEEDS TRANSLATION
 		CommandsExampleUsage = "Example Usage", -- NEEDS TRANSLATION
 		PokemonInfoBST = "BST", -- NEEDS TRANSLATION
+		PokemonInfoEXP = "EXP", -- NEEDS TRANSLATION
 		PokemonInfoWeight = "Weight", -- NEEDS TRANSLATION
 		PokemonInfoEvolution = "Evolution", -- NEEDS TRANSLATION
 		PokemonInfoKg = "kg", -- NEEDS TRANSLATION

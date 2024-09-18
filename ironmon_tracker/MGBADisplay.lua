@@ -610,9 +610,13 @@ MGBADisplay.LineBuilder = {
 
 		MGBADisplay.DataFormatter.formatPokemonInfo(data)
 
+		-- If viewing the mon, note that exp gained is calculated based on the viewed mon's level
+		local markExpAsBoosted = data.x.viewedPokemonLevel ~= 0 and "*" or ""
+
 		local labelBar = "%-12s %s"
 		table.insert(lines, Utils.formatUTF8("%-13s%s", data.p.name, Utils.formatUTF8("[%s]", data.p.typeline)))
 		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoBST .. ":", data.p.bst))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoEXP .. ":", data.p.expYield .. markExpAsBoosted))
 		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoWeight .. ":", data.p.weight))
 		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoEvolution .. ":", data.p.evodetails))
 

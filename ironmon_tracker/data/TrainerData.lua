@@ -223,7 +223,7 @@ function TrainerData.getPortraitIcon(trainerClass)
 end
 
 -- Helper function to convert Class->{TrainerId(List)} to TrainerId->{Class,Group}
-local mapClassesToTrainers = function(classMap, trainerList)
+local function mapClassesToTrainers(classMap, trainerList)
 	for class, trainers in pairs(classMap) do
 		for _, item in pairs(trainers) do
 			-- Could be a list of raw ids, or a range ids as pair (fromID, toID)
@@ -239,6 +239,20 @@ local mapClassesToTrainers = function(classMap, trainerList)
 						class = class,
 						group = class.group
 					}
+				end
+			end
+		end
+	end
+end
+
+-- For each trainer, add info on what route they can be found on
+local function mapRoutesToTrainers()
+	for routeId, route in pairs(RouteData.Info or {}) do
+		if route.trainers and #route.trainers > 0 then
+			for _, trainerId in ipairs(route.trainers or {}) do
+				local trainer = TrainerData.Trainers[trainerId]
+				if trainer then
+					trainer.routeId = routeId
 				end
 			end
 		end
@@ -349,6 +363,7 @@ function TrainerData.setupTrainersAsRubySapphire()
 
 	TrainerData.Trainers = {}
 	mapClassesToTrainers(classToTrainers, TrainerData.Trainers)
+	mapRoutesToTrainers()
 
 	-- Mark Rivals so they can be distinguished
 	TrainerData.Trainers[520].whichRival = "Brendan Left"
@@ -490,6 +505,7 @@ function TrainerData.setupTrainersAsEmerald()
 
 	TrainerData.Trainers = {}
 	mapClassesToTrainers(classToTrainers, TrainerData.Trainers)
+	mapRoutesToTrainers()
 
 	-- Mark Rivals so they can be distinguished
 	TrainerData.Trainers[520].whichRival = "Brendan Left"
@@ -625,6 +641,7 @@ function TrainerData.setupTrainersAsFRLG()
 
 	TrainerData.Trainers = {}
 	mapClassesToTrainers(classToTrainers, TrainerData.Trainers)
+	mapRoutesToTrainers()
 
 	-- Custom trainer adjustments
 	TrainerData.Trainers[317].group = TrainerData.TrainerGroups.Boss -- Dojo Leader
