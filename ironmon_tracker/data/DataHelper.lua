@@ -1210,14 +1210,14 @@ function DataHelper.EventRequests.getUnfoughtTrainers(params)
 
 	local info = {}
 	for _, trainerId in ipairs(TrainerData.OrderedIds or {}) do
-			local routeText = getUnfinishedRouteInfo(trainerId)
-			if routeText ~= nil then
-				table.insert(info, routeText)
-			end
-			if #info >= MAX_AREAS_TO_CHECK then
-				table.insert(info, "...")
-				break
-			end
+		local routeText = getUnfinishedRouteInfo(trainerId)
+		if routeText ~= nil then
+			table.insert(info, routeText)
+		end
+		if #info >= MAX_AREAS_TO_CHECK then
+			table.insert(info, "...")
+			break
+		end
 	end
 	if #info == 0 then
 		local reminderText = ""
