@@ -1224,7 +1224,7 @@ function DataHelper.EventRequests.getUnfoughtTrainers(params)
 		if not allowPartialDungeons or not includeSevii then
 			reminderText = ' (Use param "dungeon" and/or "sevii" to check partially completed dungeons or Sevii Islands.)'
 		end
-		table.insert(info, string.format("%s s", "All available trainers have been defeated!", reminderText))
+		table.insert(info, string.format("%s %s", "All available trainers have been defeated!", reminderText))
 	end
 
 	local prefix = string.format("%s %s", "Unfought Trainers", OUTPUT_CHAR)
