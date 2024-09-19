@@ -15,6 +15,8 @@ LogTabPokemonDetails = {
 	currentEvoSet = 1,
 	prevEvosPerSet = 1,
 	evosPerSet = 3,
+	playerTeam = {},
+	currentStatView = "ShowBST",
 }
 
 LogTabPokemonDetails.TemporaryButtons = {}
@@ -59,6 +61,8 @@ function LogTabPokemonDetails.initialize()
 	LogTabPokemonDetails.currentEvoSet = 1
 	LogTabPokemonDetails.prevEvosPerSet = 1
 	LogTabPokemonDetails.evosPerSet = 3
+	LogTabPokemonDetails.playerTeam = {}
+	LogTabPokemonDetails.currentStatView = "ShowBST"
 end
 
 function LogTabPokemonDetails.refreshButtons()
@@ -89,6 +93,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 
 	LogTabPokemonDetails.currentPreEvoSet = 1
 	LogTabPokemonDetails.currentEvoSet = 1
+	LogTabPokemonDetails.currentStatView = "ShowBST"
 
 	if data.p.abilities[1] == data.p.abilities[2] then
 		data.p.abilities[2] = nil
@@ -729,6 +734,79 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	LogTabPokemonDetails.Pager.totalLearnedMoves = #data.p.moves
 	LogTabPokemonDetails.Pager.totalTMMoves = #data.p.tmmoves
 	LogTabPokemonDetails.Pager:changeTab(LogTabPokemonDetails.Tabs.LevelMoves)
+
+	-- LABEL/BUTTON FOR "Show IVs/EVs/BST"
+	LogTabPokemonDetails.playerTeam = {}
+	for _, pokemon in pairs(Program.GameData.PlayerTeam or {}) do
+		if PokemonData.isValid(pokemon.pokemonID) and not LogTabPokemonDetails.playerTeam[pokemon.pokemonID] then
+			local pokemonName = data.p.name
+			-- Use Nickname if looking at the log page for a mon on the player's team
+			if Options["Show nicknames"] and not Utils.isNilOrEmpty(pokemon.nickname) then
+				pokemonName = Utils.formatSpecialCharacters(pokemon.nickname)
+			end
+			LogTabPokemonDetails.playerTeam[pokemon.pokemonID] = {
+				name = pokemonName,
+				ivs = pokemon.ivs,
+				evs = pokemon.evs,
+			}
+		end
+	end
+
+	local showBtnBox = { LogOverlay.TabBox.x + 66, LogOverlay.TabBox.y + 42, 43, 11 } -- x, y, width, height
+
+	local lblStatGraphHeader = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self)
+			if LogTabPokemonDetails.currentStatView == "ShowIVs" then
+				return Resources.LogOverlay.LabelYourIVs
+			elseif LogTabPokemonDetails.currentStatView == "ShowEVs" then
+				return Resources.LogOverlay.LabelYourEVs
+			else
+				return Resources.LogOverlay.LabelBaseStats
+			end
+		end,
+		textColor = LogTabPokemonDetails.Colors.text,
+		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
+		box = { LogOverlay.TabBox.x + 4, showBtnBox[2], showBtnBox[3], showBtnBox[4] },
+	}
+	local lblBaseStatTotal = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, data.p.bst) end,
+		textColor = LogTabPokemonDetails.Colors.text,
+		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
+		box = showBtnBox,
+		isVisible = function(self) return LogTabPokemonDetails.playerTeam[pokemonID or false] == nil end,
+	}
+	local btnChangeStatGraph = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self)
+			if LogTabPokemonDetails.currentStatView == "ShowBST" then
+				return Resources.LogOverlay.LabelShowIVs
+			elseif LogTabPokemonDetails.currentStatView == "ShowIVs" then
+				return Resources.LogOverlay.LabelShowEVs
+			else
+				return Resources.LogOverlay.LabelShowBST
+			end
+		end,
+		textColor = LogTabPokemonDetails.Colors.highlight,
+		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
+		box = showBtnBox,
+		isVisible = function(self) return LogTabPokemonDetails.playerTeam[pokemonID or false] ~= nil end,
+		onClick = function(self)
+			-- On click: change from viewing Base Stats -> IVs -> EVs -> Base Stats
+			if LogTabPokemonDetails.currentStatView == "ShowBST" then
+				LogTabPokemonDetails.currentStatView = "ShowIVs"
+			elseif LogTabPokemonDetails.currentStatView == "ShowIVs" then
+				LogTabPokemonDetails.currentStatView = "ShowEVs"
+			else
+				LogTabPokemonDetails.currentStatView = "ShowBST"
+			end
+			Program.redraw(true)
+		end,
+	}
+	table.insert(LogTabPokemonDetails.TemporaryButtons, lblStatGraphHeader)
+	table.insert(LogTabPokemonDetails.TemporaryButtons, lblBaseStatTotal)
+	table.insert(LogTabPokemonDetails.TemporaryButtons, btnChangeStatGraph)
 end
 
 -- USER INPUT FUNCTIONS
@@ -769,7 +847,11 @@ function LogTabPokemonDetails.drawTab()
 	end
 
 	-- Draw Pokemon name
-	local nameText = Utils.toUpperUTF8(data.p.name)
+	local pokemonName = data.p.name
+	if LogTabPokemonDetails.currentStatView ~= "ShowBST" and LogTabPokemonDetails.playerTeam[data.p.id] then
+		pokemonName = LogTabPokemonDetails.playerTeam[data.p.id].name
+	end
+	local nameText = Utils.toUpperUTF8(pokemonName)
 	Drawing.drawTransparentTextbox(LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, nameText, highlightColor, fillColor, shadowcolor)
 
 	-- data.p.helditems -- unused
@@ -782,6 +864,7 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 	local borderColor = Theme.COLORS[LogTabPokemonDetails.Colors.border]
 	local fillColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
 
+	-- If these change, also update "lblStatGraphHeader", "lblBaseStatTotal", etc. above
 	local statBox = {
 		x = LogOverlay.TabBox.x + 6,
 		y = LogOverlay.TabBox.y + 53,
@@ -790,11 +873,6 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 		barW = 8,
 		labelW = 17,
 	}
-
-	-- Draw header for stat box
-	local bstTotal = string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, data.p.bst)
-	Drawing.drawTransparentTextbox(statBox.x, statBox.y - 11, Resources.LogOverlay.LabelBaseStats, textColor, fillColor, shadowcolor)
-	Drawing.drawTransparentTextbox(statBox.x + statBox.width - 39, statBox.y - 11, bstTotal, textColor, fillColor, shadowcolor)
 
 	-- Draw stat box
 	gui.drawRectangle(statBox.x, statBox.y, statBox.width, statBox.height, borderColor, fillColor)
@@ -810,15 +888,31 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 	gui.drawLine(statBox.x - 2, statBox.y + statBox.height, statBox.x, statBox.y + statBox.height, borderColor)
 	gui.drawLine(statBox.x + statBox.width, statBox.y + statBox.height, statBox.x + statBox.width + 2, statBox.y + statBox.height, borderColor)
 
+	local barVals = {}
+	local pokemon = LogTabPokemonDetails.playerTeam[data.p.id]
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		if pokemon ~= nil and LogTabPokemonDetails.currentStatView == "ShowIVs" then
+			barVals[statKey] = pokemon.ivs[statKey] or 0
+		elseif pokemon ~= nil and LogTabPokemonDetails.currentStatView == "ShowEVs" then
+			barVals[statKey] = pokemon.evs[statKey] or 0
+		else
+			barVals[statKey] = data.p[statKey] or 0
+		end
+	end
+
 	local statX = statBox.x + 1
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		local barVal = barVals[statKey]
+		if LogTabPokemonDetails.currentStatView == "ShowIVs" then
+			barVal = math.min(barVal * 8, 255) -- Scale IV bar x8 to fill
+		end
 		-- Draw the vertical bar
-		local barH = math.floor(data.p[statKey] / 255 * (statBox.height - 2) + 0.5)
+		local barH = math.floor(barVal / 255 * (statBox.height - 2) + 0.5)
 		local barY = statBox.y + statBox.height - barH - 1 -- -1/-2 for box pixel border margin
 		local barColor
-		if data.p[statKey] >= 180 then -- top ~70%
+		if barVal >= 180 then -- top ~70%
 			barColor = Theme.COLORS["Positive text"]
-		elseif data.p[statKey] <= 40 then -- bottom ~15%
+		elseif barVal <= 40 then -- bottom ~15%
 			barColor = Theme.COLORS["Negative text"]
 		else
 			barColor = textColor
@@ -830,9 +924,9 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 
 		-- Draw the bar's label
 		local statLabelOffsetX = (3 - string.len(statKey)) * 2
-		local statValueOffsetX = (3 - string.len(tostring(data.p[statKey]))) * 2
+		local statValueOffsetX = (3 - string.len(tostring(barVals[statKey]))) * 2
 		Drawing.drawText(statX + statLabelOffsetX, statBox.y + statBox.height + 1, Utils.firstToUpper(statKey), textColor, shadowcolor)
-		Drawing.drawText(statX + statValueOffsetX, statBox.y + statBox.height + 11, data.p[statKey], barColor, shadowcolor)
+		Drawing.drawText(statX + statValueOffsetX, statBox.y + statBox.height + 11, barVals[statKey], barColor, shadowcolor)
 		statX = statX + statBox.labelW
 	end
 end

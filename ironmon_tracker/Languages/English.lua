@@ -534,6 +534,11 @@ ScreenResources{
 		HeaderTabMisc = "Misc.",
 		LabelBaseStats = "Base Stats",
 		LabelBSTTotal = "Total", -- Usage: "Total: 505"
+		LabelYourIVs = "Your IVs",
+		LabelYourEVs = "Your EVs",
+		LabelShowIVs = "Show IVs",
+		LabelShowEVs = "Show EVs",
+		LabelShowBST = "Show BST",
 		ButtonLevelupMoves = "Levelup Moves",
 		ButtonTMMoves = "TM Moves",
 		LabelGymTMs = "Gym TMs",

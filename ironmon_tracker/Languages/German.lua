@@ -534,6 +534,11 @@ ScreenResources{
 		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
 		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
 		LabelBSTTotal = "Total", -- NEEDS TRANSLATION
+		LabelYourIVs = "Your IVs", -- NEEDS TRANSLATION
+		LabelYourEVs = "Your EVs", -- NEEDS TRANSLATION
+		LabelShowIVs = "Show IVs", -- NEEDS TRANSLATION
+		LabelShowEVs = "Show EVs", -- NEEDS TRANSLATION
+		LabelShowBST = "Show BST", -- NEEDS TRANSLATION
 		ButtonLevelupMoves = "Levelup Moves", -- NEEDS TRANSLATION
 		ButtonTMMoves = "TM Moves", -- NEEDS TRANSLATION
 		LabelGymTMs = "Gym TMs", -- NEEDS TRANSLATION
