@@ -1210,21 +1210,21 @@ function DataHelper.EventRequests.getUnfoughtTrainers(params)
 
 	local info = {}
 	for _, trainerId in ipairs(TrainerData.OrderedIds or {}) do
-			local routeText = getUnfinishedRouteInfo(trainerId)
-			if routeText ~= nil then
-				table.insert(info, routeText)
-			end
-			if #info >= MAX_AREAS_TO_CHECK then
-				table.insert(info, "...")
-				break
-			end
+		local routeText = getUnfinishedRouteInfo(trainerId)
+		if routeText ~= nil then
+			table.insert(info, routeText)
+		end
+		if #info >= MAX_AREAS_TO_CHECK then
+			table.insert(info, "...")
+			break
+		end
 	end
 	if #info == 0 then
 		local reminderText = ""
 		if not allowPartialDungeons or not includeSevii then
 			reminderText = ' (Use param "dungeon" and/or "sevii" to check partially completed dungeons or Sevii Islands.)'
 		end
-		table.insert(info, string.format("%s s", "All available trainers have been defeated!", reminderText))
+		table.insert(info, string.format("%s %s", "All available trainers have been defeated!", reminderText))
 	end
 
 	local prefix = string.format("%s %s", "Unfought Trainers", OUTPUT_CHAR)
