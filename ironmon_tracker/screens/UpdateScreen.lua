@@ -318,9 +318,8 @@ function UpdateScreen.beginAutoUpdate()
 	if Main.IsOnBizhawk() then
 		-- Required to make Bizhawk release images so that they can be replaced
 		Drawing.allowCachedImages = false
-		Drawing.clearImageCache()
-		Drawing.clearImageCache(60) -- delay 1 second, then clear again
-		updateStartDelay = 60 * 2 + 2 -- delay 2 seconds, so images can uncache and unlock
+		Drawing.clearImageCache(60) -- delay 1 second
+		updateStartDelay = 60 * 5 + 2 -- delay a few seconds, so images can uncache and unlock
 	else
 		updateStartDelay = 15
 	end
