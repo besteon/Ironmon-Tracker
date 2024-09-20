@@ -356,7 +356,9 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 			string.format('echo %s', messages.filesready),
 			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
 			string.format('echo %s', messages.updating),
-			string.format('xcopy "%s" /s /y /q', extractedFolder),
+			-- /s: for subdirectories, /y: no overwrite prompts, /q: no msg display, /c: skip files with errors
+			string.format('xcopy "%s" /s /y /q /c', extractedFolder),
+			-- /s: deletes directory tree, /q: no confirmation prompts
 			string.format('rmdir "%s" /s /q', extractedFolder),
 			'echo;',
 			string.format('echo %s', messages.completed),
@@ -373,6 +375,7 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
 			string.format('echo %s', messages.updating),
+			-- -f: force, -r: recursive
 			string.format('cp -fr "%s" "%s"', extractedFolder .. UpdateOrInstall.slash .. ".", destinationFolder),
 			string.format('rm -rf "%s"', extractedFolder),
 			'echo',

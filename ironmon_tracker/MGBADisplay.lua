@@ -540,6 +540,7 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["COVERAGE"],
 			MGBA.CommandMap["PIVOTS"],
 			MGBA.CommandMap["DUNGEON"],
+			MGBA.CommandMap["UNFOUGHT"],
 			MGBA.CommandMap["PROGRESS"],
 			MGBA.CommandMap["HEALS"],
 			MGBA.CommandMap["TMS"],

@@ -1335,6 +1335,14 @@ MGBA.CommandMap = {
 			printf(" %s", DataHelper.EventRequests.getDungeon(params))
 		end,
 	},
+	["UNFOUGHT"] = {
+		getDesc = function(self) return Resources.StreamConnect.CMD_Unfought_Help end,
+		usageSyntax = 'UNFOUGHT() | UNFOUGHT "dungeon"',
+		usageExample = 'UNFOUGHT()',
+		execute = function(self, params)
+			printf(" %s", DataHelper.EventRequests.getUnfoughtTrainers(params))
+		end,
+	},
 	["PIVOTS"] = {
 		getDesc = function(self) return Resources.StreamConnect.CMD_Pivots_Help end,
 		usageSyntax = 'PIVOTS()',
@@ -1503,6 +1511,10 @@ function installext(...) INSTALLEXT(...) end
 function DUNGEON(...) MGBA.CommandMap["DUNGEON"]:execute(...) end
 function Dungeon(...) DUNGEON(...) end
 function dungeon(...) DUNGEON(...) end
+
+function UNFOUGHT(...) MGBA.CommandMap["UNFOUGHT"]:execute(...) end
+function Unfought(...) UNFOUGHT(...) end
+function unfought(...) UNFOUGHT(...) end
 
 function PIVOTS(...) MGBA.CommandMap["PIVOTS"]:execute(...) end
 function Pivots(...) PIVOTS(...) end

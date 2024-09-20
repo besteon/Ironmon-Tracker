@@ -90,12 +90,14 @@ end
 ---@param scaleWithSpeedup boolean? [Optional] If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
 function Drawing.clearImageCache(waitFramesBeforeClearing, scaleWithSpeedup)
 	if not Main.IsOnBizhawk() then return end
-	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
-		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, function()
-			gui.clearImageCache()
-		end, 1, scaleWithSpeedup)
-	else
+	local function clearCacheAndForceDraw()
 		gui.clearImageCache()
+		gui.drawPixel(Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP + 1, 1, 0x01000000)
+	end
+	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
+		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, clearCacheAndForceDraw, 1, scaleWithSpeedup)
+	else
+		clearCacheAndForceDraw()
 	end
 end
 
