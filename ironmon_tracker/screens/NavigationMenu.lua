@@ -287,7 +287,7 @@ function NavigationMenu.drawCredits(canvas)
 	Drawing.drawText(canvas.x + 3, textLineY, createdByText, Theme.COLORS[NavigationMenu.Colors.highlight], canvas.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	local colOffsetX = Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
+	local colOffsetX = -8 + Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
 	Drawing.drawText(canvas.x + colOffsetX, textLineY, Main.CreditsList.CreatedBy, canvas.text, canvas.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING + 3
 

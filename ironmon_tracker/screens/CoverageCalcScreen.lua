@@ -331,7 +331,7 @@ function CoverageCalcScreen.createButtons()
 		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tabText] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getCustomText = function(self) return tabText end,
 			tab = SCREEN.Tabs[tabKey],
 			isSelected = false,
 			box = {	startX, startY, tabWidth, TAB_HEIGHT },
@@ -355,8 +355,8 @@ function CoverageCalcScreen.createButtons()
 				if self.isSelected then
 					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
 				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self) SCREEN.changeTab(self.tab) end,
 		}

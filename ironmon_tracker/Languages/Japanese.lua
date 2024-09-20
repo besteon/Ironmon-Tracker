@@ -536,6 +536,11 @@ ScreenResources{
 		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
 		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
 		LabelBSTTotal = "Total", -- NEEDS TRANSLATION
+		LabelYourIVs = "Your IVs", -- NEEDS TRANSLATION
+		LabelYourEVs = "Your EVs", -- NEEDS TRANSLATION
+		LabelShowIVs = "Show IVs", -- NEEDS TRANSLATION
+		LabelShowEVs = "Show EVs", -- NEEDS TRANSLATION
+		LabelShowBST = "Show BST", -- NEEDS TRANSLATION
 		ButtonLevelupMoves = "Levelup Moves", -- NEEDS TRANSLATION
 		ButtonTMMoves = "TM Moves", -- NEEDS TRANSLATION
 		LabelGymTMs = "Gym TMs", -- NEEDS TRANSLATION
@@ -616,8 +621,10 @@ ScreenResources{
 		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
 		CMD_Dungeon_Name = "Dungeon Info",
 		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
+		CMD_Unfought_Name = "Unfought Trainers",
+		CMD_Unfought_Help = "[dungeon] [sevii]> Displays a list of areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' to include partially completed dungeons.)",
 		CMD_Pivots_Name = "Pivots Seen",
-		CMD_Pivots_Help = "name > Displays known early game wild encounters for an area.",
+		CMD_Pivots_Help = "> Displays known early game wild encounters for an area.",
 		CMD_Revo_Name = "Pokémon Random Evolutions",
 		CMD_Revo_Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		CMD_Coverage_Name = "Move Coverage Effectiveness",
@@ -835,6 +842,7 @@ ScreenResources{
 		CommandsUsageSyntax = "Usage Syntax", -- NEEDS TRANSLATION
 		CommandsExampleUsage = "Example Usage", -- NEEDS TRANSLATION
 		PokemonInfoBST = "BST", -- NEEDS TRANSLATION
+		PokemonInfoEXP = "EXP", -- NEEDS TRANSLATION
 		PokemonInfoWeight = "Weight", -- NEEDS TRANSLATION
 		PokemonInfoEvolution = "Evolution", -- NEEDS TRANSLATION
 		PokemonInfoKg = "kg", -- NEEDS TRANSLATION

@@ -152,7 +152,7 @@ function ExtrasScreen.createTabs()
 	for _, tuple in ipairs(tabs) do
 		ExtrasScreen.Buttons["Tab" .. tuple[1]] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return Resources.ExtrasScreen[tuple[2]] end,
+			getCustomText = function(self) return Resources.ExtrasScreen[tuple[2]] end,
 			tab = ExtrasScreen.Tabs[tuple[1]],
 			isSelected = false,
 			box = {
@@ -180,8 +180,8 @@ function ExtrasScreen.createTabs()
 				if self.isSelected then
 					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
 				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self)
 				ExtrasScreen.currentTab = self.tab

@@ -45,6 +45,12 @@ Program = {
 		offsetBattleResultsLastAttackerMove = 0x22,
 		offsetBattleCommConfirmedCount = 0x4,
 		offsetBattleCommLevitate = 0x6,
+		offsetPokemonSubstruct = 0x20,
+		offsetPokemonStatus = 0x50,
+		offsetPokemonStatsLvCurHp = 0x54,
+		offsetPokemonStatsMaxHpAtk = 0x58,
+		offsetPokemonStatsDefSpe = 0x5C,
+		offsetPokemonStatsSpaSpd = 0x60,
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -55,7 +61,12 @@ Program = {
 		sizeofTMHMMoveId = 0x2,
 		sizeofGameStat = 0x4,
 		sizeofLastAttackerMove = 0x2,
+		sizeofPokemonStruct = 0x64,
+		sizeofPokemonNickname = 0xA,
 	},
+	Values = {
+		ShinyOdds = 8, -- n/65536
+	}
 }
 
 Program.GameData = {
@@ -629,7 +640,7 @@ function Program.updatePokemonTeams()
 		end
 
 		-- Next Pokemon - Each is offset by 100 bytes
-		addressOffset = addressOffset + 100
+		addressOffset = addressOffset + Program.Addresses.sizeofPokemonStruct
 	end
 end
 
@@ -645,18 +656,18 @@ function Program.readNewPokemon(startAddress, personality)
 	local miscoffset = (MiscData.TableData.misc[aux] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
-	local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Experience
-	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
-	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
-	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
-	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
-	local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
-	local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
-	local misc2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + growthoffset), magicword)
+	local growth2 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + growthoffset + 4), magicword) -- Experience
+	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + growthoffset + 8), magicword)
+	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + attackoffset), magicword)
+	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + attackoffset + 4), magicword)
+	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + attackoffset + 8), magicword)
+	local effort1 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + effortoffset), magicword)
+	local effort2 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + effortoffset + 4), magicword)
+	local misc2 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + miscoffset + 4), magicword)
 
 	local nickname = ""
-	for i=0, 9, 1 do
+	for i=0, Program.Addresses.sizeofPokemonNickname - 1, 1 do
 		local charByte = Memory.readbyte(startAddress + 8 + i)
 		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
 		nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
@@ -664,8 +675,8 @@ function Program.readNewPokemon(startAddress, personality)
 	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
-	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
-	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
+	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + effortoffset + 8), magicword)
+	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
 	-- local cs = Utils.addhalves(growth1) + Utils.addhalves(growth2) + Utils.addhalves(growth3)
@@ -682,16 +693,16 @@ function Program.readNewPokemon(startAddress, personality)
 	local secretID = Utils.getbits(otid, 16, 16)
 	local p1 = math.floor(personality / 65536)
 	local p2 = personality % 65536
-	local isShiny = Utils.bit_xor(Utils.bit_xor(Utils.bit_xor(trainerID, secretID), p1), p2) < 8
+	local isShiny = Utils.bit_xor(Utils.bit_xor(Utils.bit_xor(trainerID, secretID), p1), p2) < Program.Values.ShinyOdds
 	local hasPokerus
 	if GameSettings.game ~= 3 then -- PokeRus doesn't exist in FRLG due to lack of passing time
-		local misc1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
+		local misc1 = Utils.bit_xor(Memory.readdword(startAddress + Program.Addresses.offsetPokemonSubstruct + miscoffset), magicword)
 		-- First 4 bits are number of days until Pokerus is cured, Second 4 bits are the strain variation
 		hasPokerus = Utils.getbits(misc1, 0, 8) > 0
 	end
 
 	-- Determine status condition
-	local status_aux = Memory.readdword(startAddress + 80)
+	local status_aux = Memory.readdword(startAddress + Program.Addresses.offsetPokemonStatus)
 	local sleep_turns_result = 0
 	local status_result = 0
 	if status_aux == 0 then --None
@@ -712,10 +723,10 @@ function Program.readNewPokemon(startAddress, personality)
 	end
 
 	-- Can likely improve this further using memory.read_bytes_as_array but would require testing to verify
-	local level_and_currenthp = Memory.readdword(startAddress + 84)
-	local maxhp_and_atk = Memory.readdword(startAddress + 88)
-	local def_and_speed = Memory.readdword(startAddress + 92)
-	local spatk_and_spdef = Memory.readdword(startAddress + 96)
+	local level_and_currenthp = Memory.readdword(startAddress + Program.Addresses.offsetPokemonStatsLvCurHp)
+	local maxhp_and_atk = Memory.readdword(startAddress + Program.Addresses.offsetPokemonStatsMaxHpAtk)
+	local def_and_speed = Memory.readdword(startAddress + Program.Addresses.offsetPokemonStatsDefSpe)
+	local spatk_and_spdef = Memory.readdword(startAddress + Program.Addresses.offsetPokemonStatsSpaSpd)
 
 	return Program.DefaultPokemon:new({
 		personality = personality,
@@ -1147,10 +1158,11 @@ end
 
 --- Returns a list of trainerIds of trainers defeated in the combined area (Use RouteData.CombinedAreas), as well as the total number of trainers in those areas
 --- @param mapIdList table
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
 --- @return table defeatedTrainers, number totalTrainers
-function Program.getDefeatedTrainersByCombinedArea(mapIdList)
+function Program.getDefeatedTrainersByCombinedArea(mapIdList, saveBlock1Addr)
 	if type(mapIdList) ~= "table" then return {}, 0 end
-	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
 	local totalTrainers = 0
 	local defeatedTrainers = {}
 	for _, mapId in ipairs(mapIdList) do
