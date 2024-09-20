@@ -752,6 +752,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		end
 	end
 
+	local canSeeIVsEVs = LogOverlay.viewedLog == FileManager.PostFixes.AUTORANDOMIZED and LogTabPokemonDetails.playerTeam[pokemonID] ~= nil
 	local showBtnBox = { LogOverlay.TabBox.x + 66, LogOverlay.TabBox.y + 42, 43, 11 } -- x, y, width, height
 
 	local lblStatGraphHeader = {
@@ -775,7 +776,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		textColor = LogTabPokemonDetails.Colors.text,
 		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
 		box = showBtnBox,
-		isVisible = function(self) return LogTabPokemonDetails.playerTeam[pokemonID or false] == nil end,
+		isVisible = function(self) return not canSeeIVsEVs end,
 	}
 	local btnChangeStatGraph = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -791,7 +792,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		textColor = LogTabPokemonDetails.Colors.highlight,
 		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
 		box = showBtnBox,
-		isVisible = function(self) return LogTabPokemonDetails.playerTeam[pokemonID or false] ~= nil end,
+		isVisible = function(self) return canSeeIVsEVs end,
 		onClick = function(self)
 			-- On click: change from viewing Base Stats -> IVs -> EVs -> Base Stats
 			if LogTabPokemonDetails.currentStatView == "ShowBST" then
