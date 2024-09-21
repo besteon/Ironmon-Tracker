@@ -930,6 +930,7 @@ function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 	-- If the battle message relates to learning a new move, read in that move id
+	-- Note: The very last address (excluded) is called for any level-up, not just level-ups involving learning a new move
 	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg < GameSettings.BattleScript_LearnMoveReturn then
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
 
