@@ -39,6 +39,21 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 	local startX, startY = LogOverlay.TabBox.x + 60, LogOverlay.TabBox.y + 2
 	local offsetX, offsetY = 0, 0
 	local colOffset, rowOffset = 86, 49 -- 2nd column, and 2nd/3rd rows
+	local moveLineSpacing = Constants.SCREEN.LINESPACING - 1
+	local itemAdjustY = 0
+
+	-- Check if any mon has a held item, if so make extra room
+	local anyHeldItem = false
+	for i, partyPokemon in ipairs(data.p or {}) do
+		if not Utils.isNilOrEmpty(partyPokemon.helditem) then
+			anyHeldItem = true
+			break
+		end
+	end
+	if anyHeldItem then
+		moveLineSpacing = moveLineSpacing - 1
+		itemAdjustY = itemAdjustY - 2
+	end
 
 	for i, partyPokemon in ipairs(data.p or {}) do
 		-- PARTY POKEMON
@@ -53,7 +68,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			updateSelf = function(self)
 				self.isSelected = false
 				self.textColor = LogTabTrainerDetails.Colors.text
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					return
 				end
 				-- Highlight moves that are found by the search
@@ -91,7 +106,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			box = { startX + offsetX, startY + offsetY - 4, 32, 32, },
 			updateSelf = function(self)
 				self.isSelected = false
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					return
 				end
 				-- If found through search
@@ -134,11 +149,9 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 		table.insert(LogTabTrainerDetails.TemporaryButtons, pokemonNameButton)
 		table.insert(LogTabTrainerDetails.TemporaryButtons, pokemonIconButton)
 
-		-- helditem = partyMon.helditem ???
-
 		-- PARTY POKEMON's MOVES
 		local moveOffsetX = startX + offsetX + 30
-		local moveOffsetY = startY + offsetY
+		local moveOffsetY = startY + offsetY + itemAdjustY
 		for j, moveInfo in ipairs(partyPokemon.moves or {}) do
 			local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", LogTabTrainerDetails.Colors.text)
 			local moveBtn = {
@@ -151,7 +164,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				updateSelf = function(self)
 					self.textColor = moveColor
 					-- Highlight moves that are found by the search
-					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
+					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and not Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 						if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 							self.textColor = LogTabTrainerDetails.Colors.highlight
 						end
@@ -170,7 +183,29 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				end,
 			}
 			table.insert(LogTabTrainerDetails.TemporaryButtons, moveBtn)
-			moveOffsetY = moveOffsetY + Constants.SCREEN.LINESPACING - 1
+			moveOffsetY = moveOffsetY + moveLineSpacing
+		end
+
+		-- PARTY POKEMON's HELD ITEM
+		if not Utils.isNilOrEmpty(partyPokemon.helditem) then
+			local itemOffsetX = moveOffsetX
+			local itemOffsetY = moveOffsetY
+			local itemName = Utils.firstToUpperEachWord(partyPokemon.helditem)
+			local itemBtn = {
+				type = Constants.ButtonTypes.NO_BORDER,
+				getText = function(self) return itemName end,
+				textColor = LogTabTrainerDetails.Colors.highlight,
+				index = (i * 10) + 10 - 1,
+				itemId = partyPokemon.helditem or 0,
+				box = { itemOffsetX, itemOffsetY, 60, 11 },
+				draw = function(self, shadowcolor)
+					local x, y = self.box[1], self.box[2]
+					local textColor = Theme.COLORS[self.textColor]
+					local bgColor = Theme.COLORS[LogTabTrainerDetails.Colors.boxFill]
+					Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
+				end,
+			}
+			table.insert(LogTabTrainerDetails.TemporaryButtons, itemBtn)
 		end
 
 		if i % 2 == 1 then

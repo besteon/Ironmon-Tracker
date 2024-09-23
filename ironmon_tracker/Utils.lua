@@ -83,16 +83,28 @@ end
 
 -- Alters the string by changing the first character to uppercase
 function Utils.firstToUpper(str)
-	if str == nil or str == "" then return str end
+	if Utils.isNilOrEmpty(str) then return str end
 	str = str:gsub("^%l", Utils.toUpperUTF8)
 	return str
 end
 
 -- Alters the string by changing the first character of each word to uppercase
 function Utils.firstToUpperEachWord(str)
-	if str == nil or str == "" then return str end
+	if Utils.isNilOrEmpty(str) then return str end
 	str = string.gsub(" " .. str, "[%s%.%-]%l", Utils.toUpperUTF8):sub(2)
 	return str
+end
+
+---Returns true if the `str` is nil or empty (""); false otherwise
+---@param str string|nil
+---@param trimWhitespace? boolean Optional, remove leading and trailing whitespice
+---@return boolean
+function Utils.isNilOrEmpty(str, trimWhitespace)
+	if not str then return true end
+	if trimWhitespace then
+		str = str:match("^%s*(.-)%s*$") or ""
+	end
+	return str == ""
 end
 
 function Utils.split(s, delimiter, trimWhitespace)
@@ -104,6 +116,19 @@ function Utils.split(s, delimiter, trimWhitespace)
 		table.insert(result, match)
 	end
 	return result
+end
+
+---Replaces text in a string with some other text; can choose to match only whole words
+---@param source string The text to search through
+---@param find string The text to find within the `source`
+---@param replace string Used to replace the `find` text within the `source`
+---@param onlyWholeWords boolean? Optional, if true will only match wholewords for `find`
+---@return string
+function Utils.replaceText(source, find, replace, onlyWholeWords)
+	if onlyWholeWords then
+		find = '%f[%a]'..find..'%f[%A]'
+	end
+	return (source:gsub(find,replace))
 end
 
 -- Format "START" as "Start", and "a" as "A"
@@ -139,8 +164,14 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
+---Returns the number of pixels (width) the provided text uses on the Tracker screen
+---@param text? string
+---@return number
 function Utils.calcWordPixelLength(text)
-	if text == nil or text == "" or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if Utils.isNilOrEmpty(text) or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if type(text) ~= "string" then
+		text = tostring(text)
+	end
 	local pattern = "."
 	if Main.supportsSpecialChars then
 		---@diagnostic disable-next-line: undefined-global, undefined-field
@@ -189,7 +220,7 @@ end
 
 -- Safely formats the text and encodes any special characters (if incompatible with the emulator)
 function Utils.formatSpecialCharacters(text)
-	if text == nil or text == "" then return "" end
+	if Utils.isNilOrEmpty(text) then return "" end
 
 	-- For each known special character, attempt to replace it
 	for _, c in pairs(Constants.CharCategories.Special) do
@@ -216,7 +247,7 @@ function Utils.toLowerUTF8(str)
 end
 
 function Utils.containsText(text, searchString, ignoreAccentedChars)
-	if text == nil or text == "" or searchString == nil then
+	if Utils.isNilOrEmpty(text) or searchString == nil then
 		return false
 	end
 	text = Utils.toLowerUTF8(text)
@@ -245,7 +276,7 @@ end
 
 -- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode
 function Utils.encodeDecodeForSettingsIni(text, doEncode)
-	if text == nil or text == "" then return "" end
+	if Utils.isNilOrEmpty(text) then return "" end
 
 	local charsToEncode = {
 		{ raw = "\n", encoded = "\\n", },
@@ -294,7 +325,7 @@ end
 -- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
 -- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
 function Utils.getClosestWord(word, wordlist, threshold)
-	if word == nil or word == "" then return word end
+	if Utils.isNilOrEmpty(word) then return word end
 	threshold = threshold or 3
 	local function min(a, b, c) return math.min(math.min(a, b), c) end
 	local function matrix(row, col)
@@ -335,43 +366,15 @@ function Utils.getClosestWord(word, wordlist, threshold)
 	end
 end
 
--- Creates a popup Bizhawk form at optional relative location (x,y); returns the created form handle id
+-- Deprecated
 function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockInput)
-	title = title or "Form"
-	width = width or 600
-	height = height or 600
-	x = x or 100
-	y = y or 50
-	blockInput = (blockInput == nil) or (blockInput == true) -- default to true
-
-	-- By default, disable mouse inputs and resume them when the prompt closes
-	-- If a close func is provided, the caller needs to manage disabling/enabling mouse inputs instead
-	if onCloseFunc == nil then
-		Input.allowMouse = false
-		onCloseFunc = Utils.closeBizhawkForm
-	end
-
-	Program.destroyActiveForm()
-	Input.resumeMouse = false -- closing any active form resumes inputs, which we don't want yet
-	local form = forms.newform(width, height, title, onCloseFunc)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, x, y)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		local property = "BlocksInputWhenFocused"
-		if (forms.getproperty(form, property) or "") ~= "" then
-			forms.setproperty(form, property, blockInput)
-		end
-	end
-
-	return form
+	local form = ExternalUI.BizForms.createForm(title, width, height, x, y, onCloseFunc, blockInput)
+	return form.ControlId
 end
 
+-- Deprecated
 function Utils.closeBizhawkForm(form)
-	form = form or Program.activeFormId
-	client.unpause()
-	forms.destroy(form)
-	Program.activeFormId = 0
-	Input.resumeMouse = true
+	ExternalUI.BizForms.destroyForm(form)
 end
 
 function Utils.randomPokemonID()
@@ -392,6 +395,15 @@ function Utils.randomTrainerID()
 		return math.random(742)
 	end
 	return 0
+end
+
+---@return string guid
+function Utils.newGUID()
+	local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+	return (string.gsub(template, '[xy]', function (c)
+		local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+		return string.format('%x', v)
+	end))
 end
 
 -- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)
@@ -589,7 +601,7 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 		if Program.GameData.friendshipRequired ~= nil and Program.GameData.friendshipRequired > 1 then
 			amt = Program.GameData.friendshipRequired
 		else
-			amt = 220
+			amt = PokemonData.Values.FriendshipRequiredToEvo
 		end
 		return { string.format(friendFormat, amt) }
 	end
@@ -677,6 +689,11 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 
 	-- If move type is typeless or otherwise can't be stab
 	if MoveData.IsTypelessMove[id] or move.category == MoveData.Categories.STATUS or move.power == "0" or move.power == Constants.BLANKLINE then
+		return false
+	end
+
+	-- The default Hidden Power type (NORMAL) can't happen; thus can't be stab
+	if moveType == PokemonData.Types.NORMAL and id == tostring(MoveData.Values.HiddenPowerId) then
 		return false
 	end
 
@@ -893,7 +910,7 @@ function Utils.getCenterHealColor()
 end
 
 function Utils.getWordWrapLines(str, limit)
-	if str == nil or str == "" then return {} end
+	if Utils.isNilOrEmpty(str) then return {} end
 	limit = limit or 72
 
 	local firstSpace = str:find("(%s+)()(%S+)()")
@@ -917,15 +934,9 @@ function Utils.getWordWrapLines(str, limit)
 	return lines
 end
 
---sets the form location relative to the game window
---this function does what the built in forms.setlocation function supposed to do
---currently that function is bugged and should be fixed in 2.9
+-- Deprecated
 function Utils.setFormLocation(handle, x, y)
-	if handle == nil then return end
-	local ribbonHight = 64 -- so we are below the ribbon menu
-	local actualLocation = client.transformPoint(x,y)
-	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
-	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
+	ExternalUI.BizForms.setWindowLocation(handle, x, y)
 end
 
 function Utils.getSaveBlock1Addr()
@@ -958,7 +969,7 @@ function Utils.getGameStat(statIndex)
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
 
-	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * 0x4)
+	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * Program.Addresses.sizeofGameStat)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
 	if key ~= nil then
@@ -966,6 +977,21 @@ function Utils.getGameStat(statIndex)
 	end
 
 	return math.floor(gameStatValue)
+end
+
+---Returns 1, 2, or 3 depending on game.
+---FRLG: 1=Bulbasaur (left), 2=Squirtle (middle), 3=Charmander (right)
+---RSE: 1=Treecko (left), 2=Torchic (middle), 3=Mudkip (right)
+---@return number starterChoice
+function Utils.getStarterMonChoice()
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local varOffset
+	if GameSettings.game == 3 then
+		varOffset = Program.Addresses.offsetStarterMonChoiceFRLG
+	else
+		varOffset = Program.Addresses.offsetStarterMonChoiceRSE
+	end
+	return 1 + Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + varOffset)
 end
 
 -- Returns a new list, sorted by their indexKey number (default: 'index' attribute)
@@ -1079,7 +1105,7 @@ function Utils.gridAlign(orderedList, startX, startY, colSpacer, rowSpacer, list
 end
 
 function Utils.openBrowserWindow(url, notifyMessage)
-	if url == nil or url == "" then return end
+	if Utils.isNilOrEmpty(url) then return end
 
 	notifyMessage = notifyMessage or "Unable to open browser window. Check Lua Console for link."
 
@@ -1121,7 +1147,7 @@ end
 
 -- Returns true if an update is available (checked via compareFunc (optional), or default); otherwise returns false
 function Utils.checkForVersionUpdate(url, currentVersion, versionResponsePattern, compareFunc)
-	if url == nil or url == "" or currentVersion == nil or currentVersion == "" or versionResponsePattern == nil or versionResponsePattern == "" then
+	if Utils.isNilOrEmpty(url) or Utils.isNilOrEmpty(currentVersion) or Utils.isNilOrEmpty(versionResponsePattern) then
 		return false
 	end
 

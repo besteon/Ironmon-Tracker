@@ -14,23 +14,64 @@ Drawing.AnimatedPokemon = {
 	TRANSPARENCY_COLOR = "Magenta",
 	POPUP_WIDTH = 250,
 	POPUP_HEIGHT = 250,
-	show = function(self) forms.setproperty(self.pictureBox, "Visible", true) end,
-	hide = function(self) forms.setproperty(self.pictureBox, "Visible", false) end,
+	show = function(self) ExternalUI.BizForms.setProperty(self.pictureBox, ExternalUI.BizForms.Properties.VISIBLE, true) end,
+	hide = function(self) ExternalUI.BizForms.setProperty(self.pictureBox, ExternalUI.BizForms.Properties.VISIBLE, false) end,
 	create = function(self) Drawing.setupAnimatedPictureBox() end,
 	destroy = function(self)
-		if self.formWindow and self.formWindow ~= 0 then
-			forms.destroy(self.formWindow)
-			self.formWindow = 0
+		if self.formWindow then
+			self.formWindow:destroy()
 		end
 	end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
-	isVisible = function(self) return self.formWindow and self.formWindow ~= 0 end,
-	formWindow = 0,
+	isVisible = function(self) return self.formWindow ~= nil end,
+	formWindow = nil,
 	pictureBox = 0,
 	addonMissing = 0,
 	pokemonID = 0,
 	requiresRelocating = false,
+}
+
+---Each different type of image that could be drawn. An optional override check & path can be defined, which will be used instead
+---getOverridePath: If specified, will *always* use this override path instead of the default
+---shouldUseOverride: If specified, will *only* use the override path if the condition defined in this function is met
+Drawing.ImagePaths = {
+	PokemonIcon = {
+		getDefaultPath = function(self, value)
+			local iconset = Options.getIconSet()
+			return FileManager.buildImagePath(iconset.folder, tostring(value), iconset.extension)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	PokemonType = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath("types", value, ".png")
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	PokemonStatus = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath("status", value, ".png")
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	AnimatedPokemon = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, value, FileManager.Extensions.ANIMATED_POKEMON)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
+	Repel = {
+		getDefaultPath = function(self, value)
+			return FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
 }
 
 function Drawing.initialize()
@@ -49,12 +90,14 @@ end
 ---@param scaleWithSpeedup boolean? [Optional] If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
 function Drawing.clearImageCache(waitFramesBeforeClearing, scaleWithSpeedup)
 	if not Main.IsOnBizhawk() then return end
-	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
-		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, function()
-			gui.clearImageCache()
-		end, 1, scaleWithSpeedup)
-	else
+	local function clearCacheAndForceDraw()
 		gui.clearImageCache()
+		gui.drawPixel(Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP + 1, 1, 0x01000000)
+	end
+	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
+		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, clearCacheAndForceDraw, 1, scaleWithSpeedup)
+	else
+		clearCacheAndForceDraw()
 	end
 end
 
@@ -73,7 +116,7 @@ end
 ---@param width number? [Optional] If specified and the image is larger, will resize accordingly
 ---@param height number? [Optional] If specified and the image is larger, will resize accordingly
 function Drawing.drawImage(filepath, x, y, width, height)
-	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
+	if not Drawing.allowCachedImages or Utils.isNilOrEmpty(filepath) then return end
 	if width ~= nil and height ~= nil then
 		gui.drawImage(filepath, x, y, width, height)
 	else
@@ -91,7 +134,7 @@ end
 ---@param destW number? [Optional] If specified and the image is larger, will resize accordingly
 ---@param destH number? [Optional] If specified and the image is larger, will resize accordingly
 function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
-	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
+	if not Drawing.allowCachedImages or Utils.isNilOrEmpty(filepath) then return end
 	if destW ~= nil and destH ~= nil then
 		gui.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
 	else
@@ -112,25 +155,39 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	if iconset.isAnimated then
 		Drawing.drawSpriteIcon(x, y, pokemonID)
 	else
-		local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-		Drawing.drawImage(image, x, y, width, height)
+		local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))
+		if imagePath then
+			Drawing.drawImage(imagePath, x, y, width, height)
+		end
 	end
 end
 
+---@param type string
+---@param x number
+---@param y number
 function Drawing.drawTypeIcon(type, x, y)
-	if type == nil or type == "" then return end
+	if Utils.isNilOrEmpty(type) then return end
 
-	Drawing.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
+	local imagePath = Drawing.getImagePath("PokemonType", type)
+	if imagePath then
+		Drawing.drawImage(imagePath, x, y, 30, 12)
+	end
 end
 
+---@param status string
+---@param x number
+---@param y number
 function Drawing.drawStatusIcon(status, x, y)
-	if status == nil or status == "" then return end
+	if Utils.isNilOrEmpty(status) then return end
 
-	Drawing.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
+	local imagePath = Drawing.getImagePath("PokemonStatus", status)
+	if imagePath then
+		Drawing.drawImage(imagePath, x, y, 16, 8)
+	end
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
-	if text == nil or text == "" then return end
+	if Utils.isNilOrEmpty(text) then return end
 
 	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
 	if Main.OS == "Linux" then
@@ -256,7 +313,7 @@ end
 
 -- Draws a semi-transparent rectangle box behind the text
 function Drawing.drawTransparentTextbox(x, y, text, textColor, bgColor, shadowcolor)
-	if (text or "") == "" then return end
+	if Utils.isNilOrEmpty(text) then return end
 	textColor = textColor or Theme.COLORS["Default text"]
 	bgColor = bgColor or Theme.COLORS["Upper box background"]
 	shadowcolor = shadowcolor or Utils.calcShadowColor(bgColor)
@@ -392,8 +449,10 @@ function Drawing.drawButton(button, shadowcolor)
 			if iconset.isAnimated then
 				Drawing.drawSpriteIcon(x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), pokemonID, animType)
 			else
-				local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-				Drawing.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+				local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))
+				if imagePath then
+					Drawing.drawImage(imagePath, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+				end
 			end
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
@@ -443,10 +502,9 @@ function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	for rowIndex = 1, #imageMatrix, 1 do
 		for colIndex = 1, #(imageMatrix[rowIndex]) do
 			local colorIndex = imageMatrix[rowIndex][colIndex]
-			if colorIndex > 0 then
+			if colorList[colorIndex] then
 				local offsetX = colIndex - 1
 				local offsetY = rowIndex - 1
-
 				if shadowcolor ~= nil and Theme.DRAW_TEXT_SHADOWS then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
@@ -541,6 +599,11 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	Drawing.drawText(x + 36, y + 15, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
 	Drawing.drawText(x + 36, y + 18, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
 
+	if not Options["Color stat numbers by nature"] then
+		Drawing.drawText(x + 45, y + 3, "---", themeColors["Default text"], nil, fontSize, fontFamily)
+		Drawing.drawText(x + 45, y + 12, "---", themeColors["Default text"], nil, fontSize, fontFamily)
+	end
+
 	-- Draw "header"
 	Drawing.drawText(x, y + 23, "------- --- ---     ---  ----  ----", themeColors["Header text"], nil, fontSize, fontFamily)
 
@@ -604,27 +667,40 @@ function Drawing.setupAnimatedPictureBox()
 
 	Drawing.AnimatedPokemon:destroy()
 
-	local form = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon")
-	forms.setproperty(form, "AllowTransparency", true)
-	forms.setproperty(form, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
-	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
+
+	local form = ExternalUI.IBizhawkForm:new({
+		Title = "Animated Pokemon",
+		Width = Drawing.AnimatedPokemon.POPUP_WIDTH,
+		Height = Drawing.AnimatedPokemon.POPUP_HEIGHT,
+		X = 1,
+		Y = Constants.SCREEN.HEIGHT + bottomAreaPadding,
+		BlockInput = false,
+	})
+	-- Create the form directly through Bizhawk and not ExternalUI, to allow it as an additional popup window
+	form.ControlId = forms.newform(form.Width, form.Height, form.Title)
+	ExternalUI.BizForms.setWindowLocation(form, form.X, form.Y)
+
+	ExternalUI.BizForms.setProperty(form.ControlId, ExternalUI.BizForms.Properties.ALLOW_TRANSPARENCY, true)
+	ExternalUI.BizForms.setProperty(form.ControlId, ExternalUI.BizForms.Properties.BACK_COLOR, Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	ExternalUI.BizForms.setProperty(form.ControlId, ExternalUI.BizForms.Properties.TRANSPARENCY_KEY, Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		local property = "BlocksInputWhenFocused"
-		if (forms.getproperty(form, property) or "") ~= "" then
-			forms.setproperty(form, property, true)
+		local property = ExternalUI.BizForms.Properties.BLOCK_INPUT
+		if not Utils.isNilOrEmpty(ExternalUI.BizForms.getProperty(form.ControlId, property)) then
+			ExternalUI.BizForms.setProperty(form.ControlId, property, form.BlockInput)
 		end
 	end
 
-	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
-	Utils.setFormLocation(form, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
+	-- This gets resized later
+	local pictureBox = form:createPictureBox(1, 1, 1, 1)
+	-- The PictureBox is sized equal to the size of the image that it contains.
+	ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.AUTO_SIZE, 2)
+	ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.VISIBLE, false)
 
-	local pictureBox = forms.pictureBox(form, 1, 1, 1, 1) -- This gets resized later
-	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.
-	forms.setproperty(pictureBox, "Visible", false)
-
-	local addonMissing = forms.label(form, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
-	forms.setproperty(addonMissing, "BackColor", "White")
-	forms.setproperty(addonMissing, "Visible", false)
+	local addonText = "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info."
+	local addonMissing = form:createLabel(addonText, 25, 55, 185, 90)
+	ExternalUI.BizForms.setProperty(addonMissing, ExternalUI.BizForms.Properties.BACK_COLOR, "White")
+	ExternalUI.BizForms.setProperty(addonMissing, ExternalUI.BizForms.Properties.VISIBLE, false)
 
 	Drawing.AnimatedPokemon.formWindow = form
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
@@ -640,35 +716,42 @@ function Drawing.setAnimatedPokemon(pokemonID)
 		return
 	end
 
-	local pictureBox = Drawing.AnimatedPokemon.pictureBox
+	-- Skip setting a new animated image if it's still the same Pokemon
+	if pokemonID == Drawing.AnimatedPokemon.pokemonID then
+		return
+	end
 
-	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
-		local lowerPokemonName = Resources.Default.Game.PokemonNames[pokemonID]
-		if lowerPokemonName ~= nil then
-			-- Track this ID so we don't have to preform as many checks later
-			Drawing.AnimatedPokemon.pokemonID = pokemonID
+	-- Verify this pokemon's name exists, otherwise skip it
+	local lowerPokemonName = Utils.toLowerUTF8(Resources.Default.Game.PokemonNames[pokemonID])
+	if Utils.isNilOrEmpty(lowerPokemonName) then
+		return
+	end
 
-			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
-			local fileExists = FileManager.fileExists(imagepath)
-			if Main.IsOnBizhawk() then
-				if fileExists then
-					-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
-					forms.setproperty(pictureBox, "Visible", false)
-					forms.setproperty(pictureBox, "ImageLocation", "")
-					forms.setproperty(pictureBox, "Left", 1)
-					forms.setproperty(pictureBox, "Top", 1)
-					forms.setproperty(pictureBox, "Width", 1)
-					forms.setproperty(pictureBox, "Height", 1)
-					forms.setproperty(pictureBox, "ImageLocation", imagepath)
-					Drawing.AnimatedPokemon.requiresRelocating = true
-				end
-				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
-			elseif fileExists then
-				-- For mGBA, duplicate the image file so it can be rendered by external programs
-				local animatedImageFile = FileManager.prependDir(FileManager.Files.Other.ANIMATED_POKEMON)
-				FileManager.CopyFile(imagepath, animatedImageFile, "overwrite")
-			end
+	-- Record this ID so we don't have to re-set it again later if it remains unchanged
+	Drawing.AnimatedPokemon.pokemonID = pokemonID
+
+	local imagePath = Drawing.getImagePath("AnimatedPokemon", lowerPokemonName)
+	local fileExists = imagePath and FileManager.fileExists(imagePath)
+
+	if Main.IsOnBizhawk() then
+		if fileExists then
+			-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+			local pictureBox = Drawing.AnimatedPokemon.pictureBox
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.VISIBLE, false)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.IMAGE_LOCATION, "")
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.LEFT, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.TOP, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.WIDTH, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.HEIGHT, 1)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.IMAGE_LOCATION, imagePath)
+			Drawing.AnimatedPokemon.requiresRelocating = true
 		end
+		ExternalUI.BizForms.setProperty(Drawing.AnimatedPokemon.addonMissing, ExternalUI.BizForms.Properties.VISIBLE, not fileExists)
+	elseif fileExists then
+		-- For mGBA, duplicate the image file so it can be rendered by external programs
+		local folderpath = FileManager.getPathOverride("Animated Pokemon") or FileManager.dir
+		local filepath = folderpath .. FileManager.Files.Other.ANIMATED_POKEMON
+		FileManager.CopyFile(imagePath, filepath, "overwrite")
 	end
 end
 
@@ -679,9 +762,9 @@ function Drawing.relocateAnimatedPokemon()
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
 	-- If the image is the same, then attempt to relocate it based on it's height
-	local imageY = tonumber(forms.getproperty(pictureBox, "Top"))
-	local imageHeight = tonumber(forms.getproperty(pictureBox, "Height"))
-	local imageWidth = tonumber(forms.getproperty(pictureBox, "Width"))
+	local imageY = tonumber(ExternalUI.BizForms.getProperty(pictureBox, ExternalUI.BizForms.Properties.TOP))
+	local imageHeight = tonumber(ExternalUI.BizForms.getProperty(pictureBox, ExternalUI.BizForms.Properties.HEIGHT))
+	local imageWidth = tonumber(ExternalUI.BizForms.getProperty(pictureBox, ExternalUI.BizForms.Properties.WIDTH))
 
 	-- Only relocate exactly once, 1=starting height of the box
 	if imageY ~= nil and imageHeight ~= nil then
@@ -690,12 +773,37 @@ function Drawing.relocateAnimatedPokemon()
 
 		-- If picture box hasn't been relocated yet, move it such that it's drawn from the bottom up
 		if bottomUpY ~= imageY then
-			forms.setproperty(pictureBox, "Top", bottomUpY)
-			forms.setproperty(pictureBox, "Left", leftRightX)
-			forms.setproperty(pictureBox, "Visible", true)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.TOP, bottomUpY)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.LEFT, leftRightX)
+			ExternalUI.BizForms.setProperty(pictureBox, ExternalUI.BizForms.Properties.VISIBLE, true)
 			Drawing.AnimatedPokemon.requiresRelocating = (imageHeight == 1) -- Keep updating until the height is known
 		end
 	end
+end
+
+---Returns the proper full image path to an asset, while checking if any overrides are necessary; or returns nil if none exists
+---@param imagePathType string A valid image path type key, as defined in Drawing.ImagePaths
+---@param value any? Optional, a value to be used to build the image file (such as a pokemonID)
+---@return string|nil
+function Drawing.getImagePath(imagePathType, value)
+	local imagePathObj = Drawing.ImagePaths[imagePathType or false]
+	if not imagePathObj then
+		return nil
+	end
+
+	-- If an override is provided for this path, use that
+	if type(imagePathObj.getOverridePath) == "function" then
+		-- If no condition is required, just use the path; otherwise first check the use-condition
+		if imagePathObj.shouldUseOverride == nil or (type(imagePathObj.shouldUseOverride) == "function" and imagePathObj:shouldUseOverride(value)) then
+			local overridePath = imagePathObj:getOverridePath(value)
+			if not Utils.isNilOrEmpty(overridePath) then
+				return overridePath
+			end
+		end
+	end
+
+	-- Otherwise, return the default image path
+	return imagePathObj:getDefaultPath(value)
 end
 
 -- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
@@ -708,8 +816,10 @@ function Drawing.drawRepelUsage()
 		yOffset = (Program.GameTimer.box.height or 9) + (Program.GameTimer.margin or 0) + 1
 	end
 	-- Draw repel item icon
-	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
-	Drawing.drawImage(repelImage, xOffset, yOffset)
+	local repelImage = Drawing.getImagePath("Repel")
+	if repelImage then
+		Drawing.drawImage(repelImage, xOffset, yOffset)
+	end
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21

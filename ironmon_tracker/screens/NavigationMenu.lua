@@ -140,6 +140,13 @@ NavigationMenu.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	PokemonIcon = {
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 104, Constants.SCREEN.MARGIN + 10, 32, 32 },
+		isVisible = function() return NavigationMenu.showCredits end,
+		pokemonID = 196, -- Espeon
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
+	},
 	Credits = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.NavigationMenu.ButtonCredits end,
@@ -272,17 +279,15 @@ function NavigationMenu.drawCredits(canvas)
 
 	-- Draw box
 	gui.drawRectangle(canvas.x, canvas.y, canvas.w, canvas.h, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
-	-- Draw the original Espeon gif image
-	local originalIconSet = Options.IconSetMap[1]
-	local espeonImage = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
-	Drawing.drawImage(espeonImage, canvas.x + 104, canvas.y, 32, 32)
+
+	Drawing.drawButton(NavigationMenu.Buttons.PokemonIcon, canvas.shadow)
 
 	local textLineY = canvas.y + 4
 	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)
 	Drawing.drawText(canvas.x + 3, textLineY, createdByText, Theme.COLORS[NavigationMenu.Colors.highlight], canvas.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	local colOffsetX = Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
+	local colOffsetX = -8 + Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
 	Drawing.drawText(canvas.x + colOffsetX, textLineY, Main.CreditsList.CreatedBy, canvas.text, canvas.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING + 3
 

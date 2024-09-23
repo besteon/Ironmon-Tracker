@@ -260,19 +260,20 @@ function LogOverlay.initialize()
 	end
 
 	if Options["Open Book Play Mode"] then
-		local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
-
-		if (logpath or "") ~= "" then
-			RandomizerLog.loadedLogPath = logpath
-			local success = RandomizerLog.parseLog(logpath)
-
-			if success then
-				LogOverlay.buildAllTabs()
-				LogOverlay.Windower.currentTab = LogTabPokemon
-				LogSearchScreen.resetSearchSortFilter()
-				LogOverlay.refreshActiveTabGrid()
+		-- Delay parsing data for open book until Tracker and custom extensions are fully loaded
+		Program.addFrameCounter("LoadOpenBookLog", 5, function()
+			local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
+			if not Utils.isNilOrEmpty(logpath) then
+				RandomizerLog.loadedLogPath = logpath
+				local success = RandomizerLog.parseLog(logpath)
+				if success then
+					LogOverlay.buildAllTabs()
+					LogOverlay.Windower.currentTab = LogTabPokemon
+					LogSearchScreen.resetSearchSortFilter()
+					LogOverlay.refreshActiveTabGrid()
+				end
 			end
-		end
+		end, 1)
 	end
 end
 
@@ -356,7 +357,7 @@ end
 function LogOverlay.refreshActiveTabGrid()
 	local currentTab = LogOverlay.Windower.currentTab or {}
 	if type(currentTab.realignGrid) == "function" then
-		if LogSearchScreen.searchText ~= "" and LogSearchScreen.AllowedTabViews[currentTab] then
+		if not Utils.isNilOrEmpty(LogSearchScreen.searchText) and LogSearchScreen.AllowedTabViews[currentTab] then
 			currentTab.realignGrid(LogOverlay.Windower.filterGrid, LogSearchScreen.currentSortOrder.sortFunc)
 		else
 			currentTab.realignGrid()
@@ -520,17 +521,14 @@ function LogOverlay.getLogFileFromPrompt()
 	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"
 
 	local workingDir = FileManager.dir
-	if workingDir ~= "" then
+	if not Utils.isNilOrEmpty(workingDir) then
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
-	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if filepath == "" then
-		filepath = nil
+	local filepath, success = ExternalUI.BizForms.openFilePrompt(suggestedFileName, workingDir, filterOptions)
+	if not success then
+		return nil
 	end
-	Utils.tempEnableBizhawkSound()
-
 	return filepath
 end
 

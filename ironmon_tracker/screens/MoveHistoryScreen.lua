@@ -152,7 +152,7 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 end
 
 function MoveHistoryScreen.openPokemonInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.MoveHistoryScreen.PromptPokemonTitle, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.MoveHistoryScreen.PromptPokemonTitle, 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(MoveHistoryScreen.pokemonID) then
@@ -162,24 +162,19 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(form, Resources.MoveHistoryScreen.PromptPokemonDesc .. ":", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-	forms.settext(pokedexDropdown, pokemonName)
+	form:createLabel(Resources.MoveHistoryScreen.PromptPokemonDesc .. ":", 49, 10)
+	local pokedexDropdown = form:createDropdown(pokedexData, 50, 30, 145, 30, pokemonName)
 
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local pokemonNameFromForm = ExternalUI.BizForms.getText(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
-
 		if pokemonId ~= nil and pokemonId ~= 0 then
 			if MoveHistoryScreen.buildOutHistory(pokemonId) then
 				Program.redraw(true)
 			end
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 -- USER INPUT FUNCTIONS
@@ -254,19 +249,23 @@ function MoveHistoryScreen.drawMovesLearnedBoxes(offsetX, offsetY)
 		viewedPokemonLevel = 0
 	end
 
-	local boxWidth = 16
+	-- Copied from InfoScreen
+	local NUM_MOVES = #movelvls
+	local MOVES_PER_ROW = NUM_MOVES <= 16 and 8 or 9
+	local boxWidth = NUM_MOVES <= 16 and 16 or 15
 	local boxHeight = 13
-	if #movelvls == 0 then -- If the Pokemon learns no moves at all
+	local boxStart = NUM_MOVES <= 16 and 5 or 1
+	if NUM_MOVES == 0 then -- If the Pokemon learns no moves at all
 		Drawing.drawText(offsetX + 6, offsetY, Resources.MoveHistoryScreen.NoMovesLearned, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	end
-	for i, moveLvl in ipairs(movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
-		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns
-		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
+	for i, moveLvl in ipairs(movelvls) do
+		local nextBoxX = ((i - 1) % MOVES_PER_ROW) * boxWidth
+		local nextBoxY = Utils.inlineIf(i <= MOVES_PER_ROW, 0, 1) * boxHeight -- 2 possible rows
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
 
 		-- Draw the level box
-		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, offsetY + nextBoxY + 2, boxWidth, boxHeight, shadowcolor, shadowcolor)
-		gui.drawRectangle(offsetX + nextBoxX + 5, offsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS[MoveHistoryScreen.Colors.border], Theme.COLORS[MoveHistoryScreen.Colors.boxFill])
+		gui.drawRectangle(offsetX + nextBoxX + boxStart + 1, offsetY + nextBoxY + 2, boxWidth, boxHeight, shadowcolor, shadowcolor)
+		gui.drawRectangle(offsetX + nextBoxX + boxStart, offsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS[MoveHistoryScreen.Colors.border], Theme.COLORS[MoveHistoryScreen.Colors.boxFill])
 
 		-- Indicate which moves have already been learned if the Pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
@@ -279,8 +278,8 @@ function MoveHistoryScreen.drawMovesLearnedBoxes(offsetX, offsetY)
 		end
 
 		-- Draw the level inside the box
-		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, offsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, shadowcolor)
+		Drawing.drawText(offsetX + nextBoxX + boxStart + 2 + lvlSpacing, offsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, shadowcolor)
 	end
 
-	return Utils.inlineIf(#movelvls <= 8, 1, 2) -- return number of lines drawn
+	return Utils.inlineIf(NUM_MOVES <= MOVES_PER_ROW, 1, 2) -- return number of lines drawn
 end

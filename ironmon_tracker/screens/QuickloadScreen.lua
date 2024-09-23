@@ -53,6 +53,17 @@ QuickloadScreen.Buttons = {
 			Options["Generate ROM each time"] = false
 			self.toggleState = Options.toggleSetting(self.optionKey)
 
+			-- If turned on initially, automatically locate the loaded rom path
+			if self.toggleState and Main.IsOnBizhawk() and (Options.FILES["ROMs Folder"] or "") == "" then
+				local luaconsole = client.gettool("luaconsole")
+				local luaImp = luaconsole and luaconsole.get_LuaImp()
+				local currentRomPath = luaImp and luaImp.PathEntries.LastRomPath or ""
+				if currentRomPath ~= "" then
+					Options.FILES["ROMs Folder"] = currentRomPath
+					Main.SaveSettings(true)
+				end
+			end
+
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
 			QuickloadScreen.verifyOptions()
@@ -173,9 +184,16 @@ function QuickloadScreen.createButtons()
 			updateSelf = function(self)
 				if not self.isSet then
 					self.filename = ""
-				elseif self.filename == "" then
+				elseif Utils.isNilOrEmpty(self.filename) then
 					if optionKey == "ROMs Folder" then
 						self.filename = FileManager.extractFolderNameFromPath(Options.FILES[optionKey] or "") or ""
+						local endChar = self.filename ~= "" and self.filename:sub(-1) or ""
+						if endChar == FileManager.slash or endChar == "/" then
+							endChar = "..."
+						else
+							endChar = "/..."
+						end
+						self.filename = self.filename .. endChar
 					else
 						self.filename = FileManager.extractFileNameFromPath(Options.FILES[optionKey] or "", true) or ""
 					end
@@ -188,7 +206,7 @@ function QuickloadScreen.createButtons()
 				local labelText = Resources.QuickloadScreen[optionObj.resourceKey]
 				local labelColor = Theme.COLORS[self.textColor]
 				-- If a file is set, use its name instead of the label
-				if self.isSet and self.filename ~= "" then
+				if self.isSet and not Utils.isNilOrEmpty(self.filename) then
 					labelText = self.filename
 					labelColor = Theme.COLORS["Positive text"]
 				end
@@ -240,22 +258,19 @@ function QuickloadScreen.verifyOptions()
 end
 
 function QuickloadScreen.handleSetRomFolder(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
-
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT A ROM", path, filterOptions)
-	if file ~= "" then
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", knownpath, filterOptions)
+	if success then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
-		file = file:sub(0, (file:match(pattern) or 1) - 1)
+		filepath = filepath:sub(0, (filepath:match(pattern) or 1) - 1)
 
-		if file == nil or file == "" then
+		if Utils.isNilOrEmpty(filepath) then
 			Options.FILES[button.optionKey] = ""
 			button.isSet = false
 		else
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
@@ -263,74 +278,60 @@ function QuickloadScreen.handleSetRomFolder(button)
 
 		Main.SaveSettings(true)
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetRandomizerJar(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
-
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT JAR", path, filterOptions)
-	if file ~= "" then
-		local extension = FileManager.extractFileExtensionFromPath(file)
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT JAR", knownpath, filterOptions)
+	if success then
+		local extension = FileManager.extractFileExtensionFromPath(filepath)
 		if extension == "jar" then
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			Main.SaveSettings(true)
 		else
 			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
 		end
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetSourceRom(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
-
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT A ROM", path, filterOptions)
-	if file ~= "" then
-		local extension = FileManager.extractFileExtensionFromPath(file)
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", knownpath, filterOptions)
+	if success then
+		local extension = FileManager.extractFileExtensionFromPath(filepath)
 		if extension == "gba" then
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			Main.SaveSettings(true)
 		else
 			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
 		end
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetCustomSettings(button)
-	local path = Options.FILES[button.optionKey]
+	local knownpath = Options.FILES[button.optionKey]
 	local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 
 	-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
-	if path == "" or not FileManager.fileExists(path) then
-		path = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.RandomizerSettings .. FileManager.slash)
+	if Utils.isNilOrEmpty(knownpath) or not FileManager.fileExists(knownpath) then
+		knownpath = FileManager.getRandomizerSettingsPath()
 	end
 
-	Utils.tempDisableBizhawkSound()
-
-	local file = forms.openfile("SELECT RNQS", path, filterOptions)
-	if file ~= "" then
-		local extension = FileManager.extractFileExtensionFromPath(file)
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT RNQS", knownpath, filterOptions)
+	if success then
+		local extension = FileManager.extractFileExtensionFromPath(filepath)
 		if extension == "rnqs" then
-			Options.FILES[button.optionKey] = file
+			Options.FILES[button.optionKey] = filepath
 			button.isSet = true
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice or force-create a new one if it doesn't exist
 			Main.ReadAttemptsCount(true)
@@ -339,10 +340,8 @@ function QuickloadScreen.handleSetCustomSettings(button)
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
 	end
-
 	QuickloadScreen.refreshButtons()
 	Program.redraw(true)
-	Utils.tempEnableBizhawkSound()
 end
 
 -- USER INPUT FUNCTIONS
@@ -392,7 +391,7 @@ function QuickloadScreen.drawScreen()
 	-- 	gui.drawRectangle(boxes[1].x, boxes[1].y, boxes[1].w, boxes[1].h, Theme.COLORS["Intermediate text"])
 	-- 	if QuickloadScreen.Buttons["ROMs Folder"].isSet then
 	-- 		local foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
-	-- 		if foldername ~= "" then
+	-- 		if not Utils.isNilOrEmpty(foldername) then
 	-- 			if foldername:len() < 18 then
 	-- 				labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelFolder, foldername)
 	-- 			else
@@ -404,7 +403,7 @@ function QuickloadScreen.drawScreen()
 	-- 	gui.drawRectangle(boxes[2].x, boxes[2].y, boxes[2].w, boxes[2].h, Theme.COLORS["Intermediate text"])
 	-- 	if QuickloadScreen.Buttons["Settings File"].isSet then
 	-- 		local filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
-	-- 		if filename ~= "" then
+	-- 		if not Utils.isNilOrEmpty(filename) then
 	-- 			if filename:len() < 18 then
 	-- 				labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelSettings, filename)
 	-- 			else

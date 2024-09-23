@@ -1,5 +1,25 @@
 PokemonData = {}
 
+PokemonData.Values = {
+	EggId = 412,
+	GhostId = 413, -- Pokémon Tower's Silph Scope Ghost
+	DefaultBaseFriendship = 70,
+	FriendshipRequiredToEvo = 220,
+}
+
+-- https://github.com/pret/pokefirered/blob/0c17a3b041a56f176f23145e4a4c0ae758f8d720/include/pokemon.h#L208-L236
+PokemonData.Addresses = {
+	offsetBaseStats = 0x0,
+	offsetTypes = 0x6,
+	offsetCatchRate = 0x8,
+	offsetExpYield = 0x9,
+	offsetGenderRatio = 0x10,
+	offsetBaseFriendship = 0x12,
+	offsetAbilities = 0x16,
+
+	sizeofExpYield = 1,
+}
+
 PokemonData.IsRand = {
 	types = false,
 	abilities = false,
@@ -126,10 +146,17 @@ PokemonData.Evolutions = {
 		detailed = { "Level 37", "Water Stone", },
 		evoItemIds = { 97 },
 	},
+	-- Water stone item or at level 37 (reverse order)
+	WATER37_REV = {
+		abbreviation = "WTR/37",
+		short = { "Water", "Lv.37", },
+		detailed = { "Water Stone", "Level 37", },
+		evoItemIds = { 97 },
+	},
 }
 
 function PokemonData.initialize()
-	PokemonData.buildPokemonData()
+	PokemonData.buildData()
 	PokemonData.checkIfDataIsRandomized()
 end
 
@@ -180,26 +207,33 @@ function PokemonData.updateResources()
 	PE.WATER37.abbreviation = RPED.WATER37.abbreviation
 	PE.WATER37.short = { RPED.LEVEL.short .. "37", RPED.WATER.short, }
 	PE.WATER37.detailed = { RPED.LEVEL.detailed .. " 37", RPED.WATER.detailed, }
+	PE.WATER37_REV.abbreviation = RPED.WATER37_REV.abbreviation
+	PE.WATER37_REV.short = { RPED.WATER.short, RPED.LEVEL.short .. "37", }
+	PE.WATER37_REV.detailed = { RPED.WATER.detailed, RPED.LEVEL.detailed .. " 37", }
 end
 
 ---Read in PokemonData from game memory: https://github.com/pret/pokefirered/blob/master/include/pokemon.h#L208
-function PokemonData.buildPokemonData()
+---@param forced boolean? Optional, forces the data to be read in from the game
+function PokemonData.buildData(forced)
+	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
+	-- 	return
+	-- end
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
 		pokemon.pokemonID = id
 
 		if id < 252 or id > 276 then -- Skip fake Pokemon
-			local addrOffset = GameSettings.gBaseStats + (id * 0x1C)
+			local addrOffset = GameSettings.gBaseStats + (id * Program.Addresses.sizeofBaseStatsPokemon)
 
 			-- BST (6 bytes)
-			local baseHPAttack = Memory.readword(addrOffset + 0x00)
-			local baseDefenseSpeed = Memory.readword(addrOffset + 0x02)
-			local baseSpASpD = Memory.readword(addrOffset + 0x04)
+			local baseHPAttack = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats)
+			local baseDefenseSpeed = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 2)
+			local baseSpASpD = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 4)
 			pokemon.bstCalculated = Utils.getbits(baseHPAttack, 0, 8) + Utils.getbits(baseHPAttack, 8, 8)
 				+ Utils.getbits(baseDefenseSpeed, 0, 8) + Utils.getbits(baseDefenseSpeed, 8, 8)
 				+ Utils.getbits(baseSpASpD, 0, 8) + Utils.getbits(baseSpASpD, 8, 8)
 
 			-- Types (2 bytes)
-			local typesData = Memory.readword(addrOffset + 0x06)
+			local typesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetTypes)
 			local typeOne = Utils.getbits(typesData, 0, 8)
 			local typeTwo = Utils.getbits(typesData, 8, 8)
 			pokemon.types = {
@@ -207,14 +241,21 @@ function PokemonData.buildPokemonData()
 				typeOne ~= typeTwo and PokemonData.TypeIndexMap[typeTwo] or PokemonData.Types.EMPTY,
 			}
 
-			-- Exp Yield (1 byte)
-			pokemon.expYield = Memory.readbyte(addrOffset + 0x09)
+			--Catch Rate (1 byte)
+			pokemon.catchRate = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetCatchRate)
+
+			-- Exp Yield
+			if PokemonData.Addresses.sizeofExpYield == 2 then
+				pokemon.expYield = Memory.readword(addrOffset + PokemonData.Addresses.offsetExpYield)
+			else
+				pokemon.expYield = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetExpYield)
+			end
 
 			-- Base Friendship (1 byte)
-			pokemon.friendshipBase = Memory.readbyte(addrOffset + 0x12)
+			pokemon.friendshipBase = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetBaseFriendship)
 
 			-- Abilities (2 bytes)
-			local abilitiesData = Memory.readword(addrOffset + 0x16)
+			local abilitiesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetAbilities)
 			pokemon.abilities = {
 				Utils.getbits(abilitiesData, 0, 8),
 				Utils.getbits(abilitiesData, 8, 8),
@@ -244,7 +285,7 @@ function PokemonData.checkIfDataIsRandomized()
 	elseif lapras.abilities[1] ~= 11 or lapras.abilities[2] ~= 75 then -- 11 = Water Absorb, 75 = Shell Armor
 		PokemonData.IsRand.abilities = true
 	end
-	if bulbasaur.friendshipBase ~= 70 or lapras.friendshipBase ~= 70 then
+	if bulbasaur.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship or lapras.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship then
 		PokemonData.IsRand.friendshipBase = true
 	end
 	if bulbasaur.expYield ~= 64 or lapras.expYield ~= 219 then
@@ -266,13 +307,19 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	return pokemon.abilities[abilityNum + 1] or 0 -- abilityNum stored from memory as [0 or 1]
 end
 
+---Returns true if the pokemonId is a valid, existing id of a pokemon in PokemonData.Pokemon
+---@param pokemonID number
+---@return boolean
 function PokemonData.isValid(pokemonID)
 	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= #PokemonData.Pokemon
 end
 
+---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
+---@param pokemonID number
+---@return boolean
 function PokemonData.isImageIDValid(pokemonID)
-	--Eggs (412), Ghosts (413), and placeholder (0)
-	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413 or pokemonID == 0
+	-- 0 is a valid placeholder id
+	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
 end
 
 local idInternalToNat = {
@@ -373,6 +420,112 @@ function PokemonData.getEffectiveness(pokemonID)
 	end
 
 	return effectiveness
+end
+
+---Returns whole number between 0 and 100 representing the percent likelihood to catch a pokemon
+---@param pokemonID number
+---@param hpMax number
+---@param hpCurrent number
+---@param level number? Optional, the Pokémon level, used only for Nest Ball; defaults to 5
+---@param status number? Optional, defaults to "None"
+---@param ball number? Optional, defaults to Poké Ball (item id = 3)
+---@param terrain number? Optional, defaults to 0 (no terrain); use 3 for UNDERWATER
+---@param battleTurn number? Optional, defaults to 0; first turn of a battle
+---@return number
+function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, ball, terrain, battleTurn)
+	if not PokemonData.isValid(pokemonID) or hpMax <= 0 or hpCurrent <= 0 then
+		return 0
+	end
+	level = level or 5
+	status = status or MiscData.StatusType.None
+	ball = ball or 3
+	terrain = terrain or 0
+	battleTurn = battleTurn or 0
+
+	-- Calculations based off of: https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Capture_method_(Generation_III-IV)
+
+	-- Estimate wild Pokémon's HP percent; round to nearest 10th
+	local estimatedCurrHP = math.floor(math.ceil(hpCurrent / hpMax * 10) / 10 * hpMax)
+
+	-- Changing to more closely resemble the actual in-game formula
+	local hpMultiplier = (hpMax * 3 - estimatedCurrHP * 2) / (hpMax * 3)
+
+	-- Determine base catch rate
+	local pokemon = PokemonData.Pokemon[pokemonID]
+	local baseCatchRate = pokemon.catchRate or 0
+
+	-- Determine ball type bonus multiplier
+	local ballBonusMap = {
+		[0] = 255, --Master Ball
+		[1] = 20, --Ultra Ball
+		[2] = 15, --Great Ball
+		[3] = 10, --Poke Ball
+		[4] = 15, --Safari Ball
+		[5] = 30, --Net Ball; only for WATER or BUG types
+		[6] = 35, --Dive Ball; only when map type is UNDERWATER
+		[7] = 40, --Nest Ball; subtract level of enemy, floor is 10
+		[8] = 30, --Repeat Ball; only if pokemon is flagged as caught already
+		[9] = 10, --Timer Ball; add turn counter, caps at 40
+		[10] = 10, --Luxury Ball
+		[11] = 10, --Premier Ball
+	}
+	local ballBonus
+	if ball <= 4 or ball >= 10 then
+		ballBonus = ballBonusMap[ball] or 10 -- default: poké ball
+	elseif ball == 5 and (pokemon.types[1] == PokemonData.Types.WATER or pokemon.types[2] == PokemonData.Types.WATER or pokemon.types[1] == PokemonData.Types.BUG or pokemon.types[2] == PokemonData.Types.BUG) then
+		ballBonus = ballBonusMap[5]
+	elseif ball == 6 and terrain == 3 then -- terrain 3: UNDERWATER
+		ballBonus = ballBonusMap[6]
+	elseif ball == 7 then
+		ballBonus = math.max(10, 40 - level)
+	elseif ball == 8 then
+		-- Data not available yet for calculation, default to poké ball
+		ballBonus = 10
+	elseif ball == 9 then
+		ballBonus = math.min(10 + battleTurn, 40)
+	end
+	ballBonus = ballBonus / 10
+
+	-- Determine status bonus multiplier
+	local statusBonusMap = {
+		[MiscData.StatusType.None] = 1,
+		[MiscData.StatusType.Burn] = 1.5,
+		[MiscData.StatusType.Freeze] = 2,
+		[MiscData.StatusType.Paralyze] = 1.5,
+		[MiscData.StatusType.Poison] = 1.5,
+		[MiscData.StatusType.Toxic] = 1.5,
+		[MiscData.StatusType.Sleep] = 2,
+	}
+	local statusBonus
+	-- Note: In R/S, toxic does not increase catch rate
+	if status == MiscData.StatusType.Toxic and (GameSettings.game == 1 or GameSettings.game == 2) then
+		statusBonus = 1
+	else
+		statusBonus = statusBonusMap[status] or 1 -- default: none
+	end
+
+	--Number between 0 and a lot; 255+ means guaranteed catch
+	local rawCatchRate = math.floor(math.floor(baseCatchRate * ballBonus * hpMultiplier) * statusBonus)
+	local processedCatchRate = 0
+	local percentage = 0
+	if rawCatchRate <=0 then
+		percentage = 0
+	elseif rawCatchRate > 254 then
+		percentage = 100
+	else
+		--Process rate is between 0 and 65535, represents chance of a 'ball shake'
+		processedCatchRate = math.floor(1048560 / math.floor(math.sqrt(math.floor(math.sqrt(math.floor(16711680/rawCatchRate))))))
+		processedCatchRate = math.floor(processedCatchRate / 65535 * 100) / 100
+		--4 Ball shakes to catch. Technically comes out to dividing the original rate by 255, but using this formula to keep the cacluation consistent with the actual game's method
+		percentage = math.floor(processedCatchRate * processedCatchRate * processedCatchRate * processedCatchRate * 100)
+	end
+	if percentage < 0 then
+		return 0
+	elseif percentage > 100 then
+		return 100
+	else
+		return percentage
+	end
 end
 
 PokemonData.TypeIndexMap = {
@@ -846,7 +999,7 @@ PokemonData.Pokemon = {
 	},
 	{
 		name = "Poliwhirl",
-		evolution = PokemonData.Evolutions.WATER37, -- Level 37 replaces trade evolution for Politoed
+		evolution = PokemonData.Evolutions.WATER37_REV, -- Level 37 replaces trade evolution for Politoed
 		bst = 385,
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51 }, { 7, 13, 19, 27, 35, 43, 51 } },
 		weight = 20.0

@@ -45,29 +45,9 @@ StartupScreen.Buttons = {
 		textColor = "Lower box text",
 		boxColors = { "Lower box border", "Lower box background" },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 128, Constants.SCREEN.MARGIN + 137, 10, 10 },
-		isVisible = function() return not Options["Show on new game screen"] and Options["Welcome message"] == "" end,
+		isVisible = function() return not Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) end,
 		onClick = function(self) Program.changeScreenView(StreamerScreen) end
 	},
-	-- EraseGame = { -- Currently unused
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "< Press" end,
-	-- 	textColor = "Lower box text",
-	-- 	boxColors = { "Lower box border", "Lower box background" },
-	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
-	-- 	isVisible = function() return false and Options["Welcome message"] == "" end, -- TODO: For now, we aren't using this button
-	-- 	onClick = function(self)
-	-- 		if Main.IsOnBizhawk() then
-	-- 			local joypadButtons = {
-	-- 				Up = true,
-	-- 				B = true,
-	-- 				Select = true,
-	-- 			}
-	-- 			joypad.set(joypadButtons)
-	-- 			Main.frameAdvance()
-	-- 			joypad.set(joypadButtons)
-	-- 		end
-	-- 	end
-	-- },
 	PokemonFavorite1 = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 90, 32, 44 },
@@ -95,7 +75,7 @@ StartupScreen.Buttons = {
 }
 
 function StartupScreen.initialize()
-	StartupScreen.setPokemonIcon(Options["Startup Pokemon displayed"])
+	StartupScreen.setPokemonIcon(tostring(Options["Startup Pokemon displayed"]))
 
 	for _, button in pairs(StartupScreen.Buttons) do
 		if button.textColor == nil then
@@ -125,6 +105,7 @@ function StartupScreen.refreshButtons()
 	end
 end
 
+---@param displayOption string
 function StartupScreen.setPokemonIcon(displayOption)
 	local pokemonID = Utils.randomPokemonID()
 
@@ -156,7 +137,7 @@ function StartupScreen.setPokemonIcon(displayOption)
 end
 
 function StartupScreen.openChoosePokemonWindow()
-	local form = Utils.createBizhawkForm(Resources.StartupScreen.PromptChooseAPokemonTitle, 330, 145)
+	local form = ExternalUI.BizForms.createForm(Resources.StartupScreen.PromptChooseAPokemonTitle, 330, 145)
 
 	local dropdownOptions = {
 		string.format("-- %s", Resources.StartupScreen.PromptChooseAPokemonByAttempt),
@@ -169,13 +150,6 @@ function StartupScreen.openChoosePokemonWindow()
 		table.insert(allPokemon, opt)
 	end
 	table.insert(allPokemon, "...................................") -- A spacer to separate special options
-
-	forms.label(form,Resources.StartupScreen.PromptChooseAPokemonDesc, 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-
 	local initialChoice
 	if Options["Startup Pokemon displayed"] == Options.StartupIcon.attempts then
 		initialChoice = dropdownOptions[1]
@@ -186,32 +160,31 @@ function StartupScreen.openChoosePokemonWindow()
 	else
 		initialChoice = PokemonData.Pokemon[Options["Startup Pokemon displayed"] or "1"].name
 	end
-	forms.settext(pokedexDropdown, initialChoice)
 
-	forms.button(form, Resources.AllScreens.Save, function()
-		local optionSelected = forms.gettext(pokedexDropdown)
+	form:createLabel(Resources.StartupScreen.PromptChooseAPokemonDesc, 49, 10)
+	local pokedexDropdown = form:createDropdown(allPokemon, 50, 30, 145, 30, initialChoice)
 
-		if optionSelected == dropdownOptions[1] then
-			optionSelected = Options.StartupIcon.attempts
-		elseif optionSelected == dropdownOptions[2] then
-			optionSelected = Options.StartupIcon.random
-		elseif optionSelected == dropdownOptions[3] then
-			optionSelected = Options.StartupIcon.none
-		elseif optionSelected ~= "..................................." then
+	form:createButton(Resources.AllScreens.Save, 200, 29, function()
+		local choice = ExternalUI.BizForms.getText(pokedexDropdown)
+		if choice == dropdownOptions[1] then
+			choice = Options.StartupIcon.attempts
+		elseif choice == dropdownOptions[2] then
+			choice = Options.StartupIcon.random
+		elseif choice == dropdownOptions[3] then
+			choice = Options.StartupIcon.none
+		elseif choice ~= "..................................." then
 			-- The option is a Pokemon's name and needs to be convered to an ID
-			optionSelected = PokemonData.getIdFromName(optionSelected) or -1
+			choice = tostring(PokemonData.getIdFromName(choice) or -1)
 		end
-
-		StartupScreen.setPokemonIcon(optionSelected)
+		StartupScreen.setPokemonIcon(choice)
 		Program.redraw(true)
 		Main.SaveSettings(true)
+		form:destroy()
+	end)
 
-		Utils.closeBizhawkForm(form)
-	end, 200, 29)
-
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 120, 69)
+	form:createButton(Resources.AllScreens.Cancel, 120, 69, function()
+		form:destroy()
+	end)
 end
 
 -- USER INPUT FUNCTIONS
@@ -262,7 +235,7 @@ function StartupScreen.drawScreen()
 	Drawing.drawText(topcolX, textLineY, GameSettings.versioncolor, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	if StartupScreen.Buttons.AttemptsCount.isVisible() then
+	if StartupScreen.Buttons.AttemptsCount:isVisible() then
 		Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Attempts .. ":", topBox.text, topBox.shadow)
 	end
 	textLineY = textLineY + linespacing
@@ -285,7 +258,7 @@ function StartupScreen.drawScreen()
 	end
 
 	-- If Favorites are selected to be shown and no custom welcome message has been written, show game controls by default
-	local showCustomWelcome = Options["Show on new game screen"] or Options["Welcome message"] ~= ""
+	local showCustomWelcome = Options["Show on new game screen"] or not Utils.isNilOrEmpty(Options["Welcome message"])
 
 	-- HEADER DIVIDER
 	if showCustomWelcome then
@@ -350,7 +323,7 @@ function StartupScreen.drawScreen()
 
 	-- Temporarily vertically center-align the Favorite Pokemon icons if no welcome message
 	local prevYs = {}
-	if Options["Show on new game screen"] and Options["Welcome message"] == "" then
+	if Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) then
 		prevYs = {
 			StartupScreen.Buttons.PokemonFavorite1.box[2],
 			StartupScreen.Buttons.PokemonFavorite2.box[2],
@@ -367,7 +340,7 @@ function StartupScreen.drawScreen()
 		Drawing.drawButton(button, buttonShadow)
 	end
 
-	if Options["Show on new game screen"] and Options["Welcome message"] == "" then
+	if Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) then
 		StartupScreen.Buttons.PokemonFavorite1.box[2] = prevYs[1]
 		StartupScreen.Buttons.PokemonFavorite2.box[2] = prevYs[2]
 		StartupScreen.Buttons.PokemonFavorite3.box[2] = prevYs[3]

@@ -3,6 +3,7 @@ Input = {
 	prevJoypadInput = {},
 	joypadUsedRecently = false,
 	currentColorPicker = nil,
+	allowNewRunCombo = false, -- Disable button combo for 1 second to prevents accidental, consecutive triggers
 	allowMouse = true, -- Accepts input from Mouse; false will ignore all clicks
 	allowJoypad = true, -- Accepts input from Joypad controller; false will ignore joystick/buttons
 	resumeMouse = false, -- Set to true to enable corresponding input on the next frame
@@ -43,6 +44,7 @@ Input.StatHighlighter = {
 	end,
 	resetSelectedStat = function(self)
 		self.statIndex = 1
+		self.framesSinceInput = self.framesHighlightMax
 	end,
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
@@ -61,12 +63,17 @@ Input.StatHighlighter = {
 }
 
 function Input.initialize()
+	Input.allowNewRunCombo = false
 	Input.allowMouse = true
 	Input.allowJoypad = true
 	Input.resumeMouse = false
 	Input.resumeJoypad = false
 	-- Add compatibility for deprecated functions
 	Input.togglePokemonViewed = Battle.togglePokemonViewed
+	-- Delay 1 second before enabling the New Run button combo
+	Program.addFrameCounter("EnableAllowNewRunCombo", 60, function()
+		Input.allowNewRunCombo = true
+	end, 1, true)
 end
 
 function Input.checkForInput()
@@ -150,7 +157,7 @@ function Input.checkJoypadInput()
 		Input.StatHighlighter:markSelectedStat()
 	end
 
-	if not Main.loadNextSeed then
+	if not Main.loadNextSeed and Input.allowNewRunCombo then
 		local allPressed = true
 		for button in string.gmatch(quickloadBtns, '([^,%s]+)') do
 			if not joypad[button] then
@@ -203,6 +210,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 	end
 	if UpdateScreen.showNotes then
 		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
+	elseif StreamConnectOverlay.isDisplayed then
+		StreamConnectOverlay.checkInput(xmouse, ymouse)
 	elseif LogOverlay.isDisplayed then
 		LogOverlay.checkInput(xmouse, ymouse)
 	end

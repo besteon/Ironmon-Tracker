@@ -1,5 +1,10 @@
 -- A collection of tools for viewing a Randomized Pokémon game log
-RandomizerLog = {}
+RandomizerLog = {
+	-- Developer settings
+	Settings = {
+		UsePokemonNamesFromLog = true,
+	},
+}
 
 RandomizerLog.Patterns = {
 	RandomizerVersion = "Randomizer Version:%s*([^%s]+)%s*$", -- Note: log file line 1 does NOT start with "Rando..."
@@ -37,6 +42,8 @@ RandomizerLog.Sectors = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Movesets"),
 		-- Matches: pokemon
 		NextMonPattern = "^%d+%s(.-)%s*%->",
+		-- Matches: movename
+		EvoMovePattern = "^Learned upon evolution:%s(.*)",
 		-- Matches: level, movename
 		MovePattern = "^Level%s(%d+)%s?%s?:%s(.*)",
 	},
@@ -188,7 +195,7 @@ RandomizerLog.currentNidoranIsF = true
 
 -- In some cases, the ♀/♂ in nidoran's names are stripped out. This is only way to figure out which is which
 function RandomizerLog.alternateNidorans(name)
-	if name == nil or name == "" or Utils.toLowerUTF8(name) ~= "nidoran" then return name end
+	if Utils.isNilOrEmpty(name) or Utils.toLowerUTF8(name) ~= "nidoran" then return name end
 
 	local correctName
 	if RandomizerLog.currentNidoranIsF then
@@ -348,7 +355,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 				RandomizerLog.AbilityNameToIdMap[ability2],
 			}
 
-			if helditems ~= nil and helditems ~= "" then
+			if not Utils.isNilOrEmpty(helditems) then
 				pokemonData.HeldItems = RandomizerLog.formatInput(helditems)
 			end
 		end
@@ -419,8 +426,13 @@ function RandomizerLog.parseMoveSets(logLines)
 			 -- First six lines are redundant Base Sets (also don't trust these will exist), and skip current line
 			index = index + 7
 
+			-- Check first if the first move is a special "Learned upon evolution" move
+			local level = "0"
+			local movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.EvoMovePattern)
+			if movename == nil then
+				level, movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.MovePattern)
+			end
 			-- Search for each listed level-up move
-			local level, movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.MovePattern)
 			while level ~= nil and movename ~= nil do
 				local nextMove = {
 					level = tonumber(RandomizerLog.formatInput(level)) or 0,
@@ -540,7 +552,7 @@ function RandomizerLog.parseTrainers(logLines)
 			local helditem = RandomizerLog.formatInput(splitTable[2] or "")
 			level = tonumber(RandomizerLog.formatInput(level) or "") or 0 -- nil if not a number
 
-			if helditem == "" then
+			if Utils.isNilOrEmpty(helditem) then
 				helditem = nil -- don't waste storage if empty
 			end
 
@@ -803,17 +815,25 @@ function RandomizerLog.areLanguagesMismatched()
 	return GameSettings.language:upper() ~= Resources.currentLanguage.Key:upper()
 end
 
--- Returns the Pokemon name, either determined from internal Tracker information or from the log itself (for custom names)
+-- Returns the Pokemon name, either from the log itself (for custom names) or from internal Tracker data
 function RandomizerLog.getPokemonName(pokemonID)
 	if not PokemonData.isValid(pokemonID) then
 		return Constants.BLANKLINE
 	end
 
+	local pokemonInternalName = PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
+	local pokemonLogName = RandomizerLog.Data.Pokemon[pokemonID].Name or pokemonInternalName
+
 	-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
 	if RandomizerLog.areLanguagesMismatched() then
-		return PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
+		return pokemonInternalName
+	end
+
+	-- By default, display the literal name as it appears in the log
+	if RandomizerLog.Settings.UsePokemonNamesFromLog then
+		return pokemonLogName
 	else
-		return RandomizerLog.Data.Pokemon[pokemonID].Name or PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
+		return pokemonInternalName
 	end
 end
 
@@ -864,7 +884,7 @@ function RandomizerLog.setupMappings()
 	-- Move names -> IDs
 	RandomizerLog.MoveNameToIdMap = {}
 	for _, moveInfo in ipairs(allMovesSource) do
-		if moveInfo.id ~= nil and moveInfo.name ~= nil and moveInfo.name ~= "" then
+		if moveInfo.id ~= nil and not Utils.isNilOrEmpty(moveInfo.name) then
 			local formattedName = RandomizerLog.formatInput(moveInfo.name) or ""
 			RandomizerLog.MoveNameToIdMap[formattedName] = tonumber(moveInfo.id) or -1
 		end
@@ -873,7 +893,7 @@ function RandomizerLog.setupMappings()
 	-- Ability names -> IDs
 	RandomizerLog.AbilityNameToIdMap = {}
 	for _, abilityInfo in ipairs(allAbilitiesSource) do
-		if abilityInfo.id ~= nil and abilityInfo.name ~= nil and abilityInfo.name ~= "" then
+		if abilityInfo.id ~= nil and not Utils.isNilOrEmpty(abilityInfo.name) then
 			local formattedName = RandomizerLog.formatInput(abilityInfo.name) or ""
 			RandomizerLog.AbilityNameToIdMap[formattedName] = abilityInfo.id
 		end
@@ -934,7 +954,7 @@ function RandomizerLog.setupRubySappRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[27] = 133 + offset -- granite cave grass/cave
 	RandomizerLog.RouteSetNumToIdMap[34] = 137 + offset -- mt. pyre grass/cave
 	RandomizerLog.RouteSetNumToIdMap[61] = 163 + offset -- victory road grass/cave
-	RandomizerLog.RouteSetNumToIdMap[173] = 241 + offset -- safari zone grass/cave
+	RandomizerLog.RouteSetNumToIdMap[173] = 241 + offset -- safari zone SE grass/cave
 	RandomizerLog.RouteSetNumToIdMap[178] = 192 + offset -- underwater surfing
 	RandomizerLog.RouteSetNumToIdMap[80] = 189 + offset -- abandoned ship surfing
 	RandomizerLog.RouteSetNumToIdMap[81] = 189 + offset -- abandoned ship fishing
@@ -1022,14 +1042,14 @@ function RandomizerLog.setupRubySappRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[59] = 160 + offset -- cave of origin grass/cave
 	RandomizerLog.RouteSetNumToIdMap[60] = 161 + offset -- cave of origin grass/cave
 	RandomizerLog.RouteSetNumToIdMap[76] = 184 + offset -- new mauville grass/cave
-	RandomizerLog.RouteSetNumToIdMap[165] = 238 + offset -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[166] = 238 + offset -- safari zone surfing
-	RandomizerLog.RouteSetNumToIdMap[167] = 238 + offset -- safari zone fishing
-	RandomizerLog.RouteSetNumToIdMap[168] = 239 + offset -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[169] = 239 + offset -- safari zone rock smash
-	RandomizerLog.RouteSetNumToIdMap[170] = 240 + offset -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[171] = 240 + offset -- safari zone surfing
-	RandomizerLog.RouteSetNumToIdMap[172] = 240 + offset -- safari zone fishing
+	RandomizerLog.RouteSetNumToIdMap[165] = 238 + offset -- safari zone NW grass/cave
+	RandomizerLog.RouteSetNumToIdMap[166] = 238 + offset -- safari zone NW surfing
+	RandomizerLog.RouteSetNumToIdMap[167] = 238 + offset -- safari zone NW fishing
+	RandomizerLog.RouteSetNumToIdMap[168] = 239 + offset -- safari zone NE grass/cave
+	RandomizerLog.RouteSetNumToIdMap[169] = 239 + offset -- safari zone NE rock smash
+	RandomizerLog.RouteSetNumToIdMap[170] = 240 + offset -- safari zone SW grass/cave
+	RandomizerLog.RouteSetNumToIdMap[171] = 240 + offset -- safari zone SW surfing
+	RandomizerLog.RouteSetNumToIdMap[172] = 240 + offset -- safari zone SW fishing
 	RandomizerLog.RouteSetNumToIdMap[62] = 285 + offset -- victory road grass/cave
 	RandomizerLog.RouteSetNumToIdMap[63] = 285 + offset -- victory road rock smash
 	RandomizerLog.RouteSetNumToIdMap[64] = 286 + offset -- victory road grass/cave
@@ -1121,7 +1141,7 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[38] = 133 + offset -- granite cave grass/cave
 	RandomizerLog.RouteSetNumToIdMap[39] = 137 + offset -- mt. pyre grass/cave
 	RandomizerLog.RouteSetNumToIdMap[40] = 163 + offset -- victory road grass/cave
-	RandomizerLog.RouteSetNumToIdMap[41] = 241 + offset -- safari zone grass/cave
+	RandomizerLog.RouteSetNumToIdMap[41] = 241 + offset -- safari zone SE grass/cave
 	RandomizerLog.RouteSetNumToIdMap[42] = 192 + offset -- underwater surfing
 	RandomizerLog.RouteSetNumToIdMap[43] = 189 + offset -- abandoned ship surfing
 	RandomizerLog.RouteSetNumToIdMap[44] = 189 + offset -- abandoned ship fishing
@@ -1210,14 +1230,14 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[126] = 162 + offset -- cave of origin grass/cave
 	RandomizerLog.RouteSetNumToIdMap[127] = 162 + offset -- cave of origin grass/cave
 	RandomizerLog.RouteSetNumToIdMap[128] = 184 + offset -- new mauville grass/cave
-	RandomizerLog.RouteSetNumToIdMap[129] = 238 + offset -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[130] = 238 + offset -- safari zone surfing
-	RandomizerLog.RouteSetNumToIdMap[131] = 238 + offset -- safari zone fishing
-	RandomizerLog.RouteSetNumToIdMap[132] = 239 + offset -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[133] = 239 + offset -- safari zone rock smash
-	RandomizerLog.RouteSetNumToIdMap[134] = 240 + offset -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[135] = 240 + offset -- safari zone surfing
-	RandomizerLog.RouteSetNumToIdMap[136] = 240 + offset -- safari zone fishing
+	RandomizerLog.RouteSetNumToIdMap[129] = 240 + offset -- safari zone SW grass/cave
+	RandomizerLog.RouteSetNumToIdMap[130] = 240 + offset -- safari zone SW surfing
+	RandomizerLog.RouteSetNumToIdMap[131] = 240 + offset -- safari zone SW fishing
+	RandomizerLog.RouteSetNumToIdMap[132] = 239 + offset -- safari zone NE grass/cave
+	RandomizerLog.RouteSetNumToIdMap[133] = 239 + offset -- safari zone NE rock smash
+	RandomizerLog.RouteSetNumToIdMap[134] = 238 + offset -- safari zone NW grass/cave
+	RandomizerLog.RouteSetNumToIdMap[135] = 238 + offset -- safari zone NW surfing
+	RandomizerLog.RouteSetNumToIdMap[136] = 238 + offset -- safari zone NW fishing
 	RandomizerLog.RouteSetNumToIdMap[137] = 285 + offset -- victory road grass/cave
 	RandomizerLog.RouteSetNumToIdMap[138] = 285 + offset -- victory road rock smash
 	RandomizerLog.RouteSetNumToIdMap[139] = 286 + offset -- victory road grass/cave
@@ -1262,11 +1282,11 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[178] = 324 + offset -- sky pillar grass/cave
 	RandomizerLog.RouteSetNumToIdMap[179] = 330 + offset -- sky pillar grass/cave
 	-- Emerald Required from here on...
-	RandomizerLog.RouteSetNumToIdMap[180] = 395 -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[181] = 395 -- safari zone surfing
-	RandomizerLog.RouteSetNumToIdMap[182] = 395 -- safari zone fishing
-	RandomizerLog.RouteSetNumToIdMap[183] = 394 -- safari zone grass/cave
-	RandomizerLog.RouteSetNumToIdMap[184] = 394 -- safari zone rock smash
+	RandomizerLog.RouteSetNumToIdMap[180] = 395 -- safari zone S-Ext grass/cave
+	RandomizerLog.RouteSetNumToIdMap[181] = 395 -- safari zone S-Ext surfing
+	RandomizerLog.RouteSetNumToIdMap[182] = 395 -- safari zone S-Ext fishing
+	RandomizerLog.RouteSetNumToIdMap[183] = 394 -- safari zone N-Ext grass/cave
+	RandomizerLog.RouteSetNumToIdMap[184] = 394 -- safari zone N-Ext rock smash
 	RandomizerLog.RouteSetNumToIdMap[185] = 336 -- magma hideout grass/cave
 	RandomizerLog.RouteSetNumToIdMap[186] = 337 -- magma hideout grass/cave
 	RandomizerLog.RouteSetNumToIdMap[187] = 338 -- magma hideout grass/cave

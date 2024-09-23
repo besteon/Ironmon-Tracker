@@ -103,7 +103,7 @@ function LogTabPokemon.buildPagedButtons()
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				-- If no search text entered, show all
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					return true
 				end
 

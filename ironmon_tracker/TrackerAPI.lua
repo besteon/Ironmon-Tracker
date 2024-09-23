@@ -1,9 +1,43 @@
 TrackerAPI = {}
 
+---Returns true if the Pokémon in slot # is shiny (for the player's team or the enemy)
+---@param partySlotNum? number Default = 1st
+---@param isEnemy? boolean Default = true
+---@return boolean
+function TrackerAPI.isShiny(partySlotNum, isEnemy)
+	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= false) or {}
+	return (pokemon.isShiny == true)
+end
+
+---Returns true if the Pokémon in slot # has PokéRus (for the player's team or the enemy)
+---@param partySlotNum? number Default = 1st
+---@param isEnemy? boolean Default = true
+---@return boolean
+function TrackerAPI.hasPokerus(partySlotNum, isEnemy)
+	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= false) or {}
+	return (pokemon.hasPokerus == true)
+end
+
 --- Returns the map id number of the current location of the player's character. When not in the game, the value is 0 (intro screen).
 --- @return number mapId
 function TrackerAPI.getMapId()
 	return Program.GameData.mapId or 0
+end
+
+--- Checks if a Tracker Extension is enabled, if it exists
+--- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+--- @return boolean isEnabled
+function TrackerAPI.isExtensionEnabled(extensionName)
+	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
+	return ext.isEnabled or false
+end
+
+--- Gets an extension object, if one exists
+--- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+--- @return table? extension
+function TrackerAPI.getExtensionSelf(extensionName)
+	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
+	return ext.selfObject
 end
 
 --- Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.

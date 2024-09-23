@@ -1,4 +1,10 @@
 GameSettings = {}
+
+GameSettings.RomHackSupport = {
+	NatDex = true, -- Support for Nat. Dex added as of v8.5.0
+	PhysSpecSplit = true, -- Support for Moves having the Physical/Special split
+}
+
 GameSettings.ABILITIES = {}
 
 -- Moved the 1st/2nd/3rd values to be set alongside other EWRAM/IWRAM addresses. 4th/5th/6th values are supposedly the Japanese addresses (not used right now)
@@ -684,7 +690,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
 			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
 			{ 0x0803df71 },
-			{ 0x08015b59, 0x08015b6d, 0x08015AC9, 0x08015ADD, 0x080CEB3D, 0x08015ADD, 0x08015129 },
+			{ 0x08015b59, 0x08015b6d, 0x08015AC9, 0x08015ADD, 0x08015AC9, 0x08015ADD, 0x08015129 },
 			{ 0x08015b59, 0x08015b6d },
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3

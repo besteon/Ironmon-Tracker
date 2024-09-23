@@ -1,5 +1,13 @@
 AbilityData = {}
 
+AbilityData.Values = {
+	CacophonyId = 76,
+}
+
+function AbilityData.initialize()
+	AbilityData.buildData()
+end
+
 function AbilityData.updateResources()
 	for i, val in ipairs(AbilityData.Abilities) do
 		if Resources.Game.AbilityNames[i] then
@@ -16,13 +24,26 @@ function AbilityData.updateResources()
 	end
 end
 
+---Currently unused; builds the AbilityData from game memory.
+---@param forced boolean? Optional, forces the data to be read in from the game
+function AbilityData.buildData(forced)
+	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
+	-- 	return
+	-- end
+
+	-- Not currently necessary, as this data doesn't really change.
+end
+
+---Returns true if the abilityId is a valid, existing id of an ability in AbilityData.Abilities
+---@param abilityId number
+---@return boolean
 function AbilityData.isValid(abilityId)
-	return abilityId ~= nil and abilityId >= 1 and abilityId <= #AbilityData.Abilities -- and abilityId ~= 76 -- Allow Cacophony to be looked up
+	return abilityId ~= nil and abilityId >= 1 and abilityId <= #AbilityData.Abilities
 end
 
 function AbilityData.populateAbilityDropdown(abilityList)
 	for _, ability in ipairs(AbilityData.Abilities) do
-		if ability.id ~= 76 then -- Skip Cacophony
+		if ability.id ~= AbilityData.Values.CacophonyId then
 			table.insert(abilityList, ability.name)
 		end
 	end

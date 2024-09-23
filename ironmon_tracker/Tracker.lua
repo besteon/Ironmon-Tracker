@@ -65,7 +65,9 @@ function Tracker.initialize()
 
 	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
-		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
+		local filename = GameSettings.getTrackerAutoSaveName()
+		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+		local filepath = folderpath .. filename
 		local loadStatus = Tracker.loadData(filepath)
 
 		-- If the autosave file doesn't exist, then this is a new game
@@ -78,7 +80,7 @@ function Tracker.initialize()
 end
 
 --- @param slotNumber number Which party slot (1-6) to get
---- @param isOwn boolean True for the Player's team, false for the Enemy Trainer's team
+--- @param isOwn boolean? (Optional) True for the Player's team, false for the Enemy Trainer's team; default=true
 --- @param excludeEggs boolean? (Optional) If true, avoid Pokémon that are eggs; default=true
 --- @return table? pokemon All of the game data known about this Pokémon; nil if it doesn't exist
 function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
@@ -305,7 +307,7 @@ end
 --- Returns info on which Rival the player is fighting throughout the game. If not set, returns nil
 --- @return string? nameAndDirection FRLG: "Left/Middle/Right", RSE: "TrainerName Left/Middle/Right"
 function Tracker.getWhichRival()
-	if Tracker.Data.whichRival == "" then
+	if Utils.isNilOrEmpty(Tracker.Data.whichRival) then
 		return nil
 	else
 		return Tracker.Data.whichRival
@@ -403,14 +405,14 @@ end
 --- @param pokemonID number
 --- @return string
 function Tracker.getNote(pokemonID)
-	if pokemonID == 413 then -- Ghost
+	if pokemonID == PokemonData.Values.GhostId then
 		return "Spoooky!"
 	end
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.note or ""
 end
 
---- If the Pokemon has the move "Hidden Power" (id=237), return it's tracked type (if set); otherwise default type value = unknown
+--- If the Pokemon has the move "Hidden Power", return it's tracked type (if set); otherwise default type value = unknown
 --- @param pokemon table? (Optional) The Pokemon data object to use for checking if hidden power type is tracked; default: currently viewed mon
 --- @return string
 function Tracker.getHiddenPowerType(pokemon)
@@ -456,8 +458,8 @@ end
 --- @return table pokemon A mostly empty set of Pokémon game data, with some info hidden because it's the story ghost encounter
 function Tracker.getGhostPokemon()
 	local defaultPokemon = Tracker.getDefaultPokemon()
-	defaultPokemon.pokemonID = 413
-	defaultPokemon.name = "Ghost"
+	defaultPokemon.pokemonID = PokemonData.Values.GhostId
+	defaultPokemon.name = Resources.TrackerScreen.UnidentifiedGhost or "Ghost"
 	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
 	return defaultPokemon
 end
@@ -478,14 +480,21 @@ end
 
 function Tracker.saveData(filename)
 	filename = filename or GameSettings.getTrackerAutoSaveName()
-	FileManager.writeTableToFile(Tracker.Data, filename)
+	local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+	local filepath = folderpath .. filename
+	FileManager.writeTableToFile(Tracker.Data, filepath)
 end
 
 -- Attempts to load Tracked data from the file 'filepath', sets and returns 'Tracker.LoadStatus' to a status from 'Tracker.LoadStatusKeys'
 -- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
 function Tracker.loadData(filepath, forced)
+	if not filepath then
+		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+		local filename = GameSettings.getTrackerAutoSaveName()
+		filepath = folderpath .. filename
+	end
+
 	-- Loose safety check to ensure a valid data file is loaded
-	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")

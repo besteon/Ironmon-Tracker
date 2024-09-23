@@ -92,6 +92,9 @@ ScreenResources{
 		WATER37 = {
 			abbreviation = "37/WTR", -- NEEDS TRANSLATION
 		},
+		WATER37_REV = {
+			abbreviation = "WTR/37", -- NEEDS TRANSLATION
+		},
 		EEVEE_STONES = {
 			abbreviation = "STONE", -- NEEDS TRANSLATION
 			detailed = "5 Diff. Stones", -- NEEDS TRANSLATION
@@ -101,10 +104,14 @@ ScreenResources{
 		HPAbbreviation = "HP", -- NEEDS TRANSLATION
 		LevelAbbreviation = "Lv", -- NEEDS TRANSLATION
 		RandomBallChosen = "Randomly chosen ball", -- NEEDS TRANSLATION
+		RandomBallUserChosen = "Chosen ball", -- NEEDS TRANSLATION
+		RandomBallUserPicks = "picks", -- NEEDS TRANSLATION
 		RandomBallLeft = "Left", -- NEEDS TRANSLATION
 		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
 		RandomBallRight = "Right", -- NEEDS TRANSLATION
+		RandomBallRandom = "Random", -- NEEDS TRANSLATION
 		HealsInBag = "Heals", -- NEEDS TRANSLATION
+		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
 		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
@@ -123,6 +130,7 @@ ScreenResources{
 		HeaderPP = "PP", -- NEEDS TRANSLATION
 		HeaderPow = "Pow", -- NEEDS TRANSLATION
 		HeaderAcc = "Acc", -- NEEDS TRANSLATION
+		ToCatch = "to catch", -- NEEDS TRANSLATION
 		LeaveANote = "Leave a note", -- NEEDS TRANSLATION
 		DamageTaken = "damage", -- NEEDS TRANSLATION
 		DamageTakenInTeams = "Total received", -- NEEDS TRANSLATION
@@ -187,17 +195,27 @@ ScreenResources{
 	},
 	SetupScreen = {
 		Title = "Tracker Setup", -- NEEDS TRANSLATION
+		TabGeneral = "General", -- NEEDS TRANSLATION
+		TabCarousel = "Carousel", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
-		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
+		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
+		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
+		LabelSpeedSetting = "Speed", -- NEEDS TRANSLATION
+		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION
+		CarouselNotes = "Notes on Pokémon", -- NEEDS TRANSLATION
+		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION
+		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
+		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
+		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
 		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
 		PromptEditControllerLoadNext = "Load next seed", -- NEEDS TRANSLATION
@@ -218,9 +236,12 @@ ScreenResources{
 		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
+		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout", -- NEEDS TRANSLATION
 		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential", -- NEEDS TRANSLATION
 		EstimateResultOutstanding = "Outstanding!!!", -- NEEDS TRANSLATION
@@ -242,7 +263,7 @@ ScreenResources{
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
-		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
+		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
@@ -272,11 +293,16 @@ ScreenResources{
 		ButtonImport = "Import theme", -- NEEDS TRANSLATION
 		ButtonExport = "Export theme", -- NEEDS TRANSLATION
 		PromptEnterThemeCode = "Enter a theme code string to import (Ctrl+V to paste)", -- NEEDS TRANSLATION
+		PromptImportError = "Error importing: Invalid theme code.", -- NEEDS TRANSLATION
 		PromptThemeFor = "Theme for", -- NEEDS TRANSLATION
 		PromptCopyThemeCode = "Copy the theme code below (Ctrl+C)", -- NEEDS TRANSLATION
 		PromptSelectPreset = "Select a Theme preset to preview", -- NEEDS TRANSLATION
 		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
 		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
+		PromptCantUseReserved = "Cannot use a reserved Theme name.", -- NEEDS TRANSLATION
+		PromptCantUseConsecutiveChars = "Name cannot have 6 consecutive hexcode characters (0-9A-F)", -- NEEDS TRANSLATION
+		PromptNameAlreadyInUse = "A Theme with that name already exists. Overwrite?", -- NEEDS TRANSLATION
+		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
 		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
 		OptionTextShadows = "Text shadows", -- NEEDS TRANSLATION
 		ButtonEditColors = "Edit Theme Colors", -- NEEDS TRANSLATION
@@ -339,6 +365,7 @@ ScreenResources{
 	StreamerScreen = {
 		Title = "Streamer Tools", -- NEEDS TRANSLATION
 		ButtonEdit = "Edit", -- NEEDS TRANSLATION
+		ButtonStreamConnect = "Stream Connect", -- NEEDS TRANSLATION
 		LabelAttemptsCount = "Attempts Count", -- NEEDS TRANSLATION
 		LabelWelcomeMessage = "Welcome Message", -- NEEDS TRANSLATION
 		LabelFavorites = "Favorite Pokémon", -- NEEDS TRANSLATION
@@ -507,6 +534,11 @@ ScreenResources{
 		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
 		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
 		LabelBSTTotal = "Total", -- NEEDS TRANSLATION
+		LabelYourIVs = "Your IVs", -- NEEDS TRANSLATION
+		LabelYourEVs = "Your EVs", -- NEEDS TRANSLATION
+		LabelShowIVs = "Show IVs", -- NEEDS TRANSLATION
+		LabelShowEVs = "Show EVs", -- NEEDS TRANSLATION
+		LabelShowBST = "Show BST", -- NEEDS TRANSLATION
 		ButtonLevelupMoves = "Levelup Moves", -- NEEDS TRANSLATION
 		ButtonTMMoves = "TM Moves", -- NEEDS TRANSLATION
 		LabelGymTMs = "Gym TMs", -- NEEDS TRANSLATION
@@ -534,6 +566,7 @@ ScreenResources{
 		LabelRandomSeed = "Random Seed", -- NEEDS TRANSLATION
 		LabelSettingsString = "Settings String", -- NEEDS TRANSLATION
 		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
+		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
 		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
 		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION
@@ -614,6 +647,118 @@ ScreenResources{
 		ExtensionsLoaded = "Extensions Loaded", -- NEEDS TRANSLATION
 		ExtensionsMissing = "Extensions Missing", -- NEEDS TRANSLATION
 	},
+	StreamConnect = {
+		-- THE BELOW EVENTS NEED TRANSLATION
+		CMD_Pokemon_Name = "Pokémon Info",
+		CMD_Pokemon_Help = "name > Displays useful game info for a Pokémon.",
+		CMD_BST_Name = "Pokémon BST",
+		CMD_BST_Help = "name > Displays the base stat total (BST) for a Pokémon.",
+		CMD_Weak_Name = "Pokémon Weaknesses",
+		CMD_Weak_Help = "name > Displays the weaknesses for a Pokémon.",
+		CMD_Move_Name = "Move Info",
+		CMD_Move_Help = "name > Displays game info for a move.",
+		CMD_Ability_Name = "Ability Info",
+		CMD_Ability_Help = "name > Displays game info for a Pokémon's ability.",
+		CMD_Route_Name = "Route Info",
+		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
+		CMD_Dungeon_Name = "Dungeon Info",
+		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
+		CMD_Unfought_Name = "Unfought Trainers",
+		CMD_Unfought_Help = "[dungeon] [sevii]> Displays a list of areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' to include partially completed dungeons.)",
+		CMD_Pivots_Name = "Pivots Seen",
+		CMD_Pivots_Help = "> Displays known early game wild encounters for an area.",
+		CMD_Revo_Name = "Pokémon Random Evolutions",
+		CMD_Revo_Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
+		CMD_Coverage_Name = "Move Coverage Effectiveness",
+		CMD_Coverage_Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
+		CMD_Heals_Name = "Heals in Bag",
+		CMD_Heals_Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
+		CMD_TMs_Name = "TM Lookup",
+		CMD_TMs_Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
+		CMD_Search_Name = "Search Tracked Info",
+		CMD_Search_Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
+		CMD_SearchNotes_Name = "Search Notes on Pokémon",
+		CMD_SearchNotes_Help = "notes > Displays a list of Pokémon with any matching notes.",
+		CMD_Favorites_Name = "Favorite Starters",
+		CMD_Favorites_Help = "> Displays the list of favorites used for picking a starter.",
+		CMD_Theme_Name = "Theme Export",
+		CMD_Theme_Help = "name > Displays the name and code string for a Tracker theme.",
+		CMD_GameStats_Name = "Game Stats",
+		CMD_GameStats_Help = "> Displays fun stats for the current game.",
+		CMD_Progress_Name = "Game Progress",
+		CMD_Progress_Help = "> Displays fun progress percentages for the current game.",
+		CMD_Log_Name = "Log Randomizer Settings",
+		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
+		CMD_BallQueue_Name = "Ball Queue",
+		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
+		CMD_About_Name = "About the Tracker",
+		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
+		CMD_Help_Name = "Command Help",
+		CMD_Help_Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
+		CR_PickBallOnce_Name = "Pick Starter Ball (One Try)",
+		CR_PickBallUntilOut_Name = "Pick Starter Ball (Until Out)",
+		CR_ChangeFavorite_Name = "Change Starter Favorite: # NAME",
+		CR_ChangeFavoriteOne_Name = "Change Starter Favorite: #1",
+		CR_ChangeFavoriteTwo_Name = "Change Starter Favorite: #2",
+		CR_ChangeFavoriteThree_Name = "Change Starter Favorite: #3",
+		CR_ChangeTheme_Name = "Change Tracker Theme",
+		CR_ChangeLanguage_Name = "Change Tracker Language",
+		O_SendMessage = "Send chat message if successful",
+		O_AutoComplete = "Auto-complete the redeem",
+		O_RequireChosenMon = "Your pick direction must match",
+		O_WordForLeft = "Word for Left",
+		O_WordForMiddle = "Word for Middle",
+		O_WordForRight = "Word for Right",
+		O_WordForRandom = "Word for Random",
+		O_ShowBallQueueOnStartup = "Show Ball Queue info on startup",
+		-- THE BELOW SCREEN LABELS NEED TRANSLATION
+		TabCommands = "Commands",
+		TabRewards = "Rewards",
+		TabQueue = "Queue",
+		TabGame = "Game",
+		TabStatus = "Status",
+		ButtonRolePermissions = "Role Permissions",
+		ButtonRename = "Rename",
+		ButtonOptions = "Options",
+		ButtonAdd = "Add",
+		ButtonChange = "Change",
+		ButtonQueueAreYouSure = "Are you sure?",
+		ButtonQueueClearAll = "Clear All",
+		ButtonQueueConfirm = "Confirm?",
+		ButtonConnect = "Connect",
+		ButtonDisconnect = "Disconnect",
+		ButtonSet = "Set",
+		ButtonGetStreamerbotCode = "Get Streamerbot Code",
+		ButtonHelp = "Help",
+		LabelWaitingForConnection = "(Waiting for connection...)",
+		LabelNoRewardsInQueue = "No Rewards have been queued up.",
+		LabelNoGameEvents = "No Game event triggers have been added.",
+		LabelHowToAddGameEvents = "You can add new Game event triggers through custom Tracker extensions.",
+		LabelConnectionStatus = "Connection Status",
+		LabelOnlineEstablished = "Online: Connection established.",
+		LabelOnlineWaiting = "Online: Waiting for connection...",
+		LabelOffline = "Offline.",
+		LabelSettings = "Settings",
+		LabelConnectionMode = "Connection Mode",
+		LabelConnectionFolder = "Connection Folder",
+		LabelImportCode = "Import Code",
+		LabelServerIP = "Server IP",
+		LabelServerPort = "Port",
+		LabelHttpGet = "GET",
+		LabelHttpPost = "POST",
+		WarningSetupImport = "Setup: Import code then set connection folder.",
+		WarningNotSupported = "This mode not yet supported by Bizhawk.",
+		StatusConnTypeText = "Text",
+		StatusConnTypeWebSockets = "WebSockets",
+		StatusConnTypeHttp = "Http",
+		OptionAutoConnectStartup = "Auto-connect on startup",
+		PromptUpdateTitle = "Streamerbot Update Required",
+		PromptUpdateDesc1 = "Streamerbot Tracker Integration code requires an update.",
+		PromptUpdateDesc2 = "You must re-import the code to continue using Stream Connect.",
+		PromptNetworkShowMe = "Show Me",
+		PromptNetworkTurnOff = "Turn Off Stream Connect",
+		PromptDefault = "Default",
+	},
 	MGBA = {
 		MenuTrackerSettings = "Tracker Settings", -- NEEDS TRANSLATION
 		MenuGeneralSetup = "General Setup", -- NEEDS TRANSLATION
@@ -622,8 +767,10 @@ ScreenResources{
 		MenuCheckForUpdates = "Check for Updates", -- NEEDS TRANSLATION
 		MenuNewUpdateVailable = "New Update Available", -- NEEDS TRANSLATION
 		MenuLanguage = "Language", -- NEEDS TRANSLATION
+		MenuExtensions = "Extensions", -- NEEDS TRANSLATION
 		MenuCommands = "Commands", -- NEEDS TRANSLATION
 		MenuBasicCommands = "Basic Commands", -- NEEDS TRANSLATION
+		MenuAdvancedCommands = "Advanced Commands", -- NEEDS TRANSLATION
 		MenuOtherCommands = "Other Commands", -- NEEDS TRANSLATION
 		MenuInfoLookup = "Info Lookup", -- NEEDS TRANSLATION
 		MenuPokemon = "Pokémon", -- NEEDS TRANSLATION
@@ -652,6 +799,7 @@ ScreenResources{
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
+		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
 		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
@@ -666,7 +814,9 @@ ScreenResources{
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
-		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
+		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION
@@ -674,6 +824,7 @@ ScreenResources{
 		OptionRandomizerJar = "Randomizer JAR", -- NEEDS TRANSLATION
 		OptionSourceRom = "Source ROM", -- NEEDS TRANSLATION
 		OptionSettingsFile = "Settings File", -- NEEDS TRANSLATION
+		OptionAllowCustomCode = "Allow custom code to run", -- NEEDS TRANSLATION
 		AnimatedPopoutRequired = "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up.", -- NEEDS TRANSLATION
 		JarFileRequired = "A '.jar' file is required; please enter the full file path to your Randomizer JAR file.", -- NEEDS TRANSLATION
 		GbaFileRequired = "A '.gba' file is required; please enter the full file path to your GBA ROM file.", -- NEEDS TRANSLATION
@@ -726,10 +877,14 @@ ScreenResources{
 		LanguageChangeWith = "Change your language with", -- NEEDS TRANSLATION
 		LanguageHeaderTag = "Tag", -- NEEDS TRANSLATION
 		LanguageHeaderLang = "Language", -- NEEDS TRANSLATION
+		ExtensionsInstallNewWith = "Install new extensions with", -- NEEDS TRANSLATION
+		ExtensionsInstalledExtensions = "Installed Extensions", -- NEEDS TRANSLATION
+		ExtensionsEnableDisable = "Enable/disable with", -- NEEDS TRANSLATION
 		CommandsDesc = "To use, type into below textbox. Example command", -- NEEDS TRANSLATION
 		CommandsUsageSyntax = "Usage Syntax", -- NEEDS TRANSLATION
 		CommandsExampleUsage = "Example Usage", -- NEEDS TRANSLATION
 		PokemonInfoBST = "BST", -- NEEDS TRANSLATION
+		PokemonInfoEXP = "EXP", -- NEEDS TRANSLATION
 		PokemonInfoWeight = "Weight", -- NEEDS TRANSLATION
 		PokemonInfoEvolution = "Evolution", -- NEEDS TRANSLATION
 		PokemonInfoKg = "kg", -- NEEDS TRANSLATION
@@ -758,6 +913,7 @@ ScreenResources{
 		TrackerSpAttack = "SPA", -- NEEDS TRANSLATION
 		TrackerSpDefense = "SPD", -- NEEDS TRANSLATION
 		TrackerSpeed = "SPE", -- NEEDS TRANSLATION
+		TrackerCatchRate = "Catch rate", -- NEEDS TRANSLATION
 		TrackerSurvivalPCs = "Survival PCs", -- NEEDS TRANSLATION
 		TrackerHeals = "Heals", -- NEEDS TRANSLATION
 		TrackerLastSeen = "Last seen", -- NEEDS TRANSLATION
@@ -848,6 +1004,9 @@ ScreenResources{
 		LanguageError1 = "Where 'language' is the name or # of a language. Check the Language sidebar menu.", -- NEEDS TRANSLATION
 		LanguageError2 = "Unable to find language", -- NEEDS TRANSLATION
 		LanguageSuccess = "The Tracker's display language has been updated.", -- NEEDS TRANSLATION
+		InstallExtDesc = "Installs new Extension files from the Tracker's extensions folder.", -- NEEDS TRANSLATION
+		InstallExtSuccess1 = "New extensions have been installed!", -- NEEDS TRANSLATION
+		InstallExtSuccess2 = "No new extension files found in the Tracker's extensions folder.", -- NEEDS TRANSLATION
 	},
 }
 
@@ -1698,7 +1857,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
+			Description = "Endures attacks for two consecutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Metronome",
@@ -2566,7 +2725,7 @@ GameResources{
 		},
 		{
 			NameKey = "Iron Defense",
-			Description = "Deals raises the user's Defense stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Raises the user's Defense stat by two stages.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Block",
@@ -2574,7 +2733,7 @@ GameResources{
 		},
 		{
 			NameKey = "Howl",
-			Description = "Deals raises the user's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Raises the user's Attack stat by one stage.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Dragon Claw",
