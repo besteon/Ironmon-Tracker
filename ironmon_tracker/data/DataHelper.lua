@@ -4,10 +4,11 @@ DataHelper = {}
 ---@param name string?
 ---@param threshold number? Default threshold distance of 3
 ---@return number pokemonID
+---@return number distance The Levenshtein distance between search word and matched word
 function DataHelper.findPokemonId(name, threshold)
 	threshold = threshold or 3
 	if Utils.isNilOrEmpty(name) then
-		return PokemonData.BlankPokemon.pokemonID
+		return PokemonData.BlankPokemon.pokemonID, -1
 	end
 
 	-- Format list of Pokemon as id, name pairs
@@ -18,18 +19,19 @@ function DataHelper.findPokemonId(name, threshold)
 		end
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), pokemonNames, threshold)
-	return id or PokemonData.BlankPokemon.pokemonID
+	local id, _, distance = Utils.getClosestWord(Utils.toLowerUTF8(name), pokemonNames, threshold)
+	return id or PokemonData.BlankPokemon.pokemonID, distance
 end
 
 ---Searches for a Move by name, finds the best match; returns 0 if no good match
 ---@param name string?
 ---@param threshold number? Default threshold distance of 3
 ---@return number moveId
+---@return number distance The Levenshtein distance between search word and matched word
 function DataHelper.findMoveId(name, threshold)
 	threshold = threshold or 3
 	if Utils.isNilOrEmpty(name) then
-		return tonumber(MoveData.BlankMove.id) or 0
+		return tonumber(MoveData.BlankMove.id) or 0, -1
 	end
 
 	-- Format list of Moves as id, name pairs
@@ -38,18 +40,19 @@ function DataHelper.findMoveId(name, threshold)
 		moveNames[id] = Utils.toLowerUTF8(move.name)
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), moveNames, threshold)
-	return id or tonumber(MoveData.BlankMove.id) or 0
+	local id, _, distance = Utils.getClosestWord(Utils.toLowerUTF8(name), moveNames, threshold)
+	return id or tonumber(MoveData.BlankMove.id) or 0, distance
 end
 
 ---Searches for an Ability by name, finds the best match; returns 0 if no good match
 ---@param name string?
 ---@param threshold number? Default threshold distance of 3
 ---@return number abilityId
+---@return number distance The Levenshtein distance between search word and matched word
 function DataHelper.findAbilityId(name, threshold)
 	threshold = threshold or 3
 	if Utils.isNilOrEmpty(name) then
-		return AbilityData.DefaultAbility.id
+		return AbilityData.DefaultAbility.id, -1
 	end
 
 	-- Format list of Abilities as id, name pairs
@@ -58,18 +61,19 @@ function DataHelper.findAbilityId(name, threshold)
 		abilityNames[id] = Utils.toLowerUTF8(ability.name)
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), abilityNames, threshold)
-	return id or AbilityData.DefaultAbility.id
+	local id, _, distance = Utils.getClosestWord(Utils.toLowerUTF8(name), abilityNames, threshold)
+	return id or AbilityData.DefaultAbility.id, distance
 end
 
 ---Searches for a Route by name, finds the best match; returns 0 if no good match
 ---@param name string?
 ---@param threshold number? Default threshold distance of 5!
 ---@return number mapId
+---@return number distance The Levenshtein distance between search word and matched word
 function DataHelper.findRouteId(name, threshold)
 	threshold = threshold or 5
 	if Utils.isNilOrEmpty(name) then
-		return RouteData.BlankRoute.id
+		return RouteData.BlankRoute.id, -1
 	end
 
 	-- If the lookup is just a route number, allow it to be searchable
@@ -83,22 +87,23 @@ function DataHelper.findRouteId(name, threshold)
 		routeNames[id] = Utils.toLowerUTF8(route.name or "Unnamed Route")
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), routeNames, threshold)
-	return id or RouteData.BlankRoute.id
+	local id, _, distance = Utils.getClosestWord(Utils.toLowerUTF8(name), routeNames, threshold)
+	return id or RouteData.BlankRoute.id, distance
 end
 
 ---Searches for a Pokémon Type by name, finds the best match; returns nil if no match found
 ---@param name string?
 ---@param threshold number? Default threshold distance of 3
 ---@return string? type PokemonData.Type
+---@return number distance The Levenshtein distance between search word and matched word
 function DataHelper.findPokemonType(name, threshold)
 	threshold = threshold or 3
 	if Utils.isNilOrEmpty(name) then
-		return nil
+		return nil, -1
 	end
 
-	local type, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), PokemonData.Types, threshold)
-	return type
+	local type, _, distance = Utils.getClosestWord(Utils.toLowerUTF8(name), PokemonData.Types, threshold)
+	return type, distance
 end
 
 -- Returns a table with all of the important display data safely formatted to draw on screen.
@@ -1560,22 +1565,41 @@ function DataHelper.EventRequests.getSearch(params)
 	if Utils.isNilOrEmpty(params, true) then
 		return buildResponse(params, helpResponse)
 	end
-	local function getModeAndId(input, threshold)
-		local id = DataHelper.findPokemonId(input, threshold)
-		if id ~= 0 then return "pokemon", id end
-		id = DataHelper.findMoveId(input, threshold)
-		if id ~= 0 then return "move", id end
-		id = DataHelper.findAbilityId(input, threshold)
-		if id ~= 0 then return "ability", id end
-		return nil, 0
-	end
-	local searchMode, searchId
-	for i=1, 4, 1 do
-		searchMode, searchId = getModeAndId(params, i)
-		if searchMode then
-			break
+
+	-- Determine if the search is for an ability, move, or pokemon
+	local function determineSearchMode(input)
+		local searchMode, searchId, closestDistance = nil, -1, 9999
+		local tempId, tempDist = DataHelper.findAbilityId(input, 4)
+		if tempId ~= nil and tempDist < closestDistance then
+			searchMode = "ability"
+			searchId = tempId
+			closestDistance = tempDist
+			if closestDistance == 0 then -- exact match
+				return searchMode, searchId
+			end
 		end
+		tempId, tempDist = DataHelper.findMoveId(input, 4)
+		if tempId ~= nil and tempDist < closestDistance then
+			searchMode = "move"
+			searchId = tempId
+			closestDistance = tempDist
+			if closestDistance == 0 then -- exact match
+				return searchMode, searchId
+			end
+		end
+		tempId, tempDist = DataHelper.findPokemonId(input, 4)
+		if tempId ~= nil and tempDist < closestDistance then
+			searchMode = "pokemon"
+			searchId = tempId
+			closestDistance = tempDist
+			if closestDistance == 0 then -- exact match
+				return searchMode, searchId
+			end
+		end
+		return searchMode, searchId
 	end
+
+	local searchMode, searchId = determineSearchMode(params)
 	if not searchMode then
 		local prefix = string.format("%s %s", params, OUTPUT_CHAR)
 		return buildResponse(prefix, "Can't find a Pokémon, move, or ability with that name.")
