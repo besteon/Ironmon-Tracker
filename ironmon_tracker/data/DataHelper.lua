@@ -1570,7 +1570,7 @@ function DataHelper.EventRequests.getSearch(params)
 	local function determineSearchMode(input)
 		local searchMode, searchId, closestDistance = nil, -1, 9999
 		local tempId, tempDist = DataHelper.findAbilityId(input, 4)
-		if tempId ~= nil and tempDist < closestDistance then
+		if (tempId or 0) and tempDist < closestDistance then
 			searchMode = "ability"
 			searchId = tempId
 			closestDistance = tempDist
@@ -1579,7 +1579,7 @@ function DataHelper.EventRequests.getSearch(params)
 			end
 		end
 		tempId, tempDist = DataHelper.findMoveId(input, 4)
-		if tempId ~= nil and tempDist < closestDistance then
+		if (tempId or 0) and tempDist < closestDistance then
 			searchMode = "move"
 			searchId = tempId
 			closestDistance = tempDist
@@ -1588,7 +1588,7 @@ function DataHelper.EventRequests.getSearch(params)
 			end
 		end
 		tempId, tempDist = DataHelper.findPokemonId(input, 4)
-		if tempId ~= nil and tempDist < closestDistance then
+		if (tempId or 0) and tempDist < closestDistance then
 			searchMode = "pokemon"
 			searchId = tempId
 			closestDistance = tempDist
