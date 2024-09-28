@@ -808,8 +808,12 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 	return true
 end
 
--- Recursively copies the contents of 'source' table into 'destination' table
+---Recursively copies the contents of 'source' table into 'destination' table
+---@param source table
+---@param destination? table Optional, creates a new empty table if none provided
+---@return table destination
 function FileManager.copyTable(source, destination)
+	destination = destination or {}
 	for key, val in pairs(source or {}) do
 		if type(val) == "table" then
 			destination[key] = {}
@@ -818,6 +822,7 @@ function FileManager.copyTable(source, destination)
 			destination[key] = val
 		end
 	end
+	return destination
 end
 
 --- Loads the external Json library into FileManager.JsonLibrary
