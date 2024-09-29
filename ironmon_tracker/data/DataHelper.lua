@@ -989,6 +989,18 @@ function DataHelper.EventRequests.getWeak(params)
 	if not Utils.isNilOrEmpty(weak2x) then
 		table.insert(info, string.format("[2x] %s", weak2x))
 	end
+	local weak05x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[0.5] or {}, ", "))
+	if not Utils.isNilOrEmpty(weak05x) then
+		table.insert(info, string.format("[x0.5] %s", weak05x))
+	end
+	local weak025x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[0.25] or {}, ", "))
+	if not Utils.isNilOrEmpty(weak025x) then
+		table.insert(info, string.format("[x0.25] %s", weak025x))
+	end
+	local weak0x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[0] or {}, ", "))
+	if not Utils.isNilOrEmpty(weak0x) then
+		table.insert(info, string.format("[x0] %s", weak0x))
+	end
 	local types
 	if pokemon.types[2] ~= PokemonData.Types.EMPTY and pokemon.types[2] ~= pokemon.types[1] then
 		types = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(pokemon.types[1]), PokemonData.getTypeResource(pokemon.types[2]))
