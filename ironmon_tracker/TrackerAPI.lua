@@ -18,6 +18,14 @@ function TrackerAPI.getEnemyPokemon(partySlotNum)
 	return Tracker.getPokemon(partySlotNum or 1, false)
 end
 
+---For a given Pokemon object, returns its abilityId (alternatively, use `PokemonData.getAbilityId(p, n)`)
+---@param pokemon table A data object templated like `Program.DefaultPokemon`
+---@return number abilityId 0 if pokemon or ability is not valid
+function TrackerAPI.getAbilityIdOfPokemon(pokemon)
+	pokemon = pokemon or {}
+	return PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+end
+
 ---Returns true if the Pokémon in slot # is shiny (for the player's team or the enemy)
 ---@param partySlotNum? number Default = 1st
 ---@param isEnemy? boolean Default = true
@@ -47,6 +55,25 @@ end
 ---@return table bagitems -- A table containg subtables of item data
 function TrackerAPI.getBagItems()
 	return Program.GameData.Items
+end
+
+---Returns the `trainerId` of the opposing trainer being fought in battle
+---@return number trainerId
+function TrackerAPI.getOpponentTrainerId()
+	return Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+end
+
+---Returns the outcome status of the last battle (or current battle)
+---@return number outcome Returns one of: 0 = In battle, 1 = Player won, 2 = Player lost, 4 = Fled, 7 = Caught
+function TrackerAPI.getBattleOutcome()
+	return Memory.readbyte(GameSettings.gBattleOutcome)
+end
+
+---Returns true if the trainer has been defeated by the player; false otherwise
+---@param trainerId number
+---@return boolean isDefeated
+function TrackerAPI.hasDefeatedTrainer(trainerId)
+	return Program.hasDefeatedTrainer(trainerId)
 end
 
 -----------------------------------
@@ -102,7 +129,56 @@ function TrackerAPI.getItemName(itemId, ignoreLanguage)
 end
 
 -----------------------------------
----  III. EXTENSIONS  -------------
+---  III. TRACKER CONFIGURATION  --
+-----------------------------------
+
+---Returns the current Tracker Theme (or specified Theme) as a Theme code (exported string)
+---@param themeName? string Optional, name of the theme to retrieve a code for; default: current theme
+---@return string themeCode
+function TrackerAPI.getTheme(themeName)
+	if themeName then
+		for _, theme in ipairs(Theme.Presets or {}) do
+			if theme:getText() == themeName then
+				return theme.code or ""
+			end
+		end
+		return ""
+	end
+	return Theme.exportThemeToText()
+end
+
+---Changes the Tracker's UI Theme using a `themeCode` and/or `themeName`; providing both will name the new Theme
+---@param themeCode? string Optional, a valid theme code, refer to `Theme.resetPresets()` for an example
+---@param themeName? string Optional, a valid theme name
+---@param saveToLibrary? boolean Optional, if true, will save the theme in the ThemeLibrary for future use
+---@return boolean success True if successfully set the theme; false otherwise
+function TrackerAPI.setTheme(themeCode, themeName, saveToLibrary)
+	-- Must provide at least one of: code or name
+	if not themeCode and not themeName then return false end
+	themeName = themeName or Utils.newGUID()
+	if not themeCode and Theme.Presets then
+		for _, theme in ipairs(Theme.Presets or {}) do
+			if theme:getText() == themeName then
+				themeCode = theme.code
+				break
+			end
+		end
+	end
+	if not Theme.isValidThemeCode(themeCode) then
+		return false
+	end
+	local success = Theme.importThemeFromText(themeCode, true)
+	if success then
+		Program.redraw(true)
+		if saveToLibrary then
+			success = Theme.saveThemeToLibrary(themeName, themeCode)
+		end
+	end
+	return success
+end
+
+-----------------------------------
+---  IV. EXTENSIONS  --------------
 -----------------------------------
 
 ---Checks if a Tracker Extension is enabled, if it exists

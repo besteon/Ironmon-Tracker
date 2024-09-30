@@ -760,8 +760,6 @@ function FileManager.addCustomThemeToFile(themeName, themeCode)
 	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
 	local file = io.open(filepath, "a")
 	if not file then
-		-- Don't really want to flood the console with error messages; if important, use Main.DisplayError()
-		-- print(string.format('> ERROR: Unable to save custom Theme "%s" to file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return
 	end
 
@@ -782,8 +780,6 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 
 	local file = io.open(filepath, "w")
 	if not file then
-		-- Don't really want to flood the console with error messages; if important, use Main.DisplayError()
-		-- print(string.format('> ERROR: Unable to remove custom Theme "%s" from file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return false
 	end
 
