@@ -300,10 +300,10 @@ function MoveData.calcHiddenPowerTypeAndPower(ivs)
 		spd = math.floor((ivs.spd % 4) / 2),
 	}
 	-- Perform the cacluation
-	local typeSum = tBits.hp + (2 * tBits.atk) + (tBits.def) + (tBits.spe) + (tBits.spa) + (tBits.spd)
+	local typeSum = tBits.hp + (2 * tBits.atk) + (4 * tBits.def) + (8 * tBits.spe) + (16 * tBits.spa) + (32 * tBits.spd)
 	local typeIndex = math.floor(typeSum * 15 / 63) -- results in 0 through 15, inclusive
 	moveType = MoveData.HiddenPowerTypeList[typeIndex + 2] or MoveData.HiddenPowerTypeList[1] -- 1st is "unknown", 2nd is "fighting"
-	local moveSum = pBits.hp + (2 * pBits.atk) + (pBits.def) + (pBits.spe) + (pBits.spa) + (pBits.spd)
+	local moveSum = pBits.hp + (2 * pBits.atk) + (4 * pBits.def) + (8 * pBits.spe) + (16 * pBits.spa) + (32 * pBits.spd)
 	movePower = math.floor(moveSum * 40 / 63) + 30 -- results in 30 through 70, inclusive
 
 	return moveType, movePower
