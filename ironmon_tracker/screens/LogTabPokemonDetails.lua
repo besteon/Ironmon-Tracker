@@ -99,6 +99,23 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		data.p.abilities[2] = nil
 	end
 
+	-- For checking against pokemon on the player's team
+	LogTabPokemonDetails.playerTeam = {}
+	for _, pokemon in pairs(Program.GameData.PlayerTeam or {}) do
+		if PokemonData.isValid(pokemon.pokemonID) and not LogTabPokemonDetails.playerTeam[pokemon.pokemonID] then
+			local pokemonName = data.p.name
+			-- Use Nickname if looking at the log page for a mon on the player's team
+			if Options["Show nicknames"] and not Utils.isNilOrEmpty(pokemon.nickname) then
+				pokemonName = Utils.formatSpecialCharacters(pokemon.nickname)
+			end
+			LogTabPokemonDetails.playerTeam[pokemon.pokemonID] = {
+				name = pokemonName,
+				ivs = pokemon.ivs,
+				evs = pokemon.evs,
+			}
+		end
+	end
+
 	local abilityButtonArea ={
 		x = LogOverlay.TabBox.x + 1,
 		y = LogOverlay.TabBox.y + 13,
@@ -540,15 +557,30 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	-- LEARNABLE MOVES
 	offsetY = 0
 	for i, moveInfo in ipairs(data.p.moves) do
+		local nameDisplayed = moveInfo.name
+		-- If the pokemon is on the player's team and has the move hidden power, calc what it is and show
+		local monOnTeamWithHP = (moveInfo.id == MoveData.Values.HiddenPowerId) and LogTabPokemonDetails.playerTeam[data.p.id]
+		if monOnTeamWithHP and monOnTeamWithHP.ivs then
+			local moveType, movePower = MoveData.calcHiddenPowerTypeAndPower(monOnTeamWithHP.ivs)
+			-- Shorten the move name so everything fits
+			nameDisplayed = string.format("%s (%s/%s)",
+				moveInfo.name:sub(1, 8) .. "...",
+				Utils.firstToUpper(moveType),
+				movePower
+			)
+			-- Change stab calculation
+			moveInfo.isstab = Utils.isSTAB(MoveData.Moves[MoveData.Values.HiddenPowerId], moveType, data.p.types)
+		end
+
 		local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", LogTabPokemonDetails.Colors.text)
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self)
 				-- add this customization for the Nat. Dex rom hack
 				if moveInfo.level == 0 then
-					return string.format("Evo  %s", moveInfo.name)
+					return string.format("Evo  %s", nameDisplayed)
 				else
-					return string.format("%02d  %s", moveInfo.level, moveInfo.name)
+					return string.format("%02d  %s", moveInfo.level, nameDisplayed)
 				end
 			end,
 			textColor = moveColor,
@@ -575,7 +607,8 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
 				Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
 
-				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
+				-- Don't draw icon for Hidden Power (no room on the screen)
+				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) and not monOnTeamWithHP then
 					local move = MoveData.Moves[self.moveId]
 					local image
 					if move.category == MoveData.Categories.PHYSICAL then
@@ -736,22 +769,6 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	LogTabPokemonDetails.Pager:changeTab(LogTabPokemonDetails.Tabs.LevelMoves)
 
 	-- LABEL/BUTTON FOR "Show IVs/EVs/BST"
-	LogTabPokemonDetails.playerTeam = {}
-	for _, pokemon in pairs(Program.GameData.PlayerTeam or {}) do
-		if PokemonData.isValid(pokemon.pokemonID) and not LogTabPokemonDetails.playerTeam[pokemon.pokemonID] then
-			local pokemonName = data.p.name
-			-- Use Nickname if looking at the log page for a mon on the player's team
-			if Options["Show nicknames"] and not Utils.isNilOrEmpty(pokemon.nickname) then
-				pokemonName = Utils.formatSpecialCharacters(pokemon.nickname)
-			end
-			LogTabPokemonDetails.playerTeam[pokemon.pokemonID] = {
-				name = pokemonName,
-				ivs = pokemon.ivs,
-				evs = pokemon.evs,
-			}
-		end
-	end
-
 	local canSeeIVsEVs = LogOverlay.viewedLog == FileManager.PostFixes.AUTORANDOMIZED and LogTabPokemonDetails.playerTeam[pokemonID] ~= nil
 	local showBtnBox = { LogOverlay.TabBox.x + 66, LogOverlay.TabBox.y + 42, 43, 11 } -- x, y, width, height
 
