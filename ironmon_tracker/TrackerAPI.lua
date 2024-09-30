@@ -1,7 +1,24 @@
 TrackerAPI = {}
 
 -----------------------------------
----  I. GAME DATA LOOKUP  ---------
+---  I. INTRODUCTION  -------------
+-----------------------------------
+--[[
+The TrackerAPI lua file offers convenient access to numerous Tracker endpoints.
+You can retrieve data about the game, tracked notes, and/or change data.
+While this isn't nearly an exhaustive list of what the Tracker can do, it's a start.
+
+Other useful internal Tracker data and functions can be found in:
+- /data/ folder - static game data, such as info about a: Pokémon, Move, Ability, Route, Trainer, etc
+- /screens/ folder - all the various Tracker screens that are displayed on the emulator
+- English.lua - most text strings used by the Tracker
+- Utils.lua - helpful functions
+- Constants.lua - helpful values
+- GameSettings.lua - known memory address used to read data from the game rom
+]]
+
+-----------------------------------
+---  II. GAME DATA LOOKUP  --------
 -----------------------------------
 
 ---Returns a `Program.DefaultPokemon` table of Pokemon data from the game
@@ -77,7 +94,7 @@ function TrackerAPI.hasDefeatedTrainer(trainerId)
 end
 
 -----------------------------------
----  II. INFO LOOKUP  -------------
+---  III. INFO LOOKUP  ------------
 -----------------------------------
 
 ---Returns a copy of an information object from the table `PokemonData.Pokemon`
@@ -129,8 +146,41 @@ function TrackerAPI.getItemName(itemId, ignoreLanguage)
 end
 
 -----------------------------------
----  III. TRACKER CONFIGURATION  --
+---  IV. TRACKER CONFIGURATION  ---
 -----------------------------------
+
+---Returns the Tracker option setting for a specified option `key`; full list available in `Options` table
+---@param key string
+---@return any value Usually a boolean or string
+function TrackerAPI.getOption(key)
+	-- Checks through categorized options, such as CONTROLS, FILES, or PATHS
+	for _, optionCategory in pairs(Options) do
+		if type(optionCategory) == "table" and optionCategory[key] ~= nil then
+			return optionCategory[key]
+		end
+	end
+	return Options[key]
+end
+
+---Changes a Tracker option setting and saves it. Tracket settings are saved (persist) in the Settings.ini file
+---Create your own settings for an extension by using: `TrackerAPI.saveExtensionSetting()`
+---@param key string
+---@param value any Usually a boolean or a string
+---@return boolean success true if an existing setting was changed, false if no setting was found
+function TrackerAPI.setOption(key, value)
+	-- Checks through categorized options, such as CONTROLS, FILES, or PATHS
+	for _, optionCategory in pairs(Options) do
+		if type(optionCategory) == "table" and optionCategory[key] ~= nil then
+			optionCategory[key] = value
+			return true
+		end
+	end
+	if Options[key] ~= nil then
+		Options.addUpdateSetting(key, value)
+		return true
+	end
+	return false
+end
 
 ---Returns the current Tracker Theme (or specified Theme) as a Theme code (exported string)
 ---@param themeName? string Optional, name of the theme to retrieve a code for; default: current theme
@@ -177,8 +227,28 @@ function TrackerAPI.setTheme(themeCode, themeName, saveToLibrary)
 	return success
 end
 
+---Returns the current Tracker Language (or a specified language) as a Resource table
+---@param language? string Optional, language key, such as "ENGLISH" or "FRENCH" from `Resources.Languages`
+---@return table resourceObject
+function TrackerAPI.getLanguage(language)
+	if type(language) == "string" then
+		return Resources[language:upper()]
+	end
+	return Resources.currentLanguage
+end
+
+---Changes the Tracker Language setting to a specified language
+---@param language string|table ENGLISH, SPANISH, GERMAN, FRENCH, ITALIAN, or a Resources.Language table
+function TrackerAPI.setLanguage(language)
+	if type(language) == "string" then
+		Resources.changeLanguageSetting(Resources[language:upper()], true)
+	elseif type(language) == "table" then
+		Resources.changeLanguageSetting(language, true)
+	end
+end
+
 -----------------------------------
----  IV. EXTENSIONS  --------------
+---  V. EXTENSIONS  ---------------
 -----------------------------------
 
 ---Checks if a Tracker Extension is enabled, if it exists
