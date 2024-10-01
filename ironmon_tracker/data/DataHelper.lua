@@ -1158,7 +1158,7 @@ function DataHelper.EventRequests.getUnfoughtTrainers(params)
 		includeSevii = true -- to allow routes above the sevii route id for RSE
 	end
 
-	local MAX_AREAS_TO_CHECK = 7
+	local MAX_AREAS_TO_CHECK = 9
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local trainersToExclude = TrainerData.getExcludedTrainers()
 	local currentRouteId = TrackerAPI.getMapId()
