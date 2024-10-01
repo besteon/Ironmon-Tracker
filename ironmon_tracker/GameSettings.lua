@@ -502,7 +502,15 @@ function GameSettings.setEwramAddresses()
 		sSpecialFlags = { 0x0202e8e2, 0x020375fc, { 0x020370e0, 0x020370e0 + jpOffset }, }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + jpOffset }, },
 		-- RS: gAbilitiesPerBank
+
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
+		gStatuses3 = { 0x02024c98, 0x020242ac, {0x02023dfc, 0x02023dfc + jpOffset},},
+		gSideStatuses = { 0x02024c7a, 0x0202428e, {0x02023dde, 0x02023dde + jpOffset},},
+		gSideTimers = { 0x02024c80, 0x02024294, {0x02023de4, 0x02023de4 + jpOffset},},
+		gDisableStructs = { 0x02024ca8, 0x020242bc, {0x02023e0c, 0x02023e0c + jpOffset},},
+		gLockedMoves = { 0x02024c54, 0x02024268, {0x02023db8, 0x02023db8 + jpOffset},},
+		gWishFutureKnock = { 0x02024dbc, 0x020243d0, {0x02023f20, 0x02023f20 + jpOffset},},
+		gPaydayMoney = { 0x02024d1a, 0x020243d0, {0x02023e7e, 0x02023e7e + jpOffset},},
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
