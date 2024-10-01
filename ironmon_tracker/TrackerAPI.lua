@@ -11,6 +11,7 @@ While this isn't nearly an exhaustive list of what the Tracker can do, it's a st
 Other useful internal Tracker data and functions can be found in:
 - /data/ folder - static game data, such as info about a: Pokémon, Move, Ability, Route, Trainer, etc
 - /screens/ folder - all the various Tracker screens that are displayed on the emulator
+- Tracker.lua - access to all tracked notes/info taken while playing the current game
 - English.lua - most text strings used by the Tracker
 - Utils.lua - helpful functions
 - Constants.lua - helpful values
@@ -91,6 +92,18 @@ end
 ---@return boolean isDefeated
 function TrackerAPI.hasDefeatedTrainer(trainerId)
 	return Program.hasDefeatedTrainer(trainerId)
+end
+
+---Returns a list of which badges have been are obtained (value=true).
+---@return table badgeList Each item in list is true if badge obtained, false otherwise {key=badgeIndex, val=isObtained}
+function TrackerAPI.getBadgeList()
+	local badgeList = {}
+	for i = 1, 8, 1 do -- Max of 8 badges per game
+		local badgeButton = TrackerScreen.Buttons["badge" .. i] or {}
+		local badgeObtained = (badgeButton.badgeState or 0) ~= 0
+		badgeList[i] = badgeObtained
+	end
+	return badgeList
 end
 
 -----------------------------------
