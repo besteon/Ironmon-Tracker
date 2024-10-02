@@ -65,6 +65,7 @@ RouteData.Locations = {
 	CanObtainBadge = {}, -- Currently unused for the time being
 	IsInLab = {},
 	IsInHallOfFame = {},
+	IsInSafariZone = {},
 }
 -- Maps a mapId to all its connected other mapIds that make up a complete dungeon (e.g. Pokemon Tower 1F-7F)
 RouteData.CombinedAreas = {}
@@ -388,6 +389,12 @@ function RouteData.setupRouteInfoAsFRLG()
 	}
 	RouteData.Locations.IsInHallOfFame = {
 		[218] = true,
+	}
+	RouteData.Locations.IsInSafariZone = {
+		[147] = true,
+		[148] = true,
+		[149] = true,
+		[150] = true,
 	}
 
 	-- [AreaName] = { combained list of mapIds }
@@ -3152,11 +3159,20 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
+	RouteData.Locations.IsInSafariZone = {
+		[238 + offset] = true,
+		[239 + offset] = true,
+		[240 + offset] = true,
+		[241 + offset] = true,
+	}
 	if isGameEmerald then
 		-- In Emerald, Ironmon ends after Steven battle, not e4.
 		RouteData.Locations.IsInHallOfFame = {
 			[431] = true,
 		}
+		-- Two additional Safari Zone areas in Emerald
+		RouteData.Locations.IsInSafariZone[394] = true
+		RouteData.Locations.IsInSafariZone[395] = true
 	else
 		RouteData.Locations.IsInHallOfFame = {
 			[298 + offset] = true,
