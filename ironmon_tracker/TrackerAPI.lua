@@ -44,6 +44,18 @@ function TrackerAPI.getAbilityIdOfPokemon(pokemon)
 	return PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
 end
 
+---Returns a list of the two types of a specific Pokémon in battle, dynamically checked to cover Color Change, Transform, etc
+---@param isPlayersMon? boolean Optional, true if checking the player's Pokémon, false to check enemy's; default=true
+---@param isOnLeft? boolean Optional, true if checking the "left" Pokémon in doubles (perspective reversed for enemy), false to check right; default=true
+---@return table typeList Always a list of two types; second type is the same as the first for mono-typed Pokémon
+function TrackerAPI.getPokemonTypes(isPlayersMon, isOnLeft)
+	if not TrackerAPI.inActiveBattle() then
+		local pokemon = Tracker.getViewedPokemon() or {}
+		return pokemon.types or { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY }
+	end
+	return Program.getPokemonTypes(isPlayersMon ~= false, isOnLeft ~= false)
+end
+
 ---Returns true if the Pokémon in slot # is shiny (for the player's team or the enemy)
 ---@param partySlotNum? number Default = 1st
 ---@param isEnemy? boolean Default = true
@@ -75,6 +87,20 @@ function TrackerAPI.getBagItems()
 	return Program.GameData.Items
 end
 
+---Returns the moveId associated with a specific TM or HM number (i.e., TM 28 is moveID=91, "Dig")
+---@param tmhmNumber number The TM/HM number to use for move lookup
+---@param isHM? boolean Optional, true if the number param is an HM; default: false
+---@return number moveId The moveId corresponding to the tm/hm number
+function TrackerAPI.getMoveIdFromTMHMNumber(tmhmNumber, isHM)
+	return Program.getMoveIdFromTMHMNumber(tmhmNumber, isHM)
+end
+
+---Returns true if the player is in an active battle and battle game data is available to be used
+---@return boolean
+function TrackerAPI.inActiveBattle()
+	return Battle.inActiveBattle()
+end
+
 ---Returns the `trainerId` of the opposing trainer being fought in battle
 ---@return number trainerId
 function TrackerAPI.getOpponentTrainerId()
@@ -104,6 +130,12 @@ function TrackerAPI.getBadgeList()
 		badgeList[i] = badgeObtained
 	end
 	return badgeList
+end
+
+---Returns true if the player has started the game (their character can move around); false otherwise, still at title screen / intro
+---@return boolean
+function TrackerAPI.hasGameStarted()
+	return Program.isValidMapLocation()
 end
 
 -----------------------------------
@@ -149,6 +181,21 @@ function TrackerAPI.getTrainerInfo(trainerId)
 	return FileManager.copyTable(TrainerData.getTrainerInfo(trainerId))
 end
 
+---Returns a copy of a list of gym TM numbers for the current game, in order of gym number; or a single gym TM number. From `TrainerData.GymTMs`
+---@param gymNumber? number Optional, if provided, returns a single TM number for that gym; table otherwise
+---@return table|number|nil tmNumOrList
+function TrackerAPI.getGymTMs(gymNumber)
+	if type(gymNumber) == "number" then
+		local gymInfo = TrainerData.GymTMs[gymNumber] or {}
+		return gymInfo.number
+	end
+	local tmList = {}
+	for _, gymInfo in ipairs(TrainerData.GymTMs or {}) do
+		table.insert(tmList, gymInfo.number)
+	end
+	return tmList
+end
+
 ---Returns the name of an item
 ---@param itemId number
 ---@param ignoreLanguage? boolean If true, returns the item's English name, ignoring the Tracker's language setting
@@ -161,6 +208,14 @@ end
 -----------------------------------
 ---  IV. TRACKER CONFIGURATION  ---
 -----------------------------------
+
+---Changes the Tracker screen that is currently being viewed to something else; Refer to: /ironmon_tracker/screens/ folder
+---@param newScreen table The name of the screen; i.e. CoverageCalcScreen or TypeDefensesScreen
+function TrackerAPI.changeScreen(newScreen)
+	if type(newScreen) == "table" then
+		Program.changeScreenView(newScreen)
+	end
+end
 
 ---Returns the Tracker option setting for a specified option `key`; full list available in `Options` table
 ---@param key string

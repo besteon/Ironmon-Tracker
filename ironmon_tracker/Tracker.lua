@@ -120,6 +120,8 @@ function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
 	return pokemon
 end
 
+---Returns the currently viewed Pokémon (what's displayed on the Tracker Screen)
+---@return table|nil pokemon A `Program.DefaultPokemon` data object
 function Tracker.getViewedPokemon()
 	if not Program.isValidMapLocation() then return nil end
 
