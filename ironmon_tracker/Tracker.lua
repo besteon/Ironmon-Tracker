@@ -31,6 +31,8 @@ Tracker.DefaultData = {
 	allPokemon = {},
 	-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
 	encounterTable = {},
+	-- [mapId] = {{pID=#, lv=#}, ...} List of pokemon encounters for the whole area; stores both pokemonIDs & highest level encountered
+	safariEncounters = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
 	hiddenPowers = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
@@ -268,6 +270,31 @@ function Tracker.TrackRouteEncounter(mapId, encounterArea, pokemonID)
 	end
 end
 
+--- @param mapId number
+--- @param pokemonID number
+--- @param level number
+function Tracker.TrackSafariEncounter(mapId, pokemonID, level)
+	if Tracker.Data.safariEncounters[mapId] == nil then
+		Tracker.Data.safariEncounters[mapId] = {}
+	end
+	local route = Tracker.Data.safariEncounters[mapId]
+	local foundIndex
+	for i, idAndLevelPair in ipairs(route) do
+		if idAndLevelPair.pID == pokemonID then
+			foundIndex = i
+			break
+		end
+	end
+	-- Add to route if new, otherwise check if level is higher
+	if not foundIndex then
+		table.insert(route, { pID = pokemonID, lv = level })
+	else
+		if level > route[foundIndex].lv then
+			route[foundIndex].lv = level
+		end
+	end
+end
+
 --- @param pokemonID number
 --- @param note string
 function Tracker.TrackNote(pokemonID, note)
@@ -403,6 +430,12 @@ function Tracker.getRouteEncounters(mapId, encounterArea)
 	return location[encounterArea or false] or {}
 end
 
+--- @param mapId number
+--- @return table
+function Tracker.getSafariEncounters(mapId)
+	return Tracker.Data.safariEncounters[mapId or false] or {}
+end
+
 --- If the Pokemon is being tracked, return its note; otherwise default note value = ""
 --- @param pokemonID number
 --- @return string
@@ -472,6 +505,7 @@ function Tracker.resetData()
 		romHash = GameSettings.getRomHash(),
 		allPokemon = {},
 		encounterTable = {},
+		safariEncounters = {},
 		hiddenPowers = {},
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		centerHeals = Options["PC heals count downward"] and 10 or 0,

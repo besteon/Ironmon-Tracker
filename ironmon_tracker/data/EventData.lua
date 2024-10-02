@@ -412,26 +412,56 @@ end
 ---@param params string?
 ---@return string response
 function EventData.getPivots(params)
-	local info = {}
+	local showSafari = RouteData.Locations.IsInSafariZone[TrackerAPI.getMapId()] or Utils.containsText(params, "safari", true)
+	local MAX_MONS_PER_ROUTE = 4 -- for safari, limit # mons shown per route area
+
 	local mapIds
-	if GameSettings.game == 3 then -- FRLG
-		mapIds = { 89, 90, 110, 117 } -- Route 1, 2, 22, Viridian Forest
-	else -- RSE
-		local offset = GameSettings.versioncolor == "Emerald" and 0 or 1 -- offset all "mapId > 107" by +1
-		mapIds = { 17, 18, 19, 20, 32, 135 + offset } -- Route 101, 102, 103, 104, 116, Petalburg Forest
+	if showSafari then
+		mapIds = {}
+		for id, _ in pairs(RouteData.Locations.IsInSafariZone or {}) do
+			table.insert(mapIds, id)
+		end
+	else
+		if GameSettings.game == 3 then -- FRLG
+			mapIds = { 89, 90, 110, 117 } -- Route 1, 2, 22, Viridian Forest
+		else -- RSE
+			local offset = GameSettings.versioncolor == "Emerald" and 0 or 1 -- offset all "mapId > 107" by +1
+			mapIds = { 17, 18, 19, 20, 32, 135 + offset } -- Route 101, 102, 103, 104, 116, Petalburg Forest
+		end
 	end
+
+	local info = {}
+	local function safariSort(a,b) return a.lv > b.lv or (a.lv == b.lv and a.pID < b.pID) end
 	for _, mapId in ipairs(mapIds) do
 		-- Check for tracked wild encounters in the route
-		local seenIds = Tracker.getRouteEncounters(mapId, RouteData.EncounterArea.LAND)
-		local pokemonNames = {}
-		for _, pokemonId in ipairs(seenIds) do
-			if PokemonData.isValid(pokemonId) then
-				table.insert(pokemonNames, PokemonData.Pokemon[pokemonId].name)
+		local namesToShow = {}
+		if showSafari then
+			local seenIdAndLvs = Tracker.getSafariEncounters(mapId)
+			table.sort(seenIdAndLvs, safariSort)
+			for _, idAndLv in ipairs(seenIdAndLvs) do
+				if #namesToShow < MAX_MONS_PER_ROUTE and PokemonData.isValid(idAndLv.pID) then
+					local nameText = string.format("%s (%s%s)",
+						PokemonData.Pokemon[idAndLv.pID].name,
+						Resources.TrackerScreen.LevelAbbreviation,
+						idAndLv.lv)
+					table.insert(namesToShow, nameText)
+				end
+			end
+		else
+			local seenIds = Tracker.getRouteEncounters(mapId, RouteData.EncounterArea.LAND)
+			for _, pokemonId in ipairs(seenIds) do
+				if PokemonData.isValid(pokemonId) then
+					table.insert(namesToShow, PokemonData.Pokemon[pokemonId].name)
+				end
 			end
 		end
-		if #seenIds > 0 then
+		if #namesToShow > 0 then
 			local route = RouteData.Info[mapId or false] or {}
-			table.insert(info, string.format("%s: %s", route.name or "Unknown Route", table.concat(pokemonNames, ", ")))
+			local routeName = route.name or "Unknown Route"
+			if showSafari then
+				routeName = Utils.replaceText(routeName, "Safari Zone ", "") -- shorten output
+			end
+			table.insert(info, string.format("%s: %s", routeName, table.concat(namesToShow, ", ")))
 		end
 	end
 	local prefix = string.format("%s %s", "Pivots", OUTPUT_CHAR)
