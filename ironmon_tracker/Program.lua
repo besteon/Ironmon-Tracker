@@ -429,6 +429,10 @@ function Program.update()
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
 				end
+
+				if Network.isConnected() then
+					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
+				end
 			end
 
 			-- Check if summary screen has being shown

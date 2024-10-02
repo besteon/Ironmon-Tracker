@@ -39,23 +39,6 @@ EventHandler.CommandRoles = {
 
 ---Runs additional functions after Network attempts to connect
 function EventHandler.onStartup()
-	local settingsUpdated = false
-
-	local ballqEvent = EventHandler.Events.CMD_BallQueue or {}
-	local ballqRequest = EventHandler.Queues.BallRedeems.ActiveRequest
-	if ballqEvent.O_ShowBallQueueOnStartup and ballqRequest ~= nil then
-		-- Only show message if it wasn't shown the last startup
-		local lasGUID = Main.MetaSettings["network"].LastBallQueueGUID or ""
-		if lasGUID ~= ballqRequest.GUID then
-			EventHandler.triggerEvent("CMD_BallQueue")
-			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
-			settingsUpdated = true
-		end
-	end
-
-	if settingsUpdated then
-		Main.SaveSettings(true)
-	end
 end
 
 ---Clears out existing event info; similar to initialize(), but managed by Network
@@ -336,6 +319,18 @@ function EventHandler.cleanupDuplicateCommandRequests()
 	end
 end
 
+---Used to run a standalone function for a given event
+---@param eventKey string A matching event key found in `EventHandler.Events`
+---@param funcName string The name of a function found within the event
+---@param ... unknown Any additional parameters
+function EventHandler.runEventFunc(eventKey, funcName, ...)
+	local event = EventHandler.Events[eventKey or false] or {}
+	local func = event[funcName or false]
+	if type(func) == "function" then
+		func(...)
+	end
+end
+
 -- Helper functions; likely move these elsewhere
 local function parseBallChoice(input)
 	local ballEventKeys = {
@@ -574,6 +569,26 @@ EventHandler.DefaultEvents = {
 		Options = { "O_ShowBallQueueOnStartup", },
 		O_ShowBallQueueOnStartup = false,
 		Fulfill = function(self, request) return EventData.getBallQueue(request.SanitizedInput) end,
+		TryDisplayMessage = function(self, ...)
+			-- Only show if the option to show is enabled and there exists a ball pick request
+			local ballqEvent = EventHandler.Events.CMD_BallQueue or {}
+			local ballqRequest = EventHandler.Queues.BallRedeems.ActiveRequest
+			if not ballqEvent.O_ShowBallQueueOnStartup or ballqRequest == nil then
+				return
+			end
+			-- Only show message if in the lab without a pokemon
+			if not RouteData.Locations.IsInLab[Program.GameData.mapId] or Tracker.getPokemon(1, true) ~= nil then
+				return
+			end
+			-- Only show message if it wasn't shown the last startup
+			local lasGUID = Main.MetaSettings["network"].LastBallQueueGUID or ""
+			if lasGUID == ballqRequest.GUID then
+				return
+			end
+			EventHandler.triggerEvent("CMD_BallQueue")
+			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
+			Main.SaveSettings(true)
+		end,
 	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,
