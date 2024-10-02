@@ -1093,7 +1093,8 @@ function EventData.getBallQueue(params)
 	if queueSize == 0 then
 		return buildResponse(prefix, "The pick ball queue is empty.")
 	end
-	table.insert(info, string.format("%s: %s", "Size", queueSize))
+	local picksInQueueMsg = string.format("ball pick%s in queue", queueSize == 1 and "" or "s")
+	table.insert(info, string.format("%s %s", queueSize, picksInQueueMsg))
 
 	local request = EventHandler.Queues.BallRedeems.ActiveRequest
 	if request and request.Username then
