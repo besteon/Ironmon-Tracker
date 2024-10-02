@@ -429,6 +429,10 @@ function Program.update()
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
 				end
+
+				if Network.isConnected() then
+					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
+				end
 			end
 
 			-- Check if summary screen has being shown
@@ -930,7 +934,8 @@ function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 	-- If the battle message relates to learning a new move, read in that move id
-	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg <= GameSettings.BattleScript_LearnMoveReturn then
+	-- Note: The very last address (excluded) is called for any level-up, not just level-ups involving learning a new move
+	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg < GameSettings.BattleScript_LearnMoveReturn then
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
 
 		local battleStructAddress
@@ -944,6 +949,7 @@ function Program.getLearnedMoveInfoTable()
 		local partyIndex = Memory.readbyte(battleStructAddress + Program.Addresses.offsetPokemonGettingExp) + 1 -- Party index of player (1-6)
 		local pokemon = Tracker.getPokemon(partyIndex, true)
 		if pokemon ~= nil then
+			--Utils.printDebug("Move: %s, Battle Script: %s, Pokemon: %s, Level: %s", moveToLearnId, battleMsg, pokemon.pokemonID, pokemon.level)
 			return {
 				pokemonID = pokemon.pokemonID,
 				level = pokemon.level,

@@ -537,6 +537,14 @@ function Drawing.drawPercentageBar(x, y, width, height, percentFill, barColors, 
 end
 
 function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
+	local image
+	local againstGiovanni = (GameSettings.game == 3 and 348 <= (Battle.opposingTrainerId or 0) and (Battle.opposingTrainerId or 0) <= 350)
+	if againstGiovanni then
+		image = Constants.PixelImages.MASTERBALL_SMALL
+	else
+		image = Constants.PixelImages.POKEBALL_SMALL
+	end
+
 	local drawnFirstBall = false
 	local offsetX = 0
 	for i=6, 1, -1 do -- Reverse order to match in-game team display
@@ -544,11 +552,16 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 		if PokemonData.isValid(pokemon.pokemonID) then
 			local colorList
 			if pokemon.curHP > 0 then
-				colorList = TrackerScreen.PokeBalls.ColorList
+				if againstGiovanni then
+					-- Master Ball colors
+					colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088 }
+				else
+					colorList = TrackerScreen.PokeBalls.ColorList
+				end
 			else
 				colorList = TrackerScreen.PokeBalls.ColorListFainted
 			end
-			Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL_SMALL, x + offsetX, y, colorList, shadowcolor)
+			Drawing.drawImageAsPixels(image, x + offsetX, y, colorList, shadowcolor)
 			drawnFirstBall = true
 		end
 		-- Used to left-align the pokeballs, but allows for leaving spaces for doubles battles

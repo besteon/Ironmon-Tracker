@@ -1234,7 +1234,9 @@ function StreamConnectOverlay.openCommandRolesPrompt()
 		for _, roleKey in ipairs(orderedRoles) do
 			ExternalUI.BizForms.setChecked(roleCheckboxes[roleKey], true)
 		end
-		ExternalUI.BizForms.setText(customRoleTextbox, "")
+		if customRoleTextbox then
+			ExternalUI.BizForms.setText(customRoleTextbox, "")
+		end
 		enableDisableAll()
 	end)
 	form:createButton(Resources.AllScreens.Cancel, 210, buttonRowY, function()

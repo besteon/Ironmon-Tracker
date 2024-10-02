@@ -270,6 +270,45 @@ function MoveData.getCategory(moveId, moveType)
 	return MoveData.TypeToCategory[moveType] or MoveData.Categories.NONE
 end
 
+---Calculate the type & power of Hidden Power using a Pokémon's individual values (hp, atk, def, spa, spd, spe)
+---@param ivs table Must contain key/value pairs for: hp, atk, def, spa, spd, spe
+---@return string moveType The type of the move, or PokemonData.Types.UNKNOWN if it can't be calculated
+---@return integer movePower the power of the move, between 30 and 70 inclusive; or 0 if unknown
+function MoveData.calcHiddenPowerTypeAndPower(ivs)
+	local moveType, movePower = MoveData.HiddenPowerTypeList[1], 0 -- unknown
+	if not ivs or not ivs.hp then
+		return moveType, movePower
+	end
+
+	-- Formula: https://bulbapedia.bulbagarden.net/wiki/Hidden_Power_(move)/Calculation#Generation_III_onward
+	-- Type Bits: If a number is odd, its least significant bit is 1; otherwise (if the number is even), it is 0.
+	local tBits = {
+		hp = ivs.hp % 2,
+		atk = ivs.atk % 2,
+		def = ivs.def % 2,
+		spe = ivs.spe % 2,
+		spa = ivs.spa % 2,
+		spd = ivs.spd % 2,
+	}
+	-- Power Bits: If a variable has a remainder of 2 or 3 when divided by 4, this bit is 1; otherwise, the bit is 0.
+	local pBits = {
+		hp = math.floor((ivs.hp % 4) / 2),
+		atk = math.floor((ivs.atk % 4) / 2),
+		def = math.floor((ivs.def % 4) / 2),
+		spe = math.floor((ivs.spe % 4) / 2),
+		spa = math.floor((ivs.spa % 4) / 2),
+		spd = math.floor((ivs.spd % 4) / 2),
+	}
+	-- Perform the cacluation
+	local typeSum = tBits.hp + (2 * tBits.atk) + (4 * tBits.def) + (8 * tBits.spe) + (16 * tBits.spa) + (32 * tBits.spd)
+	local typeIndex = math.floor(typeSum * 15 / 63) -- results in 0 through 15, inclusive
+	moveType = MoveData.HiddenPowerTypeList[typeIndex + 2] or MoveData.HiddenPowerTypeList[1] -- 1st is "unknown", 2nd is "fighting"
+	local moveSum = pBits.hp + (2 * pBits.atk) + (4 * pBits.def) + (8 * pBits.spe) + (16 * pBits.spa) + (32 * pBits.spd)
+	movePower = math.floor(moveSum * 40 / 63) + 30 -- results in 30 through 70, inclusive
+
+	return moveType, movePower
+end
+
 MoveData.BlankMove = {
 	id = "0",
 	name = Constants.BLANKLINE,
