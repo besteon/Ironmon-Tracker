@@ -56,6 +56,7 @@ Options = {
 Options.CONTROLS = {
 	["Load next seed"] = "A, B, Start",
 	["Toggle view"] = "Start",
+	["Info shortcut"] = "Select",
 	["Cycle through stats"] = "L",
 	["Mark stat"] = "R",
 }
