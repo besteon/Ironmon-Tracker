@@ -325,7 +325,7 @@ function TrainerInfoScreen.buildScreen(trainerId)
 		}
 
 		-- Viewing Giovanni
-		if GameSettings.game == 3 and 348 <= trainerId and trainerId <= 350 then
+		if TrainerData.isGiovanni(trainerId) then
 			button.image = Constants.PixelImages.MASTERBALL
 			defaultColorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, 0xFFCB5C95 }
 		end

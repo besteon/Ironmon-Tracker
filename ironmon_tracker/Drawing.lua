@@ -538,7 +538,7 @@ end
 
 function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 	local image
-	local againstGiovanni = (GameSettings.game == 3 and 348 <= (Battle.opposingTrainerId or 0) and (Battle.opposingTrainerId or 0) <= 350)
+	local againstGiovanni = TrainerData.isGiovanni(Battle.opposingTrainerId)
 	if againstGiovanni then
 		image = Constants.PixelImages.MASTERBALL_SMALL
 	else
