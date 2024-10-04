@@ -114,8 +114,8 @@ ScreenResources{
 		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
-		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
-		BattleSeenOnTrainers = "Seen on trainers", -- NEEDS TRANSLATION
+		BattleSeenInTheWild = "Seen (Wild)", -- NEEDS TRANSLATION
+		BattleSeenOnTrainers = "Seen (Trainer)", -- NEEDS TRANSLATION
 		BattleTeam = "Team", -- NEEDS TRANSLATION
 		StatHP = "HP", -- NEEDS TRANSLATION
 		StatATK = "ATK", -- NEEDS TRANSLATION

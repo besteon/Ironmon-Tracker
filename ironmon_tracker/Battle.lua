@@ -844,6 +844,7 @@ end
 function Battle.trySwapScreenBackToMain()
 	local screenAllowsAutoSwap = {
 		[InfoScreen] = true,
+		[TrainerInfoScreen] = true,
 		[RandomEvosScreen] = true,
 		[MoveHistoryScreen] = true,
 		[TypeDefensesScreen] = true,
