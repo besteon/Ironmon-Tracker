@@ -137,6 +137,7 @@ end
 function Input.checkJoypadInput()
 	local joypad = Input.getJoypadInputFormatted()
 	local toggleViewBtn = Options.CONTROLS["Toggle view"] or ""
+	local infoShortcutBtn = Options.CONTROLS["Info shortcut"] or ""
 	local cycleStatBtn = Options.CONTROLS["Cycle through stats"] or ""
 	local markStatBtn = Options.CONTROLS["Mark stat"] or ""
 	local quickloadBtns = Options.CONTROLS["Load next seed"] or ""
@@ -145,6 +146,10 @@ function Input.checkJoypadInput()
 
 	if joypad[toggleViewBtn] and not Input.prevJoypadInput[toggleViewBtn] then
 		Battle.togglePokemonViewed()
+	end
+
+	if joypad[infoShortcutBtn] and not Input.prevJoypadInput[infoShortcutBtn] then
+		Input.infoShortcutPressed()
 	end
 
 	if joypad[cycleStatBtn] and not Input.prevJoypadInput[cycleStatBtn] then
@@ -177,6 +182,40 @@ function Input.checkJoypadInput()
 	if not Input.joypadUsedRecently then
 		Input.joypadUsedRecently = joypad["Up"] or joypad["Down"] or joypad["Left"] or joypad["Right"]
 			or joypad["A"] or joypad["B"] or joypad["Start"] or joypad["Select"] or joypad["R"] or joypad["L"]
+	end
+end
+
+function Input.infoShortcutPressed()
+	-- At current, don't activate if inside a battle or in menus (Select in-game reorders stuff)
+	if Battle.inActiveBattle() or Program.isInStartMenu() then
+		return
+	end
+
+	-- Only activate "SELECT" shortcut if no in-game key item is bound to SELECT
+	if Utils.containsText(Options.CONTROLS["Info shortcut"] or "", "Select") then
+		local saveBlock1Addr = Utils.getSaveBlock1Addr()
+		local registeredItemId = Memory.readword(saveBlock1Addr + GameSettings.gameRegItemOffset)
+		if registeredItemId ~= 0 then
+			return
+		end
+	end
+
+	local TrainerScreen = nil -- TODO: Delete this line once trainer screen UI gets created
+	if Program.currentScreen == InfoScreen or Program.currentScreen == TrainerScreen then
+		Program.changeScreenView(TrackerScreen)
+	else
+		-- Check what type of contextual info to dispaly (such as early game pivots or safari zone)
+		local pokemon = Tracker.getPokemon(1, true) or {}
+		if (pokemon.level or 0) < 13 or RouteData.Locations.IsInSafariZone[TrackerAPI.getMapId()] then
+			if RouteData.hasRouteEncounterArea(Program.GameData.mapId, RouteData.EncounterArea.LAND) then
+				InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+					mapId = Program.GameData.mapId,
+					encounterArea = RouteData.EncounterArea.LAND,
+				})
+			end
+		else
+			-- TODO: Swap to a screen showing available trainers on the current route
+		end
 	end
 end
 

@@ -158,6 +158,7 @@ Constants.OrderedLists = {
 	CONTROLS = {
 		"Load next seed",
 		"Toggle view",
+		"Info shortcut",
 		"Cycle through stats",
 		"Mark stat",
 	},

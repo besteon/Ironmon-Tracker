@@ -368,13 +368,14 @@ function SetupScreen.createButtons()
 end
 
 function SetupScreen.openEditControlsWindow()
-	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
+	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 255)
 
 	form:createLabel(Resources.SetupScreen.PromptEditControllerDesc, 19, 10)
 
 	local controlKeyMap = {
 		{"Load next seed", "PromptEditControllerLoadNext", },
 		{"Toggle view", "PromptEditControllerToggleView", },
+		{"Info shortcut", "PromptEditControllerInfoShortcut", },
 		{"Cycle through stats", "PromptEditControllerCycleStats", },
 		{"Mark stat", "PromptEditControllerMarkStat", },
 	}
