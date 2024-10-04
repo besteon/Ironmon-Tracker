@@ -459,7 +459,7 @@ function EventData.getPivots(params)
 			local route = RouteData.Info[mapId or false] or {}
 			local routeName = route.name or "Unknown Route"
 			if showSafari then
-				routeName = Utils.replaceText(routeName, "Safari Zone ", "") -- shorten output
+				routeName = Utils.toUpperUTF8(Utils.replaceText(routeName, "Safari Zone ", "")) -- shorten output
 			end
 			table.insert(info, string.format("%s: %s", routeName, table.concat(namesToShow, ", ")))
 		end
