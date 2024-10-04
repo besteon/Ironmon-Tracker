@@ -789,25 +789,15 @@ end
 
 ---Reads in Trainer game data from memory.
 ---@param trainerId number
----@return table|nil trainer A `Program.GameTrainer` object
+---@return table trainer A `Program.GameTrainer` object
 function Program.readTrainerGameData(trainerId)
-	local trainerInternal = TrainerData.Trainers[trainerId or false]
-	if not trainerInternal then
-		return nil
-	end
+	local trainer = Program.GameTrainer:new({
+		trainerId = trainerId
+	})
 
 	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
-	local trainer = Program.GameTrainer:new({ trainerId = trainerId })
 	trainer.partyFlags = Memory.readbyte(startAddress)
 	trainer.trainerClass = Memory.readbyte(startAddress + 0x01)
-	local genderBit = Utils.getbits(Memory.readbyte(startAddress + 0x02), 7, 1)
-	if genderBit == 0 then
-		trainer.gender = MiscData.Gender.MALE
-	elseif genderBit == 1 then
-		trainer.gender = MiscData.Gender.FEMALE
-	else
-		trainer.gender = MiscData.Gender.UNKNOWN
-	end
 	trainer.trainerPic = Memory.readbyte(startAddress + 0x03)
 	trainer.doubleBattle = Memory.readbyte(startAddress + 0x18) ~= 0
 	trainer.aiFlags = Memory.readdword(startAddress + 0x1C) -- AI_SCRIPT_CHECK_BAD_MOVE(1 << 0) | AI_SCRIPT_TRY_TO_FAINT(1 << 2) | AI_SCRIPT_CHECK_VIABILITY(1 << 1)
@@ -818,6 +808,16 @@ function Program.readTrainerGameData(trainerId)
 		Memory.readword(startAddress + 0x14),
 		Memory.readword(startAddress + 0x16),
 	}
+
+	-- GENDER
+	local genderBit = Utils.getbits(Memory.readbyte(startAddress + 0x02), 7, 1)
+	if genderBit == 0 then
+		trainer.gender = MiscData.Gender.MALE
+	elseif genderBit == 1 then
+		trainer.gender = MiscData.Gender.FEMALE
+	else
+		trainer.gender = MiscData.Gender.UNKNOWN
+	end
 
 	-- TRAINER NAME
 	trainer.trainerName = ""

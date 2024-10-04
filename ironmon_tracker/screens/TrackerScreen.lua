@@ -185,15 +185,30 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
-			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then
-				return
+			if Battle.isWildEncounter then
+				if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then
+					return
+				end
+				local routeInfo = {
+					mapId = Program.GameData.mapId,
+					encounterArea = Battle.CurrentRoute.encounterArea,
+				}
+				InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
+			else
+				local trainerId = TrackerAPI.getOpponentTrainerId()
+				if TrainerInfoScreen.buildScreen(trainerId) then
+					Program.changeScreenView(TrainerInfoScreen)
+				end
 			end
-			local routeInfo = {
-				mapId = Program.GameData.mapId,
-				encounterArea = Battle.CurrentRoute.encounterArea,
-			}
-			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
+	},
+	TrainerDetails = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Intermediate text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
+		isVisible = function() return not Battle.isViewingOwn end,
 	},
 	AbilityUpper = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -1111,7 +1126,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, data.x.encounters)
 			routeText = string.format("%s:", Resources.TrackerScreen.BattleTeam)
-			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 13
+			Drawing.drawButton(TrackerScreen.Buttons.TrainerDetails, shadowcolor)
 			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
