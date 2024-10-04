@@ -55,6 +55,9 @@ Program = {
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
 		sizeofExpTableLevel = 0x4,
+		sizeofTrainer = 0x28,
+		sizeofTrainerName = 12,
+		sizeofMaxTrainerItems = 4,
 		sizeofBattlePokemon = 0x58,
 		sizeofBattleMove = 0xC,
 		sizeofTaskStruct = 0x28,
@@ -784,6 +787,124 @@ function Program.readNewPokemon(startAddress, personality)
 	})
 end
 
+---Reads in Trainer game data from memory.
+---@param trainerId number
+---@return table|nil trainer A `Program.GameTrainer` object
+function Program.readTrainerGameData(trainerId)
+	local trainerInternal = TrainerData.Trainers[trainerId or false]
+	if not trainerInternal then
+		return nil
+	end
+
+	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
+	local trainer = Program.GameTrainer:new({ trainerId = trainerId })
+	trainer.partyFlags = Memory.readbyte(startAddress)
+	trainer.trainerClass = Memory.readbyte(startAddress + 0x01)
+	local genderBit = Utils.getbits(Memory.readbyte(startAddress + 0x02), 7, 1)
+	if genderBit == 0 then
+		trainer.gender = MiscData.Gender.MALE
+	elseif genderBit == 1 then
+		trainer.gender = MiscData.Gender.FEMALE
+	else
+		trainer.gender = MiscData.Gender.UNKNOWN
+	end
+	trainer.trainerPic = Memory.readbyte(startAddress + 0x03)
+	trainer.doubleBattle = Memory.readbyte(startAddress + 0x18) ~= 0
+	trainer.aiFlags = Memory.readdword(startAddress + 0x1C) -- AI_SCRIPT_CHECK_BAD_MOVE(1 << 0) | AI_SCRIPT_TRY_TO_FAINT(1 << 2) | AI_SCRIPT_CHECK_VIABILITY(1 << 1)
+	trainer.partySize = Memory.readbyte(startAddress + 0x20)
+	trainer.items = {
+		Memory.readword(startAddress + 0x10),
+		Memory.readword(startAddress + 0x12),
+		Memory.readword(startAddress + 0x14),
+		Memory.readword(startAddress + 0x16),
+	}
+
+	-- TRAINER NAME
+	trainer.trainerName = ""
+	for i = 0, Program.Addresses.sizeofTrainerName - 1, 1 do
+		local charByte = Memory.readbyte(startAddress + 0x04 + i)
+		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
+		trainer.trainerName = trainer.trainerName .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+	end
+	trainer.trainerName = Utils.formatSpecialCharacters(trainer.trainerName)
+
+	-- TRAINER PARTY MONS
+	local function readPartyPokemon(partyPtr)
+		local partyData = {}
+
+		-- #define F_TRAINER_PARTY_CUSTOM_MOVESET (1 << 0) even = default moveset, odd = custom moveset
+		-- #define F_TRAINER_PARTY_HELD_ITEM      (1 << 1) 2 or greater = held item, 1 or lower = no item
+		if trainer.partyFlags == 0 then -- TrainerMonNoItemDefaultMoves (flag: 0 << 0)
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 8 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+				})
+			end
+		elseif trainer.partyFlags == 1 then -- TrainerMonNoItemCustomMoves (flag: 1 << 0)
+			-- TODO: Untested, not available in FRLG
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 16 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					moves = { -- u16 moves[MAX_MON_MOVES];
+						Memory.readword(partyPtr + offset + 0x06),
+						Memory.readword(partyPtr + offset + 0x08),
+						Memory.readword(partyPtr + offset + 0x0A),
+						Memory.readword(partyPtr + offset + 0x0C),
+					}
+				})
+			end
+		elseif trainer.partyFlags == 2 then -- TrainerMonItemDefaultMoves (flag: 1 << 1)
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 8 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					heldItem = Memory.readword(partyPtr + offset + 0x06),-- u16 heldItem;
+				})
+			end
+		elseif trainer.partyFlags == 3 then -- TrainerMonItemCustomMoves (flag: 1 << 0 | 1 << 1)
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 16 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					heldItem = Memory.readword(partyPtr + offset + 0x06),-- u16 heldItem;
+					moves = { -- u16 moves[MAX_MON_MOVES];
+						Memory.readword(partyPtr + offset + 0x08),
+						Memory.readword(partyPtr + offset + 0x0A),
+						Memory.readword(partyPtr + offset + 0x0C),
+						Memory.readword(partyPtr + offset + 0x0E),
+					}
+				})
+			end
+		end
+		return partyData
+	end
+
+	trainer.party = {}
+	local partyPtr = Memory.readdword(startAddress + 0x24)
+	local partyData = readPartyPokemon(partyPtr)
+	for _, pokemon in ipairs(partyData or {}) do
+		table.insert(trainer.party, {
+			pokemonID = pokemon.species or 0,
+			level = pokemon.level or 0,
+			ivs = math.floor(pokemon.iv * 31 / 255), -- fixedIV = iv * MAX_PER_STAT_IVS(31) / 255
+			heldItem = pokemon.heldItem or 0,
+			moves = pokemon.moves or {}, -- Holds "Custom Moves", as defined for a tiny subset of trainers
+		})
+	end
+
+	return trainer
+end
+
 -- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
 function Program.getTeamCounts()
 	local numAlive, total = 0, 0
@@ -1336,6 +1457,40 @@ Program.DefaultPokemon = {
 }
 
 function Program.DefaultPokemon:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+
+---A Trainer data struct read in from game memory
+Program.GameTrainer = {
+	trainerId = 0,
+	-- /*0x00*/ u8 partyFlags;
+	partyFlags = 0,
+	-- /*0x01*/ u8 trainerClass;
+	trainerClass = 0,
+	-- /*0x02*/ u8 encounterMusic_gender; // last bit is gender
+	gender = 0,
+	-- /*0x03*/ u8 trainerPic;
+	trainerPic = 0,
+	-- /*0x04*/ u8 trainerName[12];
+	trainerName = 0, -- size: 12
+	-- /*0x10*/ u16 items[MAX_TRAINER_ITEMS];
+	items = {}, -- value: itemId, size: 4
+	-- /*0x18*/ bool8 doubleBattle;
+	doubleBattle = false,
+	-- /*0x1C*/ u32 aiFlags;
+	aiFlags = 0,
+	-- /*0x20*/ u8 partySize;
+	partySize = 0,
+	-- /*0x24*/ const union TrainerMonPtr party; (pointer)
+	party = {
+		-- Example party member: { pokemonID=1, level=5, ivs=31, heldItem=13, moves={33,45,0,0} }
+	},
+}
+
+function Program.GameTrainer:new(o)
 	o = o or {}
 	setmetatable(o, self)
 	self.__index = self
