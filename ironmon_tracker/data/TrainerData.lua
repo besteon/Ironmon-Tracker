@@ -203,6 +203,14 @@ function TrainerData.getExcludedTrainers()
 	return trainerIds
 end
 
+---Returns true if the provided trainerId (or current opposing trainer) is Giovanni; useful for showing masterballs
+---@param trainerId? number
+---@return boolean
+function TrainerData.isGiovanni(trainerId)
+	trainerId = trainerId or TrackerAPI.getOpponentTrainerId()
+	return GameSettings.game == 3 and trainerId >= 348 and trainerId <= 350
+end
+
 -- Helper functions for the image retrieval functions
 local getClassFilename = function(trainerClass)
 	trainerClass = trainerClass or TrainerData.Classes.Unknown

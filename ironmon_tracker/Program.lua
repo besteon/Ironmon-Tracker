@@ -57,6 +57,7 @@ Program = {
 		sizeofExpTableLevel = 0x4,
 		sizeofTrainer = 0x28,
 		sizeofTrainerName = 12,
+		sizeofTrainerClass = 13,
 		sizeofMaxTrainerItems = 4,
 		sizeofBattlePokemon = 0x58,
 		sizeofBattleMove = 0xC,
@@ -797,7 +798,6 @@ function Program.readTrainerGameData(trainerId)
 
 	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
 	trainer.partyFlags = Memory.readbyte(startAddress)
-	trainer.trainerClass = Memory.readbyte(startAddress + 0x01)
 	trainer.trainerPic = Memory.readbyte(startAddress + 0x03)
 	trainer.doubleBattle = Memory.readbyte(startAddress + 0x18) ~= 0
 	trainer.aiFlags = Memory.readdword(startAddress + 0x1C) -- AI_SCRIPT_CHECK_BAD_MOVE(1 << 0) | AI_SCRIPT_TRY_TO_FAINT(1 << 2) | AI_SCRIPT_CHECK_VIABILITY(1 << 1)
@@ -818,6 +818,17 @@ function Program.readTrainerGameData(trainerId)
 	else
 		trainer.gender = MiscData.Gender.UNKNOWN
 	end
+
+	-- TRAINER CLASS
+	local classId = Memory.readbyte(startAddress + 0x01)
+	local classStartAddr = GameSettings.gTrainerClassNames + (classId * Program.Addresses.sizeofTrainerClass)
+	trainer.trainerClass = ""
+	for i = 0, Program.Addresses.sizeofTrainerClass - 1, 1 do
+		local charByte = Memory.readbyte(classStartAddr + i)
+		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
+		trainer.trainerClass = trainer.trainerClass .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+	end
+	trainer.trainerClass = Utils.formatSpecialCharacters(trainer.trainerClass)
 
 	-- TRAINER NAME
 	trainer.trainerName = ""

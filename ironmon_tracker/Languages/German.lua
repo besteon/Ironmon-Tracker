@@ -114,8 +114,8 @@ ScreenResources{
 		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
-		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
-		BattleSeenOnTrainers = "Seen on trainers", -- NEEDS TRANSLATION
+		BattleSeenInTheWild = "Seen (Wild)", -- NEEDS TRANSLATION
+		BattleSeenOnTrainers = "Seen (Trainer)", -- NEEDS TRANSLATION
 		BattleTeam = "Team", -- NEEDS TRANSLATION
 		StatHP = "HP", -- NEEDS TRANSLATION
 		StatATK = "ATK", -- NEEDS TRANSLATION
@@ -412,6 +412,13 @@ ScreenResources{
 		LabelSeenEncounters = "Pokémon encounters", -- NEEDS TRANSLATION
 		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
 		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
+	},
+	TrainerInfoScreen = {
+		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
+		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
+		LabelUsableItems = "Usable Items", -- NEEDS TRANSLATION
+		LabelDouble = "Double", -- NEEDS TRANSLATION
+		LabelBattle = "Battle!", -- NEEDS TRANSLATION
 	},
 	CustomExtensionsScreen = {
 		Title = "Custom Extensions", -- NEEDS TRANSLATION

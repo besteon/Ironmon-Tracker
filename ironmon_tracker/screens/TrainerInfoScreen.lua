@@ -13,6 +13,7 @@ TrainerInfoScreen = {
 	},
 }
 local SCREEN = TrainerInfoScreen
+local VALUE_COL_X = 52
 
 local function hasData()
 	return SCREEN.Data.trainerGame and SCREEN.Data.trainerGame.trainerId ~= nil
@@ -29,7 +30,7 @@ SCREEN.Buttons = {
 				return Constants.BLANKLINE
 			end
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 33, Constants.SCREEN.MARGIN + 2, 32, 32 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 32, Constants.SCREEN.MARGIN + 2, 32, 32 },
 		isVisible = function(self) return true end,
 		onClick = function(self)
 			if hasData() then
@@ -49,14 +50,15 @@ SCREEN.Buttons = {
 			local highlightColor = Theme.COLORS[SCREEN.Colors.highlight]
 			local borderColor = Theme.COLORS[self.boxColors[1]]
 			-- Draw an extra border around the image and id label
-			gui.drawRectangle(x - 1, y - 2, w + 2, h + 2, borderColor)
+			gui.drawRectangle(x - 1, y - 2, w + 1, h + 2, borderColor)
+			gui.drawLine(x, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
 
-			local idText = self:getText()
-			local centerX = Utils.getCenteredTextX(idText, w) - 1
-			Drawing.drawText(x + centerX, y + 32, self:getText(), textColor, shadowcolor)
+			local text = self:getText()
+			local centerX = Utils.getCenteredTextX(text, w) - 1
+			Drawing.drawText(x + centerX, y + 32, text, textColor, shadowcolor)
 			if SCREEN.Data.trainerGame.doubleBattle then
-				Drawing.drawText(x, y + 44, "Double", highlightColor, shadowcolor) -- TODO: Language
-				Drawing.drawText(x, y + 54, "Battle!", highlightColor, shadowcolor) -- TODO: Language
+				Drawing.drawText(x, y + 44, Resources.TrainerInfoScreen.LabelDouble, highlightColor, shadowcolor)
+				Drawing.drawText(x, y + 54, Resources.TrainerInfoScreen.LabelBattle, highlightColor, shadowcolor)
 			end
 		end,
 	},
@@ -82,52 +84,70 @@ SCREEN.Buttons = {
 				return Constants.BLANKLINE
 			end
 		end,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 94, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 10, 12 },
+		onClick = function(self)
+			if SCREEN.Data.trainerInternal and SCREEN.Data.trainerInternal.routeId then
+				if TrainersOnRouteScreen.buildScreen(SCREEN.Data.trainerInternal.routeId) then
+					Program.changeScreenView(TrainersOnRouteScreen)
+					SCREEN.previousScreen = nil
+				end
+			end
+		end,
 	},
 	TrainerPartySummary = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function()
 			if hasData() then
-				return SCREEN.Data.trainerGame.partySummary
+				return string.format("%s:", SCREEN.Data.trainerGame.pokemonWord)
 			else
-				return Utils.formatSpecialCharacters("0 Pokémon, Lv.0")
+				return Utils.formatSpecialCharacters("Pokémon:")
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 30, 90, 11 },
+		draw = function(self, shadowcolor)
+			if not hasData() then return end
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[SCREEN.Data.trainerGame.partyLvColor]
+			local text = string.format("%s  (%s)", SCREEN.Data.trainerGame.partySize, SCREEN.Data.trainerGame.partyLvRange)
+			Drawing.drawText(Constants.SCREEN.WIDTH + VALUE_COL_X, y, text, textColor, shadowcolor)
+		end,
 	},
-	TrainerTeamIVs = {
+	TrainerAverageIVs = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function()
-			local outputVal = Constants.BLANKLINE
-			if hasData() then
-				outputVal = tostring(SCREEN.Data.trainerGame.teamIVs)
-			end
-			return string.format("%s: %s", "Team IVs", outputVal) -- TODO: Language
+			return string.format("%s:", Resources.TrainerInfoScreen.LabelAvgIvs)
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 46, 90, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 41, 90, 11 },
+		draw = function(self, shadowcolor)
+			if not hasData() then return end
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[SCREEN.Data.trainerGame.avgIVsColor]
+			Drawing.drawText(Constants.SCREEN.WIDTH + VALUE_COL_X, y, SCREEN.Data.trainerGame.avgIVs, textColor, shadowcolor)
+		end,
 	},
 	TrainerAI = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function()
-			local outputVal = Constants.BLANKLINE
-			if hasData() then
-				outputVal = SCREEN.Data.trainerGame.aiLabel or Constants.BLANKLINE
-			end
-			return string.format("%s: %s", "A I Script", outputVal) -- TODO: Language
+			return string.format("%s:", Resources.TrainerInfoScreen.LabelAIScript)
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 57, 90, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 52, 90, 11 },
+		draw = function(self, shadowcolor)
+			if not hasData() then return end
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[SCREEN.Data.trainerGame.aiColor]
+			Drawing.drawText(Constants.SCREEN.WIDTH + VALUE_COL_X, y, SCREEN.Data.trainerGame.aiLabel, textColor, shadowcolor)
+		end,
 	},
 	TrainerItems = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function()
-			return string.format("%s:", "Usable Items") -- TODO: Language
+			return string.format("%s:", Resources.TrainerInfoScreen.LabelUsableItems)
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 68, 90, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 63, 90, 11 },
 		isVisible = function(self) return hasData() and SCREEN.Data.trainerGame.itemList end,
 		draw = function(self, shadowcolor)
-			if not hasData() then
-				return
-			end
+			if not hasData() then return end
 			local x, y = self.box[1], self.box[2]
 			local textColor = Theme.COLORS[SCREEN.Colors.goodValue]
 			local itemList = SCREEN.Data.trainerGame.itemList or Constants.BLANKLINE
@@ -136,65 +156,12 @@ SCREEN.Buttons = {
 	},
 	Back = Drawing.createUIElementBackButton(function()
 		SCREEN.clearBuiltData()
-		Program.changeScreenView(TrackerScreen)
+		Program.changeScreenView(TrainerInfoScreen.previousScreen or TrackerScreen)
+		TrainerInfoScreen.previousScreen = nil
 	end),
 }
 
---[[ PAGER
-SCREEN.Pager = {
-	-- CurrentPage = {
-	-- 	type = Constants.ButtonTypes.NO_BORDER,
-	-- 	getText = function(self) return SCREEN.Pager:getPageText() end,
-	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 50, 10, },
-	-- 	isVisible = function() return SCREEN.Pager.totalPages > 1 end,
-	-- },
-	-- PrevPage = {
-	-- 	type = Constants.ButtonTypes.PIXELIMAGE,
-	-- 	image = Constants.PixelImages.LEFT_ARROW,
-	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 32, Constants.SCREEN.MARGIN + 136, 10, 10, },
-	-- 	isVisible = function() return SCREEN.Pager.totalPages > 1 end,
-	-- 	onClick = function(self)
-	-- 		SCREEN.Pager:prevPage()
-	-- 	end
-	-- },
-	-- NextPage = {
-	-- 	type = Constants.ButtonTypes.PIXELIMAGE,
-	-- 	image = Constants.PixelImages.RIGHT_ARROW,
-	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 136, 10, 10, },
-	-- 	isVisible = function() return SCREEN.Pager.totalPages > 1 end,
-	-- 	onClick = function(self)
-	-- 		SCREEN.Pager:nextPage()
-	-- 	end
-	-- },
-
-	Buttons = {},
-	currentPage = 0,
-	totalPages = 0,
-	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
-		table.sort(self.Buttons, self.defaultSort)
-		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
-		local cutoffY = Constants.SCREEN.HEIGHT - 20
-		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
-		self.currentPage = 1
-		self.totalPages = totalPages or 1
-	end,
-	defaultSort = function(a, b) return a.ordinal < b.ordinal end,
-	getPageText = function(self)
-		if self.totalPages <= 1 then return Resources.AllScreens.Page end
-		return string.format("%s %s/%s", Resources.AllScreens.Page, self.currentPage, self.totalPages)
-	end,
-	prevPage = function(self)
-		if self.totalPages <= 1 then return end
-		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
-		Program.redraw(true)
-	end,
-	nextPage = function(self)
-		if self.totalPages <= 1 then return end
-		self.currentPage = (self.currentPage % self.totalPages) + 1
-		Program.redraw(true)
-	end,
-}
-]]
+SCREEN.TemporaryButtons = {}
 
 function TrainerInfoScreen.initialize()
 	for _, button in pairs(SCREEN.Buttons) do
@@ -211,28 +178,28 @@ end
 
 function TrainerInfoScreen.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
-		if button.updateSelf ~= nil then
+		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
 	end
-	-- for _, button in pairs(SCREEN.Pager.Buttons) do
-	-- 	if button.updateSelf ~= nil then
-	-- 		button:updateSelf()
-	-- 	end
-	-- end
+	for _, button in pairs(SCREEN.TemporaryButtons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
 end
 
 ---Retrieves and builds the data needed to draw this screen; stored in `TrainerInfoScreen.Data`
 ---@param trainerId number
 ---@return boolean success
 function TrainerInfoScreen.buildScreen(trainerId)
-	-- SCREEN.Pager.Buttons = {}
-
 	-- Internal Tracker data about the trainer
 	local trainerInternal = TrainerData.getTrainerInfo(trainerId)
 	if not trainerInternal or trainerInternal == TrainerData.BlankTrainer then
 		return false
 	end
+
+	SCREEN.clearBuiltData()
 
 	-- Game data about the trainer
 	local trainerGame = Program.readTrainerGameData(trainerId)
@@ -241,16 +208,19 @@ function TrainerInfoScreen.buildScreen(trainerId)
 	SCREEN.Buttons.TrainerIcon.image = TrainerData.getPortraitIcon(trainerInternal.class)
 
 	-- Add new data variables to the trainerGame object
+	trainerGame.defeated = Program.hasDefeatedTrainer(trainerId)
+
 	-- COMBINED NAME AND CLASS
-	if trainerInternal.class then
-		local trainerName = trainerGame.trainerName
-		if Utils.isNilOrEmpty(trainerName) then
-			trainerName = string.rep(Constants.HIDDEN_INFO, 3)
-		end
-		local className = Utils.firstToUpperEachWord(Utils.replaceText(trainerInternal.class.filename or "", "-", " "))
-		trainerGame.combinedName = string.format("%s, %s", trainerName, className)
-		trainerGame.combinedName = Utils.shortenText(trainerGame.combinedName, 99, true)
+	local trainerName = trainerGame.trainerName
+	local trainerClass = trainerGame.trainerClass
+	if Utils.isNilOrEmpty(trainerName) then
+		trainerName = string.rep(Constants.HIDDEN_INFO, 3)
 	end
+	if Utils.isNilOrEmpty(trainerClass) then
+		trainerClass = string.rep(Constants.HIDDEN_INFO, 3)
+	end
+	trainerGame.combinedName = Utils.formatSpecialCharacters(string.format("%s %s", trainerClass, trainerName))
+	trainerGame.combinedName = Utils.shortenText(trainerGame.combinedName, 99, true)
 
 	-- ROUTE INFO
 	if trainerInternal.routeId and RouteData.hasRoute(trainerInternal.routeId) then
@@ -275,47 +245,51 @@ function TrainerInfoScreen.buildScreen(trainerId)
 	else
 		lvRange = string.format("%s -- %s", minLv, maxLv)
 	end
-	trainerGame.partySummary = string.format("%s Pokémon   (%s.%s)",
-		trainerGame.partySize,
+	trainerGame.pokemonWord = Utils.formatSpecialCharacters("Pokémon")
+	trainerGame.partyLvRange = string.format("%s.%s",
 		Resources.TrackerScreen.LevelAbbreviation,
 		lvRange
 	)
-	trainerGame.partySummary = Utils.formatSpecialCharacters(trainerGame.partySummary)
+	local leadPokemon = Tracker.getPokemon(1)
+	if leadPokemon and leadPokemon.level < maxLv then
+		trainerGame.partyLvColor = SCREEN.Colors.badValue
+	else
+		trainerGame.partyLvColor = SCREEN.Colors.highlight
+	end
 
 	-- TEAM IVS
 	local ivTotal = 0
 	for _, pokemon in ipairs(trainerGame.party) do
 		ivTotal = ivTotal + pokemon.ivs
 	end
-	trainerGame.teamIVs = math.max(math.floor(ivTotal / #trainerGame.party), 0) -- min of 0
+	trainerGame.avgIVs = math.max(math.floor(ivTotal / #trainerGame.party), 0) -- min of 0
 
-	if trainerGame.teamIVs >= 23 then
-		trainerGame.teamIVsColor = SCREEN.Colors.goodValue
-	elseif trainerGame.teamIVs >= 11 then
-		trainerGame.teamIVsColor = SCREEN.Colors.highlight
+	if trainerGame.avgIVs >= 0 then
+		trainerGame.avgIVsColor = SCREEN.Colors.highlight
 	else
-		trainerGame.teamIVsColor = SCREEN.Colors.text
+		trainerGame.avgIVsColor = SCREEN.Colors.text
 	end
 
 	-- SCRIPT AI LABEL
+	-- Note: Original was going to use different colors for higher AI, decided against it; leaving in code though
 	if Utils.getbits(trainerGame.aiFlags, 2, 1) == 1 then -- AI_SCRIPT_TRY_TO_FAINT
 		trainerGame.aiLabel = "Smart"
-		trainerGame.aiColor = SCREEN.Colors.goodValue
+		trainerGame.aiColor = SCREEN.Colors.highlight --SCREEN.Colors.goodValue
 	elseif Utils.getbits(trainerGame.aiFlags, 1, 1) == 1 then -- AI_SCRIPT_CHECK_VIABILITY
 		trainerGame.aiLabel = "Semi-Smart"
-		trainerGame.aiColor = SCREEN.Colors.goodValue
+		trainerGame.aiColor = SCREEN.Colors.highlight --SCREEN.Colors.goodValue
 	elseif Utils.getbits(trainerGame.aiFlags, 0, 1) == 1 then -- AI_SCRIPT_CHECK_BAD_MOVE
 		trainerGame.aiLabel = "Normal"
 		trainerGame.aiColor = SCREEN.Colors.text
 	elseif trainerGame.aiFlags == 0 then
 		trainerGame.aiLabel = "Dumb"
-		trainerGame.aiColor = SCREEN.Colors.badValue
+		trainerGame.aiColor = SCREEN.Colors.highlight --SCREEN.Colors.badValue
 	else
-		trainerGame.aiLabel = "Other"
-		trainerGame.aiColor = SCREEN.Colors.text
+		trainerGame.aiLabel = "Complex"
+		trainerGame.aiColor = SCREEN.Colors.highlight --SCREEN.Colors.text
 	end
 
-	-- ITEMS
+	-- USABLE ITEMS
 	local itemCounts = {}
 	for _, itemId in ipairs(trainerGame.items) do
 		local itemName = Resources.Game.ItemNames[itemId]
@@ -338,8 +312,59 @@ function TrainerInfoScreen.buildScreen(trainerId)
 		trainerGame.itemList = nil
 	end
 
-	-- Items (some have 2 hypers + 1 full heal)
-	-- # of pokemon in party and levels of each
+	-- PARTY POKEMON, LEVELS, AND STATUS
+	local trainerIdCurrentBattle = TrackerAPI.getOpponentTrainerId()
+	SCREEN.TemporaryButtons = {}
+
+	for i, pokemon in ipairs(trainerGame.party) do
+		local defaultColorList = TrackerScreen.PokeBalls.ColorList
+		local button = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			image = Constants.PixelImages.POKEBALL,
+			getCustomText = function(self)
+				return string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, pokemon.level)
+			end,
+			dimensions = { width = 32, height = 26, },
+			ordinal = i,
+			draw = function(self, shadowcolor)
+				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+				local textColor = Theme.COLORS[SCREEN.Colors.text]
+				local text = self:getCustomText()
+				local centerX = Utils.getCenteredTextX(text, w) - 1
+				Drawing.drawImageAsPixels(self.image, x + w/2 - 5, y + 3, self.iconColors, shadowcolor)
+				Drawing.drawText(x + centerX, y + h - 12, text, textColor, shadowcolor)
+			end,
+		}
+
+		-- Viewing Giovanni
+		if TrainerData.isGiovanni(trainerId) then
+			button.image = Constants.PixelImages.MASTERBALL
+			defaultColorList = TrackerScreen.PokeBalls.ColorListMasterBall
+		end
+
+		button.iconColors = defaultColorList
+
+		-- Check if viewing the trainer being battled, and show fainted Pokémon
+		if trainerGame.defeated or trainerId == trainerIdCurrentBattle then
+			button.updateSelf = function(self)
+				local enemyMon = Tracker.getPokemon(i, false)
+				if trainerGame.defeated or (enemyMon and enemyMon.curHP <= 0) then
+					self.iconColors = TrackerScreen.PokeBalls.ColorListFainted
+				else
+					self.iconColors = defaultColorList
+				end
+			end
+		end
+		SCREEN.TemporaryButtons[i] = button
+	end
+
+	-- Align the team party balls in a grid
+	table.sort(SCREEN.TemporaryButtons, function(a, b) return a.ordinal < b.ordinal end)
+	local gridStartX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22
+	local gridStartY = Constants.SCREEN.MARGIN + 90
+	local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 20
+	local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 5
+	Utils.gridAlign(SCREEN.TemporaryButtons, gridStartX, gridStartY, 0, 0, false, cutoffX, cutoffY)
 
 	return true
 end
@@ -348,11 +373,13 @@ function TrainerInfoScreen.clearBuiltData()
 	SCREEN.Data.trainerGame = {}
 	SCREEN.Data.trainerInternal = {}
 	SCREEN.Buttons.TrainerIcon.image = nil
+	SCREEN.TemporaryButtons = {}
 end
 
 -- USER INPUT FUNCTIONS
 function TrainerInfoScreen.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.TemporaryButtons)
 end
 
 -- DRAWING FUNCTIONS
@@ -375,10 +402,11 @@ function TrainerInfoScreen.drawScreen()
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	-- Draw all buttons
+	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
-	-- for _, button in pairs(SCREEN.Pager.Buttons) do
-	-- 	Drawing.drawButton(button, canvas.shadow)
-	-- end
+	for _, button in pairs(SCREEN.TemporaryButtons) do
+		Drawing.drawButton(button, canvas.shadow)
+	end
 end

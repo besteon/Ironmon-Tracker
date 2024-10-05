@@ -415,6 +415,13 @@ ScreenResources{
 		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
 		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
 	},
+	TrainerInfoScreen = {
+		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
+		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
+		LabelUsableItems = "Usable Items", -- NEEDS TRANSLATION
+		LabelDouble = "Double", -- NEEDS TRANSLATION
+		LabelBattle = "Battle!", -- NEEDS TRANSLATION
+	},
 	CustomExtensionsScreen = {
 		Title = "Custom Extensions", -- NEEDS TRANSLATION
 		ButtonGetExtensions = "Get Extensions", -- NEEDS TRANSLATION

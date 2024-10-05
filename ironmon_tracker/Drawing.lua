@@ -538,7 +538,7 @@ end
 
 function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 	local image
-	local againstGiovanni = (GameSettings.game == 3 and 348 <= (Battle.opposingTrainerId or 0) and (Battle.opposingTrainerId or 0) <= 350)
+	local againstGiovanni = TrainerData.isGiovanni(Battle.opposingTrainerId)
 	if againstGiovanni then
 		image = Constants.PixelImages.MASTERBALL_SMALL
 	else
@@ -554,7 +554,7 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 			if pokemon.curHP > 0 then
 				if againstGiovanni then
 					-- Master Ball colors
-					colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088 }
+					colorList = TrackerScreen.PokeBalls.ColorListMasterBall
 				else
 					colorList = TrackerScreen.PokeBalls.ColorList
 				end

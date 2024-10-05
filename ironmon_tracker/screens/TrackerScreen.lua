@@ -185,30 +185,36 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
-			if Battle.isWildEncounter then
-				if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then
-					return
-				end
-				local routeInfo = {
-					mapId = Program.GameData.mapId,
-					encounterArea = Battle.CurrentRoute.encounterArea,
-				}
-				InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
-			else
-				local trainerId = TrackerAPI.getOpponentTrainerId()
-				if TrainerInfoScreen.buildScreen(trainerId) then
-					Program.changeScreenView(TrainerInfoScreen)
-				end
+			-- Only activate for wild encounter battles
+			if not Battle.isWildEncounter then
+				return
 			end
-		end
+			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then
+				return
+			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+				mapId = Program.GameData.mapId,
+				encounterArea = Battle.CurrentRoute.encounterArea,
+			})
+		end,
 	},
 	TrainerDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		textColor = "Intermediate text",
+		image = Constants.PixelImages.BATTLE_BALLS,
+		iconColors = { Drawing.Colors.BLACK, Drawing.Colors.WHITE, Drawing.Colors.RED, Drawing.Colors.YELLOW },
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 78, 61, 16, 16 },
 		isVisible = function() return not Battle.isViewingOwn end,
+		onClick = function(self)
+			-- Only activate for trainer battles
+			if Battle.isWildEncounter then
+				return
+			end
+			local trainerId = TrackerAPI.getOpponentTrainerId()
+			if TrainerInfoScreen.buildScreen(trainerId) then
+				Program.changeScreenView(TrainerInfoScreen)
+			end
+		end,
 	},
 	AbilityUpper = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -437,6 +443,7 @@ TrackerScreen.PokeBalls = {
 	ColorList = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, }, -- Colors used to draw all Pokeballs
 	ColorListGray = { Drawing.Colors.BLACK, Utils.calcGrayscale(0xFFF04037, 0.6), Drawing.Colors.WHITE, },
 	ColorListFainted = { Drawing.Colors.BLACK, 0x22F04037, 0x44FFFFFF, },
+	ColorListMasterBall = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, 0xFFCB5C95 },
 	getLabel = function(ballIndex)
 		if ballIndex == 1 then
 			return Resources.TrackerScreen.RandomBallLeft
@@ -1125,10 +1132,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 		else
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, data.x.encounters)
-			routeText = string.format("%s:", Resources.TrackerScreen.BattleTeam)
-			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 13
+			routeText = "" -- string.format("%s:", Resources.TrackerScreen.BattleTeam) -- Remove word "Team" as there's no space
+			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
 			Drawing.drawButton(TrackerScreen.Buttons.TrainerDetails, shadowcolor)
-			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
+			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
 		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
