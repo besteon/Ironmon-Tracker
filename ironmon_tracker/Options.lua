@@ -59,6 +59,8 @@ Options.CONTROLS = {
 	["Info shortcut"] = "Select",
 	["Cycle through stats"] = "L",
 	["Mark stat"] = "R",
+	["Next page"] = "R",
+	["Previous page"] = "L",
 }
 
 -- User-specified file/folder locations
