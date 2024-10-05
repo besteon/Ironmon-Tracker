@@ -263,7 +263,7 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	-- Easter egg for Giovanni, use masterballs
 	if TrainerData.isGiovanni(button.id) then
 		image = Constants.PixelImages.MASTERBALL_SMALL
-		colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, }
+		colorList = TrackerScreen.PokeBalls.ColorListMasterBall
 	end
 	if #(trainerLog.party or {}) == 0 then
 		return

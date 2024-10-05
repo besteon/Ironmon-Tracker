@@ -84,7 +84,16 @@ SCREEN.Buttons = {
 				return Constants.BLANKLINE
 			end
 		end,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 94, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 10, 12 },
+		onClick = function(self)
+			if SCREEN.Data.trainerInternal and SCREEN.Data.trainerInternal.routeId then
+				if TrainersOnRouteScreen.buildScreen(SCREEN.Data.trainerInternal.routeId) then
+					Program.changeScreenView(TrainersOnRouteScreen)
+					SCREEN.previousScreen = nil
+				end
+			end
+		end,
 	},
 	TrainerPartySummary = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -147,7 +156,8 @@ SCREEN.Buttons = {
 	},
 	Back = Drawing.createUIElementBackButton(function()
 		SCREEN.clearBuiltData()
-		Program.changeScreenView(TrackerScreen)
+		Program.changeScreenView(TrainerInfoScreen.previousScreen or TrackerScreen)
+		TrainerInfoScreen.previousScreen = nil
 	end),
 }
 
@@ -189,7 +199,7 @@ function TrainerInfoScreen.buildScreen(trainerId)
 		return false
 	end
 
-	TrainerInfoScreen.clearBuiltData()
+	SCREEN.clearBuiltData()
 
 	-- Game data about the trainer
 	local trainerGame = Program.readTrainerGameData(trainerId)
@@ -198,6 +208,8 @@ function TrainerInfoScreen.buildScreen(trainerId)
 	SCREEN.Buttons.TrainerIcon.image = TrainerData.getPortraitIcon(trainerInternal.class)
 
 	-- Add new data variables to the trainerGame object
+	trainerGame.defeated = Program.hasDefeatedTrainer(trainerId)
+
 	-- COMBINED NAME AND CLASS
 	local trainerName = trainerGame.trainerName
 	local trainerClass = trainerGame.trainerClass
@@ -207,7 +219,7 @@ function TrainerInfoScreen.buildScreen(trainerId)
 	if Utils.isNilOrEmpty(trainerClass) then
 		trainerClass = string.rep(Constants.HIDDEN_INFO, 3)
 	end
-	trainerGame.combinedName = string.format("%s %s", trainerClass, trainerName)
+	trainerGame.combinedName = Utils.formatSpecialCharacters(string.format("%s %s", trainerClass, trainerName))
 	trainerGame.combinedName = Utils.shortenText(trainerGame.combinedName, 99, true)
 
 	-- ROUTE INFO
@@ -327,16 +339,16 @@ function TrainerInfoScreen.buildScreen(trainerId)
 		-- Viewing Giovanni
 		if TrainerData.isGiovanni(trainerId) then
 			button.image = Constants.PixelImages.MASTERBALL
-			defaultColorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, 0xFFCB5C95 }
+			defaultColorList = TrackerScreen.PokeBalls.ColorListMasterBall
 		end
 
 		button.iconColors = defaultColorList
 
 		-- Check if viewing the trainer being battled, and show fainted Pokémon
-		if trainerId == trainerIdCurrentBattle then
+		if trainerGame.defeated or trainerId == trainerIdCurrentBattle then
 			button.updateSelf = function(self)
 				local enemyMon = Tracker.getPokemon(i, false)
-				if enemyMon and enemyMon.curHP <= 0 then
+				if trainerGame.defeated or (enemyMon and enemyMon.curHP <= 0) then
 					self.iconColors = TrackerScreen.PokeBalls.ColorListFainted
 				else
 					self.iconColors = defaultColorList
@@ -389,9 +401,8 @@ function TrainerInfoScreen.drawScreen()
 	gui.defaultTextBackground(canvas.fill)
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
-	SCREEN.refreshButtons()
-
 	-- Draw all buttons
+	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end

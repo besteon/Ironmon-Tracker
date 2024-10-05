@@ -443,6 +443,7 @@ TrackerScreen.PokeBalls = {
 	ColorList = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, }, -- Colors used to draw all Pokeballs
 	ColorListGray = { Drawing.Colors.BLACK, Utils.calcGrayscale(0xFFF04037, 0.6), Drawing.Colors.WHITE, },
 	ColorListFainted = { Drawing.Colors.BLACK, 0x22F04037, 0x44FFFFFF, },
+	ColorListMasterBall = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, 0xFFCB5C95 },
 	getLabel = function(ballIndex)
 		if ballIndex == 1 then
 			return Resources.TrackerScreen.RandomBallLeft

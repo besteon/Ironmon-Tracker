@@ -200,8 +200,7 @@ function Input.infoShortcutPressed()
 		end
 	end
 
-	local TrainerScreen = nil -- TODO: Delete this line once trainer screen UI gets created
-	if Program.currentScreen == InfoScreen or Program.currentScreen == TrainerScreen then
+	if Program.currentScreen == InfoScreen or Program.currentScreen == TrainersOnRouteScreen or Program.currentScreen == TrainerInfoScreen then
 		Program.changeScreenView(TrackerScreen)
 	else
 		-- Check what type of contextual info to dispaly (such as early game pivots or safari zone)
@@ -214,7 +213,9 @@ function Input.infoShortcutPressed()
 				})
 			end
 		else
-			-- TODO: Swap to a screen showing available trainers on the current route
+			if TrainersOnRouteScreen.buildScreen(TrackerAPI.getMapId()) then
+				Program.changeScreenView(TrainersOnRouteScreen)
+			end
 		end
 	end
 end

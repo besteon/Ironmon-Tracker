@@ -554,7 +554,7 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 			if pokemon.curHP > 0 then
 				if againstGiovanni then
 					-- Master Ball colors
-					colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088 }
+					colorList = TrackerScreen.PokeBalls.ColorListMasterBall
 				else
 					colorList = TrackerScreen.PokeBalls.ColorList
 				end
