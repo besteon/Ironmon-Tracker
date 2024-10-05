@@ -368,7 +368,7 @@ function SetupScreen.createButtons()
 end
 
 function SetupScreen.openEditControlsWindow()
-	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 255)
+	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 290, 75, 20)
 
 	form:createLabel(Resources.SetupScreen.PromptEditControllerDesc, 19, 10)
 
@@ -378,6 +378,8 @@ function SetupScreen.openEditControlsWindow()
 		{"Info shortcut", "PromptEditControllerInfoShortcut", },
 		{"Cycle through stats", "PromptEditControllerCycleStats", },
 		{"Mark stat", "PromptEditControllerMarkStat", },
+		{"Next page", "PromptEditControllerNextPage", },
+		{"Previous page", "PromptEditControllerPreviousPage", },
 	}
 
 	local inputTextboxes = {}

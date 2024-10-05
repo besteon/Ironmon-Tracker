@@ -140,6 +140,8 @@ function Input.checkJoypadInput()
 	local infoShortcutBtn = Options.CONTROLS["Info shortcut"] or ""
 	local cycleStatBtn = Options.CONTROLS["Cycle through stats"] or ""
 	local markStatBtn = Options.CONTROLS["Mark stat"] or ""
+	local nextBtn = Options.CONTROLS["Next page"] or ""
+	local previousBtn = Options.CONTROLS["Previous page"] or ""
 	local quickloadBtns = Options.CONTROLS["Load next seed"] or ""
 
 	CustomCode.inputCheckMGBA()
@@ -153,13 +155,37 @@ function Input.checkJoypadInput()
 	end
 
 	if joypad[cycleStatBtn] and not Input.prevJoypadInput[cycleStatBtn] then
-		Input.StatHighlighter:cycleToNextStat()
+		if Program.currentScreen == TrackerScreen and not Battle.isViewingOwn then
+			Input.StatHighlighter:cycleToNextStat()
+		end
 	else
 		Input.StatHighlighter:incrementHighlightedFrames()
 	end
 
 	if joypad[markStatBtn] and not Input.prevJoypadInput[markStatBtn] then
-		Input.StatHighlighter:markSelectedStat()
+		if Program.currentScreen == TrackerScreen and not Battle.isViewingOwn then
+			Input.StatHighlighter:markSelectedStat()
+		end
+	end
+
+	if joypad[nextBtn] and not Input.prevJoypadInput[nextBtn] then
+		if LogOverlay.isDisplayed then
+			LogOverlay.Windower:nextPage()
+		elseif StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.Pager:nextPage()
+		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.nextPage) == "function" then
+			Program.currentScreen.Pager:nextPage()
+		end
+	end
+
+	if joypad[previousBtn] and not Input.prevJoypadInput[previousBtn] then
+		if LogOverlay.isDisplayed then
+			LogOverlay.Windower:prevPage()
+		elseif StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.Pager:prevPage()
+		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.prevPage) == "function" then
+			Program.currentScreen.Pager:prevPage()
+		end
 	end
 
 	if not Main.loadNextSeed and Input.allowNewRunCombo then

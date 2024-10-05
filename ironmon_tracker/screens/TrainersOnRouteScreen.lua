@@ -183,8 +183,8 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 				local borderColor = Theme.COLORS[SCREEN.Colors.border]
 				-- Draw an extra border, and shadows, around the image and id label
-				gui.drawLine(x + w + 1, y + 1, x + w + 1, y + h + 1, shadowcolor)
-				gui.drawLine(x, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
+				gui.drawLine(x + w + 1, y - 1, x + w + 1, y + h + 1, shadowcolor)
+				gui.drawLine(x, y + h + 1, x + w, y + h + 1, shadowcolor)
 				gui.drawRectangle(x - 1, y - 2, w + 1, h + 2, borderColor)
 				-- Darken the icon if trainer is defeated
 				if trainerGame.defeated then

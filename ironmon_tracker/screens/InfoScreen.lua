@@ -292,6 +292,19 @@ InfoScreen.Buttons = {
 	}
 }
 
+InfoScreen.Pager = {
+	prevPage = function(self)
+		if InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO then
+			InfoScreen.Buttons.PreviousRoute:onClick()
+		end
+	end,
+	nextPage = function(self)
+		if InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO then
+			InfoScreen.Buttons.NextRoute:onClick()
+		end
+	end,
+}
+
 InfoScreen.TemporaryButtons = {}
 
 function InfoScreen.initialize()

@@ -161,6 +161,8 @@ Constants.OrderedLists = {
 		"Info shortcut",
 		"Cycle through stats",
 		"Mark stat",
+		"Next page",
+		"Previous page"
 	},
 	THEMECOLORS = {
 		"Default text",

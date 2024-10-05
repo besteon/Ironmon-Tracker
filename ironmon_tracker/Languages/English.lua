@@ -223,6 +223,8 @@ ScreenResources{
 		PromptEditControllerInfoShortcut = "Info shortcut",
 		PromptEditControllerCycleStats = "Cycle through stats",
 		PromptEditControllerMarkStat = "Mark stat",
+		PromptEditControllerNextPage = "Next page",
+		PromptEditControllerPreviousPage = "Previous page",
 		PromptEditControllerResetDefault = "Reset to Default",
 	},
 	ExtrasScreen = {
