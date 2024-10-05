@@ -420,7 +420,11 @@ TrackerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.TRAINERS end,
-		--onClick = function(self) end
+		onClick = function(self)
+			if TrainersOnRouteScreen.buildScreen(TrackerAPI.getMapId()) then
+				Program.changeScreenView(TrainersOnRouteScreen)
+			end
+		end
 	},
 }
 
@@ -730,7 +734,7 @@ function TrackerScreen.buildCarousel()
 	-- TRAINERS
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.TRAINERS] = {
 		type = TrackerScreen.CarouselTypes.TRAINERS,
-		framesToShow = 360,
+		framesToShow = 420,
 		lockedSpeed = true,
 		canShow = function(self)
 			if not SetupScreen.Buttons.CarouselTrainers.toggleState then

@@ -128,7 +128,13 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 	local COL2_X = 35
 
 	local trainerCount, trainersDefeated = 0, 0
-	for i, trainerId in pairs(route.trainers or {}) do
+	local actualTrainers = {}
+	for _, trainerId in pairs(route.trainers or {}) do
+		if TrainerData.shouldUseTrainer(trainerId) then
+			table.insert(actualTrainers, trainerId)
+		end
+	end
+	for i, trainerId in pairs(actualTrainers) do
 		local trainerGame = Program.readTrainerGameData(trainerId)
 		trainerGame.defeated = Program.hasDefeatedTrainer(trainerId)
 		local trainerInternal = TrainerData.getTrainerInfo(trainerId)
@@ -169,9 +175,9 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 			image = TrainerData.getPortraitIcon(trainerInternal.class),
 			isVisible = function(self) return buttonRow:isVisible() end,
 			box = { -1, -1, 32, 32 },
-			updateSelf = function(self)
-				self.box[1] = buttonRow.box[1] + COL1_X
-				self.box[2] = buttonRow.box[2]
+			alignToBox = function(self, box)
+				self.box[1] = box[1] + COL1_X
+				self.box[2] = box[2]
 			end,
 			draw = function(self, shadowcolor)
 				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -210,9 +216,9 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 			textColor = SCREEN.Colors.highlight,
 			isVisible = function(self) return buttonRow:isVisible() end,
 			box = { -1, -1, 90, 11 },
-			updateSelf = function(self)
-				self.box[1] = buttonRow.box[1] + COL2_X
-				self.box[2] = buttonRow.box[2] - 2 + (Constants.SCREEN.LINESPACING * 0)
+			alignToBox = function(self, box)
+				self.box[1] = box[1] + COL2_X
+				self.box[2] = box[2] - 2 + (Constants.SCREEN.LINESPACING * 0)
 			end,
 		}
 		table.insert(buttonRow.buttonList, nameBtn)
@@ -240,9 +246,9 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 			textColor = SCREEN.Colors.text,
 			isVisible = function(self) return buttonRow:isVisible() end,
 			box = { -1, -1, 90, 11 },
-			updateSelf = function(self)
-				self.box[1] = buttonRow.box[1] + COL2_X
-				self.box[2] = buttonRow.box[2] - 2 + (Constants.SCREEN.LINESPACING * 1)
+			alignToBox = function(self, box)
+				self.box[1] = box[1] + COL2_X
+				self.box[2] = box[2] - 2 + (Constants.SCREEN.LINESPACING * 1)
 			end,
 		}
 		table.insert(buttonRow.buttonList, levelRangeBtn)
@@ -253,9 +259,9 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 			image = Constants.PixelImages.POKEBALL_SMALL,
 			isVisible = function(self) return buttonRow:isVisible() end,
 			box = { -1, -1, 90, 11 },
-			updateSelf = function(self)
-				self.box[1] = buttonRow.box[1] + COL2_X + 2
-				self.box[2] = buttonRow.box[2] - 2 + (Constants.SCREEN.LINESPACING * 2) + 1
+			alignToBox = function(self, box)
+				self.box[1] = box[1] + COL2_X + 2
+				self.box[2] = box[2] - 2 + (Constants.SCREEN.LINESPACING * 2) + 1
 			end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
@@ -283,9 +289,9 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 				textColor = SCREEN.Colors.highlight,
 				isVisible = function(self) return buttonRow:isVisible() end,
 				box = { -1, -1, 90, 11 },
-				updateSelf = function(self)
-					self.box[1] = buttonRow.box[1] + COL2_X + 60
-					self.box[2] = buttonRow.box[2] - 2 + Constants.SCREEN.LINESPACING + 4
+				alignToBox = function(self, box)
+					self.box[1] = box[1] + COL2_X + 60
+					self.box[2] = box[2] - 2 + Constants.SCREEN.LINESPACING + 4
 				end,
 			}
 			table.insert(buttonRow.buttonList, doubleBtn)
@@ -302,8 +308,8 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 	SCREEN.Pager:realignButtonsToGrid(ROW_START_X, ROW_START_Y, 1, 5)
 	for _, buttonRow in ipairs(SCREEN.Pager.Buttons) do
 		for _, button in ipairs (buttonRow.buttonList or {}) do
-			if type(button.updateSelf) == "function" then
-				button:updateSelf()
+			if type(button.alignToBox) == "function" then
+				button:alignToBox(buttonRow.box)
 			end
 		end
 	end
