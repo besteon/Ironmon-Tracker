@@ -52,6 +52,7 @@ Program = {
 		offsetPokemonStatsMaxHpAtk = 0x58,
 		offsetPokemonStatsDefSpe = 0x5C,
 		offsetPokemonStatsSpaSpd = 0x60,
+		offsetOptionsButtonMode = 0x13,
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -1190,10 +1191,10 @@ end
 ---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
 function Program.changeGameSettingForLR()
 	local addr2 = Utils.getSaveBlock2Addr()
-	local currentSetting = Memory.readbyte(addr2 + 0x13)
+	local currentSetting = Memory.readbyte(addr2 + Program.Addresses.offsetOptionsButtonMode)
 	-- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A
 	if currentSetting == 0 then
-		Memory.writebyte(addr2 + 0x13, 1)
+		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, 1)
 	end
 end
 

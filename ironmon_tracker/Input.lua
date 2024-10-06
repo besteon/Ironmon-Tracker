@@ -239,7 +239,7 @@ function Input.infoShortcutPressed()
 		return
 	end
 
-	-- Check what type of contextual info to dispaly (such as early game pivots, safari zone, or trainers on routes)
+	-- Check what type of contextual info to display (such as early game pivots, safari zone, or trainers on routes)
 	local pokemon = Tracker.getPokemon(1, true) or {}
 	if (pokemon.level or 0) < 13 or RouteData.Locations.IsInSafariZone[TrackerAPI.getMapId()] then
 		if RouteData.hasRouteEncounterArea(Program.GameData.mapId, RouteData.EncounterArea.LAND) then
