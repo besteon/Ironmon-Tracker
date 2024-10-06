@@ -947,6 +947,13 @@ function Utils.getSaveBlock1Addr()
 	return Memory.readdword(GameSettings.gSaveBlock1ptr)
 end
 
+function Utils.getSaveBlock2Addr()
+	if GameSettings.game == 1 then -- Ruby/Sapphire don't have ptr
+		return GameSettings.gSaveBlock2
+	end
+	return Memory.readdword(GameSettings.gSaveBlock2ptr)
+end
+
 -- Gets the current game's encryption key
 -- Size is the number of bytes (1/2/4) to return an encryption key of
 function Utils.getEncryptionKey(size)

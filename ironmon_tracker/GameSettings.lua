@@ -504,8 +504,9 @@ function GameSettings.setEwramAddresses()
 		-- RS: gAbilitiesPerBank
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
 
-		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
+		-- RS uses saveblock directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
+		gSaveBlock2 = { 0x02024ea4, nil, nil },
 		gameFlagsOffset = { 0x1220, 0x1270, 0xEE0 },
 		gameRegItemOffset = { 0x496, 0x496, 0x296 },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
