@@ -538,18 +538,22 @@ MGBA.OptionMap = {
 		getText = function() return Resources.MGBA.OptionDevBranchUpdates end,
 	},
 	[11] = {
+		optionKey = "Override Button Mode to LR",
+		getText = function() return Resources.MGBA.OptionOverrideButtonModeLR end,
+	},
+	[12] = {
 		optionKey = "Toggle view",
 		getText = function() return Resources.MGBA.OptionSwapViewedPokemon end,
 	},
-	[12] = {
+	[13] = {
 		optionKey = "Cycle through stats",
 		getText = function() return Resources.MGBA.OptionCycleThroughStats end,
 	},
-	[13] = {
+	[14] = {
 		optionKey = "Mark stat",
 		getText = function() return Resources.MGBA.OptionMarkStat end,
 	},
-	[14] = {
+	[15] = {
 		optionKey = "Load next seed",
 		getText = function() return Resources.MGBA.OptionQuickload end,
 	},

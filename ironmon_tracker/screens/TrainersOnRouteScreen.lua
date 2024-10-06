@@ -136,7 +136,6 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 	end
 	for i, trainerId in pairs(actualTrainers) do
 		local trainerGame = Program.readTrainerGameData(trainerId)
-		trainerGame.defeated = Program.hasDefeatedTrainer(trainerId)
 		local trainerInternal = TrainerData.getTrainerInfo(trainerId)
 		table.insert(SCREEN.Data.trainerList, trainerGame)
 

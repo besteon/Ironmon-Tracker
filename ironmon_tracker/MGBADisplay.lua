@@ -1,7 +1,7 @@
 MGBADisplay = {
 	OptionValues = {
 		GENERAL_SETUP = 1,
-		CONTROLS = 11,
+		CONTROLS = 12,
 		GAMEPLAY = 20,
 		NEW_RUNS = 35,
 		LANGUAGE = 40,

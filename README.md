@@ -62,11 +62,9 @@ Trackers for other games:
 
 ## Latest Changes
 
-### Stream Connect for Twitch & Streamerbot
+### Trainer Info and New Tracker Controls
 
-Read more about this cool new feature here: [Stream Connect Guide](https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide)
-
-![The Stream Connect status screen, showing the Tracker successfully connected and a few settings.](https://github.com/besteon/Ironmon-Tracker/assets/4258818/744bd5c6-3141-4d10-8e43-00746099951d)
+![The Trainer card info screen. The trainer's name, location, team, IVs, and AI script are displayed.](https://github.com/user-attachments/assets/9f22d936-f20a-4a52-bfe9-be25dcb3c713)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

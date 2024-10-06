@@ -52,6 +52,7 @@ Program = {
 		offsetPokemonStatsMaxHpAtk = 0x58,
 		offsetPokemonStatsDefSpe = 0x5C,
 		offsetPokemonStatsSpaSpd = 0x60,
+		offsetOptionsButtonMode = 0x13,
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -815,7 +816,8 @@ end
 ---@return table trainer A `Program.GameTrainer` object
 function Program.readTrainerGameData(trainerId)
 	local trainer = Program.GameTrainer:new({
-		trainerId = trainerId
+		trainerId = trainerId,
+		defeated = Program.hasDefeatedTrainer(trainerId),
 	})
 
 	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
@@ -1190,10 +1192,10 @@ end
 ---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
 function Program.changeGameSettingForLR()
 	local addr2 = Utils.getSaveBlock2Addr()
-	local currentSetting = Memory.readbyte(addr2 + 0x13)
+	local currentSetting = Memory.readbyte(addr2 + Program.Addresses.offsetOptionsButtonMode)
 	-- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A
 	if currentSetting == 0 then
-		Memory.writebyte(addr2 + 0x13, 1)
+		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, 1)
 	end
 end
 
@@ -1508,7 +1510,8 @@ end
 
 ---A Trainer data struct read in from game memory
 Program.GameTrainer = {
-	trainerId = 0,
+	trainerId = 0, -- The internal ID number of the trainer
+	defeated = false, -- If the player has defeated this trainer; requires a separate game data read
 	-- /*0x00*/ u8 partyFlags;
 	partyFlags = 0,
 	-- /*0x01*/ u8 trainerClass;

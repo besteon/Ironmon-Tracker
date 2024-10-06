@@ -223,14 +223,25 @@ function Options.getIconSet()
 end
 
 local function alertPopupForLR()
-	local form = ExternalUI.BizForms.createForm("Important Notice!", 400, 210)
-
+	local headerMsg = "Important Notice!"
 	local notificationMsg1 = "To allow for new controller bindings, 'L' and 'R', the Tracker will automatically change an in-game option."
 	local notificationMsg2 = 'The change: START > OPTIONS > Button Mode from "HELP" to "LR"'
 	local notificationMsg3 = string.format(
 		"If this disrupts your normal gameplay, you can revert this automatic override in Setup > Controls > [X] %s.",
 		Resources.SetupScreen.OptionOverrideButtonModeLR
 	)
+
+	-- Print instructions if on MGBA
+	if not Main.IsOnBizhawk() then
+		print(string.rep("- ", 20))
+		print(headerMsg)
+		print(notificationMsg1)
+		print(" - " .. notificationMsg2)
+		print(notificationMsg3)
+		return
+	end
+	local form = ExternalUI.BizForms.createForm(headerMsg, 400, 210)
+
 	form:createLabel(notificationMsg1, 20, 20, 360, 40)
 	form:createLabel(notificationMsg2, 20, 65, 360, 20)
 	form:createLabel(notificationMsg3, 20, 95, 360, 40)
