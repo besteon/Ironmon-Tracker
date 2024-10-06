@@ -415,20 +415,7 @@ function EventData.getPivots(params)
 	local showSafari = RouteData.Locations.IsInSafariZone[TrackerAPI.getMapId()] or Utils.containsText(params, "safari", true)
 	local MAX_MONS_PER_ROUTE = 4 -- for safari, limit # mons shown per route area
 
-	local mapIds
-	if showSafari then
-		mapIds = {}
-		for id, _ in pairs(RouteData.Locations.IsInSafariZone or {}) do
-			table.insert(mapIds, id)
-		end
-	else
-		if GameSettings.game == 3 then -- FRLG
-			mapIds = { 89, 90, 110, 117 } -- Route 1, 2, 22, Viridian Forest
-		else -- RSE
-			local offset = GameSettings.versioncolor == "Emerald" and 0 or 1 -- offset all "mapId > 107" by +1
-			mapIds = { 17, 18, 19, 20, 32, 135 + offset } -- Route 101, 102, 103, 104, 116, Petalburg Forest
-		end
-	end
+	local mapIds = RouteData.getPivotOrSafariRouteIds(showSafari)
 
 	local info = {}
 	local function safariSort(a,b) return a.lv > b.lv or (a.lv == b.lv and a.pID < b.pID) end
