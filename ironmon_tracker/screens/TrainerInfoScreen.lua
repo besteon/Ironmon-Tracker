@@ -331,8 +331,13 @@ function TrainerInfoScreen.buildScreen(trainerId)
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
 				local text = self:getCustomText()
 				local centerX = Utils.getCenteredTextX(text, w) - 1
+				-- Draw a pokeball and the mon's level
 				Drawing.drawImageAsPixels(self.image, x + w/2 - 5, y + 3, self.iconColors, shadowcolor)
 				Drawing.drawText(x + centerX, y + h - 12, text, textColor, shadowcolor)
+				-- Draw a little held item icon if the pokemon is holding one (don't reveal actual item)
+				if pokemon.heldItem ~= 0 then
+					Drawing.drawImageAsPixels(Constants.PixelImages.HELD_ITEM, x + w - 6, y + 1)
+				end
 			end,
 		}
 
