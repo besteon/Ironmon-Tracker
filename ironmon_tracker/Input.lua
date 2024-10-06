@@ -232,12 +232,23 @@ function Input.checkJoypadInput()
 end
 
 function Input.infoShortcutPressed()
-	-- At current, don't activate if inside a battle or in menus (Select in-game reorders stuff) or using MGBA
-	if Battle.inActiveBattle() or Program.isInStartMenu() or not Main.IsOnBizhawk() then
+	-- Only open an info screen for Bizhawk if on the base tracker screen, to prevent opening while changing settings or viewing other pages
+	if not Main.IsOnBizhawk() or Program.currentScreen ~= TrackerScreen then
 		return
 	end
-	-- Only open an info screen if on the base tracker screen, to prevent opening while changing settings or viewing other pages
-	if Program.currentScreen ~= TrackerScreen then
+
+	-- If in battle, lookup on the opposing Pokémon or enemy Trainer
+	if Battle.inActiveBattle() then
+		if Battle.isWildEncounter then
+			local pokemon = Tracker.getPokemon(1, false) or {}
+			if PokemonData.isValid(pokemon.pokemonID) then
+				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
+			end
+		else
+			if TrainerInfoScreen.buildScreen(Battle.opposingTrainerId) then
+				Program.changeScreenView(TrainerInfoScreen)
+			end
+		end
 		return
 	end
 
