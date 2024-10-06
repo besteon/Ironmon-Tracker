@@ -195,6 +195,19 @@ function Input.checkJoypadInput()
 		Input.infoShortcutPressed()
 	end
 
+	-- If both next and previous paging buttons pressed, perform a "Go Back" to the previous screen
+	if joypad[nextBtn] and joypad[previousBtn] and not (Input.prevJoypadInput[nextBtn] and Input.prevJoypadInput[previousBtn]) then
+		if Program.currentScreen and Program.currentScreen.Buttons then
+			local backBtn = Program.currentScreen.Buttons.Back or {}
+			if type(backBtn.onClick) == "function" then
+				backBtn:onClick()
+			end
+			if Program.currentScreen == InfoScreen then
+				Program.currentScreen.Buttons.BackTop:onClick()
+			end
+		end
+	end
+
 	if not Main.loadNextSeed and Input.allowNewRunCombo then
 		local allPressed = true
 		for button in string.gmatch(quickloadBtns, '([^,%s]+)') do
@@ -223,6 +236,10 @@ function Input.infoShortcutPressed()
 	if Battle.inActiveBattle() or Program.isInStartMenu() or not Main.IsOnBizhawk() then
 		return
 	end
+	-- Only open an info screen if on the base tracker screen, to prevent opening while changing settings or viewing other pages
+	if Program.currentScreen ~= TrackerScreen then
+		return
+	end
 
 	-- NOTE: No longer need this by default, as the Info Shortcut is 'R'
 	-- Only activate "SELECT" shortcut if no in-game key item is bound to SELECT
@@ -233,11 +250,6 @@ function Input.infoShortcutPressed()
 	-- 		return
 	-- 	end
 	-- end
-
-	-- Only open the screen if not already there; can't also use L/R as the close button, cause paging next/prev
-	if Program.currentScreen == InfoScreen or Program.currentScreen == TrainersOnRouteScreen or Program.currentScreen == TrainerInfoScreen then
-		return
-	end
 
 	-- Check what type of contextual info to display (such as early game pivots, safari zone, or trainers on routes)
 	local pokemon = Tracker.getPokemon(1, true) or {}
