@@ -229,7 +229,7 @@ ScreenResources{
 		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
 		PromptEditControllerLoadNext = "Load new seed", -- NEEDS TRANSLATION
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
-		PromptEditControllerInfoShortcut = "Info shortcut", -- NEEDS TRANSLATION
+		PromptEditControllerInfoShortcut = "Trainers / Pivots", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
 		PromptEditControllerNextPage = "Next page", -- NEEDS TRANSLATION
