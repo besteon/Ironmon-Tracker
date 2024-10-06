@@ -219,8 +219,8 @@ function Input.checkJoypadInput()
 end
 
 function Input.infoShortcutPressed()
-	-- At current, don't activate if inside a battle or in menus (Select in-game reorders stuff)
-	if Battle.inActiveBattle() or Program.isInStartMenu() then
+	-- At current, don't activate if inside a battle or in menus (Select in-game reorders stuff) or using MGBA
+	if Battle.inActiveBattle() or Program.isInStartMenu() or not Main.IsOnBizhawk() then
 		return
 	end
 

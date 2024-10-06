@@ -777,6 +777,7 @@ ScreenResources{
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
 		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
