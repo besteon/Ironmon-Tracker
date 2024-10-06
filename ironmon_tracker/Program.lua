@@ -3,6 +3,7 @@ Program = {
 	previousScreens = {}, -- breadcrumbs for clicking the Back button
 	inStartMenu = false,
 	inCatchingTutorial = false,
+	hasCheckedGameSettings = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
 	lastActiveTimestamp = 0,
@@ -289,6 +290,7 @@ function Program.initialize()
 	-- Reset variables when a new game is loaded
 	Program.inStartMenu = false
 	Program.inCatchingTutorial = false
+	Program.hasCheckedGameSettings = false
 	Program.hasCompletedTutorial = false
 	Program.lastActiveTimestamp = os.time()
 	Program.Frames.waitToDraw = 1
@@ -311,6 +313,12 @@ function Program.initialize()
 	Program.Pedometer:initialize()
 	Program.GameTimer:initialize()
 	Program.AutoSaver:updateSaveCount()
+
+	Program.addFrameCounter("Program:DelayedStartup", 60, Program.delayedStartup, 1, true)
+end
+
+function Program.delayedStartup()
+	Options.alertImportantChanges()
 end
 
 function Program.mainLoop()
@@ -413,6 +421,13 @@ function Program.update()
 				end
 			end
 		end
+
+		if SetupScreen.inProcessOfBinding() then
+			local inputsPressed = SetupScreen.checkCurrentJoypadInput()
+			if #inputsPressed > 0 then
+				Program.redraw(true)
+			end
+		end
 	end
 
 	-- Don't bother reading game data before a game even begins
@@ -436,6 +451,13 @@ function Program.update()
 
 				if Network.isConnected() then
 					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
+				end
+			end
+
+			if not Program.hasCheckedGameSettings then
+				Program.hasCheckedGameSettings = true
+				if Options["Override Button Mode to LR"] then
+					Program.changeGameSettingForLR()
 				end
 			end
 
@@ -1163,6 +1185,16 @@ function Program.isInStartMenu()
 
 	local startMenuWindowId = Memory.readbyte(GameSettings.sStartMenuWindowId)
 	return startMenuWindowId == 1
+end
+
+---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
+function Program.changeGameSettingForLR()
+	local addr2 = Utils.getSaveBlock2Addr()
+	local currentSetting = Memory.readbyte(addr2 + 0x13)
+	-- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A
+	if currentSetting == 0 then
+		Memory.writebyte(addr2 + 0x13, 1)
+	end
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.

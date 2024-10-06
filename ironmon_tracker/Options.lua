@@ -21,6 +21,7 @@ Options = {
 	["PC heals count downward"] = true,
 	["Auto save tracked game data"] = true,
 	["Pokemon icon set"] = "1",
+	["Override Button Mode to LR"] = true,
 	["Show last damage calcs"] = true,
 	["Reveal info if randomized"] = true,
 	["Show experience points bar"] = false,
@@ -48,6 +49,9 @@ Options = {
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
 
+	-- In rare situations, new options get added that the user should be informed about (true: requires alerting, set to false after)
+	["AlertNewOptionLR"] = true, -- This is for the "Override Button Mode to LR" setting; allowing Tracker to change data in game
+
 	-- (Currently unused) Determines whether this is the first time the Tracker is opened/used
 	FIRST_RUN = true,
 }
@@ -56,7 +60,7 @@ Options = {
 Options.CONTROLS = {
 	["Load next seed"] = "A, B, Start",
 	["Toggle view"] = "Start",
-	["Info shortcut"] = "Select",
+	["Info shortcut"] = "R",
 	["Cycle through stats"] = "L",
 	["Mark stat"] = "R",
 	["Next page"] = "R",
@@ -216,4 +220,38 @@ end
 function Options.getIconSet()
 	local iconSetIndex = tonumber(Options["Pokemon icon set"]) or 1
 	return Options.IconSetMap[iconSetIndex] or Options.IconSetMap[1]
+end
+
+local function alertPopupForLR()
+	local form = ExternalUI.BizForms.createForm("Important Notice!", 400, 210)
+
+	local notificationMsg1 = "To allow for new controller bindings, 'L' and 'R', the Tracker will automatically change an in-game option."
+	local notificationMsg2 = 'The change: START > OPTIONS > Button Mode from "HELP" to "LR"'
+	local notificationMsg3 = string.format(
+		"If this disrupts your normal gameplay, you can revert this automatic override in Setup > Controls > [X] %s.",
+		Resources.SetupScreen.OptionOverrideButtonModeLR
+	)
+	form:createLabel(notificationMsg1, 20, 20, 360, 40)
+	form:createLabel(notificationMsg2, 20, 65, 360, 20)
+	form:createLabel(notificationMsg3, 20, 95, 360, 40)
+
+	form:createButton(Resources.AllScreens.OK, 85, 135, function()
+		form:destroy()
+	end)
+	form:createButton("View Controller Settings", 180, 135, function()
+		SetupScreen.currentTab = SetupScreen.Tabs.Controls
+		if Program.currentScreen ~= SetupScreen then
+			SetupScreen.previousScreen = Program.currentScreen
+		end
+		Program.changeScreenView(SetupScreen)
+		form:destroy()
+	end)
+end
+
+function Options.alertImportantChanges()
+	if Options["AlertNewOptionLR"] then
+		Options["AlertNewOptionLR"] = false
+		Main.SaveSettings(true)
+		alertPopupForLR()
+	end
 end

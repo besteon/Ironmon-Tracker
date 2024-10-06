@@ -38,7 +38,11 @@ QuickloadScreen.Buttons = {
 			local comboFormatted = comboRaw:gsub(" ", ""):gsub(",", " + ")
 			Drawing.drawText(self.box[1] + offsetX + 5, self.box[2], comboFormatted, Theme.COLORS["Intermediate text"], shadowcolor)
 		end,
-		onClick = function() SetupScreen.openEditControlsWindow() end
+		onClick = function()
+			SetupScreen.currentTab = SetupScreen.Tabs.Controls
+			SetupScreen.previousScreen = QuickloadScreen
+			Program.changeScreenView(SetupScreen)
+		end
 	},
 	PremadeRoms = {
 		type = Constants.ButtonTypes.CHECKBOX,

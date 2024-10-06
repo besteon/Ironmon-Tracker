@@ -10,6 +10,8 @@ Input = {
 	resumeJoypad = false, -- Set to true to enable corresponding input on the next frame
 }
 
+Input.OrderedControllerInputs = { "A", "B",  "Select",  "Start",  "Right",  "Left",  "Up",  "Down",  "R",  "L" }
+
 Input.StatHighlighter = {
 	statIndex = 1, -- Value between 1 and 6 (for each stat stage)
 	framesSinceInput = 150,
@@ -135,6 +137,11 @@ function Input.getJoypadInputFormatted()
 end
 
 function Input.checkJoypadInput()
+	-- Don't process controller buttons while rebinding them
+	if SetupScreen.inProcessOfBinding() then
+		return
+	end
+
 	local joypad = Input.getJoypadInputFormatted()
 	local toggleViewBtn = Options.CONTROLS["Toggle view"] or ""
 	local infoShortcutBtn = Options.CONTROLS["Info shortcut"] or ""
