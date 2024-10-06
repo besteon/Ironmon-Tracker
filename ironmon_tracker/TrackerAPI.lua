@@ -107,6 +107,42 @@ function TrackerAPI.getOpponentTrainerId()
 	return Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 end
 
+---Returns a `Program.GameTrainer` table of Trainer data from the game
+---@param trainerId? number Optional, the trainerId to lookup; default: the current trainer being battled, if any
+---@return table|nil trainer
+function TrackerAPI.getTrainerGameData(trainerId)
+	trainerId = trainerId or TrackerAPI.getOpponentTrainerId()
+	if trainerId <= 0 then
+		return nil
+	end
+	local trainer = Program.readTrainerGameData(trainerId) or {}
+	return trainer
+end
+
+---Returns a table list of `Program.GameTrainer` Trainer data objects from the game
+---@param routeId? number Optional, the routeId to lookup; default: the current route the player is on, if any
+---@return table|nil trainerList
+function TrackerAPI.getTrainersOnRoute(routeId)
+	routeId = routeId or TrackerAPI.getMapId()
+	local trainerList = {}
+	if not RouteData.hasRoute(routeId) then
+		return trainerList
+	end
+	-- Filter out unused trainers, such as duplicate rivals
+	local actualTrainers = {}
+	for _, trainerId in pairs(RouteData.Info[routeId].trainers or {}) do
+		if TrainerData.shouldUseTrainer(trainerId) then
+			table.insert(actualTrainers, trainerId)
+		end
+	end
+	-- Get game data for each trainer known on the route
+	for _, trainerId in pairs(actualTrainers) do
+		local trainer = TrackerAPI.getTrainerGameData(trainerId)
+		table.insert(trainerList, trainer)
+	end
+	return trainerList
+end
+
 ---Returns the outcome status of the last battle (or current battle)
 ---@return number outcome Returns one of: 0 = In battle, 1 = Player won, 2 = Player lost, 4 = Fled, 7 = Caught
 function TrackerAPI.getBattleOutcome()

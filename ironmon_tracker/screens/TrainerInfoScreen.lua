@@ -208,8 +208,6 @@ function TrainerInfoScreen.buildScreen(trainerId)
 	SCREEN.Buttons.TrainerIcon.image = TrainerData.getPortraitIcon(trainerInternal.class)
 
 	-- Add new data variables to the trainerGame object
-	trainerGame.defeated = Program.hasDefeatedTrainer(trainerId)
-
 	-- COMBINED NAME AND CLASS
 	local trainerName = trainerGame.trainerName
 	local trainerClass = trainerGame.trainerClass

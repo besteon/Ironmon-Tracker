@@ -816,7 +816,8 @@ end
 ---@return table trainer A `Program.GameTrainer` object
 function Program.readTrainerGameData(trainerId)
 	local trainer = Program.GameTrainer:new({
-		trainerId = trainerId
+		trainerId = trainerId,
+		defeated = Program.hasDefeatedTrainer(trainerId),
 	})
 
 	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
@@ -1509,7 +1510,8 @@ end
 
 ---A Trainer data struct read in from game memory
 Program.GameTrainer = {
-	trainerId = 0,
+	trainerId = 0, -- The internal ID number of the trainer
+	defeated = false, -- If the player has defeated this trainer; requires a separate game data read
 	-- /*0x00*/ u8 partyFlags;
 	partyFlags = 0,
 	-- /*0x01*/ u8 trainerClass;
