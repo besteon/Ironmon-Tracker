@@ -114,8 +114,8 @@ ScreenResources{
 		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
-		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
-		BattleSeenOnTrainers = "Seen on trainers", -- NEEDS TRANSLATION
+		BattleSeenInTheWild = "Seen (Wild)", -- NEEDS TRANSLATION
+		BattleSeenOnTrainers = "Seen (Trainer)", -- NEEDS TRANSLATION
 		BattleTeam = "Team", -- NEEDS TRANSLATION
 		StatHP = "HP", -- NEEDS TRANSLATION
 		StatATK = "ATK", -- NEEDS TRANSLATION
@@ -197,6 +197,7 @@ ScreenResources{
 		Title = "Tracker Setup", -- NEEDS TRANSLATION
 		TabGeneral = "General", -- NEEDS TRANSLATION
 		TabCarousel = "Carousel", -- NEEDS TRANSLATION
+		TabControls = "Controls", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
@@ -205,7 +206,6 @@ ScreenResources{
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
-		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
 		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
@@ -216,12 +216,22 @@ ScreenResources{
 		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
+		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
+		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
+		LabelCurrentControllerBinding = "Current controller binding", -- NEEDS TRANSLATION
+		LabelNewControllerBinding = "New controller binding", -- NEEDS TRANSLATION
+		LabelWaiting = "Waiting", -- NEEDS TRANSLATION
+		LabelPressControllerButtons = "Press controller button(s) to bind.", -- NEEDS TRANSLATION
+		LabelButtonsAllowed = "Buttons allowed", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
 		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
-		PromptEditControllerLoadNext = "Load next seed", -- NEEDS TRANSLATION
+		PromptEditControllerLoadNext = "Load new seed", -- NEEDS TRANSLATION
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
+		PromptEditControllerInfoShortcut = "Trainers / Pivots", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
+		PromptEditControllerNextPage = "Next page", -- NEEDS TRANSLATION
+		PromptEditControllerPreviousPage = "Previous page", -- NEEDS TRANSLATION
 		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
 	},
 	ExtrasScreen = {
@@ -411,6 +421,13 @@ ScreenResources{
 		LabelSeenEncounters = "Pokémon encounters", -- NEEDS TRANSLATION
 		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
 		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
+	},
+	TrainerInfoScreen = {
+		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
+		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
+		LabelUsableItems = "Usable Items", -- NEEDS TRANSLATION
+		LabelDouble = "Double", -- NEEDS TRANSLATION
+		LabelBattle = "Battle!", -- NEEDS TRANSLATION
 	},
 	CustomExtensionsScreen = {
 		Title = "Custom Extensions", -- NEEDS TRANSLATION
@@ -620,9 +637,9 @@ ScreenResources{
 		CMD_Dungeon_Name = "Dungeon Info",
 		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
 		CMD_Unfought_Name = "Unfought Trainers",
-		CMD_Unfought_Help = "[dungeon] [sevii]> Displays a list of areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' to include partially completed dungeons.)",
+		CMD_Unfought_Help = "[dungeon] [sevii] > Displays a list of areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' to include partially completed dungeons.)",
 		CMD_Pivots_Name = "Pivots Seen",
-		CMD_Pivots_Help = "> Displays known early game wild encounters for an area.",
+		CMD_Pivots_Help = "[safari] > Displays known early game wild encounters for an area. (Add param 'safari' for high-level encounters from Safari Zone).",
 		CMD_Revo_Name = "Pokémon Random Evolutions",
 		CMD_Revo_Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		CMD_Coverage_Name = "Move Coverage Effectiveness",
@@ -758,6 +775,7 @@ ScreenResources{
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
 		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION

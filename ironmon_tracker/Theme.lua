@@ -391,6 +391,25 @@ function Theme.refreshThemePreview()
 	Theme.importThemeFromText(currentThemeCode, false)
 end
 
+function Theme.isValidThemeCode(themeCode)
+	-- A valid Theme code has at minimum 11 total color codes (hexidecimal @ 7 chars each including spaces), bits at the end are optional
+	local MIN_THEME_CODE_LENGTH = 11 * 7
+	if type(themeCode) ~= "string" or themeCode:len() < MIN_THEME_CODE_LENGTH then
+		return false
+	end
+
+	-- Verify the Theme code is correct and each color code can be converted to a hexidecimal value
+	for colorCode in (string.gmatch(themeCode, "[^%s]+") or {}) do
+		if colorCode:len() == 6 then
+			local color = tonumber(colorCode, 16) or -1
+			if color < 0 or color > 0xFFFFFF then
+				return false
+			end
+		end
+	end
+	return true
+end
+
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
 -- applyTheme: if false, this won't replace current theme, but set it as the preview for the mini tracker preview
@@ -400,47 +419,37 @@ function Theme.importThemeFromText(themeCode, applyTheme)
 	end
 
 	themeCode = Theme.formatAsProperThemeCode(themeCode)
-
-	-- A valid string has at minimum N total hex codes (7 chars each including spaces) and a two bits for boolean options
-	local totalHexCodes = 11
-
-	local themeCodeLen = string.len(themeCode)
-	if themeCodeLen < (totalHexCodes * 7) then
+	if not Theme.isValidThemeCode(themeCode) then
 		return false
 	end
 
-	-- Verify the theme config is correct and can be parsed (each entry should be a numerical value)
-	local numHexCodes = 0
-	local theme_colors = {}
-	for color_text in string.gmatch(themeCode, "[^%s]+") do
-		if color_text ~= nil and string.len(color_text) == 6 then
-			local color = tonumber(color_text, 16)
-			if color == nil or color < 0x000000 or color > 0xFFFFFF then
-				return false
-			end
-
-			numHexCodes = numHexCodes + 1
-			theme_colors[numHexCodes] = color_text
+	-- Parse the color codes (the hex codes) from the full Theme code
+	local numColorCodes = 0
+	local colorCodes = {}
+	for hexCode in (string.gmatch(themeCode, "[^%s]+") or {}) do
+		if hexCode:len() == 6 then
+			numColorCodes = numColorCodes + 1
+			colorCodes[numColorCodes] = hexCode
 		end
 	end
 
-	-- Apply as much of the imported theme config to our Theme as possible (must remain compatible with gen4/gen5 Tracker), then load it
-	local index = 1
-	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first [totalHexCodes] hex codes
-		if theme_colors[index] ~= nil then
-			local colorValue = 0xFF000000 + tonumber(theme_colors[index], 16)
+	-- Apply as much of the imported Theme code as possible, must remain compatible with gen4/gen5 Tracker, then load it
+	for i, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first [totalHexCodes] hex codes
+		if colorCodes[i] ~= nil then
+			local colorValue = 0xFF000000 + tonumber(colorCodes[i], 16)
 			if applyTheme then
 				Theme.COLORS[colorkey] = colorValue
 			else
 				Theme.PresetPreviewColors[colorkey] = colorValue
 			end
 		end
-		index = index + 1
 	end
 
 	-- Apply as many boolean options as possible, if they're available
-	if themeCodeLen >= numHexCodes * 7 + 1 then
-		local enableMoveTypes = not (string.sub(themeCode, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
+	local themeCodeLen = themeCode:len()
+	local TAIL_OF_CODE = numColorCodes * 7
+	if themeCodeLen >= TAIL_OF_CODE + 1 then
+		local enableMoveTypes = not (string.sub(themeCode, TAIL_OF_CODE + 1, TAIL_OF_CODE + 1) == "0")
 		if applyTheme then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
 			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
@@ -449,8 +458,8 @@ function Theme.importThemeFromText(themeCode, applyTheme)
 		end
 	end
 
-	if themeCodeLen >= numHexCodes * 7 + 3 then
-		local enableTextShadows = not (string.sub(themeCode, numHexCodes * 7 + 3, numHexCodes * 7 + 3) == "0")
+	if themeCodeLen >= TAIL_OF_CODE + 3 then
+		local enableTextShadows = not (string.sub(themeCode, TAIL_OF_CODE + 3, TAIL_OF_CODE + 3) == "0")
 		if applyTheme then
 			Theme.DRAW_TEXT_SHADOWS = enableTextShadows
 			Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
@@ -500,6 +509,50 @@ function Theme.exportThemeToText()
 	themeCode = themeCode .. Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, "1", "0") .. " " .. Utils.inlineIf(Theme.DRAW_TEXT_SHADOWS, "1", "0")
 
 	return string.upper(themeCode)
+end
+
+---Saves a Theme code (or current theme) to the ThemeLibrary, with a unique name
+---@param themeName string
+---@param themeCode? string Optional, defaults to currently loaded theme
+---@return boolean success
+function Theme.saveThemeToLibrary(themeName, themeCode)
+	themeName = themeName or Utils.newGUID()
+	themeCode = Theme.formatAsProperThemeCode(themeCode or Theme.exportThemeToText())
+
+	if not Theme.isValidThemeCode(themeCode) then
+		return false
+	end
+
+	-- Check if there already exists a theme with the same name but different code
+	local themeExists = false
+	for _, existingTheme in ipairs(Theme.Presets) do
+		if existingTheme:getText() == themeName then
+			-- Don't add, remove, or change if the theme exists exactly as-is
+			if existingTheme.code == themeCode then
+				return true
+			else
+				themeExists = true
+				-- Remove the old theme from the presets file (will get added back in later)
+				FileManager.removeCustomThemeFromFile(themeName, existingTheme.code)
+				-- Update the old theme with the new code
+				existingTheme.code = themeCode
+				break
+			end
+		end
+	end
+	-- Save the theme to the Custom Themes file
+	FileManager.addCustomThemeToFile(themeName, themeCode)
+
+	-- If the theme doesn't already exist there, add to the Theme Preset list
+	if not themeExists then
+		local newThemePreset = {
+			getText = function(self) return themeName end,
+			code = themeCode
+		}
+		table.insert(Theme.Presets, newThemePreset)
+	end
+
+	return true
 end
 
 ---Returns a the name of a theme if it exist in the theme library; if it doesn't, returns "Custom"
@@ -599,18 +652,16 @@ function Theme.openSaveCurrentThemeWindow()
 			return
 		end
 
-		local existingPreset = nil
-		local existingPresetIndex = nil
+		local existingThemeIndex = nil
 		for index, themePreset in ipairs(Theme.Presets) do
 			if themePreset:getText() == themeName then
-				existingPreset = themePreset
-				existingPresetIndex = index
+				existingThemeIndex = index
 				break
 			end
 		end
 
 		-- Check a few conditions that would prevent the user from using a particular Theme name
-		if existingPresetIndex == Theme.PresetsIndex.ACTIVE or existingPresetIndex == Theme.PresetsIndex.DEFAULT then
+		if existingThemeIndex == Theme.PresetsIndex.ACTIVE or existingThemeIndex == Theme.PresetsIndex.DEFAULT then
 			-- Don't allow importing "Active Theme (Custom)" or "Default Theme" as that is reserved
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptCantUseReserved)
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
@@ -620,34 +671,17 @@ function Theme.openSaveCurrentThemeWindow()
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptCantUseConsecutiveChars)
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
-		elseif existingPreset ~= nil and ExternalUI.BizForms.getText(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
+		elseif existingThemeIndex ~= nil and ExternalUI.BizForms.getText(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
 			-- If the Theme name is already in use, warn the user first
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptNameAlreadyInUse)
 			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
 			return
 		end
+		-- Otherwise, no warning text needed
 		Theme.Manager.SaveNewWarning = nil
 		Theme.Manager.SaveNewConfirm = nil
 
-		local themeCode = Theme.exportThemeToText()
-
-		-- If a theme with that name already exists, replace it; otherwise add a reference for it
-		if existingPreset ~= nil then
-			-- Remove the old theme from the presets file
-			FileManager.removeCustomThemeFromFile(themeName, existingPreset.code)
-			-- Update the old theme with the new code
-			existingPreset.code = themeCode
-		else
-			-- Create the new theme and add it to the library list
-			existingPreset = {
-				getText = function(self) return themeName end,
-				code = themeCode
-			}
-			table.insert(Theme.Presets, existingPreset)
-		end
-
-		-- Add the saved theme to the presets file and refresh
-		FileManager.addCustomThemeToFile(themeName, themeCode)
+		Theme.saveThemeToLibrary(themeName)
 		Theme.refreshThemePreview()
 		form:destroy()
 	end)

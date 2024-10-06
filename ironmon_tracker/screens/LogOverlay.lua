@@ -8,6 +8,7 @@ LogOverlay = {
 	tabHeight = 12,
 	isDisplayed = false,
 	isGameOver = false, -- Set to true when game is over, so we known to show game over screen if X is pressed
+	viewedLog = "None", -- use to note if the opened log is the current seed, previous seed, or other
 }
 
 -- Dimensions of the screen space occupied by the currentl visible Tab
@@ -244,6 +245,7 @@ LogOverlay.NavFilters = {
 function LogOverlay.initialize()
 	LogOverlay.isDisplayed = false
 	LogOverlay.isGameOver = false
+	LogOverlay.viewedLog = "None"
 
 	LogOverlay.TabHistory = {}
 	LogOverlay.Windower.currentTab = nil
@@ -443,6 +445,7 @@ function LogOverlay.drawScreen()
 end
 
 function LogOverlay.viewLogFile(postfix)
+	LogOverlay.viewedLog = postfix or "Other"
 	local logpath = LogOverlay.getLogFileAutodetected(postfix)
 
 	-- Check if there exists a parsed log with the same postfix as the one being requested

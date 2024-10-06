@@ -538,18 +538,22 @@ MGBA.OptionMap = {
 		getText = function() return Resources.MGBA.OptionDevBranchUpdates end,
 	},
 	[11] = {
+		optionKey = "Override Button Mode to LR",
+		getText = function() return Resources.MGBA.OptionOverrideButtonModeLR end,
+	},
+	[12] = {
 		optionKey = "Toggle view",
 		getText = function() return Resources.MGBA.OptionSwapViewedPokemon end,
 	},
-	[12] = {
+	[13] = {
 		optionKey = "Cycle through stats",
 		getText = function() return Resources.MGBA.OptionCycleThroughStats end,
 	},
-	[13] = {
+	[14] = {
 		optionKey = "Mark stat",
 		getText = function() return Resources.MGBA.OptionMarkStat end,
 	},
-	[14] = {
+	[15] = {
 		optionKey = "Load next seed",
 		getText = function() return Resources.MGBA.OptionQuickload end,
 	},
@@ -1332,7 +1336,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'DUNGEON() | DUNGEON "name"',
 		usageExample = 'DUNGEON "Rock Tunnel"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getDungeon(params))
+			printf(" %s", EventData.getDungeon(params))
 		end,
 	},
 	["UNFOUGHT"] = {
@@ -1340,7 +1344,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'UNFOUGHT() | UNFOUGHT "dungeon"',
 		usageExample = 'UNFOUGHT()',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getUnfoughtTrainers(params))
+			printf(" %s", EventData.getUnfoughtTrainers(params))
 		end,
 	},
 	["PIVOTS"] = {
@@ -1348,7 +1352,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'PIVOTS()',
 		usageExample = 'PIVOTS()',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getPivots(params))
+			printf(" %s", EventData.getPivots(params))
 		end,
 	},
 	["REVO"] = {
@@ -1356,7 +1360,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'REVO() | REVO "name"',
 		usageExample = 'REVO "Pikachu"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getRevo(params))
+			printf(" %s", EventData.getRevo(params))
 		end,
 	},
 	["COVERAGE"] = {
@@ -1364,7 +1368,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'COVERAGE() | COVERAGE "type-list"',
 		usageExample = 'COVERAGE "water fire psychic"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getCoverage(params))
+			printf(" %s", EventData.getCoverage(params))
 		end,
 	},
 	["HEALS"] = {
@@ -1372,7 +1376,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'HEALS() | HEALS "category"',
 		usageExample = 'HEALS "status"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getHeals(params))
+			printf(" %s", EventData.getHeals(params))
 		end,
 	},
 	["TMS"] = {
@@ -1380,7 +1384,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'TMS() | TMS "#" | TMS "gym"',
 		usageExample = 'TMS "39"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getTMsHMs(params))
+			printf(" %s", EventData.getTMsHMs(params))
 		end,
 	},
 	["SEARCH"] = {
@@ -1388,7 +1392,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'SEARCH() | SEARCH "word(s)"',
 		usageExample = 'SEARCH "Drizzle"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getSearch(params))
+			printf(" %s", EventData.getSearch(params))
 		end,
 	},
 	["SEARCHNOTES"] = {
@@ -1396,7 +1400,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'SEARCHNOTES() | SEARCHNOTES "word(s)"',
 		usageExample = 'SEARCHNOTES "tanky"',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getSearchNotes(params))
+			printf(" %s", EventData.getSearchNotes(params))
 		end,
 	},
 	["PROGRESS"] = {
@@ -1404,7 +1408,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'PROGRESS()',
 		usageExample = 'PROGRESS()',
 		execute = function(self, params)
-			printf(" %s", DataHelper.EventRequests.getProgress(params))
+			printf(" %s", EventData.getProgress(params))
 		end,
 	},
 }

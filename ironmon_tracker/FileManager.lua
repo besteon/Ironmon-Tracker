@@ -96,6 +96,7 @@ FileManager.LuaCode = {
 	{ name = "MiscData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MiscData.lua", },
 	{ name = "RouteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RouteData.lua", },
 	{ name = "DataHelper", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua", },
+	{ name = "EventData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "EventData.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
@@ -119,6 +120,8 @@ FileManager.LuaCode = {
 	{ name = "MGBADisplay", filepath = "MGBADisplay.lua", },
 	{ name = "TrackerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackerScreen.lua", },
 	{ name = "InfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua", },
+	{ name = "TrainerInfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrainerInfoScreen.lua", },
+	{ name = "TrainersOnRouteScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrainersOnRouteScreen.lua", },
 	{ name = "NavigationMenu", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NavigationMenu.lua", },
 	{ name = "StartupScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StartupScreen.lua", },
 	{ name = "UpdateScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "UpdateScreen.lua", },
@@ -760,8 +763,6 @@ function FileManager.addCustomThemeToFile(themeName, themeCode)
 	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
 	local file = io.open(filepath, "a")
 	if not file then
-		-- Don't really want to flood the console with error messages; if important, use Main.DisplayError()
-		-- print(string.format('> ERROR: Unable to save custom Theme "%s" to file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return
 	end
 
@@ -782,8 +783,6 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 
 	local file = io.open(filepath, "w")
 	if not file then
-		-- Don't really want to flood the console with error messages; if important, use Main.DisplayError()
-		-- print(string.format('> ERROR: Unable to remove custom Theme "%s" from file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return false
 	end
 
@@ -808,8 +807,12 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 	return true
 end
 
--- Recursively copies the contents of 'source' table into 'destination' table
+---Recursively copies the contents of 'source' table into 'destination' table
+---@param source table
+---@param destination? table Optional, creates a new empty table if none provided
+---@return table destination
 function FileManager.copyTable(source, destination)
+	destination = destination or {}
 	for key, val in pairs(source or {}) do
 		if type(val) == "table" then
 			destination[key] = {}
@@ -818,6 +821,7 @@ function FileManager.copyTable(source, destination)
 			destination[key] = val
 		end
 	end
+	return destination
 end
 
 --- Loads the external Json library into FileManager.JsonLibrary

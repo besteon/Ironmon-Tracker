@@ -65,6 +65,7 @@ RouteData.Locations = {
 	CanObtainBadge = {}, -- Currently unused for the time being
 	IsInLab = {},
 	IsInHallOfFame = {},
+	IsInSafariZone = {},
 }
 -- Maps a mapId to all its connected other mapIds that make up a complete dungeon (e.g. Pokemon Tower 1F-7F)
 RouteData.CombinedAreas = {}
@@ -139,6 +140,27 @@ end
 
 function RouteData.isFishingEncounter(encounterArea)
 	return encounterArea == RouteData.EncounterArea.OLDROD or encounterArea == RouteData.EncounterArea.GOODROD or encounterArea == RouteData.EncounterArea.SUPERROD
+end
+
+---Returns an ordered list of routes used for early game pivoting; or safari zones routes if `useSafari` is true
+---@param useSafari? boolean Optional, if true will return safari zone routes instead of early game pivots
+---@return table routeIds
+function RouteData.getPivotOrSafariRouteIds(useSafari)
+	if useSafari then
+		local routeIds = {}
+		for id, _ in pairs(RouteData.Locations.IsInSafariZone or {}) do
+			table.insert(routeIds, id)
+		end
+		table.sort(routeIds, function(a,b) return a < b end)
+		return routeIds
+	else
+		if GameSettings.game == 3 then -- FRLG
+			return { 89, 90, 110, 117 } -- Route 1, 2, 22, Viridian Forest
+		else -- RSE
+			local offset = GameSettings.versioncolor == "Emerald" and 0 or 1 -- offset all "mapId > 107" by +1
+			return { 17, 18, 19, 20, 32, 135 + offset } -- Route 101, 102, 103, 104, 116, Petalburg Forest
+		end
+	end
 end
 
 function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
@@ -388,6 +410,12 @@ function RouteData.setupRouteInfoAsFRLG()
 	}
 	RouteData.Locations.IsInHallOfFame = {
 		[218] = true,
+	}
+	RouteData.Locations.IsInSafariZone = {
+		[147] = true,
+		[148] = true,
+		[149] = true,
+		[150] = true,
 	}
 
 	-- [AreaName] = { combained list of mapIds }
@@ -3152,11 +3180,20 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
+	RouteData.Locations.IsInSafariZone = {
+		[238 + offset] = true,
+		[239 + offset] = true,
+		[240 + offset] = true,
+		[241 + offset] = true,
+	}
 	if isGameEmerald then
 		-- In Emerald, Ironmon ends after Steven battle, not e4.
 		RouteData.Locations.IsInHallOfFame = {
 			[431] = true,
 		}
+		-- Two additional Safari Zone areas in Emerald
+		RouteData.Locations.IsInSafariZone[394] = true
+		RouteData.Locations.IsInSafariZone[395] = true
 	else
 		RouteData.Locations.IsInHallOfFame = {
 			[298 + offset] = true,

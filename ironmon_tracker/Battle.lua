@@ -567,6 +567,10 @@ function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 
 	if Battle.isWildEncounter and Battle.CurrentRoute.hasInfo then
 		Tracker.TrackRouteEncounter(Program.GameData.mapId, Battle.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
+		-- Additional tracked info for Safari Encounters
+		if RouteData.Locations.IsInSafariZone[Program.GameData.mapId] then
+			Tracker.TrackSafariEncounter(Program.GameData.mapId, opposingPokemon.pokemonID, opposingPokemon.level)
+		end
 	end
 end
 
@@ -840,6 +844,8 @@ end
 function Battle.trySwapScreenBackToMain()
 	local screenAllowsAutoSwap = {
 		[InfoScreen] = true,
+		[TrainerInfoScreen] = true,
+		[TrainersOnRouteScreen] = true,
 		[RandomEvosScreen] = true,
 		[MoveHistoryScreen] = true,
 		[TypeDefensesScreen] = true,

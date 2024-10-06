@@ -19,8 +19,6 @@ This project is based on [MKDasher's PokemonBizhawkLua project](https://github.c
 
 ## Supported Games
 
-For NDS (gen 4/5) games, please use the [NDS IronMon Tracker](https://github.com/Brian0255/NDS-Ironmon-Tracker) by OnlySpaghettiCode
-
 Currently supported Pokémon games / languages:
 
 | Version   | Ruby | Sapphire | Emerald | FireRed | LeafGreen |
@@ -34,6 +32,16 @@ Currently supported Pokémon games / languages:
 Want to help us translate the Tracker into supported languages? Check out our [discussion thread](https://github.com/besteon/Ironmon-Tracker/discussions/389) to help contribute!
 
 We'd ideally like to support all non-English versions if we can, progress updates can be found [here](https://github.com/besteon/Ironmon-Tracker/issues/62).
+
+### Alternate Trackers
+
+Trackers for other games:
+- GB (gen 1): [GameBoy Ironmon Tracker](https://github.com/mollo010/Ironmon-gen-tracker)* by mollo010
+- GBC (Pokémon Crystal): [Ironmon Gen 2 Tracker](https://github.com/seadogstingray/Ironmon-gen-2-tracker)* by seadogstingray
+- NDS (gens 4/5): [NDS Ironmon Tracker](https://github.com/Brian0255/NDS-Ironmon-Tracker) by OnlySpaghettiCode
+- 3DS (gens 6/7): [Citra Tracker](https://github.com/kcblack42/Citra-Tracker-v2) by accruenewblue, brdy, KaiyaKC
+
+> *Note the Gen 1/2 trackers are adaptations of the Gen 3 tracker and are in a "functional" state, expect some bugs
 
 ## Installation
 
@@ -54,11 +62,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Stream Connect for Twitch & Streamerbot
+### Trainer Info and New Tracker Controls
 
-Read more about this cool new feature here: [Stream Connect Guide](https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide)
-
-![The Stream Connect status screen, showing the Tracker successfully connected and a few settings.](https://github.com/besteon/Ironmon-Tracker/assets/4258818/744bd5c6-3141-4d10-8e43-00746099951d)
+![The Trainer card info screen. The trainer's name, location, team, IVs, and AI script are displayed.](https://github.com/user-attachments/assets/9f22d936-f20a-4a52-bfe9-be25dcb3c713)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
@@ -70,7 +76,7 @@ If you're planning to implement a new feature, we'd ask that you either open a f
 
 ### What is a good fit for the Ironmon Tracker?
 
-Generally, we try to avoid revealing too much information that a player can't gather themself in-game in some way. For example, we *won't* show a Pokémon's EVs and IVs directly as you don't get that information in the games. We also like to try and make toggleable options for certain features for those that would rather have them disabled.
+Generally, we try to avoid revealing too much information that a player can't gather themself in-game in some way. For example, we *won't* show a Pokémon's EVs and IVs directly during the run as you don't get that information in the games. We also like to try and make toggleable options for certain features for those that would rather have them disabled.
 
 Additionally, if the feature involves a UI element on the tracker screen, we want to make it as clear and simple to use as we can. There's limited space on the tracker screens so we also want to avoid cramming too many things in or extending the current size of the tracker (as this would mess with many people's stream layouts).
 
@@ -83,11 +89,11 @@ There are a couple of VS Code extensions which we recommend, which should automa
 
 Lua Versions:
 
-- Bizhawk 2.8 uses Lua 5.1, this is the version currently set in our `.vscode/settings.json` file for linting.
-- Bizhawk 2.9 and mGBA use Lua 5.4
+- Bizhawk 2.8 uses [Lua 5.1](https://www.lua.org/manual/5.1/), this is the version currently set in our `.vscode/settings.json` file for linting.
+- Bizhawk 2.9 and mGBA use [Lua 5.4](https://www.lua.org/manual/5.4/)
   - Since we intend to still support Bizhawk 2.8 the code must be compatible with both Lua 5.1 and 5.4
 
-Emu-specific Lua documentation:
+Emulator-specific Lua Documentation:
 
 - [Bizhawk Lua Functions](https://tasvideos.org/Bizhawk/LuaFunctions)
 - [mGBA Scripting API](https://mgba.io/docs/scripting.html)
