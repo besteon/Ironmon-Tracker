@@ -197,6 +197,7 @@ ScreenResources{
 		Title = "Tracker Setup", -- NEEDS TRANSLATION
 		TabGeneral = "General", -- NEEDS TRANSLATION
 		TabCarousel = "Carousel", -- NEEDS TRANSLATION
+		TabControls = "Controls", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
@@ -205,7 +206,6 @@ ScreenResources{
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
-		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
 		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
@@ -216,11 +216,18 @@ ScreenResources{
 		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
+		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
+		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
+		LabelCurrentControllerBinding = "Current controller binding", -- NEEDS TRANSLATION
+		LabelNewControllerBinding = "New controller binding", -- NEEDS TRANSLATION
+		LabelWaiting = "Waiting", -- NEEDS TRANSLATION
+		LabelPressControllerButtons = "Press controller button(s) to bind.", -- NEEDS TRANSLATION
+		LabelButtonsAllowed = "Buttons allowed", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
 		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
-		PromptEditControllerLoadNext = "Load next seed", -- NEEDS TRANSLATION
+		PromptEditControllerLoadNext = "Load new seed", -- NEEDS TRANSLATION
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
-		PromptEditControllerInfoShortcut = "Info shortcut", -- NEEDS TRANSLATION
+		PromptEditControllerInfoShortcut = "Trainers / Pivots", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
 		PromptEditControllerNextPage = "Next page", -- NEEDS TRANSLATION

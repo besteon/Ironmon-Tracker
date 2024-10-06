@@ -128,6 +128,7 @@ Constants.OrderedLists = {
 		"PC heals count downward",
 		"Auto save tracked game data",
 		"Pokemon icon set",
+		"Override Button Mode to LR",
 		"Show last damage calcs",
 		"Reveal info if randomized",
 		"Show experience points bar",
@@ -154,6 +155,7 @@ Constants.OrderedLists = {
 		"Use Custom Trainer Names",
 		"Open Book Play Mode",
 		"Allow sprites to walk",
+		"AlertNewOptionLR",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -727,6 +729,7 @@ Constants.Char = {
 	["="] = { width = 4, },
 	[","] = { width = 2, },
 	["-"] = { width = 2, },
+	["+"] = { width = 5, },
 	["_"] = { width = 5, },
 	["."] = { width = 1, },
 	["("] = { width = 2, },
