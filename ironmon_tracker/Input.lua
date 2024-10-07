@@ -10,6 +10,8 @@ Input = {
 	resumeJoypad = false, -- Set to true to enable corresponding input on the next frame
 }
 
+Input.NO_KEY_MAPPING = "NOTBOUND"
+
 Input.OrderedControllerInputs = { "A", "B",  "Select",  "Start",  "Right",  "Left",  "Up",  "Down",  "R",  "L" }
 
 Input.StatHighlighter = {

@@ -215,10 +215,17 @@ SCREEN.Buttons = {
 			local controlLabel = Utils.replaceText(SCREEN.currentButtonToBind:getCustomText(), ":", "")
 			local centerX = Utils.getCenteredTextX(controlLabel, Constants.SCREEN.RIGHT_GAP) - 1
 			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 12, controlLabel, highlight, shadowcolor)
+
 			local controlBinding = Options.CONTROLS[SCREEN.currentButtonToBind.optionKey]
-			controlBinding = controlBinding:gsub(" ", ""):gsub(",", " + ") -- Format as "A + B + START"
+			local style
+			if controlBinding == Input.NO_KEY_MAPPING then
+				controlBinding = "- - -"
+			else
+				controlBinding = controlBinding:gsub(" ", ""):gsub(",", " + ") -- Format as "A + B + START"
+				style = "underline"
+			end
 			centerX = Utils.getCenteredTextX(controlBinding, Constants.SCREEN.RIGHT_GAP) - 2
-			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 23, controlBinding, highlight, shadowcolor, nil, nil, "underline")
+			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 23, controlBinding, highlight, shadowcolor, nil, nil, style)
 		end,
 	},
 	ControlBindingNewButton = {
@@ -254,10 +261,23 @@ SCREEN.Buttons = {
 			return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() and SCREEN.currentButtonToBind.allowedInputs < 999
 		end,
 	},
-	ControlBindingOK = {
+	ControlBindingUnbind = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Unbind" or Resources.AllScreens.Save end, -- TODO: Language
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 93, 34, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+		onClick = function()
+			Options.CONTROLS[SCREEN.currentButtonToBind.optionKey] = Input.NO_KEY_MAPPING
+			Main.SaveSettings(true)
+			SCREEN.currentButtonToBind = nil
+			SCREEN.currentInputsPressed = {}
+			Program.redraw(true)
+		end,
+	},
+	ControlBindingSave = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return " " .. Resources.AllScreens.Save end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 24, Constants.SCREEN.MARGIN + 135, 36, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 27, Constants.SCREEN.MARGIN + 135, 36, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
 		onClick = function()
 			if #SCREEN.currentInputsPressed > 0 then
@@ -273,7 +293,7 @@ SCREEN.Buttons = {
 	ControlBindingCancel = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return " " .. Resources.AllScreens.Cancel end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 70, Constants.SCREEN.MARGIN + 135, 36, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 135, 36, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
 		onClick = function()
 			SCREEN.currentButtonToBind = nil
@@ -595,16 +615,21 @@ function SetupScreen.createButtons()
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
 				local leftX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-				local bindingColor
+				local bindingColor, style
 				local controlLabel = self:getCustomText()
 				local controlBinding = Options.CONTROLS[self.optionKey]
+				if controlBinding == Input.NO_KEY_MAPPING then
+					controlBinding = "- - -"
+				else
+					style = "underline"
+				end
 				if controlBinding ~= Options.Defaults.CONTROLS[self.optionKey] then
 					bindingColor = Theme.COLORS["Positive text"]
 				else
 					bindingColor = Theme.COLORS[SCREEN.Colors.highlight]
 				end
 				Drawing.drawText(leftX, y - 2, controlLabel, Theme.COLORS[SCREEN.Colors.text], shadowcolor)
-				Drawing.drawText(leftX + COL2_X_OFFSET, y - 2, controlBinding, bindingColor, shadowcolor, nil, nil, "underline")
+				Drawing.drawText(leftX + COL2_X_OFFSET, y - 2, controlBinding, bindingColor, shadowcolor, nil, nil, style)
 			end,
 		}
 		startY = startY + Constants.SCREEN.LINESPACING + 1
@@ -658,10 +683,15 @@ function SetupScreen.openEditControlsWindow()
 	local col2X = 220
 	local offsetY = 35
 
+	local NOT_BOUND_TEXT = "- - -"
 	for i, controlTuple in ipairs(controlKeyMap) do
 		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
+		local controlBinding = Options.CONTROLS[controlTuple[1]]
+		if controlBinding == Input.NO_KEY_MAPPING then
+			controlBinding = NOT_BOUND_TEXT
+		end
 		form:createLabel(controlLabel, col1X, offsetY)
-		inputTextboxes[i] = form:createTextBox(Options.CONTROLS[controlTuple[1]], col2X, offsetY - 2, 140, 21)
+		inputTextboxes[i] = form:createTextBox(controlBinding, col2X, offsetY - 2, 140, 21)
 		offsetY = offsetY + 24
 	end
 
@@ -669,8 +699,12 @@ function SetupScreen.openEditControlsWindow()
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
 	form:createButton(saveCloseLabel, 45, offsetY + 5, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
-			local text = ExternalUI.BizForms.getText(inputTextboxes[i])
-			local controlCombination = Utils.formatControls(text)
+			local controlCombination = ExternalUI.BizForms.getText(inputTextboxes[i])
+			if controlCombination == NOT_BOUND_TEXT then
+				controlCombination = Input.NO_KEY_MAPPING
+			else
+				controlCombination = Utils.formatControls(controlCombination)
+			end
 			if not Utils.isNilOrEmpty(controlCombination) then
 				Options.CONTROLS[controlTuple[1]] = controlCombination
 			end
