@@ -175,7 +175,11 @@ function Input.checkJoypadInput()
 
 	if joypad[nextBtn] and not Input.prevJoypadInput[nextBtn] then
 		if LogOverlay.isDisplayed then
-			LogOverlay.Windower:nextPage()
+			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
+				LogTabPokemonDetails.Pager:nextPage()
+			else
+				LogOverlay.Windower:nextPage()
+			end
 		elseif StreamConnectOverlay.isDisplayed then
 			StreamConnectOverlay.Pager:nextPage()
 		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.nextPage) == "function" then
@@ -185,7 +189,11 @@ function Input.checkJoypadInput()
 
 	if joypad[previousBtn] and not Input.prevJoypadInput[previousBtn] then
 		if LogOverlay.isDisplayed then
-			LogOverlay.Windower:prevPage()
+			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
+				LogTabPokemonDetails.Pager:prevPage()
+			else
+				LogOverlay.Windower:prevPage()
+			end
 		elseif StreamConnectOverlay.isDisplayed then
 			StreamConnectOverlay.Pager:prevPage()
 		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.prevPage) == "function" then
@@ -235,12 +243,12 @@ end
 
 function Input.infoShortcutPressed()
 	-- Only open an info screen for Bizhawk if on the base tracker screen, to prevent opening while changing settings or viewing other pages
-	if not Main.IsOnBizhawk() or Program.currentScreen ~= TrackerScreen then
+	if not Main.IsOnBizhawk() or Program.currentScreen ~= TrackerScreen or Input.StatHighlighter:isActive() then
 		return
 	end
 
 	-- If in battle, lookup on the opposing Pokémon or enemy Trainer
-	if Battle.inActiveBattle() then
+	if Battle.inBattleScreen then -- Use `inBattleScreen` instead of `inActiveBattle()` for proper timing
 		if Battle.isWildEncounter then
 			local pokemon = Tracker.getPokemon(1, false) or {}
 			if PokemonData.isValid(pokemon.pokemonID) then
