@@ -251,9 +251,10 @@ function UpdateOrInstall.updateFiles(archiveFolderPath)
 
 	local result = os.execute(command)
 	if not (result == true or result == 0) then -- true / 0 = successful
-		print("> ERROR: " .. err1)
+		print("> WARNING: " .. err1)
 		print("> " .. err2)
-		return false
+		-- Always return true now that the new XCOPY succeeds regardless of error
+		return true
 	end
 
 	return true
@@ -337,14 +338,13 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 end
 
 -- Returns a string of batch commands to run based on the operating system, also returns error messages
--- TODO: Known issue is XCOPY seems to fail if Tracker is kept on OneDrive or in a secure folder
 function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	local messages = {
 		filesready = "New release files downloaded and ready for update.",
 		updating = "Applying the update, copying over files.",
 		completed = "Version update completed successfully.",
-		error1 = "Unable to copy over and update Tracker files.",
-		error2 = string.format('Try restarting the emulator and loading ONLY the "%s" script.', UpdateOrInstall.thisFileName),
+		error1 = "Some Tracker image files were skipped during the update, but everything will still work just fine.",
+		error2 = string.format("You can restore these files by restarting the emulator and loading the '%s' script.", UpdateOrInstall.thisFileName),
 	}
 
 	local batchCommands = {}
