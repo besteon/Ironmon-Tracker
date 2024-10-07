@@ -1162,6 +1162,11 @@ function EventData.getHelp(params)
 		end
 		table.sort(info, function(a,b) return a < b end)
 	end
-	local prefix = string.format("%s %s", "Tracker Commands", OUTPUT_CHAR)
+	local prefix
+	if #info > 1 then
+		prefix = string.format("%s %s", "Tracker Commands", OUTPUT_CHAR)
+	else
+		prefix = string.format("%s %s", "Command:", OUTPUT_CHAR)
+	end
 	return buildResponse(prefix, info, ", ")
 end
