@@ -312,6 +312,7 @@ end
 ---@return string response
 function EventData.getUnfoughtTrainers(params)
 	local allowPartialDungeons = Utils.containsText(params, "dungeon", true)
+	local excludeDoubles = Utils.containsText(params, "nodoubles", true) or Utils.containsText(params, "no doubles", true)
 	local includeSevii
 	if GameSettings.game == 3 then
 		includeSevii = Utils.containsText(params, "sevii", true)
@@ -339,7 +340,9 @@ function EventData.getUnfoughtTrainers(params)
 		if checkedIds[trainerId] or trainersToExclude[trainerId] or not TrainerData.shouldUseTrainer(trainerId) then
 			return nil
 		end
-		if Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
+		-- Skip trainer if already beaten, or if doubles and the option to exclude doubles is specified
+		local trainerGame = Program.readTrainerGameData(trainerId)
+		if trainerGame.defeated or (excludeDoubles and trainerGame.doubleBattle) then
 			return nil
 		end
 
