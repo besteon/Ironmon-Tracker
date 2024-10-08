@@ -72,7 +72,8 @@ Program = {
 	},
 	Values = {
 		ShinyOdds = 8, -- n/65536
-	}
+		ButtonModeLR = 1, -- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A; default setting for new game is 0
+	},
 }
 
 Program.GameData = {
@@ -1193,9 +1194,8 @@ end
 function Program.changeGameSettingForLR()
 	local addr2 = Utils.getSaveBlock2Addr()
 	local currentSetting = Memory.readbyte(addr2 + Program.Addresses.offsetOptionsButtonMode)
-	-- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A
-	if currentSetting == 0 then
-		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, 1)
+	if currentSetting == 0 then -- 0 is the default setting for the game
+		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, Program.Values.ButtonModeLR)
 	end
 end
 
