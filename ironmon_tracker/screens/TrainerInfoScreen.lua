@@ -249,7 +249,7 @@ function TrainerInfoScreen.buildScreen(trainerId)
 		lvRange
 	)
 	local leadPokemon = Tracker.getPokemon(1)
-	if leadPokemon and leadPokemon.level < maxLv then
+	if leadPokemon and leadPokemon.level < minLv then
 		trainerGame.partyLvColor = SCREEN.Colors.badValue
 	else
 		trainerGame.partyLvColor = SCREEN.Colors.highlight
