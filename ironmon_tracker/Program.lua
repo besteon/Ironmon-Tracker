@@ -52,7 +52,8 @@ Program = {
 		offsetPokemonStatsMaxHpAtk = 0x58,
 		offsetPokemonStatsDefSpe = 0x5C,
 		offsetPokemonStatsSpaSpd = 0x60,
-		offsetOptionsButtonMode = 0x13,
+		offsetRivalName = 0x3A4C, -- SaveBlock1
+		offsetOptionsButtonMode = 0x13, -- SaveBlock2
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -856,9 +857,16 @@ function Program.readTrainerGameData(trainerId)
 	trainer.trainerClass = Utils.formatSpecialCharacters(trainer.trainerClass)
 
 	-- TRAINER NAME
+	local trainerNameAddr
+	-- Don't use the Rival's true name if playing FRLG, as that is hidden information used to calc enemy Pokémon natures
+	if GameSettings.game == 3 and TrainerData.isRival(trainerId) then
+		trainerNameAddr = Utils.getSaveBlock1Addr() + Program.Addresses.offsetRivalName
+	else
+		trainerNameAddr = startAddress + 0x04
+	end
 	trainer.trainerName = ""
 	for i = 0, Program.Addresses.sizeofTrainerName - 1, 1 do
-		local charByte = Memory.readbyte(startAddress + 0x04 + i)
+		local charByte = Memory.readbyte(trainerNameAddr + i)
 		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
 		trainer.trainerName = trainer.trainerName .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
 	end
