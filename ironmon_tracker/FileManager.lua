@@ -122,6 +122,7 @@ FileManager.LuaCode = {
 	{ name = "InfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua", },
 	{ name = "TrainerInfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrainerInfoScreen.lua", },
 	{ name = "TrainersOnRouteScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrainersOnRouteScreen.lua", },
+	{ name = "NotebookTrainersByArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookTrainersByArea.lua", },
 	{ name = "NavigationMenu", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NavigationMenu.lua", },
 	{ name = "StartupScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StartupScreen.lua", },
 	{ name = "UpdateScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "UpdateScreen.lua", },
