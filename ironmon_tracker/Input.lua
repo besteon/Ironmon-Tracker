@@ -256,6 +256,7 @@ function Input.infoShortcutPressed()
 			end
 		else
 			if TrainerInfoScreen.buildScreen(Battle.opposingTrainerId) then
+				TrainerInfoScreen.previousScreen = TrackerScreen
 				Program.changeScreenView(TrainerInfoScreen)
 			end
 		end
@@ -283,6 +284,7 @@ function Input.infoShortcutPressed()
 		end
 	else
 		if TrainersOnRouteScreen.buildScreen(TrackerAPI.getMapId()) then
+			TrainersOnRouteScreen.previousScreen = TrackerScreen
 			Program.changeScreenView(TrainersOnRouteScreen)
 		end
 	end
