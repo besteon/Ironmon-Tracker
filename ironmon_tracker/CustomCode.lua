@@ -14,6 +14,15 @@ CustomCode = {
 	-- An ordered list of extensions (references to ExtensionLibrary list items) that are currently enabled
 	-- Only extension present in this list are "enabled" and integrated into Tracker code
 	EnabledExtensions = {},
+
+	-- Additional helper functions for use with popular custom rom hacks and extensions
+	RomHacks = {
+		-- Known compatible extensions
+		ExtensionKeys = {
+			NatDex = "NatDexExtension",
+			MoveExpansion = "MoveExpansionExtension",
+		},
+	},
 }
 
 -- Returns true if the settings option for custom code extensions is enabled; false otherwise
@@ -262,6 +271,25 @@ function CustomCode.logError(err)
 		CustomCode.KnownErrors[errorMessage] = true
 		FileManager.logError(errorMessage)
 	end
+end
+
+function CustomCode.RomHacks.isPlayingNatDex()
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
+	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		return false
+	end
+	-- The NatDex extension has a built-in method for checking if it's being used
+	local extension = TrackerAPI.getExtensionSelf(EXT_KEY) or {}
+	return type(extension.checkIfNatDexROM) == "function" and extension:checkIfNatDexROM()
+end
+
+function CustomCode.RomHacks.isPlayingMoveExpansion()
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MoveExpansion
+	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		return false
+	end
+	-- Have to manually check added data to determine if Move Expansion extension is in use
+	return MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
 end
 
 --------------------------------------------------------------------------------------------------

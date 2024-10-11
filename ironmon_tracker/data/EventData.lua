@@ -303,7 +303,7 @@ function EventData.getDungeon(params)
 		local trainersText = string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainers, totalTrainers)
 		table.insert(info, trainersText)
 	end
-	local routeName = route.area and route.area.name or route.name
+	local routeName = RouteData.getRouteOrAreaName(routeId)
 	local prefix = string.format("%s %s", routeName, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
@@ -312,6 +312,7 @@ end
 ---@return string response
 function EventData.getUnfoughtTrainers(params)
 	local allowPartialDungeons = Utils.containsText(params, "dungeon", true)
+	local excludeDoubles = Utils.containsText(params, "nodoubles", true) or Utils.containsText(params, "no doubles", true)
 	local includeSevii
 	if GameSettings.game == 3 then
 		includeSevii = Utils.containsText(params, "sevii", true)
@@ -339,7 +340,9 @@ function EventData.getUnfoughtTrainers(params)
 		if checkedIds[trainerId] or trainersToExclude[trainerId] or not TrainerData.shouldUseTrainer(trainerId) then
 			return nil
 		end
-		if Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
+		-- Skip trainer if already beaten, or if doubles and the option to exclude doubles is specified
+		local trainerGame = Program.readTrainerGameData(trainerId)
+		if trainerGame.defeated or (excludeDoubles and trainerGame.doubleBattle) then
 			return nil
 		end
 
@@ -381,7 +384,7 @@ function EventData.getUnfoughtTrainers(params)
 
 		-- Add to info if route/area has unfought trainers (not all defeated)
 		if #defeatedTrainers < totalTrainers and ifDungeonAndIncluded then
-			local routeName = route.area and route.area.name or route.name
+			local routeName = RouteData.getRouteOrAreaName(routeId)
 			return string.format("%s (%s/%s)", routeName, #defeatedTrainers, totalTrainers)
 		end
 	end
@@ -1159,6 +1162,11 @@ function EventData.getHelp(params)
 		end
 		table.sort(info, function(a,b) return a < b end)
 	end
-	local prefix = string.format("%s %s", "Tracker Commands", OUTPUT_CHAR)
+	local prefix
+	if #info > 1 then
+		prefix = string.format("%s %s", "Tracker Commands", OUTPUT_CHAR)
+	else
+		prefix = string.format("%s %s", "Command:", OUTPUT_CHAR)
+	end
 	return buildResponse(prefix, info, ", ")
 end

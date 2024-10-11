@@ -52,7 +52,8 @@ Program = {
 		offsetPokemonStatsMaxHpAtk = 0x58,
 		offsetPokemonStatsDefSpe = 0x5C,
 		offsetPokemonStatsSpaSpd = 0x60,
-		offsetOptionsButtonMode = 0x13,
+		offsetRivalName = 0x3A4C, -- SaveBlock1
+		offsetOptionsButtonMode = 0x13, -- SaveBlock2
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -72,7 +73,8 @@ Program = {
 	},
 	Values = {
 		ShinyOdds = 8, -- n/65536
-	}
+		ButtonModeLR = 1, -- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A; default setting for new game is 0
+	},
 }
 
 Program.GameData = {
@@ -855,9 +857,16 @@ function Program.readTrainerGameData(trainerId)
 	trainer.trainerClass = Utils.formatSpecialCharacters(trainer.trainerClass)
 
 	-- TRAINER NAME
+	local trainerNameAddr
+	-- Don't use the Rival's true name if playing FRLG, as that is hidden information used to calc enemy Pokémon natures
+	if GameSettings.game == 3 and TrainerData.isRival(trainerId) then
+		trainerNameAddr = Utils.getSaveBlock1Addr() + Program.Addresses.offsetRivalName
+	else
+		trainerNameAddr = startAddress + 0x04
+	end
 	trainer.trainerName = ""
 	for i = 0, Program.Addresses.sizeofTrainerName - 1, 1 do
-		local charByte = Memory.readbyte(startAddress + 0x04 + i)
+		local charByte = Memory.readbyte(trainerNameAddr + i)
 		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
 		trainer.trainerName = trainer.trainerName .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
 	end
@@ -1190,12 +1199,16 @@ function Program.isInStartMenu()
 end
 
 ---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
-function Program.changeGameSettingForLR()
+---@param forced? boolean Optional, if true will force change the setting regardless of game being played or existing setting
+function Program.changeGameSettingForLR(forced)
+	-- Do not change this setting if playing NatDex, as that rom hack defaults to ButtonMode:LR
+	if not forced and CustomCode.RomHacks.isPlayingNatDex() then
+		return
+	end
 	local addr2 = Utils.getSaveBlock2Addr()
 	local currentSetting = Memory.readbyte(addr2 + Program.Addresses.offsetOptionsButtonMode)
-	-- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A
-	if currentSetting == 0 then
-		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, 1)
+	if forced or currentSetting == 0 then -- 0 is the default setting for the game
+		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, Program.Values.ButtonModeLR)
 	end
 end
 

@@ -152,6 +152,14 @@ function TrainerData.shouldUseClassName(trainerId)
 	return false
 end
 
+---Returns true if the trainer is a possible rival (Note: you fight only 1 of 3 rivals throughout a game)
+---@param trainerId number
+---@return boolean
+function TrainerData.isRival(trainerId)
+	local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
+	return trainerInternal.whichRival ~= nil
+end
+
 -- Determines if this trainer should be used; if it's a rival then it has to be the correct rival for the player
 function TrainerData.shouldUseTrainer(trainerId)
 	local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
