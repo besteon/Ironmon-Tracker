@@ -386,6 +386,22 @@ RouteData.BlankRoute = {
 	name = Constants.BLANKLINE,
 }
 
+---Returns the name of a route or it's combined area
+---@param mapId number
+---@param simplifiedName? boolean Optional, if true will simplify the name by removing any parentheses; default false
+---@return string
+function RouteData.getRouteOrAreaName(mapId, simplifiedName)
+	if not RouteData.hasRoute(mapId) then
+		return "Unknown Area"
+	end
+	local route = RouteData.Info[mapId]
+	local routeName = route.area and route.area.name or route.name
+	if simplifiedName then
+		routeName = Utils.replaceText(routeName, "%(.*%)", "")
+	end
+	return routeName
+end
+
 -- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 function RouteData.setupRouteInfoAsFRLG()
@@ -4762,7 +4778,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.CaveEntrance,
 		area = RouteData.CombinedAreas.SeafloorCavern,
 		dungeon = true,
-		trainers = isGameEmerald and { 6, 7, 8, 9, 567, 33, 34 } -- All caverns combined here
+		trainers = isGameEmerald and { 6, 7, 8, 567, 33, 34 } -- All caverns combined here
 			or { 6, 7, 8, 33, 34 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, },

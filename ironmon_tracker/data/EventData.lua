@@ -303,7 +303,7 @@ function EventData.getDungeon(params)
 		local trainersText = string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainers, totalTrainers)
 		table.insert(info, trainersText)
 	end
-	local routeName = route.area and route.area.name or route.name
+	local routeName = RouteData.getRouteOrAreaName(routeId)
 	local prefix = string.format("%s %s", routeName, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
@@ -384,7 +384,7 @@ function EventData.getUnfoughtTrainers(params)
 
 		-- Add to info if route/area has unfought trainers (not all defeated)
 		if #defeatedTrainers < totalTrainers and ifDungeonAndIncluded then
-			local routeName = route.area and route.area.name or route.name
+			local routeName = RouteData.getRouteOrAreaName(routeId)
 			return string.format("%s (%s/%s)", routeName, #defeatedTrainers, totalTrainers)
 		end
 	end
