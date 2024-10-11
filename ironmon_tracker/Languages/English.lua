@@ -636,7 +636,7 @@ ScreenResources{
 		CMD_Dungeon_Name = "Dungeon Info",
 		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
 		CMD_Unfought_Name = "Unfought Trainers",
-		CMD_Unfought_Help = "[dungeon] [sevii] > Displays a list of areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' to include partially completed dungeons.)",
+		CMD_Unfought_Help = "[dungeon] [no doubles] [sevii] > Lists areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' for partially completed dungeons and/or 'nodoubles' to exclude double battles.)",
 		CMD_Pivots_Name = "Pivots Seen",
 		CMD_Pivots_Help = "[safari] > Displays known early game wild encounters for an area. (Add param 'safari' for high-level encounters from Safari Zone).",
 		CMD_Revo_Name = "Pokémon Random Evolutions",

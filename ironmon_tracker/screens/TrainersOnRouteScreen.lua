@@ -54,8 +54,8 @@ SCREEN.Buttons = {
 		image = Constants.PixelImages.MAP_PINDROP,
 		getText = function()
 			if hasData() then
-				local route = RouteData.Info[SCREEN.Data.routeId] or {}
-				return string.format("%s  %s", route.name or Constants.BLANKLINE, SCREEN.Data.trainerCount)
+				local routeName = RouteData.getRouteOrAreaName(SCREEN.Data.routeId, true)
+				return string.format("%s  %s", routeName or Constants.BLANKLINE, SCREEN.Data.trainerCount)
 			else
 				return string.format("%s  %s", string.rep(Constants.HIDDEN_INFO, 3), SCREEN.Data.trainerCount)
 			end
@@ -88,7 +88,8 @@ SCREEN.Buttons = {
 		end
 	},
 	Back = Drawing.createUIElementBackButton(function()
-		Program.changeScreenView(TrackerScreen)
+		Program.changeScreenView(SCREEN.previousScreen or TrackerScreen)
+		SCREEN.previousScreen = nil
 	end),
 }
 
@@ -127,14 +128,26 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 	local COL1_X = 0
 	local COL2_X = 35
 
-	local trainerCount, trainersDefeated = 0, 0
-	local actualTrainers = {}
-	for _, trainerId in pairs(route.trainers or {}) do
-		if TrainerData.shouldUseTrainer(trainerId) then
-			table.insert(actualTrainers, trainerId)
+	local routesToUse = {}
+	if route.area then
+		for _, id in ipairs(route.area) do
+			table.insert(routesToUse, id)
+		end
+	else
+		table.insert(routesToUse, routeId)
+	end
+	local trainersToUse = {}
+	for _, subRouteId in ipairs(routesToUse) do
+		local subRoute = RouteData.Info[subRouteId] or {}
+		for _, trainerId in pairs(subRoute.trainers or {}) do
+			if TrainerData.shouldUseTrainer(trainerId) then
+				table.insert(trainersToUse, trainerId)
+			end
 		end
 	end
-	for i, trainerId in pairs(actualTrainers) do
+
+	local trainerCount, trainersDefeated = 0, 0
+	for i, trainerId in pairs(trainersToUse) do
 		local trainerGame = Program.readTrainerGameData(trainerId)
 		local trainerInternal = TrainerData.getTrainerInfo(trainerId)
 		table.insert(SCREEN.Data.trainerList, trainerGame)

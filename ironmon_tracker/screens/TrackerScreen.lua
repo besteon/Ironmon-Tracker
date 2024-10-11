@@ -747,7 +747,7 @@ function TrackerScreen.buildCarousel()
 			if RouteData.hasRouteTrainers() then
 				local routeId = TrackerAPI.getMapId()
 				local route = RouteData.Info[routeId]
-				local routeName = route.area and route.area.name or route.name
+				local routeName = RouteData.getRouteOrAreaName(routeId)
 				local defeatedTrainersList, totalInArea
 				if route.area ~= nil then
 					defeatedTrainersList, totalInArea = Program.getDefeatedTrainersByCombinedArea(route.area)
