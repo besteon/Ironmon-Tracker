@@ -1199,10 +1199,15 @@ function Program.isInStartMenu()
 end
 
 ---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
-function Program.changeGameSettingForLR()
+---@param forced? boolean Optional, if true will force change the setting regardless of game being played or existing setting
+function Program.changeGameSettingForLR(forced)
+	-- Do not change this setting if playing NatDex, as that rom hack defaults to ButtonMode:LR
+	if not forced and CustomCode.RomHacks.isPlayingNatDex() then
+		return
+	end
 	local addr2 = Utils.getSaveBlock2Addr()
 	local currentSetting = Memory.readbyte(addr2 + Program.Addresses.offsetOptionsButtonMode)
-	if currentSetting == 0 then -- 0 is the default setting for the game
+	if forced or currentSetting == 0 then -- 0 is the default setting for the game
 		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, Program.Values.ButtonModeLR)
 	end
 end
