@@ -63,9 +63,8 @@ NavigationMenu.Buttons = {
 		index = 5,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
-			-- TODO: This should eventually navigate to the Notebook Landing screen
-			NotebookTrainersByArea.buildScreen()
-			Program.changeScreenView(NotebookTrainersByArea)
+			NotebookIndexScreen.buildScreen()
+			Program.changeScreenView(NotebookIndexScreen)
 		end
 	},
 	ThemeCustomization = {

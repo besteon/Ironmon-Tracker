@@ -119,9 +119,6 @@ end
 ---Retrieves and builds the data needed to draw this screen; stored in `NotebookTrainersByArea.Data`
 function NotebookTrainersByArea.buildScreen()
 	SCREEN.clearBuiltData()
-	if Program.currentScreen ~= SCREEN then
-		SCREEN.previousScreen = Program.currentScreen
-	end
 
 	local ROW_START_X = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
 	local ROW_START_Y = Constants.SCREEN.MARGIN + 28
