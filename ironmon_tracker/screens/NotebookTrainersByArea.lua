@@ -25,6 +25,14 @@ SCREEN.Pager = {
 		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
 		self.currentPage = 1
 		self.totalPages = totalPages or 1
+		-- Snap each individual button to their respective button rows
+		for _, buttonRow in ipairs(SCREEN.Pager.Buttons) do
+			for _, button in ipairs (buttonRow.buttonList or {}) do
+				if type(button.alignToBox) == "function" then
+					button:alignToBox(buttonRow.box)
+				end
+			end
+		end
 	end,
 	getPageText = function(self)
 		if self.totalPages <= 1 then return Resources.AllScreens.Page end
@@ -293,13 +301,6 @@ function NotebookTrainersByArea.buildScreen()
 
 	-- Place button rows into the grid and update each of their contained buttons
 	SCREEN.Pager:realignButtonsToGrid(ROW_START_X, ROW_START_Y, 0, 0)
-	for _, buttonRow in ipairs(SCREEN.Pager.Buttons) do
-		for _, button in ipairs (buttonRow.buttonList or {}) do
-			if type(button.alignToBox) == "function" then
-				button:alignToBox(buttonRow.box)
-			end
-		end
-	end
 end
 
 function NotebookTrainersByArea.refreshButtons()

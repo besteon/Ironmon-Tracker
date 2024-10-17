@@ -31,9 +31,6 @@ SCREEN.Buttons = {
 	},
 	PokemonIconRow = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		-- getIconId = function(self)
-		-- 	return SCREEN.Data.isReady and SCREEN.Data.lastPokemonSeen or 1 -- 1:Bulbasaur
-		-- end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 34, ROW_WIDTH, ROW_HEIGHT },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 34, ROW_HEIGHT, ROW_HEIGHT },
 		onClick = function(self)
@@ -146,10 +143,10 @@ function NotebookIndexScreen.buildScreen()
 	for pokemonID, pokemon in ipairs(PokemonData.Pokemon) do
 		if pokemonID < 252 or pokemonID > 276 then -- Skip fake Pokemon
 			SCREEN.Data.totalPokemon = SCREEN.Data.totalPokemon + 1
-			local trackedPokemon = Tracker.Data.allPokemon[pokemonID] or {}
+			local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
 			-- Count it if seen as a wild or on a trainer
-			local hasSeen = (trackedPokemon.eW or 0) > 0 or (trackedPokemon.eT or 0) > 0
-			if hasSeen then
+			-- local hasSeen = (trackedPokemon.eW or 0) > 0 or (trackedPokemon.eT or 0) > 0
+			if trackedPokemon ~= nil then
 				SCREEN.Data.pokemonSeen = SCREEN.Data.pokemonSeen + 1
 			end
 			-- if pokemon.evolution == PokemonData.Evolutions.NONE then
