@@ -54,7 +54,7 @@ SCREEN.Pager = {
 SCREEN.Buttons = {
 	CheckboxShowCompleted = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function(self) return " " .. "Show completed" end, -- TODO: Language
+		getText = function(self) return string.format(" %s", Resources.NotebookTrainersByArea.CheckboxShowCompleted) end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 77, 10 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
 		toggleState = false,
@@ -66,7 +66,7 @@ SCREEN.Buttons = {
 	},
 	CheckboxSevii = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function(self) return " " .. "Sevii" end, -- TODO: Language
+		getText = function(self) return string.format(" %s", Resources.NotebookTrainersByArea.CheckboxSevii) end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 14, 31, 10 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 14, 8, 8 },
 		isVisible = function() return GameSettings.game == 3 end, -- Only available in FRLG
@@ -347,7 +347,7 @@ function NotebookTrainersByArea.drawScreen()
 	gui.defaultTextBackground(canvas.fill)
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 	-- Header
-	local headerText = Utils.toUpperUTF8("All Trainers By Area" or Resources.NotebookTrainersByArea.Title) -- TODO: Language
+	local headerText = Utils.toUpperUTF8(Resources.NotebookTrainersByArea.Title)
 	local headerColor = Theme.COLORS["Header text"]
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)

@@ -837,12 +837,14 @@ function TrackerScreen.updateButtonStates()
 	end
 end
 
-function TrackerScreen.openNotePadWindow(pokemonId)
+function TrackerScreen.openNotePadWindow(pokemonId, onCloseFunc)
 	if not PokemonData.isValid(pokemonId) then return end
 
 	local BLANK = Constants.BLANKLINE
 	local pokemonName = PokemonData.Pokemon[pokemonId].name
-	local form = ExternalUI.BizForms.createForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
+	local form = ExternalUI.BizForms.createForm(
+		string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName),
+		465, 220, nil, nil, onCloseFunc)
 
 	form:createLabel(string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10)
 	local noteTextBox = form:createTextBox(Tracker.getNote(pokemonId), 10, 30, 430, 20)

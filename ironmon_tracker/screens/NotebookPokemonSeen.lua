@@ -61,7 +61,7 @@ SCREEN.Pager = {
 SCREEN.Buttons = {
 	CheckboxIncludeUnseen = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function(self) return " " .. "All" end, -- TODO: Language
+		getText = function(self) return string.format(" %s", Resources.NotebookPokemonSeen.LabelAll) end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 25, 10 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 8, 8 },
 		toggleState = false,
@@ -238,7 +238,7 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 		table.insert(buttonRow.buttonList, iconBtn)
 
 		-- POKEMON NAME
-		local seenText = "Seen" or Resources.NotebookPokemonSeen.LabelSeen -- TODO: Language
+		local seenText = Resources.NotebookPokemonSeen.LabelSeen
 		local encountersTrainer = trackedPokemon.eT or 0
 		local encountersWild = trackedPokemon.eW or 0
 		if encountersTrainer > 0 and encountersWild > 0 then
@@ -253,7 +253,7 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 		end
 		local nameBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return pokemonInfo.name end,
+			getCustomText = function(self) return pokemonInfo.name end,
 			textColor = SCREEN.Colors.highlight,
 			isVisible = function(self) return buttonRow:isVisible() end,
 			box = { -1, -1, 90, 11 },
@@ -264,7 +264,9 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
-				Drawing.drawText(x, y + Constants.SCREEN.LINESPACING + 2, seenText, textColor, shadowcolor)
+				local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
+				Drawing.drawTransparentTextbox(x, y + 2, self:getCustomText(), textColor, bgColor, shadowcolor)
+				Drawing.drawTransparentTextbox(x, y + Constants.SCREEN.LINESPACING + 2, seenText, textColor, bgColor, shadowcolor)
 			end,
 		}
 		table.insert(buttonRow.buttonList, nameBtn)
@@ -368,7 +370,7 @@ function NotebookPokemonSeen.drawScreen()
 	gui.defaultTextBackground(canvas.fill)
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 	-- Header
-	local headerText = Utils.toUpperUTF8("All Pokémon Seen" or Resources.NotebookPokemonSeen.Title) -- TODO: Language
+	local headerText = Utils.toUpperUTF8(Resources.NotebookPokemonSeen.Title)
 	local headerColor = Theme.COLORS["Header text"]
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)

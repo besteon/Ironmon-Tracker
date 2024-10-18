@@ -17,9 +17,7 @@ local ROW_HEIGHT = 32
 SCREEN.Buttons = {
 	NotebookDescription = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self)
-			return "Review notes about the game:" -- TODO: Language
-		end,
+		getText = function(self) return string.format("%s:", Resources.NotebookIndexScreen.LabelReviewDescription) end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 13, ROW_WIDTH, 11 },
 	},
 	PokemonIcon = {
@@ -34,7 +32,6 @@ SCREEN.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 39, ROW_WIDTH, ROW_HEIGHT },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 39, ROW_HEIGHT, ROW_HEIGHT },
 		onClick = function(self)
-			if not NotebookPokemonSeen then return end -- TODO: Debug
 			NotebookPokemonSeen.previousScreen = SCREEN
 			NotebookPokemonSeen.buildScreen()
 			Program.changeScreenView(NotebookPokemonSeen)
@@ -60,7 +57,7 @@ SCREEN.Buttons = {
 			else
 				text = string.format("%s / %s", Constants.BLANKLINE, Constants.BLANKLINE)
 			end
-			Drawing.drawText(textX, y + 3, "Pokémon Seen", highlightColor, shadowcolor) -- TODO: Language
+			Drawing.drawText(textX, y + 3, Resources.NotebookIndexScreen.LabelPokemonSeen, highlightColor, shadowcolor)
 			Drawing.drawText(textX, y + 14, text, textColor, shadowcolor)
 
 			Drawing.drawImageAsPixels(Constants.PixelImages.NOTEBOOK, x + ROW_WIDTH - 20, y + ROW_HEIGHT / 2 - 6, nil, shadowcolor)
@@ -96,7 +93,7 @@ SCREEN.Buttons = {
 			else
 				text = string.format("%s / %s", Constants.BLANKLINE, Constants.BLANKLINE)
 			end
-			Drawing.drawText(textX, y + 3, "Trainers Fought", highlightColor, shadowcolor) -- TODO: Language
+			Drawing.drawText(textX, y + 3, Resources.NotebookIndexScreen.LabelTrainersFought, highlightColor, shadowcolor)
 			Drawing.drawText(textX, y + 14, text, textColor, shadowcolor)
 
 			Drawing.drawImageAsPixels(Constants.PixelImages.BATTLE_BALLS, x + ROW_WIDTH - 20, y + ROW_HEIGHT / 2 - 8, nil, shadowcolor)
@@ -219,7 +216,7 @@ function NotebookIndexScreen.drawScreen()
 	gui.defaultTextBackground(canvas.fill)
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 	-- Header
-	local headerText = Utils.toUpperUTF8("Tracker Notebook" or Resources.NotebookIndexScreen.Title) -- TODO: Language
+	local headerText = Utils.toUpperUTF8(Resources.NotebookIndexScreen.Title)
 	local headerColor = Theme.COLORS["Header text"]
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)

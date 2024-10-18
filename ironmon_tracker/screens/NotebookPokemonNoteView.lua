@@ -6,6 +6,10 @@ NotebookPokemonNoteView = {
 		negative = "Negative text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
+		header = "Header text",
+		bottomText = "Lower box text",
+		bottomBorder = "Lower box border",
+		bottomFill = "Lower box background",
 	},
 	Data = {},
 }
@@ -24,16 +28,18 @@ SCREEN.Buttons = {
 		getIconId = function(self) return SCREEN.Data.pokemonID or 0 end,
 		clickableArea = { CANVAS.X, CANVAS.Y, 32, 27 },
 		box = { CANVAS.X, CANVAS.Y - 6, 32, 32 },
+		location = "top",
 		isVisible = function(self) return SCREEN.Data.isReady end,
 		onClick = function(self)
 			if not PokemonData.isValid(SCREEN.Data.pokemonID) then return end
 			InfoScreen.previousScreenFinal = SCREEN
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, SCREEN.Data.pokemonID)
-		end
+		end,
 	},
 	Type1 = {
 		type = Constants.ButtonTypes.IMAGE,
 		box = { CANVAS.X + 1, CANVAS.Y + 28, 30, 12 },
+		location = "top",
 		isVisible = function(self) return SCREEN.Data.isReady and not Utils.isNilOrEmpty(self.image) end,
 		onClick = function (self)
 			TypeDefensesScreen.previousScreen = SCREEN
@@ -44,19 +50,27 @@ SCREEN.Buttons = {
 	Type2 = {
 		type = Constants.ButtonTypes.IMAGE,
 		box = { CANVAS.X + 1, CANVAS.Y + 40, 30, 12 },
+		location = "top",
 		isVisible = function(self) return SCREEN.Data.isReady and not Utils.isNilOrEmpty(self.image) end,
 		onClick = function (self) SCREEN.Buttons.Type1:onClick() end,
 	},
 	PokemonName = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return SCREEN.Data.pokemonName or Constants.BLANKLINE end,
+		getCustomText = function(self) return SCREEN.Data.pokemonName or Constants.BLANKLINE end,
 		box = { CANVAS.X + 30, CANVAS.Y + 1, 63, Constants.SCREEN.LINESPACING },
+		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function (self) SCREEN.Buttons.PokemonIcon:onClick() end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
+			Drawing.drawTransparentTextbox(x + 1, y + 1, self:getCustomText(), textColor, bgColor, shadowcolor)
+		end,
 	},
 	LastSeenLv = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self)
+		getCustomText = function(self)
 			if SCREEN.Data.lastLevel > 0 then
 				return string.format("%s %s.%s", Resources.TrackerScreen.BattleLastSeen, Resources.TrackerScreen.LevelAbbreviation, SCREEN.Data.lastLevel)
 			else
@@ -65,43 +79,63 @@ SCREEN.Buttons = {
 		end,
 		textColor = SCREEN.Colors.highlight,
 		box = { CANVAS.X + 30, CANVAS.Y + 20, 63, Constants.SCREEN.LINESPACING },
+		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
+			Drawing.drawTransparentTextbox(x + 1, y + 1, self:getCustomText(), textColor, bgColor, shadowcolor)
+		end,
 	},
 	AbilityLine1 = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return SCREEN.Data.abilityName1 or Constants.BLANKLINE end,
+		getCustomText = function(self) return SCREEN.Data.abilityName1 or Constants.BLANKLINE end,
 		textColor = SCREEN.Colors.highlight,
 		box = { CANVAS.X + 30, CANVAS.Y + 30, 63, Constants.SCREEN.LINESPACING },
+		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
 			if AbilityData.isValid(SCREEN.Data.abilityId1) then
 				InfoScreen.previousScreenFinal = SCREEN
 				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, SCREEN.Data.abilityId1)
 			else
-				TrackerScreen.openNotePadWindow(SCREEN.Data.pokemonID)
-				-- TODO: rebuild and redraw the page
+				TrackerScreen.openNotePadWindow(SCREEN.Data.pokemonID, SCREEN.rebuildData)
 			end
+		end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
+			Drawing.drawTransparentTextbox(x + 1, y + 1, self:getCustomText(), textColor, bgColor, shadowcolor)
 		end,
 	},
 	AbilityLine2 = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return SCREEN.Data.abilityName2 or Constants.BLANKLINE end,
+		getCustomText = function(self) return SCREEN.Data.abilityName2 or Constants.BLANKLINE end,
 		textColor = SCREEN.Colors.highlight,
 		box = { CANVAS.X + 30, CANVAS.Y + 40, 63, Constants.SCREEN.LINESPACING },
+		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
 			if AbilityData.isValid(SCREEN.Data.abilityId2) then
 				InfoScreen.previousScreenFinal = SCREEN
 				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, SCREEN.Data.abilityId2)
 			else
-				TrackerScreen.openNotePadWindow(SCREEN.Data.pokemonID)
-			-- TODO: rebuild and redraw the page
-		end
+				TrackerScreen.openNotePadWindow(SCREEN.Data.pokemonID, SCREEN.rebuildData)
+			end
+		end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
+			Drawing.drawTransparentTextbox(x + 1, y + 1, self:getCustomText(), textColor, bgColor, shadowcolor)
 		end,
 	},
 	SeenTrainersWilds = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { CANVAS.X + 1, CANVAS.Y + 52, 95, 22 },
+		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -114,7 +148,7 @@ SCREEN.Buttons = {
 				SCREEN.Data.seenInWild or Constants.BLANKLINE)
 			Drawing.drawText(x, y, textTrainer, textColor, shadowcolor)
 			Drawing.drawText(x, y + Constants.SCREEN.LINESPACING, textWild, textColor, shadowcolor)
-		end
+		end,
 	},
 
 	-- STATS BOX
@@ -130,6 +164,7 @@ SCREEN.Buttons = {
 			end
 		end,
 		box = { CANVAS.X + 121, CANVAS.Y + 62, 20, 10 },
+		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
 		updateSelf = function(self)
 			if Options["Open Book Play Mode"] then
@@ -149,10 +184,11 @@ SCREEN.Buttons = {
 	MovesLabel = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self)
-			return string.format("%s (%s/%s)", "Move History" or Resources.TrackerScreen.LeaveANote, SCREEN.Data.movesSeen, SCREEN.Data.movesTotal)
-		end, -- TODO: Language
-		textColor = SCREEN.Colors.highlight,
-		box = { CANVAS.X + 1, CANVAS.Y + 76, CANVAS.W, 11 },
+			return string.format("%s (%s/%s)", Resources.NotebookPokemonNoteView.HeaderMoveHistory, SCREEN.Data.movesSeen, SCREEN.Data.movesTotal)
+		end,
+		textColor = SCREEN.Colors.header,
+		location = "header",
+		box = { CANVAS.X, CANVAS.Y + 76, CANVAS.W, 11 },
 		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
 			MoveHistoryScreen.previousScreen = SCREEN
@@ -171,22 +207,25 @@ SCREEN.Buttons = {
 				return string.format("(%s)", Resources.TrackerScreen.LeaveANote)
 			end
 		end,
-		clickableArea = { CANVAS.X + 4, CANVAS.Y + 136, CANVAS.W - 30, 11 },
-		box = { CANVAS.X + 4, CANVAS.Y + 136, 11, 11 },
+		textColor = SCREEN.Colors.bottomText,
+		clickableArea = { CANVAS.X + 4, CANVAS.Y + 135, CANVAS.W - 30, 11 },
+		box = { CANVAS.X + 4, CANVAS.Y + 135, 11, 11 },
+		location = "bottom",
 		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
-			TrackerScreen.openNotePadWindow(SCREEN.Data.pokemonID)
-			-- TODO: rebuild and redraw the page
+			TrackerScreen.openNotePadWindow(SCREEN.Data.pokemonID, SCREEN.rebuildData)
 		end,
 	},
 
 	Back = Drawing.createUIElementBackButton(function()
 		Program.changeScreenView(SCREEN.previousScreen or NotebookPokemonSeen)
 		SCREEN.previousScreen = nil
-	end),
+	end, SCREEN.Colors.bottomText),
 }
 
 function NotebookPokemonNoteView.initialize()
+	SCREEN.Buttons.Back.location = "bottom"
+
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
 			button.textColor = SCREEN.Colors.text
@@ -287,6 +326,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 			textColor = Constants.STAT_STATES[initialState].textColor,
 			box = { CANVAS.X + 124, CANVAS.Y + 4 + (i - 1) * 10, 8, 8 },
 			statState = initialState,
+			location = "top",
 			isVisible = function() return SCREEN.Data.isReady end,
 			updateSelf = function(self)
 				if Options["Open Book Play Mode"] then
@@ -328,46 +368,57 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 		return a.level > b.level or (a.level == b.level and a.id < b.id)
 	end)
 
-	local NUM_MOVES = 6
+	local NUM_MOVES = 8
+	local allowHiddenMoveInfo = Options["Reveal info if randomized"] or not MoveData.IsRand.moveType
 	SCREEN.Data.movesSeen = #trackedMoves
 	SCREEN.Data.movesTotal = #pokemonInternal.movelvls[GameSettings.versiongroup] + 4 -- four additional level 1 moves
 	SCREEN.Data.topMoves = {}
 	for i = 1, NUM_MOVES, 1 do
 		local move = trackedMoves[i] or {}
-		if MoveData.isValid(move.id) then
+		local validMove = MoveData.isValid(move.id)
+		local canShowTypeColor = validMove and allowHiddenMoveInfo
+		if validMove then
 			SCREEN.Data.topMoves[i] = {
 				id = move.id,
 				name = MoveData.Moves[move.id].name,
 				level = move.level,
+				color = Constants.MoveTypeColors[MoveData.Moves[move.id].type]
 			}
 		end
 		local topMove = SCREEN.Data.topMoves[i] or {}
-		local w = CANVAS.W / 2 - 2
-		local h = Constants.SCREEN.LINESPACING
-		local x = CANVAS.X + 1 + (i % 2 == 0 and w or 0)
-		local y = CANVAS.Y + 88 + (math.floor((i - 1) / 2) * h)
+		local moveColor
+		if Theme.MOVE_TYPES_ENABLED and canShowTypeColor and topMove.color then
+			moveColor = topMove.color
+		else
+			moveColor = SCREEN.Colors.bottomText
+		end
+		local moveWidth = CANVAS.W / 2 - 2
+		local moveHeight = Constants.SCREEN.LINESPACING - 1
+		local moveX = CANVAS.X + 5 + (i % 2 == 0 and moveWidth or 0)
+		local moveY = CANVAS.Y + 89 + (math.floor((i - 1) / 2) * moveHeight)
 		SCREEN.Buttons["Move" .. i] = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return topMove.name or Constants.BLANKLINE end,
-			box = { x, y, w, h },
+			textColor = moveColor,
+			box = { moveX, moveY, moveWidth, moveHeight },
+			location = "bottom",
 			isVisible = function() return SCREEN.Data.isReady end,
 			onClick = function(self)
-				if not MoveData.isValid(topMove.id) then return end
+				if not validMove then return end
 				InfoScreen.previousScreenFinal = SCREEN
 				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, topMove.id)
 			end,
 			draw = function(self, shadowcolor)
-				-- TODO: Draw color bars if theme asks for it
-				-- local x, y = self.box[1], self.box[2]
-				-- local textColor = Theme.COLORS[SCREEN.Colors.text]
-				-- Drawing.drawText(x - 26, y - 2, statLabels[statKey], textColor, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				if not Theme.MOVE_TYPES_ENABLED and canShowTypeColor and topMove.color then
+					gui.drawRectangle(x - 2, y + 2, 2, 7, topMove.color, topMove.color)
+				end
 			end,
 		}
 	end
 
 	-- NOTE
-	-- TODO: Need to word-wrap this
-	SCREEN.Data.note = trackedPokemon.note
+	SCREEN.Data.note = Utils.shortenText(trackedPokemon.note, CANVAS.W - 32, true)
 
 	SCREEN.Data.isReady = true
 	return true
@@ -384,6 +435,11 @@ end
 function NotebookPokemonNoteView.clearBuiltData()
 	SCREEN.Data = {}
 	SCREEN.Data.isReady = false
+end
+
+function NotebookPokemonNoteView.rebuildData()
+	NotebookPokemonNoteView.buildScreen(SCREEN.Data.pokemonID)
+	Program.redraw()
 end
 
 ---@param button table
@@ -407,12 +463,23 @@ function NotebookPokemonNoteView.drawScreen()
 		x = CANVAS.X,
 		y = CANVAS.Y,
 		width = CANVAS.W,
-		height = CANVAS.H,
+		height = 75,
 		text = Theme.COLORS[SCREEN.Colors.text],
 		highlight = Theme.COLORS[SCREEN.Colors.highlight],
 		border = Theme.COLORS[SCREEN.Colors.border],
 		fill = Theme.COLORS[SCREEN.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
+	}
+	local botCanvas = {
+		x = canvas.x,
+		y = canvas.y + canvas.height + 12,
+		width = canvas.width,
+		height = 63,
+		text = Theme.COLORS[SCREEN.Colors.bottomText],
+		highlight = Theme.COLORS[SCREEN.Colors.highlight],
+		border = Theme.COLORS[SCREEN.Colors.bottomBorder],
+		fill = Theme.COLORS[SCREEN.Colors.bottomFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.bottomFill]),
 	}
 
 	-- Draw top border box
@@ -421,13 +488,50 @@ function NotebookPokemonNoteView.drawScreen()
 
 	-- Draw other boxes
 	gui.drawRectangle(canvas.x, canvas.y + 52, 96, 23, canvas.border, canvas.fill) -- seen #'s
-	gui.drawRectangle(canvas.x + 96, canvas.y, 44, 75, canvas.border, canvas.fill) -- stats
+	gui.drawRectangle(canvas.x + 96, canvas.y, 44, canvas.height, canvas.border, canvas.fill) -- stats
 
-	-- TODO: Consider splitting top and bottom box colors
-
-	-- Draw all buttons
+	-- Draw all top buttons
 	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
-		Drawing.drawButton(button, canvas.shadow)
+		if button.location == "top" then
+			Drawing.drawButton(button, canvas.shadow)
+		end
+	end
+	-- Draw last to properly overlap large animated icons
+	Drawing.drawButton(SCREEN.Buttons.PokemonName, canvas.shadow)
+	Drawing.drawButton(SCREEN.Buttons.LastSeenLv, canvas.shadow)
+	Drawing.drawButton(SCREEN.Buttons.AbilityLine1, canvas.shadow)
+	Drawing.drawButton(SCREEN.Buttons.AbilityLine2, canvas.shadow)
+
+	NotebookPokemonNoteView.drawBottomScreen(canvas)
+end
+
+function NotebookPokemonNoteView.drawBottomScreen(canvas)
+	local botCanvas = {
+		x = canvas.x,
+		y = canvas.y + canvas.height + 12,
+		width = canvas.width,
+		height = 63,
+		text = Theme.COLORS[SCREEN.Colors.bottomText],
+		highlight = Theme.COLORS[SCREEN.Colors.highlight],
+		border = Theme.COLORS[SCREEN.Colors.bottomBorder],
+		fill = Theme.COLORS[SCREEN.Colors.bottomFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.bottomFill]),
+	}
+
+	-- Draw header: move history label
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawButton(SCREEN.Buttons.MovesLabel, headerShadow)
+
+	-- Draw bottom border box
+	gui.defaultTextBackground(botCanvas.fill)
+	gui.drawRectangle(botCanvas.x, botCanvas.y, botCanvas.width, botCanvas.height, botCanvas.border, botCanvas.fill) -- moves
+	gui.drawRectangle(botCanvas.x, botCanvas.y + 44, botCanvas.width, botCanvas.height - 44, botCanvas.border, botCanvas.fill) -- note
+
+	-- Draw all bottom buttons (lazily determine which buttons are on the bottom part)
+	for _, button in pairs(SCREEN.Buttons) do
+		if button.location == "bottom" then
+			Drawing.drawButton(button, botCanvas.shadow)
+		end
 	end
 end
