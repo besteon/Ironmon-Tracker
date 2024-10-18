@@ -1194,13 +1194,13 @@ function TrackerScreen.drawStatsArea(data)
 	local borderColor = Theme.COLORS["Upper box border"]
 	local bgColor = Theme.COLORS["Upper box background"]
 	local shadowcolor = Utils.calcShadowColor(bgColor)
-	local statBoxWidth = 101
-	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
+	local mainBoxWidth = 101
+	local statOffsetX = Constants.SCREEN.WIDTH + mainBoxWidth + 1
 	local statOffsetY = 7
 
 	-- Draw the border box for the Stats area
-	local x, y = Constants.SCREEN.WIDTH + statBoxWidth, 5
-	local w, h = Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75
+	local x, y = Constants.SCREEN.WIDTH + mainBoxWidth, 5
+	local w, h = Constants.SCREEN.RIGHT_GAP - mainBoxWidth - 5, 75
 	gui.drawRectangle(x, y, w, h, borderColor, bgColor)
 	if RouteData.Locations.CanPCHeal[TrackerAPI.getMapId()] then
 		if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end

@@ -204,10 +204,10 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 				return Utils.containsText(name:sub(1,1), letter, true)
 			end,
 			onClick = function(self)
-				if not NotebookPokemonNoteView then return end
-				NotebookPokemonNoteView.previousScreen = SCREEN
-				NotebookPokemonNoteView.buildScreen(pokemonInfo.id)
-				Program.changeScreenView(NotebookPokemonNoteView)
+				if NotebookPokemonNoteView.buildScreen(pokemonInfo.id) then
+					NotebookPokemonNoteView.previousScreen = SCREEN
+					Program.changeScreenView(NotebookPokemonNoteView)
+				end
 			end,
 			draw = function(self, shadowcolor)
 				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]

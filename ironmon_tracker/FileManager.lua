@@ -131,6 +131,7 @@ FileManager.LuaCode = {
 	{ name = "GameOptionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOptionsScreen.lua", },
 	{ name = "NotebookIndexScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookIndexScreen.lua", },
 	{ name = "NotebookPokemonSeen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookPokemonSeen.lua", },
+	{ name = "NotebookPokemonNoteView", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookPokemonNoteView.lua", },
 	{ name = "NotebookTrainersByArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookTrainersByArea.lua", },
 	{ name = "TrackedDataScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua", },
 	{ name = "LanguageScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LanguageScreen.lua", },

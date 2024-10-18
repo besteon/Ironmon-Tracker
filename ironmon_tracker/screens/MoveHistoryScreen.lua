@@ -63,7 +63,8 @@ MoveHistoryScreen.Buttons = {
 	},
 	Back = Drawing.createUIElementBackButton(function()
 		if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
-			Program.changeScreenView(TrackerScreen)
+			Program.changeScreenView(MoveHistoryScreen.previousScreen or TrackerScreen)
+			MoveHistoryScreen.previousScreen = nil
 		else
 			Program.changeScreenView(InfoScreen)
 		end
@@ -115,6 +116,7 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 					Drawing.drawNumber(self.box[1] + 99 + 3, self.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor) -- 99 from drawScreen()
 				end,
 				onClick = function(self)
+					InfoScreen.previousScreenFinal = MoveHistoryScreen
 					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, moveId)
 				end
 			}

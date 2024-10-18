@@ -31,8 +31,8 @@ SCREEN.Buttons = {
 	},
 	PokemonIconRow = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 34, ROW_WIDTH, ROW_HEIGHT },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 34, ROW_HEIGHT, ROW_HEIGHT },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 39, ROW_WIDTH, ROW_HEIGHT },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 39, ROW_HEIGHT, ROW_HEIGHT },
 		onClick = function(self)
 			if not NotebookPokemonSeen then return end -- TODO: Debug
 			NotebookPokemonSeen.previousScreen = SCREEN
@@ -69,8 +69,8 @@ SCREEN.Buttons = {
 	TrainerIcon = {
 		type = Constants.ButtonTypes.IMAGE,
 		image = nil,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 82, ROW_WIDTH, ROW_HEIGHT },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 82, ROW_HEIGHT, ROW_HEIGHT },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 87, ROW_WIDTH, ROW_HEIGHT },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 87, ROW_HEIGHT, ROW_HEIGHT },
 		onClick = function(self)
 			NotebookTrainersByArea.previousScreen = SCREEN
 			NotebookTrainersByArea.buildScreen()
