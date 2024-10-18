@@ -201,7 +201,7 @@ TrackerScreen.Buttons = {
 	TrainerDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.BATTLE_BALLS,
-		iconColors = { Drawing.Colors.BLACK, Drawing.Colors.WHITE, Drawing.Colors.RED, Drawing.Colors.YELLOW },
+		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 78, 61, 16, 16 },
 		isVisible = function() return not Battle.isViewingOwn end,
@@ -837,12 +837,14 @@ function TrackerScreen.updateButtonStates()
 	end
 end
 
-function TrackerScreen.openNotePadWindow(pokemonId)
+function TrackerScreen.openNotePadWindow(pokemonId, onCloseFunc)
 	if not PokemonData.isValid(pokemonId) then return end
 
 	local BLANK = Constants.BLANKLINE
 	local pokemonName = PokemonData.Pokemon[pokemonId].name
-	local form = ExternalUI.BizForms.createForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
+	local form = ExternalUI.BizForms.createForm(
+		string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName),
+		465, 220, nil, nil, onCloseFunc)
 
 	form:createLabel(string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10)
 	local noteTextBox = form:createTextBox(Tracker.getNote(pokemonId), 10, 30, 430, 20)
@@ -1194,13 +1196,13 @@ function TrackerScreen.drawStatsArea(data)
 	local borderColor = Theme.COLORS["Upper box border"]
 	local bgColor = Theme.COLORS["Upper box background"]
 	local shadowcolor = Utils.calcShadowColor(bgColor)
-	local statBoxWidth = 101
-	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
+	local mainBoxWidth = 101
+	local statOffsetX = Constants.SCREEN.WIDTH + mainBoxWidth + 1
 	local statOffsetY = 7
 
 	-- Draw the border box for the Stats area
-	local x, y = Constants.SCREEN.WIDTH + statBoxWidth, 5
-	local w, h = Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75
+	local x, y = Constants.SCREEN.WIDTH + mainBoxWidth, 5
+	local w, h = Constants.SCREEN.RIGHT_GAP - mainBoxWidth - 5, 75
 	gui.drawRectangle(x, y, w, h, borderColor, bgColor)
 	if RouteData.Locations.CanPCHeal[TrackerAPI.getMapId()] then
 		if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end

@@ -228,9 +228,22 @@ function PokemonData.buildData(forced)
 			local baseHPAttack = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats)
 			local baseDefenseSpeed = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 2)
 			local baseSpASpD = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 4)
-			pokemon.bstCalculated = Utils.getbits(baseHPAttack, 0, 8) + Utils.getbits(baseHPAttack, 8, 8)
-				+ Utils.getbits(baseDefenseSpeed, 0, 8) + Utils.getbits(baseDefenseSpeed, 8, 8)
-				+ Utils.getbits(baseSpASpD, 0, 8) + Utils.getbits(baseSpASpD, 8, 8)
+			local baseStats = {
+				hp = Utils.getbits(baseHPAttack, 0, 8),
+				atk = Utils.getbits(baseHPAttack, 8, 8),
+				def = Utils.getbits(baseDefenseSpeed, 0, 8),
+				spe = Utils.getbits(baseDefenseSpeed, 8, 8),
+				spa = Utils.getbits(baseSpASpD, 0, 8),
+				spd = Utils.getbits(baseSpASpD, 8, 8)
+			}
+			pokemon.bstCalculated = 0
+			for _, baseStat in pairs(baseStats) do
+				pokemon.bstCalculated = pokemon.bstCalculated + baseStat
+			end
+			-- For now, only bother storing this info if Open Book mode is on
+			if Options["Open Book Play Mode"] then
+				pokemon.baseStats = baseStats
+			end
 
 			-- Types (2 bytes)
 			local typesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetTypes)

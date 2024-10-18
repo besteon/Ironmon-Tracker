@@ -424,6 +424,25 @@ ScreenResources{
 		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
 		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
 	},
+	NotebookIndexScreen = {
+		Title = "Tracker Notebook", -- NEEDS TRANSLATION
+		LabelReviewDescription = "Review notes about the game", -- NEEDS TRANSLATION
+		LabelPokemonSeen = "Pokémon Seen", -- NEEDS TRANSLATION
+		LabelTrainersFought = "Trainers Fought", -- NEEDS TRANSLATION
+	},
+	NotebookPokemonSeen = {
+		Title = "All Pokémon Seen", -- NEEDS TRANSLATION
+		LabelAll = "All", -- NEEDS TRANSLATION
+		LabelSeen = "Seen", -- NEEDS TRANSLATION
+	},
+	NotebookPokemonNoteView = {
+		HeaderMoveHistory = "Move History", -- NEEDS TRANSLATION
+	},
+	NotebookTrainersByArea = {
+		Title = "All Trainers by Area", -- NEEDS TRANSLATION
+		CheckboxShowCompleted = "Show completed", -- NEEDS TRANSLATION
+		CheckboxSevii = "Sevii", -- NEEDS TRANSLATION
+	},
 	TrainerInfoScreen = {
 		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
 		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
