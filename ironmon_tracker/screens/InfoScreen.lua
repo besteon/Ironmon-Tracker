@@ -311,6 +311,10 @@ InfoScreen.Pager = {
 			end
 			-- Otherwise, cycling through the encounter types for the route
 			InfoScreen.Buttons.PreviousRoute:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.PreviousPokemon:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.HiddenPowerPrev:onClick()
 		end
 	end,
 	nextPage = function(self)
@@ -331,6 +335,10 @@ InfoScreen.Pager = {
 			end
 			-- Otherwise, cycling through the encounter types for the route
 			InfoScreen.Buttons.NextRoute:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.NextPokemon:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.HiddenPowerNext:onClick()
 		end
 	end,
 }
