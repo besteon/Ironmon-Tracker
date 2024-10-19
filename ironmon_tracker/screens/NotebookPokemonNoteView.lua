@@ -458,6 +458,7 @@ end
 -- DRAWING FUNCTIONS
 function NotebookPokemonNoteView.drawScreen()
 	Drawing.drawBackgroundAndMargins()
+	SCREEN.refreshButtons()
 
 	local canvas = {
 		x = CANVAS.X,
@@ -491,7 +492,6 @@ function NotebookPokemonNoteView.drawScreen()
 	gui.drawRectangle(canvas.x + 96, canvas.y, 44, canvas.height, canvas.border, canvas.fill) -- stats
 
 	-- Draw all top buttons
-	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.location == "top" then
 			Drawing.drawButton(button, canvas.shadow)

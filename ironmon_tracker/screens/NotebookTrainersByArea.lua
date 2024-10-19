@@ -292,7 +292,8 @@ function NotebookTrainersByArea.buildScreen()
 			isVisible = function(self) return buttonRow:isVisible() end,
 			box = { -1, -1, 25, 11 },
 			alignToBox = function(self, box)
-				self.box[1] = box[1] + COLUMNS_X[3] + 2
+				local offsetX = Utils.getCenteredTextX(self:getText() or "", self.box[3])
+				self.box[1] = box[1] + COLUMNS_X[3] + offsetX
 				self.box[2] = box[2] + (ROW_HEIGHT / 2) - (Constants.SCREEN.LINESPACING / 2) - 1
 			end,
 		}
@@ -330,6 +331,7 @@ end
 -- DRAWING FUNCTIONS
 function NotebookTrainersByArea.drawScreen()
 	Drawing.drawBackgroundAndMargins()
+	SCREEN.refreshButtons()
 
 	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
@@ -353,7 +355,6 @@ function NotebookTrainersByArea.drawScreen()
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)
 
 	-- Draw all buttons
-	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end

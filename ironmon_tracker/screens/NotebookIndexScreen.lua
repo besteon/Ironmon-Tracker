@@ -25,7 +25,12 @@ SCREEN.Buttons = {
 		getIconId = function(self)
 			return SCREEN.Data.isReady and SCREEN.Data.lastPokemonSeen or 1 -- 1:Bulbasaur
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 34, ROW_HEIGHT, ROW_HEIGHT },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 37, ROW_HEIGHT, ROW_HEIGHT },
+		updateSelf = function(self)
+			local iconset = Options.getIconSet()
+			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6 + (iconset.xOffset or 0)
+			self.box[2] = Constants.SCREEN.MARGIN + 37 + (iconset.yOffset or 0)
+		end,
 	},
 	PokemonIconRow = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -199,6 +204,7 @@ end
 -- DRAWING FUNCTIONS
 function NotebookIndexScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
+	SCREEN.refreshButtons()
 
 	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
@@ -222,7 +228,6 @@ function NotebookIndexScreen.drawScreen()
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)
 
 	-- Draw all buttons
-	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		if button ~= SCREEN.Buttons.PokemonIcon then
 			Drawing.drawButton(button, canvas.shadow)
