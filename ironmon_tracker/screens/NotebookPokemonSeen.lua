@@ -260,9 +260,10 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 			end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
+				local highlight = Theme.COLORS[self.textColor]
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
 				local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
-				Drawing.drawTransparentTextbox(x, y + 2, self:getCustomText(), textColor, bgColor, shadowcolor)
+				Drawing.drawTransparentTextbox(x, y + 2, self:getCustomText(), highlight, bgColor, shadowcolor)
 				Drawing.drawTransparentTextbox(x, y + Constants.SCREEN.LINESPACING + 2, seenText, textColor, bgColor, shadowcolor)
 			end,
 		}
