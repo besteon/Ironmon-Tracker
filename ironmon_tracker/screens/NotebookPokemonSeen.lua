@@ -237,7 +237,7 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 		}
 		table.insert(buttonRow.buttonList, iconBtn)
 
-		-- POKEMON NAME
+		-- POKEMON NAME AND SEEN COUNT
 		local seenText = Resources.NotebookPokemonSeen.LabelSeen
 		local encountersTrainer = trackedPokemon.eT or 0
 		local encountersWild = trackedPokemon.eW or 0
@@ -246,9 +246,6 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 		else
 			-- In some cases, the pokemon is being tracked but was never encountered
 			local seenTotal = encountersTrainer + encountersWild
-			if seenTotal == 0 and Tracker.Data.allPokemon[pokemonInfo.id] ~= nil then
-				seenTotal = 1
-			end
 			seenText = string.format("%s: %s", seenText, seenTotal)
 		end
 		local nameBtn = {
@@ -263,9 +260,10 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 			end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
+				local highlight = Theme.COLORS[self.textColor]
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
 				local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
-				Drawing.drawTransparentTextbox(x, y + 2, self:getCustomText(), textColor, bgColor, shadowcolor)
+				Drawing.drawTransparentTextbox(x, y + 2, self:getCustomText(), highlight, bgColor, shadowcolor)
 				Drawing.drawTransparentTextbox(x, y + Constants.SCREEN.LINESPACING + 2, seenText, textColor, bgColor, shadowcolor)
 			end,
 		}
@@ -353,6 +351,7 @@ end
 -- DRAWING FUNCTIONS
 function NotebookPokemonSeen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
+	SCREEN.refreshButtons()
 
 	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
@@ -376,7 +375,6 @@ function NotebookPokemonSeen.drawScreen()
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)
 
 	-- Draw all buttons
-	SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
