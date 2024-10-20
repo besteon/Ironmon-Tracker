@@ -3,6 +3,7 @@ Battle = {
 	dataReady = false,
 	isWildEncounter = false,
 	isGhost = false,
+	lastPokemonSeen = 0,
 	opposingTrainerId = 0,
 	isViewingOwn = true, -- If the Tracker screen is viewing your own pokemon, or the enemy
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
@@ -89,6 +90,7 @@ function Battle.initialize()
 	Battle.isViewingLeft = true
 	Battle.isWildEncounter = false
 	Battle.isGhost = false
+	Battle.lastPokemonSeen = 0
 	Battle.attacker = 0
 	Battle.turnCount = -1
 	Battle.prevDamageTotal = 0
@@ -535,6 +537,7 @@ end
 
 function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 	Tracker.TrackEncounter(opposingPokemon.pokemonID, Battle.isWildEncounter)
+	Battle.lastPokemonSeen = opposingPokemon.pokemonID
 
 	local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
 	battleFlags = battleFlags or Memory.readdword(GameSettings.gBattleTypeFlags)
