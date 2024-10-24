@@ -527,6 +527,8 @@ ScreenResources{
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION
 		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
 		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
+		LabelNotesGrade = "Notes Grade", -- NEEDS TRANSLATION
+		ButtonViewGrade = "View", -- NEEDS TRANSLATION
 		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
 		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
 		ButtonRetryBattle = "Retry the battle", -- NEEDS TRANSLATION
@@ -536,6 +538,13 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+	},
+	StatMarkingScoreSheet = {
+		Title = "Stat Marking Score Sheet", -- NEEDS TRANSLATION
+		LabelGreatMarks = "Great marks", -- NEEDS TRANSLATION
+		LabelPoorMarks = "Poor marks", -- NEEDS TRANSLATION
+		LabelTotal = "Total", -- NEEDS TRANSLATION
+		LabelPercentage = "Percentage", -- NEEDS TRANSLATION
 	},
 	RandomEvosScreen = {
 		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
