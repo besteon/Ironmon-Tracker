@@ -1201,8 +1201,8 @@ end
 ---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
 ---@param forced? boolean Optional, if true will force change the setting regardless of game being played or existing setting
 function Program.changeGameSettingForLR(forced)
-	-- Do not change this setting if playing NatDex, as that rom hack defaults to ButtonMode:LR
-	if not forced and CustomCode.RomHacks.isPlayingNatDex() then
+	-- Do not change this setting if playing FireRed NatDex, as that rom hack defaults to ButtonMode:LR
+	if not forced and GameSettings.game == 3 and CustomCode.RomHacks.isPlayingNatDex() then
 		return
 	end
 	local addr2 = Utils.getSaveBlock2Addr()
