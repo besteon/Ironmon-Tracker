@@ -36,6 +36,8 @@ GameOverScreen.Buttons = {
 		getText = function(self) return string.format("(%s)", Resources.GameOverScreen.ButtonViewGrade) end,
 		textColor = "Intermediate text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 57, Constants.SCREEN.MARGIN + 35, 25, 10 },
+		boxColors = { "Upper box border", "Upper box background" },
+		location = "top",
 		onClick = function (self)
 			StatMarkingScoreSheet.previousScreen = GameOverScreen
 			StatMarkingScoreSheet.buildScreen()
@@ -415,7 +417,11 @@ function GameOverScreen.drawScreen()
 	-- Draw all other buttons
 	for _, button in pairs(GameOverScreen.Buttons) do
 		if button ~= GameOverScreen.Buttons.PokemonIcon then
-			Drawing.drawButton(button, botBox.shadow)
+			if button.location == "top" then
+				Drawing.drawButton(button, topBox.shadow)
+			else
+				Drawing.drawButton(button, botBox.shadow)
+			end
 		end
 	end
 end

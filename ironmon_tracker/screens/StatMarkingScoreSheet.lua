@@ -33,6 +33,70 @@ SCREEN.PixelImages = {
 		{0,1,0,0,0},
 		{0,0,0,0,0},
 	},
+	GRADE_A = {
+		{0,0,0,0,1,1,1,1,1,1,0,0,0,0},
+		{0,0,0,0,1,1,1,1,1,1,0,0,0,0},
+		{0,0,1,1,1,1,0,0,1,1,1,1,0,0},
+		{0,0,1,1,1,1,0,0,1,1,1,1,0,0},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+	},
+	GRADE_B = {
+		{1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+		{1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+		{1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+		{1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+	},
+	GRADE_C = {
+		{0,0,0,0,1,1,1,1,1,1,1,1,0,0},
+		{0,0,0,0,1,1,1,1,1,1,1,1,0,0},
+		{0,0,1,1,1,1,0,0,0,0,1,1,1,1},
+		{0,0,1,1,1,1,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+		{1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+		{1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+		{1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+		{1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+		{1,1,1,1,0,0,0,0,0,0,0,0,0,0},
+		{0,0,1,1,1,1,0,0,0,0,1,1,1,1},
+		{0,0,1,1,1,1,0,0,0,0,1,1,1,1},
+		{0,0,0,0,1,1,1,1,1,1,1,1,0,0},
+		{0,0,0,0,1,1,1,1,1,1,1,1,0,0},
+	},
+	GRADE_D = {
+		{1,1,1,1,1,1,1,1,1,1,0,0,0,0},
+		{1,1,1,1,1,1,1,1,1,1,0,0,0,0},
+		{1,1,1,1,0,0,0,0,1,1,1,1,0,0},
+		{1,1,1,1,0,0,0,0,1,1,1,1,0,0},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,0,0,1,1,1,1},
+		{1,1,1,1,0,0,0,0,1,1,1,1,0,0},
+		{1,1,1,1,0,0,0,0,1,1,1,1,0,0},
+		{1,1,1,1,1,1,1,1,1,1,0,0,0,0},
+		{1,1,1,1,1,1,1,1,1,1,0,0,0,0},
+	},
 }
 
 local SUMMARY_COL2_X = 53
@@ -86,8 +150,6 @@ SCREEN.Pager = {
 }
 
 SCREEN.Buttons = {
-	-- TODO:
-	-- giant letter stamp: (B+) use highlight color
 	LabelGreat = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return string.format("%s:", Resources.StatMarkingScoreSheet.LabelGreatMarks) end,
@@ -133,6 +195,32 @@ SCREEN.Buttons = {
 			local rightAlignX = 19 - Utils.calcWordPixelLength(value)
 			Drawing.drawText(x + SUMMARY_COL2_X + rightAlignX, y, value, color, shadowcolor)
 			Drawing.drawText(x + SUMMARY_COL2_X + 22, y, "%", color, shadowcolor)
+		end,
+	},
+	LetterGradeImage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = nil,
+		iconColors = { SCREEN.Colors.highlight },
+		circleColor = SCREEN.Colors.highlight,
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, Constants.SCREEN.MARGIN + 26, 14, 14 },
+		isVisible = function(self) return self.image ~= nil end,
+		updateSelf = function(self)
+			if self.image ~= SCREEN.Data.gradeLetter then
+				self.image = SCREEN.Data.gradeLetter
+			end
+		end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local color = Theme.COLORS[self.circleColor]
+			local circleX, circleY, circleW, circleH = x - 9, y - 9, 30, 30
+			if Theme.DRAW_TEXT_SHADOWS then
+				gui.drawEllipse(circleX + 1, circleY + 2, circleW, circleH, shadowcolor)
+				gui.drawEllipse(circleX + 2, circleY + 2, circleW, circleH, shadowcolor)
+			end
+			gui.drawEllipse(circleX, circleY, circleW, circleH, color)
+			gui.drawEllipse(circleX, circleY + 1, circleW, circleH, color)
+			gui.drawEllipse(circleX + 1, circleY, circleW, circleH, color - (Drawing.ColorEffects.DARKEN * 2))
+			gui.drawEllipse(circleX + 1, circleY + 1, circleW, circleH, color - (Drawing.ColorEffects.DARKEN * 2))
 		end,
 	},
 
@@ -209,7 +297,7 @@ function StatMarkingScoreSheet.buildScreen()
 	SCREEN.Data.greatMarkings = 0
 	SCREEN.Data.poorMarkings = 0
 	SCREEN.Data.totalMarkings = 0
-	SCREEN.Data.gradeLetter = -1 -- TODO: perhaps use pixel art
+	SCREEN.Data.gradeLetter = nil
 
 	-- Add to list all pokemon with tracked stat markings
 	SCREEN.Data.pokemon = {}
@@ -359,6 +447,9 @@ function StatMarkingScoreSheet.buildScreen()
 	else
 		SCREEN.Data.percentageScore = Constants.BLANKLINE
 	end
+
+	local percentile = tonumber(SCREEN.Data.percentageScore) or 0
+	SCREEN.Data.gradeLetter = SCREEN.getGradePixelImage(percentile)
 end
 
 ---Returns true if the `statMarking` for a given `baseStat` value is within its range [and margin of error], inclusive
@@ -388,23 +479,21 @@ function StatMarkingScoreSheet.isMarkingAccurate(statMarking, baseStat, statKey,
 	return (baseStat >= minAllowed) and (baseStat <= maxAllowed) or alternativeSuccess
 end
 
-function StatMarkingScoreSheet.getGradePixelImage()
-	if not SCREEN.Data.pokemon or SCREEN.Data.totalMarkings == 0 then
-		return nil
-	end
-	local percentile = tonumber(SCREEN.Data.percentageScore) or 0
-
-	-- TODO: Return a pixel image for each
+---Returns a pixel-image table that represents a letter grade from A to D.
+---@param percentile number
+---@return table pixelImage
+function StatMarkingScoreSheet.getGradePixelImage(percentile)
+	percentile = percentile or 0
 	if percentile == 100 then
-		return "A+"
+		return SCREEN.PixelImages.GRADE_A
 	elseif percentile >= 90 then
-		return "A"
+		return SCREEN.PixelImages.GRADE_A
 	elseif percentile >= 80 then
-		return "B"
+		return SCREEN.PixelImages.GRADE_B
 	elseif percentile >= 70 then
-		return "C"
+		return SCREEN.PixelImages.GRADE_C
 	else
-		return "D"
+		return SCREEN.PixelImages.GRADE_D
 	end
 end
 
