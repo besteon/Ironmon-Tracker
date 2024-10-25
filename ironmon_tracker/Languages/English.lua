@@ -422,6 +422,25 @@ ScreenResources{
 		LabelOrderAppearance = "In order of appearance",
 		PromptLookupRoute = "Choose a Route to look up",
 	},
+	NotebookIndexScreen = {
+		Title = "Tracker Notebook",
+		LabelReviewDescription = "Review notes about the game",
+		LabelPokemonSeen = "Pokémon Seen",
+		LabelTrainersFought = "Trainers Fought",
+	},
+	NotebookPokemonSeen = {
+		Title = "All Pokémon Seen",
+		LabelAll = "All",
+		LabelSeen = "Seen",
+	},
+	NotebookPokemonNoteView = {
+		HeaderMoveHistory = "Move History",
+	},
+	NotebookTrainersByArea = {
+		Title = "All Trainers by Area",
+		CheckboxShowCompleted = "Show completed",
+		CheckboxSevii = "Sevii",
+	},
 	TrainerInfoScreen = {
 		LabelAvgIvs = "Avg. IVs",
 		LabelAIScript = "A I Script",
@@ -508,6 +527,8 @@ ScreenResources{
 		Title = "G a m e O v e r",
 		LabelAttempt = "Attempt",
 		LabelPlayTime = "Play Time",
+		LabelNotesGrade = "Notes Grade",
+		ButtonViewGrade = "View",
 		QuoteCongratulations = "CONGRATULATIONS!!",
 		ButtonContinuePlaying = "Continue playing",
 		ButtonRetryBattle = "Retry the battle",
@@ -517,6 +538,14 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save",
 		ButtonInspectLogFile = "Inspect the log",
 		ButtonOpenLogFile = "Open a log file",
+	},
+	StatMarkingScoreSheet = {
+		Title = "Stat Marking Score Sheet",
+		LabelGreatMarks = "Great marks",
+		LabelPoorMarks = "Poor marks",
+		LabelTotal = "Total",
+		LabelPercentage = "Percentage",
+		MessageTakeNotesByMarking = "Take notes while playing by marking stats on opposing Pokémon. (The Speed stat is excluded from grading.)",
 	},
 	RandomEvosScreen = {
 		LabelRandomEvos = "Random Evos",

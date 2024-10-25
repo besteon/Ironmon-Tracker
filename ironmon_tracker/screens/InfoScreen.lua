@@ -200,6 +200,9 @@ InfoScreen.Buttons = {
 		InfoScreen.infoLookup = 0
 		if InfoScreen.prevScreen > 0 then
 			InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
+		elseif InfoScreen.previousScreenFinal then
+			Program.changeScreenView(InfoScreen.previousScreenFinal)
+			InfoScreen.clearScreenData()
 		else
 			InfoScreen.clearScreenData()
 			if Program.isValidMapLocation() then
@@ -311,6 +314,10 @@ InfoScreen.Pager = {
 			end
 			-- Otherwise, cycling through the encounter types for the route
 			InfoScreen.Buttons.PreviousRoute:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.PreviousPokemon:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.HiddenPowerPrev:onClick()
 		end
 	end,
 	nextPage = function(self)
@@ -331,6 +338,10 @@ InfoScreen.Pager = {
 			end
 			-- Otherwise, cycling through the encounter types for the route
 			InfoScreen.Buttons.NextRoute:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.NextPokemon:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.HiddenPowerNext:onClick()
 		end
 	end,
 }
@@ -339,6 +350,10 @@ InfoScreen.TemporaryButtons = {}
 
 function InfoScreen.initialize()
 	InfoScreen.clearScreenData()
+
+	-- Lazy way to make sure that only one of these buttons gets clicked
+	InfoScreen.Buttons.Back.isVisible = function() return InfoScreen.viewScreen ~= InfoScreen.Screens.ABILITY_INFO end
+	InfoScreen.Buttons.BackTop.isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO end
 end
 
 function InfoScreen.changeScreenView(screen, info)
@@ -358,6 +373,7 @@ function InfoScreen.clearScreenData()
 	InfoScreen.prevScreen = 0
 	InfoScreen.infoLookup = 0
 	InfoScreen.prevScreenInfo = 0
+	InfoScreen.previousScreenFinal = nil
 	InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
 	InfoScreen.Buttons.ShowRouteLevels.toggleState = false
 	InfoScreen.Buttons.PokemonInfoIcon.spriteType = SpriteData.Types.Idle

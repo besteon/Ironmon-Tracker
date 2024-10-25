@@ -1,6 +1,10 @@
 AbilityData = {}
 
 AbilityData.Values = {
+	HugePowerId = 37,
+	ThickFatId = 47,
+	HustleId = 55,
+	PurePowerId = 74,
 	CacophonyId = 76,
 }
 
@@ -269,7 +273,6 @@ AbilityData.Abilities = {
 	{
 		id = 53,
 		name = "Pickup",
-
 	},
 	{
 		id = 54,

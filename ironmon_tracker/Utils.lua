@@ -141,6 +141,8 @@ function Utils.formatTime(numSeconds)
 end
 
 -- Returns an offset that will center-align the given text based on a specified area's width
+---@param text string
+---@param areaWidth? number Optional, defaults to the full width of the Tracker Screen
 function Utils.getCenteredTextX(text, areaWidth)
 	areaWidth = areaWidth or Constants.SCREEN.RIGHT_GAP
 	local textSize = Utils.calcWordPixelLength(text or "")

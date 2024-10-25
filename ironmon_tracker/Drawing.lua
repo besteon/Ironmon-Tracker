@@ -389,18 +389,23 @@ function Drawing.drawButton(button, shadowcolor)
 	else
 		text = button.text or ""
 	end
-	local textColor = button.textColor or "Default text"
+	local textColor
+	if type(button.textColor) == "number" then
+		textColor = button.textColor
+	else
+		textColor = Theme.COLORS[button.textColor or false] or Theme.COLORS["Default text"]
+	end
 
 	local iconColors = {}
 	for _, colorKey in ipairs(button.iconColors or {}) do
 		if type(colorKey) == "number" then
 			table.insert(iconColors, colorKey)
 		else
-			table.insert(iconColors, Theme.COLORS[colorKey] or Theme.COLORS[textColor])
+			table.insert(iconColors, Theme.COLORS[colorKey] or textColor)
 		end
 	end
 	if #iconColors == 0 then -- default to using the same text color
-		table.insert(iconColors, Theme.COLORS[textColor])
+		table.insert(iconColors, textColor)
 	end
 
 	-- First draw a box if
@@ -413,12 +418,12 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
-		Drawing.drawText(x + 1, y, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.disabled then
 			textColor = "Negative text"
 		end
-		Drawing.drawText(x + width + 1, y - 2, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + width + 1, y - 2, text, textColor, shadowcolor)
 
 		-- Draw a mark if the checkbox button is toggled on
 		if button.toggleState then
@@ -432,8 +437,8 @@ function Drawing.drawButton(button, shadowcolor)
 			-- Draw a colored circle with a black border
 			gui.drawEllipse(x - 1, y, width, height, Drawing.Colors.BLACK, Theme.COLORS[button.themeColor])
 			-- Draw the hex code to the side, and the text label for it
-			Drawing.drawText(x + width + 1, y - 2, hexCodeText, Theme.COLORS[textColor], shadowcolor)
-			Drawing.drawText(x + width + 37, y - 2, text, Theme.COLORS[textColor], shadowcolor)
+			Drawing.drawText(x + width + 1, y - 2, hexCodeText, textColor, shadowcolor)
+			Drawing.drawText(x + width + 37, y - 2, text, textColor, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.IMAGE then
 		if button.image ~= nil then
@@ -441,7 +446,7 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
-		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + width + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local pokemonID, animType = button:getIconId()
 		if PokemonData.isImageIDValid(pokemonID) then
@@ -459,7 +464,7 @@ function Drawing.drawButton(button, shadowcolor)
 		if text == Constants.STAT_STATES[2].text or text == Constants.STAT_STATES[3].text then
 			y = y - 1 -- Move up the negative/neutral stat mark 1px
 		end
-		Drawing.drawText(x, y - 1, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x, y - 1, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CIRCLE then
 		-- Draw the circle's shadow and the circle border
 		if shadowcolor ~= nil then
@@ -470,11 +475,11 @@ function Drawing.drawButton(button, shadowcolor)
 			x = x - 1
 			y = y - 1
 		end
-		Drawing.drawText(x + 1, y, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.ICON_BORDER then
 		local offsetX = 17
 		local offsetY = math.max(math.floor((height - Constants.SCREEN.LINESPACING) / 2), 0)
-		Drawing.drawText(x + offsetX, y + offsetY, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + offsetX, y + offsetY, text, textColor, shadowcolor)
 		if button.image ~= nil then
 			local imageWidth = #button.image[1]
 			local imageHeight = #button.image

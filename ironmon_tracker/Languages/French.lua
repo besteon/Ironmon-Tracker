@@ -422,6 +422,25 @@ ScreenResources{
 		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
 		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
 	},
+	NotebookIndexScreen = {
+		Title = "Tracker Notebook", -- NEEDS TRANSLATION
+		LabelReviewDescription = "Review notes about the game", -- NEEDS TRANSLATION
+		LabelPokemonSeen = "Pokémon Seen", -- NEEDS TRANSLATION
+		LabelTrainersFought = "Trainers Fought", -- NEEDS TRANSLATION
+	},
+	NotebookPokemonSeen = {
+		Title = "All Pokémon Seen", -- NEEDS TRANSLATION
+		LabelAll = "All", -- NEEDS TRANSLATION
+		LabelSeen = "Seen", -- NEEDS TRANSLATION
+	},
+	NotebookPokemonNoteView = {
+		HeaderMoveHistory = "Move History", -- NEEDS TRANSLATION
+	},
+	NotebookTrainersByArea = {
+		Title = "All Trainers by Area", -- NEEDS TRANSLATION
+		CheckboxShowCompleted = "Show completed", -- NEEDS TRANSLATION
+		CheckboxSevii = "Sevii", -- NEEDS TRANSLATION
+	},
 	TrainerInfoScreen = {
 		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
 		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
@@ -508,6 +527,8 @@ ScreenResources{
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION
 		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
 		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
+		LabelNotesGrade = "Notes Grade", -- NEEDS TRANSLATION
+		ButtonViewGrade = "View", -- NEEDS TRANSLATION
 		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
 		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
 		ButtonRetryBattle = "Retry the battle", -- NEEDS TRANSLATION
@@ -517,6 +538,14 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+	},
+	StatMarkingScoreSheet = {
+		Title = "Stat Marking Score Sheet", -- NEEDS TRANSLATION
+		LabelGreatMarks = "Great marks", -- NEEDS TRANSLATION
+		LabelPoorMarks = "Poor marks", -- NEEDS TRANSLATION
+		LabelTotal = "Total", -- NEEDS TRANSLATION
+		LabelPercentage = "Percentage", -- NEEDS TRANSLATION
+		MessageTakeNotesByMarking = "Take notes while playing by marking stats on opposing Pokémon. (The Speed stat is excluded from grading.)", -- NEEDS TRANSLATION
 	},
 	RandomEvosScreen = {
 		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION

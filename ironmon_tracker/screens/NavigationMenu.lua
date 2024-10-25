@@ -22,7 +22,7 @@ NavigationMenu.Buttons = {
 	},
 	SetupAndOptions = {
 		getText = function(self) return Resources.NavigationMenu.ButtonSetup end,
-		image = Constants.PixelImages.NOTEPAD,
+		image = Constants.PixelImages.GEAR,
 		index = 1,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(SetupScreen) end
@@ -57,22 +57,25 @@ NavigationMenu.Buttons = {
 		end,
 		onClick = function() Program.changeScreenView(QuickloadScreen) end
 	},
+	Notebook = {
+		getText = function(self) return "Notebook" or Resources.NavigationMenu.ButtonNotebook end,
+		image = Constants.PixelImages.NOTEPAD,
+		index = 5,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function()
+			NotebookIndexScreen.buildScreen()
+			Program.changeScreenView(NotebookIndexScreen)
+		end
+	},
 	ThemeCustomization = {
 		getText = function(self) return Resources.NavigationMenu.ButtonTheme end,
 		image = Constants.PixelImages.SPARKLES,
-		index = 5,
+		index = 6,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
 			Program.changeScreenView(Theme)
 		end
-	},
-	LanguageSettings = {
-		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
-		image = Constants.PixelImages.LANGUAGE_LETTERS,
-		index = 6,
-		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},
 	CheckForUpdates = {
 		getText = function(self)
@@ -118,6 +121,13 @@ NavigationMenu.Buttons = {
 			CustomExtensionsScreen.buildOutPagedButtons()
 			Program.changeScreenView(CustomExtensionsScreen)
 		end
+	},
+	LanguageSettings = {
+		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
+		image = Constants.PixelImages.LANGUAGE_LETTERS,
+		index = 10,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},
 	MirageButton = {
 		getText = function(self)
