@@ -97,18 +97,32 @@ SCREEN.PixelImages = {
 		{1,1,1,1,1,1,1,1,1,1,0,0,0,0},
 		{1,1,1,1,1,1,1,1,1,1,0,0,0,0},
 	},
+	PLUS_SIGN = {
+		{0,0,1,1,0,0},
+		{0,0,1,1,0,0},
+		{1,1,1,1,1,1},
+		{1,1,1,1,1,1},
+		{0,0,1,1,0,0},
+		{0,0,1,1,0,0},
+	},
 }
 
 local SUMMARY_COL2_X = 53
+local LETTER_GRADE_X = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108
 local GRIDROW = {
 	X = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1,
 	Y = Constants.SCREEN.MARGIN + 68,
 	W = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2 - 2,
 	H = 32,
+	CELL_W = 21,
 	COLS_X = { 1, 35, 56, 77, 98, 119 }
 }
 
 local STATS_ORDERED = { "hp", "atk", "def", "spa", "spd" } -- speed is excluded due to notetaking
+
+local function hasMarkings()
+	return (SCREEN.Data.totalMarkings or 0) > 0
+end
 
 SCREEN.Pager = {
 	Buttons = {},
@@ -165,7 +179,7 @@ SCREEN.Buttons = {
 	LabelPoor = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return string.format("%s:", Resources.StatMarkingScoreSheet.LabelPoorMarks) end,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 22, 8, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 21, 8, 8 },
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			local value = SCREEN.Data.poorMarkings or Constants.BLANKLINE
@@ -177,7 +191,7 @@ SCREEN.Buttons = {
 	LabelTotalNotes = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return string.format("%s:", Resources.StatMarkingScoreSheet.LabelTotal) end,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 33, 8, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 31, 8, 8 },
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			local value = SCREEN.Data.totalMarkings or Constants.BLANKLINE
@@ -187,7 +201,7 @@ SCREEN.Buttons = {
 	LabelGradeScore = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return string.format("%s:", Resources.StatMarkingScoreSheet.LabelPercentage) end,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 44, 8, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 41, 8, 8 },
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			local value = SCREEN.Data.percentageScore or Constants.BLANKLINE
@@ -202,17 +216,27 @@ SCREEN.Buttons = {
 		image = nil,
 		iconColors = { SCREEN.Colors.highlight },
 		circleColor = SCREEN.Colors.highlight,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, Constants.SCREEN.MARGIN + 26, 14, 14 },
-		isVisible = function(self) return self.image ~= nil and SCREEN.Data.percentageScore ~= Constants.BLANKLINE end,
+		box = {	LETTER_GRADE_X, Constants.SCREEN.MARGIN + 26, 14, 14 },
+		isVisible = function(self) return self.image ~= nil and hasMarkings() end,
 		updateSelf = function(self)
 			if self.image ~= SCREEN.Data.gradeLetter then
 				self.image = SCREEN.Data.gradeLetter
 			end
+			-- Reposition the icon for A+
+			if SCREEN.Data.percentageScore == "100" and self.box[1] == LETTER_GRADE_X then
+				self.box[1] = LETTER_GRADE_X - 3
+			elseif SCREEN.Data.percentageScore ~= "100" and self.box[1] ~= LETTER_GRADE_X then
+				self.box[1] = LETTER_GRADE_X
+			end
 		end,
 		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			local color = Theme.COLORS[self.circleColor]
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local color = Theme.COLORS[self.iconColors[1]]
 			local circleX, circleY, circleW, circleH = x - 9, y - 9, 30, 30
+			if SCREEN.Data.percentageScore == "100" then
+				circleX = circleX + 3
+				Drawing.drawImageAsPixels(SCREEN.PixelImages.PLUS_SIGN, x + w + 2, y + 5, color, shadowcolor)
+			end
 			if Theme.DRAW_TEXT_SHADOWS then
 				gui.drawEllipse(circleX + 1, circleY + 2, circleW, circleH, shadowcolor)
 				gui.drawEllipse(circleX + 2, circleY + 2, circleW, circleH, shadowcolor)
@@ -223,17 +247,23 @@ SCREEN.Buttons = {
 			gui.drawEllipse(circleX + 1, circleY + 1, circleW, circleH, color - (Drawing.ColorEffects.DARKEN * 2))
 		end,
 	},
-
+	-- Consider having a way to adjust the acceptable ranges for high/medium/low markings, as well as margin of error
+	-- EditOptions = {
+	-- 	type = Constants.ButtonTypes.FULL_BORDER,
+	-- 	getText = function(self) return "Options" or Resources.ExtrasScreen.ButtonEditTime end,
+	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 35, 11 },
+	-- 	onClick = function(self) ExtrasScreen.openEditTimerPrompt() end,
+	-- },
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return SCREEN.Pager:getPageText() end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 135, 50, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 51, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 42, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 39, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
 		onClick = function(self)
 			SCREEN.Pager:prevPage()
@@ -242,7 +272,7 @@ SCREEN.Buttons = {
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 96, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 93, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
 		onClick = function(self)
 			SCREEN.Pager:nextPage()
@@ -278,13 +308,18 @@ function StatMarkingScoreSheet.createHeader()
 		SCREEN.NavButtons[statKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			textColor = SCREEN.Colors.text,
-			box = { GRIDROW.X + GRIDROW.COLS_X[i + 1], GRIDROW.Y - Constants.SCREEN.LINESPACING - 3, 20, 11 },
-			isVisible = function(self) return SCREEN.Data.percentageScore ~= Constants.BLANKLINE end,
+			box = { GRIDROW.X + GRIDROW.COLS_X[i + 1], GRIDROW.Y - Constants.SCREEN.LINESPACING - 3, GRIDROW.CELL_W, 10 },
+			isVisible = function(self) return hasMarkings() end,
 			draw = function(self, shadowcolor)
-				local x, y = self.box[1], self.box[2]
+				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 				local textColor = Theme.COLORS[self.textColor]
+				local borderColor = Theme.COLORS[SCREEN.Colors.border]
 				local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
-				local centerOffset = Utils.getCenteredTextX(statText, 21) - 2
+				local centerOffset = Utils.getCenteredTextX(statText, GRIDROW.CELL_W) - 2
+				-- Draw vertical dotted line
+				for offsetY = 1, GRIDROW.H - 1, 2 do
+					gui.drawPixel(x - 1, y + 2 + offsetY, borderColor)
+				end
 				Drawing.drawTransparentTextbox(x + centerOffset, y + 2, statText, textColor, bgColor, shadowcolor)
 			end,
 		}
@@ -410,7 +445,7 @@ function StatMarkingScoreSheet.buildScreen()
 			local statBtn = {
 				type = Constants.ButtonTypes.NO_BORDER,
 				isVisible = function(self) return buttonRow:isVisible() end,
-				box = { -1, -1, 21, GRIDROW.H / 2 },
+				box = { -1, -1, GRIDROW.CELL_W, GRIDROW.H / 2 },
 				alignToBox = function(self, box)
 					self.box[1] = box[1] + GRIDROW.COLS_X[i + 1]
 					self.box[2] = box[2] + (GRIDROW.H / 2) + 2
@@ -420,14 +455,18 @@ function StatMarkingScoreSheet.buildScreen()
 					local textColor = Theme.COLORS[SCREEN.Colors.text]
 					local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
 					if statMarking then
-						local centerOffset = Utils.getCenteredTextX(statMarking, 21) - 2
+						local centerOffset = Utils.getCenteredTextX(statMarking, GRIDROW.CELL_W) - 2
 						Drawing.drawTransparentTextbox(x + centerOffset, y - 16, statMarking, textColor, bgColor, shadowcolor)
 						if gradeSymbol then
 							Drawing.drawImageAsPixels(gradeSymbol, x + w - 7, y - 17, Theme.COLORS[gradeColor], shadowcolor)
 						end
 					end
-					local centerOffset = Utils.getCenteredTextX(baseStatText, 21) - 2
+					local centerOffset = Utils.getCenteredTextX(baseStatText, GRIDROW.CELL_W) - 2
 					Drawing.drawTransparentTextbox(x + centerOffset, y, baseStatText, textColor, bgColor, shadowcolor)
+					-- Draw an indicator that this stat is being influenced by the Pokémon's ability
+					if SCREEN.checkAbilityException(statKey, pokemonInfo.abilityId) ~= nil then
+						Drawing.drawChevronsVerticalIntensity(x + 1, y - 3, 1, 1, 4, 2, 1, 2)
+					end
 				end,
 			}
 			table.insert(buttonRow.buttonList, statBtn)
@@ -453,6 +492,17 @@ function StatMarkingScoreSheet.buildScreen()
 	SCREEN.Data.gradeLetter = SCREEN.getGradePixelImage(percentile)
 end
 
+function StatMarkingScoreSheet.checkAbilityException(statKey, abilityId)
+	if statKey == "atk" and (abilityId == AbilityData.Values.HugePowerId or abilityId == AbilityData.Values.PurePowerId) then
+		return "HugePower"
+	elseif statKey == "atk" and abilityId == AbilityData.Values.HustleId then
+		return "Hustle"
+	elseif statKey == "spd" and abilityId == AbilityData.Values.ThickFatId then
+		return "ThickFat"
+	end
+	return nil
+end
+
 ---Returns true if the `statMarking` for a given `baseStat` value is within its range [and margin of error], inclusive
 ---@param statMarking string
 ---@param baseStat number
@@ -468,11 +518,11 @@ function StatMarkingScoreSheet.isMarkingAccurate(statMarking, baseStat, statKey,
 	local maxAllowed = range.max + SCREEN.StatMarkingRanges.MarginOfError
 
 	local alternativeSuccess = false
-	if statKey == "atk" and (abilityId == AbilityData.Values.HugePowerId or abilityId == AbilityData.Values.PurePowerId) then
+	if SCREEN.checkAbilityException(statKey, abilityId) == "HugePower" then
 		baseStat = math.min(baseStat * 2, 255) -- treat it as though it's doubled, max 255
-	elseif statKey == "atk" and abilityId == AbilityData.Values.HustleId then
+	elseif SCREEN.checkAbilityException(statKey, abilityId) == "Hustle" then
 		baseStat = math.min(baseStat * 1.5, 255) -- treat it as though it's boosted, max 255
-	elseif statKey == "spd" and abilityId == AbilityData.Values.ThickFatId then
+	elseif SCREEN.checkAbilityException(statKey, abilityId) == "ThickFat" then
 		local altBaseStat = math.min(baseStat * 2, 255) -- treat it as though it's doubled, max 255
 		alternativeSuccess = (altBaseStat >= minAllowed) and (altBaseStat <= maxAllowed)
 	end
@@ -548,20 +598,33 @@ function StatMarkingScoreSheet.drawScreen()
 	-- Draw top border box
 	gui.defaultTextBackground(canvas.fill)
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
+
 	-- Header
 	local headerText = Utils.toUpperUTF8(Resources.StatMarkingScoreSheet.Title)
 	local headerColor = Theme.COLORS["Header text"]
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)
 
+	-- If no stat marking notes were taken, draw a message about that
+	if not hasMarkings() then
+		local msgToDisplay = Resources.StatMarkingScoreSheet.MessageTakeNotesByMarking
+		local wrappedQuotes = Utils.getWordWrapLines(msgToDisplay, 29)
+		local textLineY = GRIDROW.Y + Constants.SCREEN.LINESPACING
+		for _, line in pairs(wrappedQuotes or {}) do
+			local centerOffsetX = Utils.getCenteredTextX(line, canvas.width) - 1
+			Drawing.drawText(canvas.x + centerOffsetX, textLineY, line, canvas.text, canvas.shadow)
+			textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+		end
+	end
+
 	-- Draw all buttons
 	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
-	for _, button in pairs(SCREEN.NavButtons) do
+	for _, button in pairs(SCREEN.Pager.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
-	for _, button in pairs(SCREEN.Pager.Buttons) do
+	for _, button in pairs(SCREEN.NavButtons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
 end

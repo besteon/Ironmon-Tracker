@@ -263,27 +263,26 @@ function Input.infoShortcutPressed()
 		return
 	end
 
-	-- NOTE: No longer need this by default, as the Info Shortcut is 'R'
-	-- Only activate "SELECT" shortcut if no in-game key item is bound to SELECT
-	-- if Utils.containsText(Options.CONTROLS["Info shortcut"] or "", "Select") then
-	-- 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
-	-- 	local registeredItemId = Memory.readword(saveBlock1Addr + GameSettings.gameRegItemOffset)
-	-- 	if registeredItemId ~= 0 then
-	-- 		return
-	-- 	end
-	-- end
-
 	-- Check what type of contextual info to display (such as early game pivots, safari zone, or trainers on routes)
 	local pokemon = Tracker.getPokemon(1, true) or {}
-	if (pokemon.level or 0) < 13 or RouteData.Locations.IsInSafariZone[TrackerAPI.getMapId()] then
-		if RouteData.hasRouteEncounterArea(Program.GameData.mapId, RouteData.EncounterArea.LAND) then
+	local mapId = TrackerAPI.getMapId()
+	if (pokemon.level or 0) < 13 or RouteData.Locations.IsInSafariZone[mapId] then
+		-- If the current route has encounters, use that
+		if RouteData.hasRouteEncounterArea(mapId, RouteData.EncounterArea.LAND) then
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
-				mapId = Program.GameData.mapId,
+				mapId = mapId,
+				encounterArea = RouteData.EncounterArea.LAND,
+			})
+		-- Otherwise, check if the current route is an early game city and use the first route
+		elseif RouteData.Locations.EarlyGameCity[mapId] then
+			local earlyRoutes = RouteData.getPivotOrSafariRouteIds() or {}
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+				mapId = earlyRoutes[1] or mapId,
 				encounterArea = RouteData.EncounterArea.LAND,
 			})
 		end
 	else
-		if TrainersOnRouteScreen.buildScreen(TrackerAPI.getMapId()) then
+		if TrainersOnRouteScreen.buildScreen(mapId) then
 			TrainersOnRouteScreen.previousScreen = TrackerScreen
 			Program.changeScreenView(TrainersOnRouteScreen)
 		end
