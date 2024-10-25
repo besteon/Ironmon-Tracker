@@ -390,7 +390,6 @@ function GameOverScreen.drawScreen()
 	end
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	-- TODO: Language
 	Drawing.drawText(topBox.x + 2, textLineY, Resources.GameOverScreen.LabelNotesGrade .. ":", topBox.text, topBox.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING + 2
 
@@ -401,7 +400,7 @@ function GameOverScreen.drawScreen()
 	else
 		msgToDisplay = Resources.GameOverScreenQuotes[GameOverScreen.chosenQuoteIndex] or ""
 	end
-	local wrappedQuotes = Utils.getWordWrapLines("This is a battle between obviously mismatched Pokémon." or msgToDisplay, 30)
+	local wrappedQuotes = Utils.getWordWrapLines(msgToDisplay, 30)
 	local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
 	textLineY = textLineY + 5 * (2 - #firstTwoLines)
 	for _, line in pairs(firstTwoLines) do

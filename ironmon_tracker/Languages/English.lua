@@ -545,6 +545,7 @@ ScreenResources{
 		LabelPoorMarks = "Poor marks",
 		LabelTotal = "Total",
 		LabelPercentage = "Percentage",
+		MessageTakeNotesByMarking = "Take notes while playing by marking stats on opposing Pokémon. (The Speed stat is excluded from grading.)",
 	},
 	RandomEvosScreen = {
 		LabelRandomEvos = "Random Evos",
