@@ -66,6 +66,7 @@ RouteData.Locations = {
 	IsInLab = {},
 	IsInHallOfFame = {},
 	IsInSafariZone = {},
+	EarlyGameCity = {},
 }
 -- Maps a mapId to all its connected other mapIds that make up a complete dungeon (e.g. Pokemon Tower 1F-7F)
 RouteData.CombinedAreas = {}
@@ -432,6 +433,11 @@ function RouteData.setupRouteInfoAsFRLG()
 		[148] = true,
 		[149] = true,
 		[150] = true,
+	}
+	RouteData.Locations.EarlyGameCity = {
+		[78] = true, -- Pallet Town
+		[79] = true, -- Viridian City
+		[80] = true, -- Pewter City
 	}
 
 	-- [AreaName] = { combained list of mapIds }
@@ -3201,6 +3207,12 @@ function RouteData.setupRouteInfoAsRSE()
 		[239 + offset] = true,
 		[240 + offset] = true,
 		[241 + offset] = true,
+	}
+	RouteData.Locations.EarlyGameCity = {
+		[1] = true, -- Petalburg City
+		[4] = true, -- Rustboro City
+		[10] = true, -- Littleroot Town
+		[11] = true, -- Oldale Town
 	}
 	if isGameEmerald then
 		-- In Emerald, Ironmon ends after Steven battle, not e4.
