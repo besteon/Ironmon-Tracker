@@ -203,7 +203,7 @@ SCREEN.Buttons = {
 		iconColors = { SCREEN.Colors.highlight },
 		circleColor = SCREEN.Colors.highlight,
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, Constants.SCREEN.MARGIN + 26, 14, 14 },
-		isVisible = function(self) return self.image ~= nil end,
+		isVisible = function(self) return self.image ~= nil and SCREEN.Data.percentageScore ~= Constants.BLANKLINE end,
 		updateSelf = function(self)
 			if self.image ~= SCREEN.Data.gradeLetter then
 				self.image = SCREEN.Data.gradeLetter
@@ -279,6 +279,7 @@ function StatMarkingScoreSheet.createHeader()
 			type = Constants.ButtonTypes.NO_BORDER,
 			textColor = SCREEN.Colors.text,
 			box = { GRIDROW.X + GRIDROW.COLS_X[i + 1], GRIDROW.Y - Constants.SCREEN.LINESPACING - 3, 20, 11 },
+			isVisible = function(self) return SCREEN.Data.percentageScore ~= Constants.BLANKLINE end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
 				local textColor = Theme.COLORS[self.textColor]
