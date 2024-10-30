@@ -8,7 +8,6 @@ Settings.ini
 *Attempts.txt
 quickload/*.jar
 quickload/*.rnqs
-extensions/*
 !extensions/How to use.txt
 !extensions/CodeExtensionTemplate.lua.txt
 ironmon_tracker/*.txt
