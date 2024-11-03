@@ -9,3 +9,8 @@ for FILE in $(ls | grep '\.lua$' | xargs); do
 done
 echo "Copying ironbot folder to ${DEST}..."
 cp -r ironbot $DEST
+echo "Copying $DEST to $DEST../../extensions"
+if [ ! -d $DEST../../extensions ]; then
+    mkdir $DEST../../extensions
+fi
+cp -r $DEST $DEST../../
