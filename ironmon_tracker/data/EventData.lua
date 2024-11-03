@@ -284,6 +284,121 @@ end
 
 ---@param params string?
 ---@return string response
+function EventData.getTrainer(params)
+	local trainerId
+	if not Utils.isNilOrEmpty(params) then
+		trainerId = tonumber(params or "") or 0
+	else
+		trainerId = TrackerAPI.getOpponentTrainerId()
+	end
+	local trainerInternal = TrainerData.getTrainerInfo(trainerId)
+	if not trainerInternal or trainerInternal == TrainerData.BlankTrainer then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	local trainerGame = Program.readTrainerGameData(trainerId)
+
+	-- TRAINER'S TEAM, LEVELS, & IVS
+	local team = {}
+	local minLv, maxLv, ivTotal = 100, 0, 0
+	for _, partyMon in ipairs(trainerGame.party) do
+		if trainerGame.defeated then
+			local monName = PokemonData.Pokemon[partyMon.pokemonID].name
+			table.insert(team, string.format("%s (%s.%s)",
+				monName,
+				Resources.TrackerScreen.LevelAbbreviation,
+				partyMon.level
+			))
+		else
+			if partyMon.level < minLv then
+				minLv = partyMon.level
+			end
+			if partyMon.level > maxLv then
+				maxLv = partyMon.level
+			end
+		end
+		ivTotal = ivTotal + partyMon.ivs
+	end
+	if trainerGame.defeated then
+		table.insert(info, (#team > 0 and table.concat(team, ", ")) or Constants.BLANKLINE)
+	else
+		local lvRange
+		if minLv == maxLv then
+			lvRange = tostring(minLv)
+		else
+			lvRange = string.format("%s-%s", minLv, maxLv)
+		end
+		table.insert(info, string.format("%s Pokémon (%s.%s)",
+			trainerGame.partySize,
+			Resources.TrackerScreen.LevelAbbreviation,
+			lvRange
+		))
+	end
+
+	local avgIVs = math.max(math.floor(ivTotal / #trainerGame.party), 0) -- min of 0
+	table.insert(info, string.format("%s: %s", "IVs", avgIVs))
+
+	-- TRAINER'S AI SCRIPT
+	local aiLabel
+	if Utils.getbits(trainerGame.aiFlags, 2, 1) == 1 then -- AI_SCRIPT_TRY_TO_FAINT
+		aiLabel = "Smart"
+	elseif Utils.getbits(trainerGame.aiFlags, 1, 1) == 1 then -- AI_SCRIPT_CHECK_VIABILITY
+		aiLabel = "Semi-Smart"
+	elseif Utils.getbits(trainerGame.aiFlags, 0, 1) == 1 then -- AI_SCRIPT_CHECK_BAD_MOVE
+		aiLabel = "Normal"
+	elseif trainerGame.aiFlags == 0 then
+		aiLabel = "Dumb"
+	else
+		aiLabel = "Complex"
+	end
+	table.insert(info, string.format("%s: %s", "AI Script", aiLabel))
+
+	-- TRAINER'S ITEMS
+	local itemCounts = {}
+	for _, itemId in ipairs(trainerGame.items) do
+		local itemName = Resources.Game.ItemNames[itemId]
+		if itemName then
+			itemCounts[itemId] = (itemCounts[itemId] or 0) + 1
+		end
+	end
+	local itemNames = {}
+	for itemId, count in pairs(itemCounts) do
+		if count == 1 then
+			table.insert(itemNames, Resources.Game.ItemNames[itemId])
+		else
+			table.insert(itemNames, string.format("%s %s", count, Resources.Game.ItemNames[itemId]))
+		end
+	end
+	table.sort(itemNames, function(a,b) return a < b end) -- lazily sort alphabetically
+	local items = (#itemNames > 0 and table.concat(itemNames, ", ")) or "None"
+	table.insert(info, string.format("%s: %s", Resources.TrainerInfoScreen.LabelUsableItems, items))
+
+	-- TRAINER CLASS & NAME
+	local trainerName = trainerGame.trainerName
+	local trainerClass = trainerGame.trainerClass
+	if Utils.isNilOrEmpty(trainerName) then
+		trainerName = Constants.BLANKLINE
+	end
+	if Utils.isNilOrEmpty(trainerClass) then
+		trainerClass = Constants.BLANKLINE
+	end
+	local combinedName = string.format("%s %s", trainerClass, trainerName)
+
+	-- TRAINER'S ROUTE
+	local routeName
+	if trainerInternal.routeId and RouteData.hasRoute(trainerInternal.routeId) then
+		routeName = RouteData.Info[trainerInternal.routeId].name or Constants.BLANKLINE
+	else
+		routeName = string.format("%s: %s", "Route", Constants.BLANKLINE)
+	end
+
+	local prefix = string.format("%s (#%s) %s %s", combinedName, trainerId, routeName, OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
 function EventData.getDungeon(params)
 	local routeId = getRouteIdOrDefault(params)
 	local route = RouteData.Info[routeId or false]

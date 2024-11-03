@@ -493,6 +493,11 @@ EventHandler.DefaultEvents = {
 		Command = "!route",
 		Fulfill = function(self, request) return EventData.getRoute(request.SanitizedInput) end,
 	},
+	CMD_Trainer = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!trainer",
+		Fulfill = function(self, request) return EventData.getTrainer(request.SanitizedInput) end,
+	},
 	CMD_Dungeon = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!dungeon",
