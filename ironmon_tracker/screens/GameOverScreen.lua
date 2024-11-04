@@ -10,6 +10,34 @@ GameOverScreen = {
 	status = nil,
 }
 
+-- Different functions to confirm if the game has ended in a loss (game over)
+GameOverScreen.LossConditions = {
+	LeadPokemonFaints = function()
+		local pokemon = TrackerAPI.getPlayerPokemon(1)
+		return pokemon and pokemon.curHP == 0
+	end,
+	HighestLevelFaints = function()
+		local highestLevel, highestFainted = 0, false
+		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
+			if pokemon.level > highestLevel then
+				highestLevel = pokemon.level
+				highestFainted = pokemon.curHP == 0
+			elseif pokemon.level == highestLevel then -- check all ties for a faint
+				highestFainted = highestFainted or pokemon.curHP == 0
+			end
+		end
+		return highestFainted
+	end,
+	EntirePartyFaints = function()
+		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
+			if pokemon.curHP ~= 0 then
+				return false
+			end
+		end
+		return true
+	end,
+}
+
 GameOverScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
@@ -190,7 +218,7 @@ function GameOverScreen.randomizeAnnouncerQuote()
 end
 
 ---Returns true if a GameOver has occurred and the screen should be displayed (lost/tied, or won final battle)
----@param lastBattleStatus number?
+---@param lastBattleStatus number? [2 = Lost the match, 3 = Tied]
 ---@param lastTrainerId number? The TrainerId of the most recent enemy trainer that was battled
 ---@return boolean isGameOver
 function GameOverScreen.checkForGameOver(lastBattleStatus, lastTrainerId)
@@ -198,14 +226,16 @@ function GameOverScreen.checkForGameOver(lastBattleStatus, lastTrainerId)
 		return false
 	end
 
-	lastBattleStatus = lastBattleStatus or Memory.readbyte(GameSettings.gBattleOutcome)
-	lastTrainerId = lastTrainerId or Memory.readword(GameSettings.gTrainerBattleOpponent_A)
-
-	-- BattleStatus [2 = Lost the match, 3 = Tied]
-	if lastBattleStatus == 2 or lastBattleStatus == 3 then
+	local conditionKey = Options["Game Over condition"] or ""
+	local lossConditionFunc = GameOverScreen.LossConditions[conditionKey] or GameOverScreen.LossConditions.LeadPokemonFaints
+	if lossConditionFunc() then
 		GameOverScreen.status = GameOverScreen.Statuses.LOST
-	elseif Battle.wonFinalBattle(lastBattleStatus, lastTrainerId) then
-		GameOverScreen.status = GameOverScreen.Statuses.WON
+	else
+		lastBattleStatus = lastBattleStatus or Memory.readbyte(GameSettings.gBattleOutcome)
+		lastTrainerId = lastTrainerId or Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+		if Battle.wonFinalBattle(lastBattleStatus, lastTrainerId) then
+			GameOverScreen.status = GameOverScreen.Statuses.WON
+		end
 	end
 
 	return GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING

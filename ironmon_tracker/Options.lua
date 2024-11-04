@@ -24,6 +24,7 @@ Options = {
 	["Override Button Mode to LR"] = true,
 	["Show last damage calcs"] = true,
 	["Reveal info if randomized"] = true,
+	["Game Over condition"] = "LeadPokemonFaints",
 	["Show experience points bar"] = false,
 	["Animated Pokemon popout"] = false,
 	["Refocus emulator after load"] = true,
