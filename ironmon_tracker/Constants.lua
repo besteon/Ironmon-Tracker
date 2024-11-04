@@ -131,6 +131,7 @@ Constants.OrderedLists = {
 		"Override Button Mode to LR",
 		"Show last damage calcs",
 		"Reveal info if randomized",
+		"Game Over condition",
 		"Show experience points bar",
 		"Animated Pokemon popout",
 		"Refocus emulator after load",

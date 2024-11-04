@@ -263,7 +263,11 @@ ScreenResources{
 	},
 	GameOptionsScreen = {
 		Title = "Gameplay Options", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
+		TabGameOver = "Game Over", -- NEEDS TRANSLATION
+		TabOther = "Other", -- NEEDS TRANSLATION
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
+		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
@@ -274,6 +278,9 @@ ScreenResources{
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
+		OptionLeadPokemonFaints = "Lead Pokémon faints", -- NEEDS TRANSLATION
+		OptionHighestLevelFaints = "Highest level faints", -- NEEDS TRANSLATION
+		OptionEntirePartyFaints = "Entire party faints", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
