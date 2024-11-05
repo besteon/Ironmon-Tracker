@@ -6,7 +6,7 @@ Check after each frame if an action has to be done:
 		- In case of a wild battle there are 4 options:
 			- It is the first battle (lab fight): KILL
 			- The foe pokemon is a shiny: KILL
-			- The pokemon has a high score and we're in the capture sequence (after Rival 1 and before first trainer or before Rival 1 with a ball on the 2 starting items): CAPTURE
+			- The pokemon has a high score and we're on a capture spot (after Rival 1 and before first trainer or before Rival 1 with a ball on the 2 starting items): CAPTURE
 			The score is determined by:
 				- Checking the BST of the foe.
 				- Checking the foe moves and calculating their move score. We want to know at least 3/4 moves.
@@ -21,11 +21,30 @@ Check after each frame if an action has to be done:
 - On new turn (1st turn = 0, starting our counter at -1 so the first turn is actually a new turn)
 	- Define the action to take according to the current strategy
 	- If KILL:
+		- Check if our mon has been forced to switch (ex whirlwind...). If so switch back to our main mon
+		- If switched, action = SWITCH + main_pokemon_slot
 		- Check our mon's health and determine if its health is critical (simply a HP percentage might be enough). Check the probability of our mon's speed to be higher than foe speed (from foe BST, but being safe). If we already know (already played a turn against this foe mon) no need to estimate it. If our mon is faster, check the probability of OHKO of the foe. If this probability is enough, no need to heal. If not (our mon is slower or won't OHKO the for), check for a good healing item (near restoring 100% HP, but no need to have 100% either)
 		- If healed, action = BAG + Items/Berries + healing_item_id
 		- Check our mon's status. If sleeping/frozen, check for a healing item. If poisoned/burned/paralyzed/confused, check the number of pokemon the trainer has left and if the foe can be defeated quickly. If it's the last pokemon and it can be defeated quickly, no need to heal. If not, check for a healing item. If poisoned, also check for the remaining health needed (for example need at least 50 HP, it is a really safe value). In dungeons, just heal the poison/burn/paralysis unless it's the last battle of the dungeon.
 		- If healed, action = BAG + Items/Berries + healing_item_id
-		- Check the best move to use according to its score (pretty much the damage that will be inflicted). It can also be interesting to boost the mon (+ATK/SPA/DEF/SPD). Boost moves should have a specific degressive score so they are only used in the beginning of a battle to setup the mon. + Check all the specific moves
-
+		- Check the best move to use according to its score (pretty much the damage that will be inflicted). It can also be interesting to boost the mon (+ATK/SPA/DEF/SPD). Boost moves should have a specific degressive score so they are only used in the beginning of a battle to setup the mon. + Check all the specific moves (ex snore if sleeping, toxic should also be pretty good etc...)
+		- If attacking, action = ATTACK + move_id
+	- If RUN:
+		- Choose action = RUN in any case
+	- If CAPTURE:
+		- If enough information is available, check the foe score. If the foe is interesting, capture.
+		- If trying to capture, action = BAG + Balls + ball_item_id
+		- Check our mon's health and determine if its health is critical (simply a HP percentage might be enough). If so, run.
+		- If run, action = RUN
+		- If any other move, even with worst score, has any chance of killing the foe, run.
+		- If run, action = RUN
+		- Use the move with the worst score, or a DEF/SPD boost (those have the best priority) to gather more info.
+		- If attacking, action = ATTACK + move_id
+	- Mash to skip actions (foe + own, can be in any order)
+- On battle end:
+	- Run from the battle: skip the run text
+	- Captured mon: skip text + name mon randomly + switch to new mon
+	- Killed'em all: skip trainer or wild text (for lab fight + shinies)
+	- If battle was a trainer or a wild battle from capture spot and HP isn't high or PP are low: go to PC
 
 
