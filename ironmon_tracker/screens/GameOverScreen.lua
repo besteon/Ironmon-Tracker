@@ -14,23 +14,25 @@ GameOverScreen = {
 GameOverScreen.LossConditions = {
 	LeadPokemonFaints = function()
 		local pokemon = TrackerAPI.getPlayerPokemon(1)
-		return pokemon and pokemon.curHP == 0
+		return pokemon and pokemon.curHP == 0 and pokemon.isEgg ~= 1
 	end,
 	HighestLevelFaints = function()
 		local highestLevel, highestFainted = 0, false
 		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
-			if pokemon.level > highestLevel then
-				highestLevel = pokemon.level
-				highestFainted = pokemon.curHP == 0
-			elseif pokemon.level == highestLevel then -- check all ties for a faint
-				highestFainted = highestFainted or pokemon.curHP == 0
+			if pokemon.isEgg ~= 1 then -- ignore eggs
+				if pokemon.level > highestLevel then
+					highestLevel = pokemon.level
+					highestFainted = pokemon.curHP == 0
+				elseif pokemon.level == highestLevel then -- check all ties for a faint
+					highestFainted = highestFainted or pokemon.curHP == 0
+				end
 			end
 		end
 		return highestFainted
 	end,
 	EntirePartyFaints = function()
 		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
-			if pokemon.curHP ~= 0 then
+			if pokemon.curHP ~= 0 and pokemon.isEgg ~= 1 then -- ignore eggs
 				return false
 			end
 		end

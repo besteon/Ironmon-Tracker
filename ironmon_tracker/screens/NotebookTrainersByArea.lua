@@ -74,6 +74,7 @@ SCREEN.Buttons = {
 		onClick = function(self)
 			self.toggleState = not self.toggleState
 			SCREEN.buildScreen()
+			NotebookIndexScreen.buildScreen() -- recount total trainers
 			Program.redraw(true)
 		end
 	},
