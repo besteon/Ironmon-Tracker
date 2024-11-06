@@ -193,6 +193,15 @@ NavigationMenu.Buttons = {
 function NavigationMenu.initialize()
 	NavigationMenu.showCredits = false
 
+	-- Draw a helpful reminder on how to use the universal "back" button
+	NavigationMenu.Buttons.Back.draw = function(self, shadowcolor)
+		local x, y = self.box[1], self.box[2]
+		local text = string.format("(%s + %s)", Options.CONTROLS["Previous page"] or "L", Options.CONTROLS["Next page"] or "R")
+		local textWidth = Utils.calcWordPixelLength(text)
+		local color = Theme.COLORS[self.textColor] - (Drawing.ColorEffects.DARKEN * 2)
+		Drawing.drawText(x - textWidth - 1, y - 1, text, color, shadowcolor)
+	end
+
 	local btnWidth = 63
 	local btnHeight = 16
 	local spacer = 6
