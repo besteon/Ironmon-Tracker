@@ -126,12 +126,23 @@ local function IronBot()
 						if eff == move.type then moveScore = moveScore * 4.0 end
 					end
 				end
+				local moveId = tonumber(move.id)-1
+				if moveId ~= nil and BattleManager.MoveParams[math.floor(moveId)].forbidden ~= nil
+					and BattleManager.MoveParams[math.floor(moveId)].forbidden == true then
+					moveScore = moveScore * -1 - 1
+				end
 			end
 			--print("MOVE " .. tostring(i) .. ": " .. tostring(moveScore))
 			moveScores[#moveScores+1] = moveScore
 			if moveScore > maxMoveScore then
 				maxMoveScore = moveScore
 				maxMoveIndex = i
+			end
+		end
+		-- If only forbidden moves, just take the best forbidden move!
+		if maxMoveScore < 0 then
+			for i,score in ipairs(moveScores) do
+				moveScores[i] = score * -1
 			end
 		end
 		return maxMoveIndex, moveScores
