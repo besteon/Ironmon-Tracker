@@ -87,6 +87,13 @@ BattleManager.DefaultDamageParams = {
 --- @param params table Params table, like BattleManager.DefaultDamageParams
 --- @return number minDmg, number maxDmg, number minCritDmg, number maxCritDmg
 function BattleManager.calculateDamage(params)
+	-- Handle fixed Damage
+	local moveId = tonumber(params.move.id)-1
+	if BattleManager.MoveParams[moveId].fixedDamage ~= nil then
+		local fixedDamage = BattleManager.MoveParams[moveId].fixedDamage
+		return fixedDamage, fixedDamage, fixedDamage, fixedDamage
+	end
+
 	local level = params.level
 	local power = params.move.power
 	local attack = params.attackerAttackStat
@@ -179,15 +186,25 @@ function BattleManager.calculateDamage(params)
 			end
 		end
 	end
+
+	-- Move Params
+	local hitMin = 1.0
+	local hitMax = 1.0
+	if BattleManager.MoveParams[moveId].hitMin ~= nil and BattleManager.MoveParams[moveId].hitMax ~= nil then
+		hitMin = BattleManager.MoveParams[moveId].hitMin
+		hitMax = BattleManager.MoveParams[moveId].hitMax
+	end
+
 	local minRand = 0.85
 	if params.move.id == "255" then
 		minRand = 1.0
 	end
 	local maxRand = 1.0
 
-	--print("Power=" .. tostring(power) .. " / Attack=" .. tostring(attack) .. " / Defense=" .. tostring(defense) .. " / Burn=" .. tostring(burn) .. " / Screen=" .. tostring(screen)
-	--	.. " / Targets=" .. tostring(targets) .. " / Weather=" .. tostring(weather) .. " / FlashFire=" .. tostring(flashFire) .. " / Stockpile=" .. tostring(stockpile)
-	--	.. " / DoubleDmg=" .. tostring(doubleDmg) .. " / Charge=" .. tostring(charge) .. " / Stab=" .. tostring(stab) .. " / Effectiveness=" .. tostring(typeEffectiveness))
+	print("Power=" .. tostring(power) .. " / Attack=" .. tostring(attack) .. " / Defense=" .. tostring(defense) .. " / Burn=" .. tostring(burn) .. " / Screen=" .. tostring(screen)
+		.. " / Targets=" .. tostring(targets) .. " / Weather=" .. tostring(weather) .. " / FlashFire=" .. tostring(flashFire) .. " / Stockpile=" .. tostring(stockpile)
+		.. " / DoubleDmg=" .. tostring(doubleDmg) .. " / Charge=" .. tostring(charge) .. " / Stab=" .. tostring(stab) .. " / Effectiveness=" .. tostring(typeEffectiveness)
+		.. " / HitMin=" .. tostring(hitMin) .. " / HitMax=" .. tostring(hitMax))
 	local flatDmg = (((2.0*level/5.0 + 2.0) * power * attack / defense) / 50.0 * burn * screen * targets * weather * flashFire + 2.0)
 		* stockpile * doubleDmg * charge * stab * typeEffectiveness
 	local critical = 2.0
@@ -197,32 +214,40 @@ function BattleManager.calculateDamage(params)
 	end
 	local flatCritDmg = (((2.0*level/5.0 + 2.0) * power * critAttack / critDefense) / 50.0 * burn * targets * weather * flashFire + 2.0)
 		* stockpile * critical * doubleDmg * charge * stab * typeEffectiveness
-	local minDmg = math.floor(flatDmg * minRand)
-	local maxDmg = math.ceil(flatDmg * maxRand)
-	local minCritDmg = math.floor(flatCritDmg * minRand)
-	local maxCritDmg = math.ceil(flatCritDmg * maxRand)
+	local minDmg = math.floor(flatDmg * minRand * hitMin)
+	local maxDmg = math.ceil(flatDmg * maxRand * hitMax)
+	local minCritDmg = math.floor(flatCritDmg * minRand * hitMin)
+	local maxCritDmg = math.ceil(flatCritDmg * maxRand * hitMax)
 	return minDmg, maxDmg, minCritDmg, maxCritDmg
 end
 
+--- Return a table of scored moves and the index of the move with the best score
+--- @param moves table the moves to score
+--- @param params table Params table, like BattleManager.DefaultDamageParams
 function BattleManager.getBestMove(moves, params)
-	local avgDmgTable = {}
-	local maxAvgDmg = -1.0
-	local maxAvgDmgIndex = 1
+	local scoreTable = {}
+	local maxScore = -1.0
+	local maxScoreIndex = 1
 	for i,move in ipairs(moves) do
 		params.move = move
+		local score = 0.0
 		local minDmg, maxDmg, _, _ = BattleManager.calculateDamage(params)
 		local avgDmg = (minDmg + maxDmg) / 2.0
-		avgDmgTable[i] = avgDmg
-		if avgDmg > maxAvgDmg then
-			maxAvgDmg = avgDmg
-			maxAvgDmgIndex = i
+		local accuracy = tonumber(move.accuracy)
+		if move.accuracy == Constants.BLANKLINE or move.accuracy == "0" then accuracy = 100.0 end
+		score = avgDmg * accuracy / 100.0
+		scoreTable[i] = avgDmg
+		if score > maxScore then
+			maxScore = score
+			maxScoreIndex = i
 		end
 	end
-	return avgDmgTable, maxAvgDmgIndex
+	return scoreTable, maxScoreIndex
 end
 
 -- Params list @TODO Doubles battle
--- hitMean = 3: By default 1. The damage is inflicted 3 times per attack on average
+-- hitMin = 1: By default 1. The damage is inflicted 1 time per attack minimum
+-- hitMax = 5: By default 1. The damage is inflicted 5 times per attack maximum
 -- statusInflicted = {}: By default {}. List of status change the attack can inflict
 -- statusInflictedChance = 10: By default 100. Percentage of status change chance (here 10%)
 -- waitBefore = true: By default false. The attack hits on the 2nd turn
@@ -245,9 +270,9 @@ end
 -- hitDelay = 3: By default 0. Hits with an average delay of 3 turns
 BattleManager.MoveParams = {
 	{},--Pound
-	{hitMean = 3},--Karate Chop
-	{hitMean = 3},--DoubleSlap
-	{hitMean = 3},--CometPunch
+	{highCriticalRatio = true},--Karate Chop
+	{hitMin = 1, hitMax = 5},--DoubleSlap
+	{hitMin = 1, hitMax = 5},--CometPunch
 	{},--Mega Punch
 	{},--Pay Day
 	{statusInflicted = {BattleManager.Status.Burn}, statusInflictedChance = 10},--Fire Punch
@@ -267,14 +292,14 @@ BattleManager.MoveParams = {
 	{},--Slam
 	{},--Vine Whip
 	{statusInflicted = {BattleManager.Status.Flinch}, statusInflictedChance = 30},--Stomp @TODO Specific check for Minimize
-	{hitMean = 2},--Double Kick
+	{hitMin = 2, hitMax = 2},--Double Kick
 	{},--Mega Kick
 	{hitsOwnIfFailed = true},--Jump Kick
 	{statusInflicted = {BattleManager.Status.Flinch}, statusInflictedChance = 30},--Rolling Kick
 	{statsFoeChange = {["acc"]=-1}},--Sand-Attack
 	{statusInflicted = {BattleManager.Status.Flinch}, statusInflictedChance = 30},--Headbutt
 	{},--Horn Attack
-	{hitMean = 3},--Fury Attack
+	{hitMin = 1, hitMax = 5},--Fury Attack
 	{},--Horn Drill
 	{},--Tackle
 	{statusInflicted = {BattleManager.Status.Paralysis}, statusInflictedChance = 30},--Body Slam
@@ -284,8 +309,8 @@ BattleManager.MoveParams = {
 	{recoilPercentage = 33},--Double-Edge
 	{statsFoeChange = {["def"]=-1}},--Tail Whip
 	{statusInflicted = {BattleManager.Status.Poison}, statusInflictedChance = 30},--Poison Sting
-	{hitMean = 2, statusInflicted = {BattleManager.Status.Poison}, statusInflictedChance = 20},--Twineedle
-	{hitMean = 3},--Pin Missile
+	{hitMin = 2, hitMax = 2, statusInflicted = {BattleManager.Status.Poison}, statusInflictedChance = 20},--Twineedle
+	{hitMin = 1, hitMax = 5},--Pin Missile
 	{statsFoeChange = {["def"]=-1}},--Leer
 	{statusInflicted = {BattleManager.Status.Flinch}, statusInflictedChance = 30},--Bite
 	{statsFoeChange = {["atk"]=-1}},--Growl
@@ -373,7 +398,7 @@ BattleManager.MoveParams = {
 	{trapFoe = true},--Clamp
 	{},--Swift
 	{statsOwnChange = {["def"]=1}, waitBefore = true},--Skull Bash
-	{hitMean = 3},--Spike Cannon
+	{hitMin = 1, hitMax = 5},--Spike Cannon
 	{statsFoeChange = {["spe"]=-1}, statsFoeChangeChance = 10},--Constrict
 	{statsOwnChange = {["spd"]=2}},--Amnesia
 	{statsFoeChange = {["acc"]=-1}},--Kinesis
@@ -382,7 +407,7 @@ BattleManager.MoveParams = {
 	{statusInflicted = {BattleManager.Status.Paralysis}},--Glare
 	{forbidden = true},--Dream Eater
 	{statusInflicted = {BattleManager.Status.Poison}},--Poison Gas
-	{hitMean = 3},--Barrage
+	{hitMin = 1, hitMax = 5},--Barrage
 	{forbidden = true},--Leech Life
 	{statusInflicted = {BattleManager.Status.Sleep}},--Lovely Kiss
 	{waitBefore = true},--Sky Attack
@@ -396,8 +421,8 @@ BattleManager.MoveParams = {
 	{statsOwnChange = {["def"]=2}},--Acid Armor
 	{highCriticalRatio = true},--Crabhammer
 	{forbidden = true},--Explosion
-	{hitMean = 3},--Fury Swipes
-	{hitMean = 2},--Bonemerang
+	{hitMin = 1, hitMax = 5},--Fury Swipes
+	{hitMin = 2, hitMax = 2},--Bonemerang
 	{forbidden = true},--Rest
 	{statusInflicted = {BattleManager.Status.Flinch}, statusInflictedChance = 30},--Rock Slide
 	{},--Hyper Fang
@@ -409,7 +434,7 @@ BattleManager.MoveParams = {
 	{forbidden = true},--Substitute
 	{},--Struggle, doesn't matter I guess
 	{},--Sketch @TODO A move scorer for Sketch?
-	{hitMean = 3},--Triple Kick
+	{hitMin = 3, hitMax = 3},--Triple Kick
 	{},--Thief
 	{},--Spider Web
 	{},--Mind Reader
@@ -440,7 +465,7 @@ BattleManager.MoveParams = {
 	{forbidden = true},--Perish Song
 	{statsFoeChange = {["spe"]=-1}},--Icy Wind
 	{},--Detect
-	{hitMean = 3},--Bone Rush
+	{hitMin = 1, hitMax = 5},--Bone Rush
 	{},--Lock-On
 	{loopUntilFail = true},--Outrage
 	{forbidden = true},--Sandstorm
@@ -534,7 +559,7 @@ BattleManager.MoveParams = {
 	{},--Snatch
 	{},--Secret Power
 	{hideBefore = true},--Dive
-	{hitMean = 3},--Arm Thrust
+	{hitMin = 1, hitMax = 5},--Arm Thrust
 	{},--Camouflage
 	{statsOwnChange = {["spa"]=2}},--Tail Glow
 	{statsFoeChange = {["spd"]=-1}, statsFoeChangeChance = 50},--Luster Purge
@@ -573,7 +598,7 @@ BattleManager.MoveParams = {
 	{trapFoe = true},--Sand Tomb
 	{},--Sheer Cold
 	{statsFoeChange = {["acc"]=-1}, statsFoeChangeChance = 30},--Muddy Water
-	{hitMean = 3},--Bullet Seed
+	{hitMin = 1, hitMax = 5},--Bullet Seed
 	{},--Aerial Ace
 	{loopUntilFail = true},--Icicle Spear
 	{statsOwnChange = {["def"]=2}},--Iron Defense
@@ -592,7 +617,7 @@ BattleManager.MoveParams = {
 	{statsOwnChange = {["spa"]=1, ["spd"]=1}},--Calm Mind
 	{highCriticalRatio = true},--Leaf Blade
 	{statsOwnChange = {["atk"]=1, ["spe"]=1}},--Dragon Dance
-	{hitMean = 3},--Rock Blast
+	{hitMin = 1, hitMax = 5},--Rock Blast
 	{},--Shock Wave
 	{statusInflicted = {BattleManager.Status.Confusion}, statusInflictedChance = 20},--Water Pulse
 	{hitDelay = 2},--Doom Desire

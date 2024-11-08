@@ -576,11 +576,11 @@ dmgParams.targetDefenseModifier = foePoke.stages["def"]
 dmgParams.targetSpecialDefenseStat = estimatedFoeStats["spd"]
 dmgParams.targetSpecialDefenseModifier = foePoke.stages["spd"]
 
-local dmgTable, maxDmgIndex = BattleManager.getBestMove(ownMoves, dmgParams)
-for i,dmg in ipairs(dmgTable) do
-	print(ownMoves[i].name .. ":" .. tostring(dmg))
+local scoreTable, maxScoreIndex = BattleManager.getBestMove(ownMoves, dmgParams)
+for i,score in ipairs(scoreTable) do
+	print(ownMoves[i].name .. ":" .. tostring(score))
 end
-local chosenMove = ownMoves[maxDmgIndex]
+local chosenMove = ownMoves[maxScoreIndex]
 print("Chosen move: " .. chosenMove.name)
 
 print("--------- TURN 00 ---------")

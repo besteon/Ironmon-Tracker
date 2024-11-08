@@ -128,9 +128,6 @@ local function IronBot()
 						if eff == move.type then moveScore = moveScore * 4.0 end
 					end
 					-- Move Params
-					if moveParams.hitMean ~= nil then
-						moveScore = moveScore * BattleManager.MoveParams[moveId].hitMean
-					end
 					if moveParams.statusInflicted ~= nil then
 						local statusScore = 0.0
 						local statusNb = 1
