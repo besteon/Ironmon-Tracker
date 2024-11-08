@@ -95,6 +95,8 @@ local function IronBot()
 		local moveScores = {}
 		for i,move in ipairs(ownData.m.moves) do
 			local moveScore = 0.0
+			local moveId = tonumber(move.id)-1
+			local moveParams = BattleManager.MoveParams[moveId]
 			if move.power ~= nil and move.accuracy ~= nil and move.pp ~= "0" then
 				local stab = ownData.p.types[1] == move.type or ownData.p.types[2] == move.type
 				local power = tonumber(move.power)
@@ -125,8 +127,27 @@ local function IronBot()
 					for _,eff in ipairs(effectiveness[4]) do
 						if eff == move.type then moveScore = moveScore * 4.0 end
 					end
+					-- Move Params
+					if moveParams.hitMean ~= nil then
+						moveScore = moveScore * BattleManager.MoveParams[moveId].hitMean
+					end
+					if moveParams.statusInflicted ~= nil then
+						local statusScore = 0.0
+						local statusNb = 1
+						for j,status in ipairs(moveParams.statusInflicted) do
+							statusScore = statusScore + BattleManager.StatusScores[status]
+							statusNb = j
+						end
+						statusScore = statusScore / statusNb
+						if moveParams.statusInflictedChance ~= nil then
+							statusScore = statusScore * moveParams.statusInflictedChance / 100.0
+						end
+						moveScore = moveScore + statusScore
+					end
+					if moveParams.waitBefore ~= nil and moveParams.waitBefore then
+						moveScore = moveScore / 2.0
+					end
 				end
-				local moveId = tonumber(move.id)-1
 				if moveId ~= nil and BattleManager.MoveParams[math.floor(moveId)].forbidden ~= nil
 					and BattleManager.MoveParams[math.floor(moveId)].forbidden == true then
 					moveScore = moveScore * -1 - 1

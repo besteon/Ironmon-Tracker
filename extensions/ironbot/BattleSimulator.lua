@@ -2,6 +2,7 @@ require "ironmon_tracker.Main"
 require "ironmon_tracker.Constants"
 require "ironmon_tracker.data.PokemonData"
 require "ironmon_tracker.data.MoveData"
+require "ironmon_tracker.data.AbilityData"
 
 -------------------------------------------------------------------------------
 --- CONSTANTS -----------------------------------------------------------------
@@ -414,11 +415,17 @@ local bot = require "extensions.IronBot"()
 --- @param lvl integer The level of the Pokemon
 --- @return table pokemon
 local function getRandomPokemon(lvl)
-	local id = math.random(1, #PokemonData.Pokemon + 1)
+	local id = math.random(1, #PokemonData.Pokemon)
 	local poke = PokemonData.Pokemon[id]
 	while poke == nil or poke.name == "none" do
-		id = math.random(1, #PokemonData.Pokemon + 1)
+		id = math.random(1, #PokemonData.Pokemon)
 		poke = PokemonData.Pokemon[id]
+	end
+	local abilityId = math.random(1, #AbilityData.Abilities)
+	local ability = AbilityData.Abilities[abilityId]
+	while ability.id == 25 do
+		abilityId = math.random(1, #AbilityData.Abilities)
+		ability = AbilityData.Abilities[abilityId]
 	end
 	local randoms = {
 		math.random(0, poke.bst),
@@ -442,8 +449,20 @@ local function getRandomPokemon(lvl)
 	poke["def"] = math.floor(2.0*ownDistrib[4]*lvl/100.0 + 5)
 	poke["spd"] = math.floor(2.0*ownDistrib[5]*lvl/100.0 + 5)
 	poke["spe"] = math.floor(2.0*ownDistrib[6]*lvl/100.0 + 5)
+	local stages = {
+		["hp"] = 0,
+		["atk"] = 0,
+		["spa"] = 0,
+		["def"] = 0,
+		["spd"] = 0,
+		["spe"] = 0,
+		["acc"] = 0,
+		["eva"] = 0,
+	}
 	poke.id = id
 	poke.types = types[id]
+	poke.ability = ability
+	poke.stages = stages
 	return poke
 end
 
@@ -451,10 +470,10 @@ end
 --- @return table moveset
 local function getRandomMoveSet()
 	return {
-		MoveData.Moves[math.random(1, #MoveData.Moves + 1)],
-		MoveData.Moves[math.random(1, #MoveData.Moves + 1)],
-		MoveData.Moves[math.random(1, #MoveData.Moves + 1)],
-		MoveData.Moves[math.random(1, #MoveData.Moves + 1)]
+		MoveData.Moves[math.random(1, #MoveData.Moves)],
+		MoveData.Moves[math.random(1, #MoveData.Moves)],
+		MoveData.Moves[math.random(1, #MoveData.Moves)],
+		MoveData.Moves[math.random(1, #MoveData.Moves)]
 	}
 end
 
@@ -480,23 +499,22 @@ local function printPokemonInfo(poke, lvl)
 	end
 	print(poke.name .. "(" .. tostring(poke.id) .. ")" .. " lvl" .. tostring(lvl) .. " BST:" .. tostring(poke.bst))
 	print("Types: " .. typesStr)
+	print("Ability: " .. poke.ability.name)
 	print("--- STATS -------------")
 	print("HP:" .. padTo(poke["hp"],  3) .. "  ATK:" .. padTo(poke["atk"], 3) .. " DEF:" .. padTo(poke["def"], 3))
 	print("SPA:" .. padTo(poke["spa"], 3) .. " SPD:" .. padTo(poke["spd"], 3) .. " SPE:" .. padTo(poke["spe"], 3))
 end
 
---- Prints moves and their score against a foe
---- @param ownData table
---- @param foeData table
-local function printScoredMoves(ownData, foeData)
-	local maxMoveIndex, moveScores = bot.getBestMove(ownData, foeData)
+--- Prints moves
+--- @param data table
+local function printMoves(data)
+	--local maxMoveIndex, moveScores = bot.getBestMove(ownData, foeData)
 	print("--- MOVES -------------")
-	for i=1,#ownData.m.moves do
-		print(tostring(i) .. "." .. padTo(ownData.m.moves[i].name, 12) .. "(" .. string.sub(ownData.m.moves[i].category, 0, 1) .. ")" ..
-		" POW:" .. padTo(ownData.m.moves[i].power, 3) .. " ACC:" .. padTo(ownData.m.moves[i].accuracy, 3) ..
-		" PP:" .. padTo(ownData.m.moves[i].pp, 2) .. " SCORE:" .. tostring(moveScores[i]))
+	for i=1,#data.m.moves do
+		print(tostring(i) .. "." .. padTo(data.m.moves[i].name, 12) .. "(" .. string.sub(data.m.moves[i].category, 0, 2) .. ")" ..
+		" POW:" .. padTo(data.m.moves[i].power, 3) .. " ACC:" .. padTo(data.m.moves[i].accuracy, 3) ..
+		" PP:" .. padTo(data.m.moves[i].pp, 2))
 	end
-	print("Move chosen: " .. ownData.m.moves[maxMoveIndex].name)
 end
 
 -------------------------------------------------------------------------------
@@ -525,9 +543,44 @@ local foeData = {
 -- Print info
 print("----------- OWN -----------")
 printPokemonInfo(ownPoke, ownLvl)
-printScoredMoves(ownData, foeData)
+printMoves(ownData)
 print()
 print("----------- FOE -----------")
 printPokemonInfo(foePoke, foeLvl)
+printMoves(foeData)
+print()
+print("--------------------------------------------------------------------------------------")
 print()
 
+local estimatedFoeStats = {
+	["hp"] = math.ceil(2.0*foePoke.bst/6.0*foeLvl/100.0 + foeLvl + 10),
+	["atk"] = math.floor(2.0*foePoke.bst/6.0*foeLvl/100.0 + 5),
+	["spa"] = math.floor(2.0*foePoke.bst/6.0*foeLvl/100.0 + 5),
+	["def"] = math.floor(2.0*foePoke.bst/6.0*foeLvl/100.0 + 5),
+	["spd"] = math.floor(2.0*foePoke.bst/6.0*foeLvl/100.0 + 5),
+	["spe"] = math.floor(2.0*foePoke.bst/6.0*foeLvl/100.0 + 5),
+}
+
+local dmgParams = BattleManager.DefaultDamageParams
+dmgParams.level = ownLvl
+dmgParams.attackerTypes = ownPoke.types
+dmgParams.targetTypes = foePoke.types
+dmgParams.attackerAbility = ownPoke.ability
+dmgParams.targetAbility = foePoke.ability
+dmgParams.attackerAttackStat = ownPoke["atk"]
+dmgParams.attackerAttackModifier = ownPoke.stages["atk"]
+dmgParams.attackerSpecialAttackStat = ownPoke["spa"]
+dmgParams.attackerSpecialAttackModifier = ownPoke.stages["spa"]
+dmgParams.targetDefenseStat = estimatedFoeStats["def"]
+dmgParams.targetDefenseModifier = foePoke.stages["def"]
+dmgParams.targetSpecialDefenseStat = estimatedFoeStats["spd"]
+dmgParams.targetSpecialDefenseModifier = foePoke.stages["spd"]
+
+local dmgTable, maxDmgIndex = BattleManager.getBestMove(ownMoves, dmgParams)
+for i,dmg in ipairs(dmgTable) do
+	print(ownMoves[i].name .. ":" .. tostring(dmg))
+end
+local chosenMove = ownMoves[maxDmgIndex]
+print("Chosen move: " .. chosenMove.name)
+
+print("--------- TURN 00 ---------")

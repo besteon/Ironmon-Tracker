@@ -14,16 +14,212 @@ BattleManager.Strategies = {
 }
 
 BattleManager.Status = {
-	Burn = 1,
-	Poison = 2,
-	Paralysis = 3,
-	Confusion = 4,
-	Freeze = 5,
-	Sleep = 6,
-	Love = 7,
-	Flinch = 8,
-	BadPoison = 9
+	None = 1,
+	Burn = 2,
+	Poison = 3,
+	Paralysis = 4,
+	Confusion = 5,
+	Freeze = 6,
+	Sleep = 7,
+	Love = 8,
+	Flinch = 9,
+	BadPoison = 10
 }
+
+BattleManager.StatusScores = {
+	0.0,--None
+	200.0,--Burn
+	200.0,--Poison
+	150.0,--Paralysis
+	150.0,--Confusion
+	250.0,--Freeze
+	250.0,--Sleep
+	200.0,--Love
+	100.0,--Flinch
+	250.0,--BadPoison
+}
+
+BattleManager.Weather = {
+	Clear = 1,
+	Sun = 2,
+	Rain = 3,
+	Sandstorm = 4,
+	Hail = 5,
+}
+
+BattleManager.DefaultDamageParams = {
+	level = 5,
+	attackerTypes = {PokemonData.Types.NORMAL},
+	targetTypes = {PokemonData.Types.NORMAL},
+	move = MoveData.Moves[1],
+	attackerAttackStat = 0,
+	attackerAttackModifier = 0,
+	attackerSpecialAttackStat = 0,
+	attackerSpecialAttackModifier = 0,
+	targetDefenseStat = 0,
+	targetDefenseModifier = 0,
+	targetSpecialDefenseStat = 0,
+	targetSpecialDefenseModifier = 0,
+	attackerAbility = AbilityData.DefaultAbility,
+	targetAbility = AbilityData.DefaultAbility,
+	reflectUsed = false,
+	lightScreenUsed = false,
+	isDoubleBattle = false,
+	isAttackerAlone = false,
+	hittingTwoTargets = false, --And not 3!!
+	isTargetAlone = false,
+	weather = BattleManager.Weather.Clear,
+	isFlashFireActivated = false,
+	stockpiles = 1.0,
+	isCriticalHit = false,
+	targetFlying = false,
+	targetMinimized = false,
+	targetDove = false,
+	targetDug = false,
+	targetSwitching = false,
+	attackerStatus = BattleManager.Status.None,
+	targetStatus = BattleManager.Status.None,
+	attackerBeenDamagedThisTurn = false,
+	attackerUsedCharge = false,
+}
+
+--- Calculates the damage done by an attack according to the params given
+--- @param params table Params table, like BattleManager.DefaultDamageParams
+--- @return number minDmg, number maxDmg, number minCritDmg, number maxCritDmg
+function BattleManager.calculateDamage(params)
+	local level = params.level
+	local power = params.move.power
+	local attack = params.attackerAttackStat
+	local critAttack = attack
+	if params.attackerAttackModifier > 0 then
+		attack = math.floor(attack * (2 + params.attackerAttackModifier) / 2)
+		critAttack = attack
+	end
+	if params.attackerAttackModifier < 0 then
+		attack = math.floor(attack / (2 + params.attackerAttackModifier) * 2)
+	end
+	local defense = params.targetDefenseStat
+	local critDefense = defense
+	if params.targetDefenseModifier > 0 then
+		defense = math.floor(defense * (2 + params.targetDefenseModifier) / 2)
+	end
+	if params.targetDefenseModifier < 0 then
+		defense = math.floor(defense / (2 + params.targetDefenseModifier) * 2)
+		critDefense = defense
+	end
+	local burn = 1.0
+	if params.attackerStatus == BattleManager.Status.Burn
+	  and params.attackerAbility.id ~= 62 --Guts ability
+	  and params.move.category == MoveData.Categories.PHYSICAL then
+		burn = 0.5
+	end
+	local screen = 1.0
+	if (params.move.category == MoveData.Categories.PHYSICAL and params.reflectUsed) or
+	   (params.move.category == MoveData.Categories.SPECIAL and params.lightScreenUsed) then
+		if params.isDoubleBattle and not params.isAttackerAlone then
+			screen = 2.0/3.0
+		else
+			screen = 0.5
+		end
+	end
+	local targets = 1.0
+	if params.isDoubleBattle and params.hittingTwoTargets and not params.isTargetAlone then
+		targets = 0.5
+	end
+	local weather = 1.0
+	if (params.move.type == PokemonData.Types.WATER and params.weather == BattleManager.Weather.Rain) or
+	   (params.move.type == PokemonData.Types.FIRE and params.weather == BattleManager.Weather.Sun) then
+		weather = 1.5
+	end
+	if (params.move.type == PokemonData.Types.WATER and params.weather == BattleManager.Weather.Sun) or
+	   (params.move.type == PokemonData.Types.FIRE and params.weather == BattleManager.Weather.Rain) then
+		weather = 0.5
+	end
+	local flashFire = 1.0
+	if params.move.type == PokemonData.Types.FIRE and params.isFlashFireActivated then
+		flashFire = 1.5
+	end
+	local stockpile = 1.0
+	if params.move.id == "255" then
+		stockpile = params.stockpiles
+	end
+	local doubleDmg = 1.0
+	if ((params.move.id == "16" or params.move.id == "239") and params.targetFlying) or
+	   ((params.move.id == "23" or params.move.id == "302" or params.move.id == "310" or params.move.id == "326") and params.targetMinimized) or
+	   ((params.move.id == "57" or params.move.id == "250") and params.targetDove) or
+	   ((params.move.id == "89" or params.move.id == "222") and params.targetDug) or
+	   (params.move.id == "228" and params.targetSwitching) or
+	   (params.move.id == "263" and params.attackerStatus ~= BattleManager.Status.None) or
+	   (params.move.id == "265" and params.targetStatus == BattleManager.Status.Paralysis) or
+	   (params.move.id == "279" and params.attackerBeenDamagedThisTurn) or
+	   (params.move.id == "311" and params.weather ~= BattleManager.Weather.Clear) then
+		doubleDmg = 2.0
+	end
+	local charge = 1.0
+	if params.attackerUsedCharge and params.move.type == PokemonData.Types.ELECTRIC then
+		charge = 2.0
+	end
+	local stab = 1.0
+	for _,attackerType in ipairs(params.attackerTypes) do
+		if attackerType == params.move.type then
+			stab = 1.5
+			break
+		end
+	end
+	local typeEffectiveness = 1.0
+	if params.move.id ~= "165" and params.move.id ~= "248" and params.move.id ~= "251" and params.move.id ~= "353" then
+		for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
+			if moveType == params.move.type then
+				if typeMultiplier[params.targetTypes[1]] ~= nil then
+					typeEffectiveness = typeEffectiveness * typeMultiplier[params.targetTypes[1]]
+				end
+				if params.targetTypes[2] ~= params.targetTypes[1] and typeMultiplier[params.targetTypes[2]] ~= nil then
+					typeEffectiveness = typeEffectiveness * typeMultiplier[params.targetTypes[2]]
+				end
+			end
+		end
+	end
+	local minRand = 0.85
+	if params.move.id == "255" then
+		minRand = 1.0
+	end
+	local maxRand = 1.0
+
+	--print("Power=" .. tostring(power) .. " / Attack=" .. tostring(attack) .. " / Defense=" .. tostring(defense) .. " / Burn=" .. tostring(burn) .. " / Screen=" .. tostring(screen)
+	--	.. " / Targets=" .. tostring(targets) .. " / Weather=" .. tostring(weather) .. " / FlashFire=" .. tostring(flashFire) .. " / Stockpile=" .. tostring(stockpile)
+	--	.. " / DoubleDmg=" .. tostring(doubleDmg) .. " / Charge=" .. tostring(charge) .. " / Stab=" .. tostring(stab) .. " / Effectiveness=" .. tostring(typeEffectiveness))
+	local flatDmg = (((2.0*level/5.0 + 2.0) * power * attack / defense) / 50.0 * burn * screen * targets * weather * flashFire + 2.0)
+		* stockpile * doubleDmg * charge * stab * typeEffectiveness
+	local critical = 2.0
+	if params.move.id == "248" or params.move.id == "255" or params.move.id == "353" or
+	   params.targetAbility.id == 4 or params.targetAbility.id == 75 then
+		critical = 1.0
+	end
+	local flatCritDmg = (((2.0*level/5.0 + 2.0) * power * critAttack / critDefense) / 50.0 * burn * targets * weather * flashFire + 2.0)
+		* stockpile * critical * doubleDmg * charge * stab * typeEffectiveness
+	local minDmg = math.floor(flatDmg * minRand)
+	local maxDmg = math.ceil(flatDmg * maxRand)
+	local minCritDmg = math.floor(flatCritDmg * minRand)
+	local maxCritDmg = math.ceil(flatCritDmg * maxRand)
+	return minDmg, maxDmg, minCritDmg, maxCritDmg
+end
+
+function BattleManager.getBestMove(moves, params)
+	local avgDmgTable = {}
+	local maxAvgDmg = -1.0
+	local maxAvgDmgIndex = 1
+	for i,move in ipairs(moves) do
+		params.move = move
+		local minDmg, maxDmg, _, _ = BattleManager.calculateDamage(params)
+		local avgDmg = (minDmg + maxDmg) / 2.0
+		avgDmgTable[i] = avgDmg
+		if avgDmg > maxAvgDmg then
+			maxAvgDmg = avgDmg
+			maxAvgDmgIndex = i
+		end
+	end
+	return avgDmgTable, maxAvgDmgIndex
+end
 
 -- Params list @TODO Doubles battle
 -- hitMean = 3: By default 1. The damage is inflicted 3 times per attack on average
