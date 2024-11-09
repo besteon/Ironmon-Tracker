@@ -1,5 +1,12 @@
 EventData = {}
 
+-- Used to record information about the current game state with relation to triggering game events
+EventData.Vars = {}
+
+function EventData.initialize()
+	EventData.Vars = {}
+end
+
 -- Internal helper functions
 
 -- The max # of items to show for any commands that output a list of items (try keep chat message output short)

@@ -240,7 +240,11 @@ function GameOverScreen.checkForGameOver(lastBattleStatus, lastTrainerId)
 		end
 	end
 
-	return GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+	local isGameOver = GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+	if isGameOver then
+		EventHandler.triggerEvent(EventHandler.DefaultEvents.GE_GameOver.Key)
+	end
+	return isGameOver
 end
 
 function GameOverScreen.nextTeamPokemon(startingIndex)

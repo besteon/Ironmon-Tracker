@@ -713,6 +713,8 @@ ScreenResources{
 		CR_ChangeFavoriteThree_Name = "Change Starter Favorite: #3",
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
+		GE_GameOver_Name = "When the game is over...",
+		GE_GameOver_TriggerEffect = "Update SB Global Variables",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
