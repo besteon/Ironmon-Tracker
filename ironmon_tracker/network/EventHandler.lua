@@ -100,12 +100,12 @@ function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name, effect)
 	}))
 end
 
----Internally triggers an event by creating a new Request for it
+---Internally triggers an event by creating a new Request for it; only if the Network is connected
 ---@param eventKey string IEvent.Key
 ---@param input? string
 function EventHandler.triggerEvent(eventKey, input)
 	local event = EventHandler.Events[eventKey or false]
-	if not EventHandler.isValidEvent(event) then
+	if not Network.isConnected() or not EventHandler.isValidEvent(event) then
 		return
 	end
 	RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
