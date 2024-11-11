@@ -118,6 +118,7 @@ function GameOptionsScreen.createButtons()
 		{ "Show physical special icons", "OptionShowPhysicalSpecial", },
 		{ "Show move effectiveness", "OptionShowMoveEffectiveness", },
 		{ "Calculate variable damage", "OptionCalculateVariableDamage", },
+		{ "Show Poke Ball catch rate", "OptionShowBallCatchRate", },
 		{ "Count enemy PP usage", "OptionCountEnemyPP", },
 		{ "Show last damage calcs", "OptionShowLastDamage", },
 		{ "Reveal info if randomized", "OptionRevealRandomizedInfo", },
@@ -177,6 +178,7 @@ function GameOptionsScreen.createButtons()
 	startY = Constants.SCREEN.MARGIN + TAB_HEIGHT + 14
 	local optionKeyMapOther = {
 		{ "Hide stats until summary shown", "OptionHideStatsUntilSummary", },
+		{ "Show nicknames", "OptionShowNicknames", },
 		{ "Show experience points bar", "OptionShowExpBar", },
 		{ "Determine friendship readiness", "OptionDetermineFriendship", },
 	}

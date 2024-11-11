@@ -202,9 +202,9 @@ ScreenResources{
 		TabControls = "Controls", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
+		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
@@ -247,9 +247,7 @@ ScreenResources{
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
 		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
-		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
-		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
@@ -272,11 +270,13 @@ ScreenResources{
 		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
 		OptionShowPhysicalSpecial = "Show physical special icons", -- NEEDS TRANSLATION
 		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION

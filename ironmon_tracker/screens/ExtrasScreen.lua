@@ -195,14 +195,12 @@ end
 
 function ExtrasScreen.createButtons()
 	local optionKeyMap = {
-		{"Show random ball picker", "OptionShowRandomBallPicker", },
-		{"Show heals as whole number", "OptionShowHealsAsValue", },
-		{"Show Poke Ball catch rate", "OptionShowBallCatchRate", },
-		{"Display repel usage", "OptionDisplayRepelUsage", },
-		{"Display pedometer", "OptionDisplayPedometer", },
-		{"Display play time", "OptionDisplayPlayTime", },
-		{"Display gender", "OptionDisplayGender", },
-		{"Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
+		{ "Display repel usage", "OptionDisplayRepelUsage", },
+		{ "Display pedometer", "OptionDisplayPedometer", },
+		{ "Display play time", "OptionDisplayPlayTime", },
+		{ "Display gender", "OptionDisplayGender", },
+		{ "Show heals as whole number", "OptionShowHealsAsValue", },
+		{" Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
 	}
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
