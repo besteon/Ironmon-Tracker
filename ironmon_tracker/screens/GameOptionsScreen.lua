@@ -180,6 +180,7 @@ function GameOptionsScreen.createButtons()
 		{ "Hide stats until summary shown", "OptionHideStatsUntilSummary", },
 		{ "Show nicknames", "OptionShowNicknames", },
 		{ "Show experience points bar", "OptionShowExpBar", },
+		{ "Show heals as whole number", "OptionShowHealsAsValue", },
 		{ "Determine friendship readiness", "OptionDetermineFriendship", },
 	}
 	for _, optionTuple in ipairs(optionKeyMapOther) do

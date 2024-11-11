@@ -199,7 +199,6 @@ function ExtrasScreen.createButtons()
 		{ "Display pedometer", "OptionDisplayPedometer", },
 		{ "Display play time", "OptionDisplayPlayTime", },
 		{ "Display gender", "OptionDisplayGender", },
-		{ "Show heals as whole number", "OptionShowHealsAsValue", },
 		{ "Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
 	}
 

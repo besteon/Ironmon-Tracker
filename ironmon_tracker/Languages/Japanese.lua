@@ -247,7 +247,6 @@ ScreenResources{
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
 		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
-		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
@@ -272,6 +271,7 @@ ScreenResources{
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionShowPhysicalSpecial = "Show physical special icons", -- NEEDS TRANSLATION
 		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
