@@ -55,29 +55,6 @@ LogTabMisc.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	OpenBookMode = {
-		type = Constants.ButtonTypes.CHECKBOX,
-		optionKey = "Open Book Play Mode",
-		getText = function(self) return Resources.LogOverlay.CheckboxOpenBookMode end,
-		clickableArea = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 41, 90, 10, },
-		box = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 41, 8, 8, },
-		toggleState = Options["Open Book Play Mode"],
-		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
-		draw = function(self, shadowcolor)
-			if self.toggleState then
-				local color = Theme.COLORS[LogTabMisc.Colors.highlight]
-				local x, y = self.box[1] + self.box[3], self.box[2] - 2
-				x = x + Utils.calcWordPixelLength(self:getText()) + 7
-				Drawing.drawImageAsPixels(Constants.PixelImages.WARNING, x, y + 1, color, shadowcolor)
-				local warningMsg = Resources.LogOverlay.LabelExtraTimeWarning
-				Drawing.drawText(x + 10, y, warningMsg, color, shadowcolor)
-			end
-		end,
-		onClick = function(self)
-			self.toggleState = Options.toggleSetting(self.optionKey)
-			Program.redraw(true)
-		end,
-	},
 	ShareRandomizer = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.LogOverlay.ButtonShareSeed end,

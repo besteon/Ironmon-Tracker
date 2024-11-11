@@ -281,6 +281,8 @@ ScreenResources{
 		OptionLeadPokemonFaints = "Lead Pokémon faints",
 		OptionHighestLevelFaints = "Highest level faints",
 		OptionEntirePartyFaints = "Entire party faints",
+		OptionOpenBookPlayMode = "Open Book play mode",
+		LabelExtraTimeWarning = "May add extra load time",
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup",
@@ -622,8 +624,6 @@ ScreenResources{
 		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs",
 		CheckboxShowPreEvolutions = "Show Pre Evolutions",
 		CheckboxCustomTrainerNames = "Custom Trainer Names",
-		CheckboxOpenBookMode = "Open Book Play Mode",
-		LabelExtraTimeWarning = "May add extra load time",
 		PromptShareSeedTitle = "Share Randomizer Seed",
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.",
 	},
