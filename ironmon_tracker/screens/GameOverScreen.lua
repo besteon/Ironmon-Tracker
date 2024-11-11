@@ -61,24 +61,11 @@ GameOverScreen.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	ViewNoteScoreSheet = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return string.format("(%s)", Resources.GameOverScreen.ButtonViewGrade) end,
-		textColor = "Intermediate text",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 57, Constants.SCREEN.MARGIN + 35, 25, 10 },
-		boxColors = { "Upper box border", "Upper box background" },
-		location = "top",
-		onClick = function (self)
-			StatMarkingScoreSheet.previousScreen = GameOverScreen
-			StatMarkingScoreSheet.buildScreen()
-			Program.changeScreenView(StatMarkingScoreSheet)
-		end,
-	},
 	ContinuePlaying = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		getText = function(self) return Resources.GameOverScreen.ButtonContinuePlaying end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 74, 112, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 60, 112, 16 },
 		onClick = function(self)
 			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 			LogOverlay.isGameOver = false
@@ -100,7 +87,7 @@ GameOverScreen.Buttons = {
 			end
 		end,
 		confirmAction = false,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 93, 112, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 78, 112, 16 },
 		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil and GameOverScreen.status ~= GameOverScreen.Statuses.WON end,
 		updateSelf = function(self)
 			self.textColor = "Lower box text"
@@ -136,7 +123,7 @@ GameOverScreen.Buttons = {
 			end
 		end,
 		clickedStatus = "Not Clicked", -- checked later when clicked
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 112, 112, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 96, 112, 16 },
 		-- Only visible if the player is using the Tracker's Quickload feature
 		isVisible = function(self) return Options["Use premade ROMs"] or Options["Generate ROM each time"] end,
 		reset = function(self)
@@ -156,6 +143,17 @@ GameOverScreen.Buttons = {
 			Program.redraw(true)
 		end,
 	},
+	NotesGrade = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.NOTEPAD,
+		getText = function(self) return Resources.GameOverScreen.ButtonGradeMyNotes end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 114, 112, 16 },
+		onClick = function(self)
+			StatMarkingScoreSheet.previousScreen = GameOverScreen
+			StatMarkingScoreSheet.buildScreen()
+			Program.changeScreenView(StatMarkingScoreSheet)
+		end,
+	},
 	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
@@ -166,8 +164,7 @@ GameOverScreen.Buttons = {
 				return Resources.GameOverScreen.ButtonOpenLogFile
 			end
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 131, 112, 16 },
-		isVisible = function(self) return true end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 112, 16 },
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
 		end,
@@ -383,7 +380,7 @@ function GameOverScreen.drawScreen()
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
 		y = Constants.SCREEN.MARGIN,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = 71,
+		height = 58,
 		text = Theme.COLORS["Default text"],
 		border = Theme.COLORS["Upper box border"],
 		fill = Theme.COLORS["Upper box background"],
@@ -425,9 +422,6 @@ function GameOverScreen.drawScreen()
 		Drawing.drawText(topBox.x + columnOffsetX, textLineY, Program.GameTimer:getText(), topBox.text, topBox.shadow)
 	end
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
-
-	Drawing.drawText(topBox.x + 2, textLineY, Resources.GameOverScreen.LabelNotesGrade .. ":", topBox.text, topBox.shadow)
-	textLineY = textLineY + Constants.SCREEN.LINESPACING + 2
 
 	-- Draw the game winning message or a random Pokémon Stadium announcer quote
 	local msgToDisplay

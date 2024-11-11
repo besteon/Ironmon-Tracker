@@ -538,7 +538,6 @@ ScreenResources{
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION
 		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
 		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
-		LabelNotesGrade = "Notes Grade", -- NEEDS TRANSLATION
 		ButtonViewGrade = "View", -- NEEDS TRANSLATION
 		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
 		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
@@ -547,6 +546,7 @@ ScreenResources{
 		ButtonSaveAttempt = "Save this attempt", -- NEEDS TRANSLATION
 		ButtonSaveSuccessful = "Saved in Tracker folder", -- NEEDS TRANSLATION
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
+		ButtonGradeMyNotes = "Grade my notes", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
 	},
