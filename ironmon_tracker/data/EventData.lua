@@ -295,6 +295,26 @@ function EventData.getTrainer(params)
 	local trainerId
 	if not Utils.isNilOrEmpty(params) then
 		trainerId = tonumber(params or "") or 0
+		-- If param is not a number, check if it's a commonly known trainer
+		if trainerId == 0 then
+			local foundIds
+			for trainerName, trainerIds in pairs(TrainerData.CommonTrainers or {}) do
+				if Utils.containsText(trainerName, params, true) then
+					foundIds = trainerIds
+					break
+				end
+			end
+			if type(foundIds) == "number" then
+				trainerId = foundIds
+			elseif type(foundIds) == "table" then
+				for _, id in pairs(foundIds) do
+					if TrainerData.shouldUseTrainer(id) then
+						trainerId = id
+						break
+					end
+				end
+			end
+		end
 	else
 		trainerId = TrackerAPI.getOpponentTrainerId()
 	end
