@@ -200,7 +200,7 @@ function ExtrasScreen.createButtons()
 		{ "Display play time", "OptionDisplayPlayTime", },
 		{ "Display gender", "OptionDisplayGender", },
 		{ "Show heals as whole number", "OptionShowHealsAsValue", },
-		{" Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
+		{ "Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
 	}
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
