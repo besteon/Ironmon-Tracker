@@ -1310,7 +1310,8 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[205] = 340 -- altering cave grass/cave
 	RandomizerLog.RouteSetNumToIdMap[206] = 340 -- altering cave grass/cave
 	RandomizerLog.RouteSetNumToIdMap[207] = 340 -- altering cave grass/cave
-	RandomizerLog.RouteSetNumToIdMap[208] = 431 -- meteor falls grass/cave
+	RandomizerLog.RouteSetNumToIdMap[208] = 340 -- altering cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[209] = 431 -- meteor falls grass/cave
 end
 
 function RandomizerLog.setupFRLGRouteMappings()
