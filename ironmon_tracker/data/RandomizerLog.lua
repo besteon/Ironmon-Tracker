@@ -1274,7 +1274,7 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[170] = 9 -- ever grande city fishing
 	RandomizerLog.RouteSetNumToIdMap[171] = 1 -- petalburg city surfing
 	RandomizerLog.RouteSetNumToIdMap[172] = 1 -- petalburg city fishing
-	RandomizerLog.RouteSetNumToIdMap[173] = 51 + offset -- underwater surfing
+	RandomizerLog.RouteSetNumToIdMap[173] = 51 -- underwater surfing
 	RandomizerLog.RouteSetNumToIdMap[174] = 167 + offset -- shoal cave grass/cave
 	RandomizerLog.RouteSetNumToIdMap[175] = 322 + offset -- sky pillar grass/cave
 	RandomizerLog.RouteSetNumToIdMap[176] = 8 -- sootopolis city surfing
