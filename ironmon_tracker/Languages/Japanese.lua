@@ -671,7 +671,7 @@ ScreenResources{
 		CMD_Ability_Name = "Ability Info",
 		CMD_Ability_Help = "name > Displays game info for a Pokémon's ability.",
 		CMD_Trainer_Name = "Trainer Info",
-		CMD_Trainer_Help = "id > Displays info about the current trainer or for a specific trainer id.",
+		CMD_Trainer_Help = "[name id] > Displays info about the most recent trainer fought, or for a specific trainer name or id.",
 		CMD_Route_Name = "Route Info",
 		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
 		CMD_Dungeon_Name = "Dungeon Info",
