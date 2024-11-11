@@ -31,6 +31,8 @@ Tracker.DefaultData = {
 	allPokemon = {},
 	-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
 	encounterTable = {},
+	-- [mapId] = {{pID=#, lv=#}, ...} List of pokemon encounters for the whole area; stores both pokemonIDs & highest level encountered
+	safariEncounters = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
 	hiddenPowers = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
@@ -65,7 +67,9 @@ function Tracker.initialize()
 
 	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
-		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
+		local filename = GameSettings.getTrackerAutoSaveName()
+		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+		local filepath = folderpath .. filename
 		local loadStatus = Tracker.loadData(filepath)
 
 		-- If the autosave file doesn't exist, then this is a new game
@@ -78,7 +82,7 @@ function Tracker.initialize()
 end
 
 --- @param slotNumber number Which party slot (1-6) to get
---- @param isOwn boolean True for the Player's team, false for the Enemy Trainer's team
+--- @param isOwn boolean? (Optional) True for the Player's team, false for the Enemy Trainer's team; default=true
 --- @param excludeEggs boolean? (Optional) If true, avoid Pokémon that are eggs; default=true
 --- @return table? pokemon All of the game data known about this Pokémon; nil if it doesn't exist
 function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
@@ -118,6 +122,8 @@ function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
 	return pokemon
 end
 
+---Returns the currently viewed Pokémon (what's displayed on the Tracker Screen)
+---@return table|nil pokemon A `Program.DefaultPokemon` data object
 function Tracker.getViewedPokemon()
 	if not Program.isValidMapLocation() then return nil end
 
@@ -264,6 +270,31 @@ function Tracker.TrackRouteEncounter(mapId, encounterArea, pokemonID)
 	end
 end
 
+--- @param mapId number
+--- @param pokemonID number
+--- @param level number
+function Tracker.TrackSafariEncounter(mapId, pokemonID, level)
+	if Tracker.Data.safariEncounters[mapId] == nil then
+		Tracker.Data.safariEncounters[mapId] = {}
+	end
+	local route = Tracker.Data.safariEncounters[mapId]
+	local foundIndex
+	for i, idAndLevelPair in ipairs(route) do
+		if idAndLevelPair.pID == pokemonID then
+			foundIndex = i
+			break
+		end
+	end
+	-- Add to route if new, otherwise check if level is higher
+	if not foundIndex then
+		table.insert(route, { pID = pokemonID, lv = level })
+	else
+		if level > route[foundIndex].lv then
+			route[foundIndex].lv = level
+		end
+	end
+end
+
 --- @param pokemonID number
 --- @param note string
 function Tracker.TrackNote(pokemonID, note)
@@ -399,18 +430,24 @@ function Tracker.getRouteEncounters(mapId, encounterArea)
 	return location[encounterArea or false] or {}
 end
 
+--- @param mapId number
+--- @return table
+function Tracker.getSafariEncounters(mapId)
+	return Tracker.Data.safariEncounters[mapId or false] or {}
+end
+
 --- If the Pokemon is being tracked, return its note; otherwise default note value = ""
 --- @param pokemonID number
 --- @return string
 function Tracker.getNote(pokemonID)
-	if pokemonID == 413 then -- Ghost
+	if pokemonID == PokemonData.Values.GhostId then
 		return "Spoooky!"
 	end
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.note or ""
 end
 
---- If the Pokemon has the move "Hidden Power" (id=237), return it's tracked type (if set); otherwise default type value = unknown
+--- If the Pokemon has the move "Hidden Power", return it's tracked type (if set); otherwise default type value = unknown
 --- @param pokemon table? (Optional) The Pokemon data object to use for checking if hidden power type is tracked; default: currently viewed mon
 --- @return string
 function Tracker.getHiddenPowerType(pokemon)
@@ -456,7 +493,7 @@ end
 --- @return table pokemon A mostly empty set of Pokémon game data, with some info hidden because it's the story ghost encounter
 function Tracker.getGhostPokemon()
 	local defaultPokemon = Tracker.getDefaultPokemon()
-	defaultPokemon.pokemonID = 413
+	defaultPokemon.pokemonID = PokemonData.Values.GhostId
 	defaultPokemon.name = Resources.TrackerScreen.UnidentifiedGhost or "Ghost"
 	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
 	return defaultPokemon
@@ -468,6 +505,7 @@ function Tracker.resetData()
 		romHash = GameSettings.getRomHash(),
 		allPokemon = {},
 		encounterTable = {},
+		safariEncounters = {},
 		hiddenPowers = {},
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		centerHeals = Options["PC heals count downward"] and 10 or 0,
@@ -478,14 +516,21 @@ end
 
 function Tracker.saveData(filename)
 	filename = filename or GameSettings.getTrackerAutoSaveName()
-	FileManager.writeTableToFile(Tracker.Data, filename)
+	local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+	local filepath = folderpath .. filename
+	FileManager.writeTableToFile(Tracker.Data, filepath)
 end
 
 -- Attempts to load Tracked data from the file 'filepath', sets and returns 'Tracker.LoadStatus' to a status from 'Tracker.LoadStatusKeys'
 -- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
 function Tracker.loadData(filepath, forced)
+	if not filepath then
+		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+		local filename = GameSettings.getTrackerAutoSaveName()
+		filepath = folderpath .. filename
+	end
+
 	-- Loose safety check to ensure a valid data file is loaded
-	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")

@@ -170,7 +170,7 @@ function StreamConnectOverlay.createTabButtons()
 		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getCustomText = function(self) return tabText end,
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
 			box = {	startX, startY, tabWidth, TAB_HEIGHT },
@@ -193,8 +193,8 @@ function StreamConnectOverlay.createTabButtons()
 				if self.isSelected then
 					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
 				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self) SCREEN.changeTab(self.tab) end,
 		}
@@ -295,7 +295,34 @@ local function buildCommandsTab()
 			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnRename)
-		addRightAligned(btnRename)
+
+		-- Most commands don't have options, but if so, make room for a second button
+		if event.Options and #event.Options > 0 then
+			btnRename.updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+			end
+
+			local btnOptions = {
+				type = Constants.ButtonTypes.FULL_BORDER,
+				getText = function(self) return Resources.StreamConnect.ButtonOptions end,
+				textColor = SCREEN.Colors.text,
+				box = { -1, -1, -1, 11 },
+				boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+				isVisible = function(self) return buttonRow:isVisible() and event.Options and #event.Options > 0 end,
+				updateSelf = function(self)
+					self.box[2] = btnRename.box[2] + ROW_HEIGHT / 2
+					self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5 -- Auto resize
+				end,
+				onClick = function(self) StreamConnectOverlay.openEventOptionsPrompt(event) end,
+			}
+			btnOptions:updateSelf()
+			table.insert(SCREEN.Pager.Buttons, btnOptions)
+			btnRename.box[1] = _rightEdgeX - ROW_PADDING - btnRename.box[3]
+			btnOptions.box[1] = _rightEdgeX - ROW_PADDING - btnRename.box[3]
+			_rightEdgeX = btnRename.box[1] - ROW_PADDING
+		else
+			addRightAligned(btnRename)
+		end
 	end
 	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
@@ -704,12 +731,12 @@ local function buildGameTab()
 		local btnName = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return event.Name end,
-			textColor = SCREEN.Colors.text,
+			textColor = SCREEN.Colors.highlight,
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 2
-				self.textColor = btnEnabled.toggleState and SCREEN.Colors.text or "Negative text"
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+				self.textColor = btnEnabled.toggleState and SCREEN.Colors.highlight or "Negative text"
 			end,
 			-- draw = function(self, shadowcolor)
 			-- 	Drawing.drawUnderline(self)
@@ -718,7 +745,22 @@ local function buildGameTab()
 			-- end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnName)
-		addLeftAligned(btnName)
+
+		local btnTriggerEffect = {
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.REFERENCE_RIGHT,
+			getText = function(self) return event.TriggerEffect or "" end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, 11, 11 },
+			isVisible = function(self) return buttonRow:isVisible() and not Utils.isNilOrEmpty(self:getText()) end,
+			updateSelf = function(self)
+				self.box[2] = btnName.box[2] + ROW_HEIGHT / 2
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnTriggerEffect)
+		btnName.box[1] = _leftEdgeX + ROW_PADDING
+		btnTriggerEffect.box[1] = _leftEdgeX + ROW_PADDING + 2
+		_leftEdgeX = btnName.box[1] + btnWidth + ROW_PADDING
 	end
 
 	local bottomRowY = SCREEN.Canvas.y + SCREEN.Canvas.h - 15
@@ -1093,43 +1135,43 @@ function StreamConnectOverlay.changeTab(tab)
 end
 
 function StreamConnectOverlay.openCommandRenamePrompt(event)
-	local form = Utils.createBizhawkForm("Edit Command", 320, 140, 100, 50)
+	local form = ExternalUI.BizForms.createForm("Edit Command", 320, 140, 100, 50)
 	local x, y, lineHeight = 30, 15, 20
 
-	forms.label(form, string.format("Command: %s", event.Name), x - 1, y, 300, y)
+	form:createLabel(string.format("Command: %s", event.Name), x - 1, y)
 	y = y + lineHeight
-	local textbox = forms.textbox(form, event.Command, 120, lineHeight, nil, x + 1, y)
+	local textbox = form:createTextBox(event.Command, x + 1, y, 120, lineHeight)
 	y = y + lineHeight
 
 	y = y + 15
-	forms.button(form, Resources.AllScreens.Save, function()
-		local text = forms.gettext(textbox) or ""
+	form:createButton(Resources.AllScreens.Save, 30, y, function()
+		local text = ExternalUI.BizForms.getText(textbox)
 		if #text > 2 and text:sub(1,1) == "!" then -- Command requirements
 			event.Command = Utils.toLowerUTF8(text)
 			EventHandler.saveEventSetting(event, "Command")
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 30, y)
-	forms.button(form, string.format("(%s)", Resources.StreamConnect.PromptDefault), function()
+		form:destroy()
+	end)
+	form:createButton(string.format("(%s)", Resources.StreamConnect.PromptDefault), 120, y, function()
 		local defaultEvent = EventHandler.DefaultEvents[event.Key]
 		if defaultEvent then
-			forms.settext(textbox, defaultEvent.Command)
+			ExternalUI.BizForms.setText(textbox, defaultEvent.Command)
 		end
-	end, 120, y)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 210, y)
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 210, y, function()
+		form:destroy()
+	end)
 end
 
 function StreamConnectOverlay.openCommandRolesPrompt()
-	local form = Utils.createBizhawkForm("Edit Command Roles", 320, 255, 100, 40)
+	local form = ExternalUI.BizForms.createForm("Edit Command Roles", 320, 255, 100, 40)
 
 	local x, y = 20, 15
 	local lineHeight = 21
 	local commandLabel = string.format("Select user roles that can use Tracker chat commands:")
-	forms.label(form, commandLabel, x - 1, y, 300, 20)
+	form:createLabel(commandLabel, x - 1, y)
 	y = y + lineHeight
 
 	-- Current role options, from the user settings
@@ -1142,47 +1184,48 @@ function StreamConnectOverlay.openCommandRolesPrompt()
 	local roleCheckboxes = {}
 	local customRoleTextbox
 
+	-- Enable or Disable all non-Everyone roles based on the state of Everyone role being allowed
+	local function enableDisableAll()
+		local allowEveryone = ExternalUI.BizForms.isChecked(roleCheckboxes["Everyone"])
+		for _, roleKey in ipairs(orderedRoles) do
+			if roleKey ~= "Everyone" and roleKey ~= "Broadcaster" then
+				ExternalUI.BizForms.setProperty(roleCheckboxes[roleKey], ExternalUI.BizForms.Properties.ENABLED, not allowEveryone)
+			end
+		end
+		if customRoleTextbox then
+			ExternalUI.BizForms.setProperty(customRoleTextbox, ExternalUI.BizForms.Properties.ENABLED, not allowEveryone)
+		end
+	end
+
 	for i, roleKey in ipairs(orderedRoles) do
 		local roleLabel = roleKey
 		if roleKey == "Custom" then
 			roleLabel = "Custom Role:"
-			customRoleTextbox = forms.textbox(form, Network.Options["CustomCommandRole"], 120, 19, nil, x + 143, y + lineHeight * (i - 1))
+			customRoleTextbox = form:createTextBox(Network.Options["CustomCommandRole"], x + 143, y + lineHeight * (i - 1), 120, 19)
 		end
-		roleCheckboxes[roleKey] = forms.checkbox(form, roleLabel, x, y + lineHeight * (i - 1))
+		local clickFunc = (roleKey == "Everyone" and enableDisableAll) or nil
+		roleCheckboxes[roleKey] = form:createCheckbox(roleLabel, x, y + lineHeight * (i - 1), clickFunc)
 		local roleAllowed = currentRoles["Everyone"] ~= nil or currentRoles[roleKey] ~= nil
-		forms.setproperty(roleCheckboxes[roleKey], "Checked", roleAllowed)
+		ExternalUI.BizForms.setChecked(roleCheckboxes[roleKey], roleAllowed)
 	end
-	forms.setproperty(roleCheckboxes["Broadcaster"], "Checked", true)
-	forms.setproperty(roleCheckboxes["Broadcaster"], "Enabled", false)
+	ExternalUI.BizForms.setChecked(roleCheckboxes["Broadcaster"], true)
+	ExternalUI.BizForms.setProperty(roleCheckboxes["Broadcaster"], ExternalUI.BizForms.Properties.ENABLED, false)
 
-	-- Enable or Disable all non-Everyone roles based on the state of Everyone role being allowed
-	local function enableDisableAll()
-		local allowEveryone = forms.ischecked(roleCheckboxes["Everyone"])
-		for _, roleKey in ipairs(orderedRoles) do
-			if roleKey ~= "Everyone" and roleKey ~= "Broadcaster" then
-				forms.setproperty(roleCheckboxes[roleKey], "Enabled", not allowEveryone)
-			end
-		end
-		if customRoleTextbox then
-			forms.setproperty(customRoleTextbox, "Enabled", not allowEveryone)
-		end
-	end
-	forms.addclick(roleCheckboxes["Everyone"], enableDisableAll)
 	enableDisableAll()
 
 	local buttonRowY = y + lineHeight * #orderedRoles + 15
-	forms.button(form, Resources.AllScreens.Save, function()
-		if forms.ischecked(roleCheckboxes["Everyone"]) then
+	form:createButton(Resources.AllScreens.Save, 30, buttonRowY, function()
+		if ExternalUI.BizForms.isChecked(roleCheckboxes["Everyone"]) then
 			Network.Options["CommandRoles"] = EventHandler.CommandRoles.Everyone
 		else
-			if forms.ischecked(roleCheckboxes["Custom"]) and customRoleTextbox then
-				Network.Options["CustomCommandRole"] = forms.gettext(customRoleTextbox) or ""
+			if ExternalUI.BizForms.isChecked(roleCheckboxes["Custom"]) and customRoleTextbox then
+				Network.Options["CustomCommandRole"] = ExternalUI.BizForms.getText(customRoleTextbox)
 			else
 				Network.Options["CustomCommandRole"] = ""
 			end
 			local allowedRoles = {}
 			for _, roleKey in ipairs(orderedRoles) do
-				if forms.ischecked(roleCheckboxes[roleKey]) then
+				if ExternalUI.BizForms.isChecked(roleCheckboxes[roleKey]) then
 					if roleKey == "Custom" then
 						if not Utils.isNilOrEmpty(Network.Options["CustomCommandRole"]) then
 							table.insert(allowedRoles, Network.Options["CustomCommandRole"])
@@ -1200,25 +1243,27 @@ function StreamConnectOverlay.openCommandRolesPrompt()
 		}))
 		SCREEN.refreshButtons()
 		Program.redraw(true)
-		Utils.closeBizhawkForm(form)
-	end, 30, buttonRowY)
-	forms.button(form, string.format("(%s)", Resources.StreamConnect.PromptDefault), function()
+		form:destroy()
+	end)
+	form:createButton(string.format("(%s)", Resources.StreamConnect.PromptDefault), 120, buttonRowY, function()
 		for _, roleKey in ipairs(orderedRoles) do
-			forms.setproperty(roleCheckboxes[roleKey], "Checked", true)
+			ExternalUI.BizForms.setChecked(roleCheckboxes[roleKey], true)
 		end
-		forms.settext(customRoleTextbox, "")
+		if customRoleTextbox then
+			ExternalUI.BizForms.setText(customRoleTextbox, "")
+		end
 		enableDisableAll()
-	end, 120, buttonRowY)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 210, buttonRowY)
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 210, buttonRowY, function()
+		form:destroy()
+	end)
 end
 
 function StreamConnectOverlay.openEventOptionsPrompt(event)
 	local x, y, lineHeight = 20, 15, 20
-	local form = Utils.createBizhawkForm("Edit Reward Options", 320, 130 + (#event.Options * lineHeight), 100, 50)
+	local form = ExternalUI.BizForms.createForm("Edit Options", 320, 130 + (#event.Options * lineHeight))
 
-	forms.label(form, event.Name, x, y, 300, lineHeight)
+	form:createLabel(event.Name, x, y)
 	y = y + lineHeight + 5
 
 	local rightColOffset = 180
@@ -1227,30 +1272,30 @@ function StreamConnectOverlay.openEventOptionsPrompt(event)
 		local currentValue = event[optionKey]
 		if type(currentValue) == "boolean" then
 			local optionText = Resources.StreamConnect[optionKey] or optionKey or Constants.BLANKLINE
-			forms.label(form, optionText .. ":", x, y, rightColOffset - 2, lineHeight)
-			optionsInForm[optionKey] = forms.checkbox(form, "", x + rightColOffset, y - 4)
-			forms.setproperty(optionsInForm[optionKey], "Checked", currentValue)
+			form:createLabel(optionText .. ":", x, y)
+			optionsInForm[optionKey] = form:createCheckbox("", x + rightColOffset, y - 4)
+			ExternalUI.BizForms.setChecked(optionsInForm[optionKey], currentValue)
 			y = y + lineHeight
 		elseif type(currentValue) == "string" or type(currentValue) == "number" then
 			local optionText = Resources.StreamConnect[optionKey] or optionKey or Constants.BLANKLINE
-			forms.label(form, optionText .. ":", x, y, rightColOffset - 2, lineHeight)
-			optionsInForm[optionKey] = forms.textbox(form, tostring(currentValue), 92, 19, nil, x + rightColOffset, y)
+			form:createLabel(optionText .. ":", x, y)
+			optionsInForm[optionKey] = form:createTextBox(tostring(currentValue), x + rightColOffset, y, 92, 19)
 			y = y + lineHeight
 		end
 	end
 
 	local buttonRowY = y + 15
-	forms.button(form, Resources.AllScreens.Save, function()
+	form:createButton(Resources.AllScreens.Save, 30, buttonRowY, function()
 		for optionKey, formHandle in pairs(optionsInForm) do
 			local currentValue = event[optionKey]
 			local newValue
 			if type(currentValue) == "boolean" then
-				newValue = forms.ischecked(formHandle)
+				newValue = ExternalUI.BizForms.isChecked(formHandle)
 			elseif type(currentValue) == "string" or type(currentValue) == "number" then
-				newValue = forms.gettext(formHandle) or ""
+				newValue = ExternalUI.BizForms.getText(formHandle)
 			elseif type(currentValue) == "number" then
-				newValue = forms.gettext(formHandle) or ""
-				-- newValue = tonumber(forms.gettext(formHandle) or "") or "" -- numbers not yet supported
+				newValue = ExternalUI.BizForms.getText(formHandle)
+				-- newValue = tonumber(ExternalUI.BizForms.getText(formHandle)) or "" -- numbers not yet supported
 			end
 			-- Save only new changes
 			if newValue ~= nil and newValue ~= currentValue then
@@ -1260,9 +1305,9 @@ function StreamConnectOverlay.openEventOptionsPrompt(event)
 		end
 		SCREEN.refreshButtons()
 		Program.redraw(true)
-		Utils.closeBizhawkForm(form)
-	end, 30, buttonRowY)
-	forms.button(form, string.format("(%s)", Resources.StreamConnect.PromptDefault), function()
+		form:destroy()
+	end)
+	form:createButton(string.format("(%s)", Resources.StreamConnect.PromptDefault), 120, buttonRowY, function()
 		local defaultEvent = EventHandler.DefaultEvents[event.Key]
 		if not defaultEvent then
 			return
@@ -1272,41 +1317,39 @@ function StreamConnectOverlay.openEventOptionsPrompt(event)
 			if defaultValue ~= nil then
 				local currentValue = event[optionKey]
 				if type(currentValue) == "boolean" then
-					forms.setproperty(formHandle, "Checked", defaultValue)
+					ExternalUI.BizForms.setChecked(formHandle, defaultValue)
 				elseif type(currentValue) == "string" or type(currentValue) == "number" then
-					forms.settext(formHandle, defaultValue)
+					ExternalUI.BizForms.setText(formHandle, defaultValue)
 				end
 			end
 		end
-	end, 120, buttonRowY)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 210, buttonRowY)
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 210, buttonRowY, function()
+		form:destroy()
+	end)
 end
 
 function StreamConnectOverlay.openRewardListPrompt(event)
-	local form = Utils.createBizhawkForm("Edit Reward Association", 320, 170, 100, 50)
+	local form = ExternalUI.BizForms.createForm("Edit Reward Association", 320, 170)
 	local rewardEventText = string.format("Tracker Reward: %s", event.Name)
-	forms.label(form, rewardEventText, 28, 10, 300, 20)
+	form:createLabel(rewardEventText, 28, 10)
 	local rewardTriggerTxt = "Triggered by Twitch Reward:"
-	forms.label(form, rewardTriggerTxt, 28, 35, 250, 20)
+	form:createLabel(rewardTriggerTxt, 28, 35)
 
 	local CHOICE_NONE = "(None)"
 	local rewardsList = { CHOICE_NONE }
 	for _, rewardTitle in pairs(EventHandler.RewardsExternal) do
 		table.insert(rewardsList, rewardTitle)
 	end
-
-	local dropdown = forms.dropdown(form, {["Init"]="Loading Rewards"}, 33, 60, 230, 30)
-	forms.setdropdownitems(dropdown, rewardsList, true) -- true = alphabetize the list
-	forms.setproperty(dropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(dropdown, "AutoCompleteMode", "Append")
+	local initialChoice = CHOICE_NONE
 	if not Utils.isNilOrEmpty(EventHandler.RewardsExternal[event.RewardId]) then
-		forms.settext(dropdown, EventHandler.RewardsExternal[event.RewardId])
+		initialChoice = EventHandler.RewardsExternal[event.RewardId]
 	end
 
-	forms.button(form, Resources.AllScreens.Save, function()
-		local optionSelected = forms.gettext(dropdown)
+	local dropdown = form:createDropdown(rewardsList, 33, 60, 230, 30, initialChoice)
+
+	form:createButton(Resources.AllScreens.Save, 30, 100, function()
+		local optionSelected = ExternalUI.BizForms.getText(dropdown)
 		if not optionSelected or optionSelected == CHOICE_NONE then
 			event.RewardId = ""
 		else
@@ -1321,24 +1364,23 @@ function StreamConnectOverlay.openRewardListPrompt(event)
 		EventHandler.saveEventSetting(event, "RewardId")
 		SCREEN.refreshButtons()
 		Program.redraw(true)
-		Utils.closeBizhawkForm(form)
-	end, 30, 100)
-	forms.button(form, Resources.AllScreens.Clear, function()
-		forms.settext(dropdown, CHOICE_NONE)
-	end, 120, 100)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 210, 100)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Clear, 120, 100, function()
+		ExternalUI.BizForms.setText(dropdown, CHOICE_NONE)
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 210, 100, function()
+		form:destroy()
+	end)
 end
 
 function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
-	local form = Utils.createBizhawkForm(string.format("Edit %s", modeKey), 320, 130, 100, 50)
-	forms.label(form, string.format("%s:", modeKey), 28, 20, 110, 20)
+	local form = ExternalUI.BizForms.createForm(string.format("Edit %s", modeKey), 320, 130)
+	form:createLabel(string.format("%s:", modeKey), 28, 20)
+	local textbox = form:createTextBox(tostring(Network.Options[modeKey] or ""), 134, 20, 150, 18)
 
-	local textbox = forms.textbox(form, Network.Options[modeKey] or "", 134, 20, nil, 150, 18)
-
-	forms.button(form, Resources.AllScreens.Save, function()
-		local text = forms.gettext(textbox) or ""
+	form:createButton(Resources.AllScreens.Save, 30, 50, function()
+		local text = ExternalUI.BizForms.getText(textbox)
 		if #text ~= 0 then
 			Network.closeConnections()
 			Network.Options[modeKey] = text
@@ -1346,19 +1388,18 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 30, 50)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 210, 50)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 210, 50, function()
+		form:destroy()
+	end)
 end
 
 function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
-	local path = Network.Options[modeKey] or ""
+	local path = tostring(Network.Options[modeKey] or "")
 	local filterOptions = "Json File (*.JSON)|*.json|All files (*.*)|*.*"
-	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile("SELECT ANY JSON FILE", path, filterOptions)
-	if not Utils.isNilOrEmpty(filepath) then
+	local filepath, success = ExternalUI.BizForms.openFilePrompt("SELECT ANY JSON FILE", path, filterOptions)
+	if success then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
 		filepath = filepath:sub(0, (filepath:match(pattern) or 1) - 1)
@@ -1374,28 +1415,26 @@ function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 		end
 		Main.SaveSettings(true)
 	end
-	Utils.tempEnableBizhawkSound()
 	SCREEN.refreshButtons()
 	Program.redraw(true)
 end
 
 function StreamConnectOverlay.openGetCodeWindow()
-	local form = Utils.createBizhawkForm("Import to Streamerbot", 800, 600)
+	local form = ExternalUI.BizForms.createForm("Import to Streamerbot", 800, 600)
 	local x, y, lineHeight = 20, 15, 20
 	local codeText = Network.getStreamerbotCode()
 
-	forms.label(form, '1. On Streamerbot, click the IMPORT button at the top.', x, y, 495, lineHeight)
+	form:createLabel('1. On Streamerbot, click the IMPORT button at the top.', x, y)
 	y = y + lineHeight
-	forms.label(form, '2. Copy/paste the below code into the top textbox. Click "Import" and "OK".', x, y, 495, lineHeight)
+	form:createLabel('2. Copy/paste the below code into the top textbox. Click "Import" and "OK".', x, y)
 	y = y + lineHeight
-	forms.label(form, '3. Restart Streamerbot.', x, y, 495, lineHeight)
+	form:createLabel('3. Restart Streamerbot.', x, y)
 	y = y + lineHeight
-	forms.textbox(form, codeText, 763, 442, nil, x - 1, y, true, true, "Vertical")
-
-	forms.label(form, string.format("Streamerbot Code Version: %s", Network.STREAMERBOT_VERSION), x, 530, 250, lineHeight)
-	forms.button(form, Resources.AllScreens.Close, function()
-		Utils.closeBizhawkForm(form)
-	end, 350, 530)
+	form:createTextBox(codeText, x - 1, y, 763, 442, "", true, true, "Vertical")
+	form:createLabel(string.format("Streamerbot Code Version: %s", Network.STREAMERBOT_VERSION), x, 530)
+	form:createButton(Resources.AllScreens.Close, 350, 530, function()
+		form:destroy()
+	end)
 end
 
 -- USER INPUT FUNCTIONS

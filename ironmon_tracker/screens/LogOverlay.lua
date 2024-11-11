@@ -8,6 +8,7 @@ LogOverlay = {
 	tabHeight = 12,
 	isDisplayed = false,
 	isGameOver = false, -- Set to true when game is over, so we known to show game over screen if X is pressed
+	viewedLog = "None", -- use to note if the opened log is the current seed, previous seed, or other
 }
 
 -- Dimensions of the screen space occupied by the currentl visible Tab
@@ -244,6 +245,7 @@ LogOverlay.NavFilters = {
 function LogOverlay.initialize()
 	LogOverlay.isDisplayed = false
 	LogOverlay.isGameOver = false
+	LogOverlay.viewedLog = "None"
 
 	LogOverlay.TabHistory = {}
 	LogOverlay.Windower.currentTab = nil
@@ -260,19 +262,20 @@ function LogOverlay.initialize()
 	end
 
 	if Options["Open Book Play Mode"] then
-		local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
-
-		if not Utils.isNilOrEmpty(logpath) then
-			RandomizerLog.loadedLogPath = logpath
-			local success = RandomizerLog.parseLog(logpath)
-
-			if success then
-				LogOverlay.buildAllTabs()
-				LogOverlay.Windower.currentTab = LogTabPokemon
-				LogSearchScreen.resetSearchSortFilter()
-				LogOverlay.refreshActiveTabGrid()
+		-- Delay parsing data for open book until Tracker and custom extensions are fully loaded
+		Program.addFrameCounter("LoadOpenBookLog", 5, function()
+			local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
+			if not Utils.isNilOrEmpty(logpath) then
+				RandomizerLog.loadedLogPath = logpath
+				local success = RandomizerLog.parseLog(logpath)
+				if success then
+					LogOverlay.buildAllTabs()
+					LogOverlay.Windower.currentTab = LogTabPokemon
+					LogSearchScreen.resetSearchSortFilter()
+					LogOverlay.refreshActiveTabGrid()
+				end
 			end
-		end
+		end, 1)
 	end
 end
 
@@ -442,6 +445,7 @@ function LogOverlay.drawScreen()
 end
 
 function LogOverlay.viewLogFile(postfix)
+	LogOverlay.viewedLog = postfix or "Other"
 	local logpath = LogOverlay.getLogFileAutodetected(postfix)
 
 	-- Check if there exists a parsed log with the same postfix as the one being requested
@@ -524,13 +528,10 @@ function LogOverlay.getLogFileFromPrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
-	Utils.tempDisableBizhawkSound()
-	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if Utils.isNilOrEmpty(filepath) then
-		filepath = nil
+	local filepath, success = ExternalUI.BizForms.openFilePrompt(suggestedFileName, workingDir, filterOptions)
+	if not success then
+		return nil
 	end
-	Utils.tempEnableBizhawkSound()
-
 	return filepath
 end
 

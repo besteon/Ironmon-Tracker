@@ -3,12 +3,15 @@ RequestHandler = {
 	Responses = {}, -- A list of all responses ready to be sent
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
-	REQUIRES_MESSAGE_CAP = true, -- If true, shortens outgoing responses to message cap
-	MESSAGE_CAP = 499, -- Maximum # of characters allow for a given response
+	REQUIRES_MESSAGE_CAP = false, -- Will shorten outgoing responses to message cap (not needed anymore, done on Streamerbot side)
+	TWITCH_MESSAGE_CAP = 499, -- Maximum # of characters to allow for a given response message
+	YOUTUBE_MESSAGE_CAP = 200, -- Maximum # of characters to allow for a given response message
 
 	-- Shared values between server and client
 	SOURCE_STREAMERBOT = "Streamerbot",
 	REQUEST_COMPLETE = "Complete",
+	PLATFORM_TWITCH = "twitch",
+	PLATFORM_YOUTUBE = "youtube",
 }
 
 -- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -129,6 +132,7 @@ function RequestHandler.receiveJsonRequests(jsonTable)
 			EventKey = table.concat(eventKeys, ","),
 			CreatedAt = request.CreatedAt,
 			Username = request.Username,
+			Platform = request.Platform,
 			Args = request.Args,
 		}))
 	end
@@ -186,6 +190,7 @@ function RequestHandler.processAndBuildResponse(request, event)
 	local response = RequestHandler.IResponse:new({
 		GUID = request.GUID,
 		EventKey = event.Key,
+		Platform = request.Platform,
 	})
 	if event.Type == EventHandler.EventTypes.Reward then
 		response.AdditionalInfo = {
@@ -229,9 +234,9 @@ function RequestHandler.processAndBuildResponse(request, event)
 	-- Complete the request and determine the output information to send back
 	local result = event.Fulfill and event:Fulfill(request) or ""
 	if type(result) == "string" then
-		response.Message = RequestHandler.validateMessage(result)
+		response.Message = RequestHandler.validateMessage(result, request.Platform)
 	elseif type(result) == "table" then
-		response.Message = RequestHandler.validateMessage(result.Message)
+		response.Message = RequestHandler.validateMessage(result.Message, request.Platform)
 		if type(result.AdditionalInfo) == "table" then
 			response.AdditionalInfo = response.AdditionalInfo or {}
 			for k, v in pairs(result.AdditionalInfo) do
@@ -252,22 +257,34 @@ function RequestHandler.processAndBuildResponse(request, event)
 	return response
 end
 
----Ensures the 'msg' is valid for sending (doesn't exceed the MESSAGE_CAP)
+---Ensures the 'msg' is valid for sending (doesn't exceed the character limit: cap)
 ---@param msg string
+---@param platform string The streaming platform to which the message will be sent
 ---@return string
-function RequestHandler.validateMessage(msg)
+function RequestHandler.validateMessage(msg, platform)
 	msg = msg or ""
-	if not RequestHandler.REQUIRES_MESSAGE_CAP or #msg <= RequestHandler.MESSAGE_CAP then
+	if not RequestHandler.REQUIRES_MESSAGE_CAP then
 		return msg
 	end
-	return msg:sub(1, RequestHandler.MESSAGE_CAP - 4) .. "..."
+
+	local cap
+	if platform == RequestHandler.PLATFORM_YOUTUBE then
+		cap = RequestHandler.YOUTUBE_MESSAGE_CAP
+	else
+		cap = RequestHandler.TWITCH_MESSAGE_CAP
+	end
+	if #msg <= cap then
+		return msg
+	end
+	return msg:sub(1, cap - 4) .. "..."
 end
 
 --- Saves the list of Requests to a data file
 ---@return boolean success
 function RequestHandler.saveRequestsData()
 	RequestHandler.removedExcludedRequests()
-	local success = FileManager.encodeToJsonFile(FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
+	local folderpath = FileManager.getPathOverride("Network Requests") or FileManager.getNetworkPath()
+	local success = FileManager.encodeToJsonFile(folderpath .. FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
 	RequestHandler.lastSaveTime = os.time()
 	return (success == true)
 end
@@ -275,7 +292,8 @@ end
 --- Imports a list of IRequests from a data file; returns true if successful
 ---@return boolean success
 function RequestHandler.loadRequestsData()
-	local requests = FileManager.decodeJsonFile(FileManager.Files.REQUESTS_DATA)
+	local folderpath = FileManager.getPathOverride("Network Requests") or FileManager.getNetworkPath()
+	local requests = FileManager.decodeJsonFile(folderpath .. FileManager.Files.REQUESTS_DATA)
 	if requests then
 		RequestHandler.Requests = requests
 		return true
@@ -304,6 +322,8 @@ RequestHandler.IRequest = {
 	SentResponse = false,
 	-- Username of the user creating the request
 	Username = "",
+	-- The streaming platform for the source that's creating the request ('twitch' or 'youtube')
+	Platform = "",
 	-- Optional arguments included with the request
 	Args = {},
 }
@@ -328,6 +348,8 @@ RequestHandler.IResponse = {
 	-- Number of seconds, representing time the request was processed into a response
 	CreatedAt = -1,
 	StatusCode = RequestHandler.StatusCodes.NOT_FOUND,
+	-- The streaming platform associated with the original request ('twitch' or 'youtube')
+	Platform = "",
 	-- The informative response message to send back to the client
 	Message = "",
 }
@@ -339,6 +361,7 @@ function RequestHandler.IResponse:new(o)
 	o.GUID = o.GUID or Utils.newGUID()
 	o.CreatedAt = o.CreatedAt or os.time()
 	o.StatusCode = o.StatusCode or RequestHandler.StatusCodes.NOT_FOUND
+	o.Platform = o.Platform or ""
 	o.Message = o.Message or ""
 	setmetatable(o, self)
 	self.__index = self

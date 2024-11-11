@@ -200,6 +200,9 @@ InfoScreen.Buttons = {
 		InfoScreen.infoLookup = 0
 		if InfoScreen.prevScreen > 0 then
 			InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
+		elseif InfoScreen.previousScreenFinal then
+			Program.changeScreenView(InfoScreen.previousScreenFinal)
+			InfoScreen.clearScreenData()
 		else
 			InfoScreen.clearScreenData()
 			if Program.isValidMapLocation() then
@@ -218,15 +221,15 @@ InfoScreen.Buttons = {
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 113, Constants.SCREEN.MARGIN + 40, 10, 10 },
 		isVisible = function()
-			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= 237 then return false end
+			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= MoveData.Values.HiddenPowerId then return false end
 			-- Only reveal the HP set arrows if the player's active Pokemon has the move
 			local pokemon = Battle.getViewedPokemon(true) or {}
-			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
+			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, MoveData.Values.HiddenPowerId)
 		end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or {}
-			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, MoveData.Values.HiddenPowerId) then
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
@@ -254,7 +257,7 @@ InfoScreen.Buttons = {
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or {}
-			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, MoveData.Values.HiddenPowerId) then
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
@@ -276,7 +279,7 @@ InfoScreen.Buttons = {
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		getContentList = function(pokemonId)
+		getContentList = function(self, pokemonId)
 			local noteText = Tracker.getNote(pokemonId)
 			if not Utils.isNilOrEmpty(noteText) then
 				return noteText
@@ -292,7 +295,66 @@ InfoScreen.Buttons = {
 	}
 }
 
+InfoScreen.Pager = {
+	prevPage = function(self)
+		if InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO and InfoScreen.infoLookup then
+			-- Try to go to the next early game / safari route if possible
+			local useSafari = RouteData.Locations.IsInSafariZone[InfoScreen.infoLookup.mapId or 0]
+			local routeIds = RouteData.getPivotOrSafariRouteIds(useSafari)
+			for i, routeId in ipairs(routeIds) do
+				if routeId == InfoScreen.infoLookup.mapId then
+					-- Use next routeId (or wrap around to last)
+					local prevRouteId = routeIds[i - 1] or routeIds[#routeIds]
+					InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+						mapId = prevRouteId,
+						encounterArea = RouteData.EncounterArea.LAND,
+					})
+					return
+				end
+			end
+			-- Otherwise, cycling through the encounter types for the route
+			InfoScreen.Buttons.PreviousRoute:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.PreviousPokemon:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.HiddenPowerPrev:onClick()
+		end
+	end,
+	nextPage = function(self)
+		if InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO and InfoScreen.infoLookup then
+			-- Try to go to the next early game / safari route if possible
+			local useSafari = RouteData.Locations.IsInSafariZone[InfoScreen.infoLookup.mapId or 0]
+			local routeIds = RouteData.getPivotOrSafariRouteIds(useSafari)
+			for i, routeId in ipairs(routeIds) do
+				if routeId == InfoScreen.infoLookup.mapId then
+					-- Use next routeId (or wrap around to first)
+					local nextRouteId = routeIds[i + 1] or routeIds[1]
+					InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+						mapId = nextRouteId,
+						encounterArea = RouteData.EncounterArea.LAND,
+					})
+					return
+				end
+			end
+			-- Otherwise, cycling through the encounter types for the route
+			InfoScreen.Buttons.NextRoute:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.NextPokemon:onClick()
+		elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO and InfoScreen.infoLookup then
+			InfoScreen.Buttons.HiddenPowerNext:onClick()
+		end
+	end,
+}
+
 InfoScreen.TemporaryButtons = {}
+
+function InfoScreen.initialize()
+	InfoScreen.clearScreenData()
+
+	-- Lazy way to make sure that only one of these buttons gets clicked
+	InfoScreen.Buttons.Back.isVisible = function() return InfoScreen.viewScreen ~= InfoScreen.Screens.ABILITY_INFO end
+	InfoScreen.Buttons.BackTop.isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO end
+end
 
 function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.prevScreen = InfoScreen.viewScreen
@@ -311,6 +373,7 @@ function InfoScreen.clearScreenData()
 	InfoScreen.prevScreen = 0
 	InfoScreen.infoLookup = 0
 	InfoScreen.prevScreenInfo = 0
+	InfoScreen.previousScreenFinal = nil
 	InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
 	InfoScreen.Buttons.ShowRouteLevels.toggleState = false
 	InfoScreen.Buttons.PokemonInfoIcon.spriteType = SpriteData.Types.Idle
@@ -322,10 +385,10 @@ function InfoScreen.showNextPokemon(delta)
 	local nextPokemonId = InfoScreen.infoLookup + delta
 
 	if nextPokemonId < 1 then
-		nextPokemonId = 411
+		nextPokemonId = #PokemonData.Pokemon
 	elseif nextPokemonId > 251 and nextPokemonId < 277 then
 		nextPokemonId = Utils.inlineIf(delta > 0, 277, 251)
-	elseif nextPokemonId > 411 then
+	elseif nextPokemonId > #PokemonData.Pokemon then
 		nextPokemonId = 1
 	end
 
@@ -334,7 +397,7 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
@@ -344,15 +407,10 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	forms.label(form, Resources.InfoScreen.PromptLookupMove .. ":", 49, 10, 250, 20)
-	local moveDropdown = forms.dropdown(form, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
-	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
-	forms.setproperty(moveDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(moveDropdown, "AutoCompleteMode", "Append")
-	forms.settext(moveDropdown, moveName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local moveNameFromForm = forms.gettext(moveDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupMove .. ":", 49, 10)
+	local moveDropdown = form:createDropdown(allmovesData, 50, 30, 145, 30, moveName)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local moveNameFromForm = ExternalUI.BizForms.getText(moveDropdown)
 		local moveId
 
 		for id, data in pairs(MoveData.Moves) do
@@ -366,12 +424,12 @@ function InfoScreen.openMoveInfoWindow()
 			InfoScreen.infoLookup = moveId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.openAbilityInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
@@ -382,15 +440,10 @@ function InfoScreen.openAbilityInfoWindow()
 	local allAbilitiesData = {}
 	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
 
-	forms.label(form, Resources.InfoScreen.PromptLookupAbility .. ":", 49, 10, 250, 20)
-	local abilityDropdown = forms.dropdown(form, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
-	forms.setdropdownitems(abilityDropdown, allAbilitiesData, true) -- true = alphabetize the list
-	forms.setproperty(abilityDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(abilityDropdown, "AutoCompleteMode", "Append")
-	forms.settext(abilityDropdown, abilityName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local abilityNameFromForm = forms.gettext(abilityDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupAbility .. ":", 49, 10)
+	local abilityDropdown = form:createDropdown(allAbilitiesData, 50, 30, 145, 30, abilityName)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local abilityNameFromForm = ExternalUI.BizForms.getText(abilityDropdown)
 		local abilityId
 
 		for id, data in pairs(AbilityData.Abilities) do
@@ -404,12 +457,12 @@ function InfoScreen.openAbilityInfoWindow()
 			InfoScreen.infoLookup = abilityId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.openPokemonInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(InfoScreen.infoLookup) then -- infoLookup = pokemonID
@@ -419,40 +472,30 @@ function InfoScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(form, Resources.InfoScreen.PromptLookupPokemon .. ":", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
-	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
-	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-	forms.settext(pokedexDropdown, pokemonName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupPokemon .. ":", 49, 10)
+	local pokedexDropdown = form:createDropdown(pokedexData, 50, 30, 145, 30, pokemonName)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local pokemonNameFromForm = ExternalUI.BizForms.getText(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
 		if pokemonId ~= nil and pokemonId ~= 0 then
 			InfoScreen.infoLookup = pokemonId
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.openRouteInfoWindow()
-	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
+	local form = ExternalUI.BizForms.createForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 	routeName = Utils.formatSpecialCharacters(routeName)
 
-	forms.label(form, Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10, 250, 20)
-	local routeDropdown = forms.dropdown(form, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
-	forms.setdropdownitems(routeDropdown, RouteData.AvailableRoutes, false) -- true = alphabetize the list
-	forms.setproperty(routeDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(routeDropdown, "AutoCompleteMode", "Append")
-	forms.settext(routeDropdown, routeName)
-
-	forms.button(form, Resources.AllScreens.Lookup, function()
-		local dropdownSelection = forms.gettext(routeDropdown)
+	form:createLabel(Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10)
+	local routeDropdown = form:createDropdown(RouteData.AvailableRoutes, 50, 30, 145, 30, routeName, false)
+	form:createButton(Resources.AllScreens.Lookup, 212, 29, function()
+		local dropdownSelection = ExternalUI.BizForms.getText(routeDropdown)
 		local mapId
 
 		for id, data in pairs(RouteData.Info) do
@@ -475,8 +518,8 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
 			Program.redraw(true)
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
@@ -716,18 +759,21 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 	Drawing.drawText(offsetX, botOffsetY, Resources.InfoScreen.LabelLearnMove .. ":", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
-	local boxWidth = 16
+	local NUM_MOVES = #data.p.movelvls
+	local MOVES_PER_ROW = NUM_MOVES <= 16 and 8 or 9
+	local boxWidth = NUM_MOVES <= 16 and 16 or 15
 	local boxHeight = 13
-	if #data.p.movelvls == 0 then -- If the Pokemon learns no moves at all
+	local boxStart = NUM_MOVES <= 16 and 5 or 1
+	if NUM_MOVES == 0 then -- If the Pokemon learns no moves at all
 		Drawing.drawText(offsetX + 6, botOffsetY, Resources.InfoScreen.LabelNoMoves, Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
-	for i, moveLvl in ipairs(data.p.movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
-		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns
-		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
+	for i, moveLvl in ipairs(data.p.movelvls) do
+		local nextBoxX = ((i - 1) % MOVES_PER_ROW) * boxWidth
+		local nextBoxY = Utils.inlineIf(i <= MOVES_PER_ROW, 0, 1) * boxHeight -- 2 possible rows
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
 
-		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+		gui.drawRectangle(offsetX + nextBoxX + boxStart + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
+		gui.drawRectangle(offsetX + nextBoxX + boxStart, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 		-- Indicate which moves have already been learned if the Pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
@@ -739,12 +785,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 			nextBoxTextColor = Theme.COLORS["Positive text"]
 		end
 
-		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
+		Drawing.drawText(offsetX + nextBoxX + boxStart + 2 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + (linespacing * 3) - 2
 
 	-- If the moves-to-learn only takes up one row, move up the weakness data
-	if #data.p.movelvls <= 8 then
+	if NUM_MOVES <= MOVES_PER_ROW then
 		botOffsetY = botOffsetY - linespacing
 	end
 
@@ -843,7 +889,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	if LogOverlay.isDisplayed and RandomizerLog.Data.Moves[moveId] then
 		local moveLog = RandomizerLog.Data.Moves[moveId]
 		moveType = moveLog.type or PokemonData.Types.EMPTY
-		moveCategory = MoveData.TypeToCategory[moveType] or MoveData.Categories.NONE
+		moveCategory = MoveData.getCategory(moveId, moveType)
 		movePP = moveLog.pp ~= 0 and moveLog.pp or Constants.BLANKLINE
 		movePower = moveLog.power ~= 0 and moveLog.power or Constants.BLANKLINE
 		moveAcc = moveLog.acc ~= 0 and moveLog.acc or Constants.BLANKLINE
@@ -1076,7 +1122,7 @@ end
 
 function InfoScreen.drawNotepadArea()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
-	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
+	local noteText = InfoScreen.Buttons.NotepadTracking:getContentList(InfoScreen.infoLookup)
 	--23 will fit, but cut to 22 if we need to show the ellipses
 	if #noteText > 23 then
 		local	textTest = Utils.getWordWrapLines(noteText, 22)

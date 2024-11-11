@@ -1,4 +1,10 @@
 GameSettings = {}
+
+GameSettings.RomHackSupport = {
+	NatDex = true, -- Support for Nat. Dex added as of v8.5.0
+	PhysSpecSplit = true, -- Support for Moves having the Physical/Special split
+}
+
 GameSettings.ABILITIES = {}
 
 -- Moved the 1st/2nd/3rd values to be set alongside other EWRAM/IWRAM addresses. 4th/5th/6th values are supposedly the Japanese addresses (not used right now)
@@ -498,9 +504,11 @@ function GameSettings.setEwramAddresses()
 		-- RS: gAbilitiesPerBank
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
 
-		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
+		-- RS uses saveblock directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
+		gSaveBlock2 = { 0x02024ea4, nil, nil },
 		gameFlagsOffset = { 0x1220, 0x1270, 0xEE0 },
+		gameRegItemOffset = { 0x496, 0x496, 0x296 },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
 		gameVarsOffset = { 0x1340, 0x139C, 0x1000 }, -- SaveBlock1 -> vars[VARS_COUNT]
 		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -628,6 +636,20 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08, 0x082104ec },
 			{ 0x08253ac0, 0x08253b30 },
 		},
+		gTrainers = {
+			{ 0x081f04fc, 0x081f0514, 0x081f0514 },
+			{ 0x081f048c, 0x081f04a4, 0x081f04a4 },
+			{ 0x08310030 },
+			{ 0x0823eac8, 0x0823eb38, 0x0823A290, 0x08237BA8, 0x08238F18, 0x0823E9EC, 0x081FB4D0 },
+			{ 0x0823eaa4, 0x0823eb14 },
+		},
+		gTrainerClassNames = {
+			{ 0x081f0208, 0x081f0220, 0x081f0220 },
+			{ 0x081f0198, 0x081f01b0, 0x081f01b0 },
+			{ 0x0830fcd4 },
+			{ 0x0823e558, 0x0823e5c8, 0x823A800, 0x8238118, 0x8239488, 0x08239488, 0x81FBA40 },
+			{ 0x0823e534, 0x0823e5a4 },
+		},
 		sTMHMMoves = {
 			{ 0x08376504, 0x0837651c, 0x0837651c },
 			{ 0x08376494, 0x083764ac, 0x083764ac },
@@ -676,7 +698,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
 			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
 			{ 0x0803df71 },
-			{ 0x08015b59, 0x08015b6d, 0x08015AC9, 0x08015ADD, 0x080CEB3D, 0x08015ADD, 0x08015129 },
+			{ 0x08015b59, 0x08015b6d, 0x08015AC9, 0x08015ADD, 0x08015AC9, 0x08015ADD, 0x08015129 },
 			{ 0x08015b59, 0x08015b6d },
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3

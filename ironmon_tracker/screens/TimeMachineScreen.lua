@@ -35,10 +35,12 @@ TimeMachineScreen.Pager = {
 	prevPage = function(self)
 		if self.totalPages <= 1 then return end
 		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+		Program.redraw(true)
 	end,
 	nextPage = function(self)
 		if self.totalPages <= 1 then return end
 		self.currentPage = (self.currentPage % self.totalPages) + 1
+		Program.redraw(true)
 	end,
 }
 
@@ -69,7 +71,6 @@ TimeMachineScreen.Buttons = {
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TimeMachineScreen.Pager:prevPage()
-			Program.redraw(true)
 		end
 	},
 	NextPage = {
@@ -79,7 +80,6 @@ TimeMachineScreen.Buttons = {
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TimeMachineScreen.Pager:nextPage()
-			Program.redraw(true)
 		end
 	},
 	CreateNewRestorePoint = {

@@ -2258,12 +2258,10 @@ SpriteData.WalkingPals = {
 		[SpriteData.Types.Idle] = { w = 24, h = 48, x = 4, y = 8, durations = { 18, 8, 18, 8 } },
 		[SpriteData.Types.Walk] = { w = 32, h = 56, x = 0, y = 4, durations = { 4, 4, 6, 6, 4, 4, 4, 4, 6, 6, 4, 4 } },
 	},
-	-- Egg
-	[412] = {
+	[PokemonData and PokemonData.Values.EggId or 412] = {
 		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 1, durations = { 48, 8, 8, 8 } },
 	},
-	-- Pokémon Tower Ghost
-	[413] = {
+	[PokemonData and PokemonData.Values.GhostId or 413] = {
 		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 2, durations = { 48, 8, 44, 8 } },
 	},
 }

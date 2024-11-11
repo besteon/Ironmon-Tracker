@@ -22,7 +22,7 @@ NavigationMenu.Buttons = {
 	},
 	SetupAndOptions = {
 		getText = function(self) return Resources.NavigationMenu.ButtonSetup end,
-		image = Constants.PixelImages.NOTEPAD,
+		image = Constants.PixelImages.GEAR,
 		index = 1,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(SetupScreen) end
@@ -57,22 +57,25 @@ NavigationMenu.Buttons = {
 		end,
 		onClick = function() Program.changeScreenView(QuickloadScreen) end
 	},
+	Notebook = {
+		getText = function(self) return "Notebook" or Resources.NavigationMenu.ButtonNotebook end,
+		image = Constants.PixelImages.NOTEPAD,
+		index = 5,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function()
+			NotebookIndexScreen.buildScreen()
+			Program.changeScreenView(NotebookIndexScreen)
+		end
+	},
 	ThemeCustomization = {
 		getText = function(self) return Resources.NavigationMenu.ButtonTheme end,
 		image = Constants.PixelImages.SPARKLES,
-		index = 5,
+		index = 6,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
 			Program.changeScreenView(Theme)
 		end
-	},
-	LanguageSettings = {
-		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
-		image = Constants.PixelImages.LANGUAGE_LETTERS,
-		index = 6,
-		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},
 	CheckForUpdates = {
 		getText = function(self)
@@ -119,6 +122,13 @@ NavigationMenu.Buttons = {
 			Program.changeScreenView(CustomExtensionsScreen)
 		end
 	},
+	LanguageSettings = {
+		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
+		image = Constants.PixelImages.LANGUAGE_LETTERS,
+		index = 10,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function() Program.changeScreenView(LanguageScreen) end
+	},
 	MirageButton = {
 		getText = function(self)
 			if GameSettings.game == 3 then
@@ -139,6 +149,13 @@ NavigationMenu.Buttons = {
 			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.Colors.text, NavigationMenu.Colors.highlight)
 			Program.redraw(true)
 		end
+	},
+	PokemonIcon = {
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 104, Constants.SCREEN.MARGIN + 10, 32, 32 },
+		isVisible = function() return NavigationMenu.showCredits end,
+		pokemonID = 196, -- Espeon
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
 	},
 	Credits = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -175,6 +192,15 @@ NavigationMenu.Buttons = {
 
 function NavigationMenu.initialize()
 	NavigationMenu.showCredits = false
+
+	-- Draw a helpful reminder on how to use the universal "back" button
+	NavigationMenu.Buttons.Back.draw = function(self, shadowcolor)
+		local x, y = self.box[1], self.box[2]
+		local text = string.format("(%s + %s)", Options.CONTROLS["Previous page"] or "L", Options.CONTROLS["Next page"] or "R")
+		local textWidth = Utils.calcWordPixelLength(text)
+		local color = Theme.COLORS[self.textColor] - (Drawing.ColorEffects.DARKEN * 2)
+		Drawing.drawText(x - textWidth - 1, y - 1, text, color, shadowcolor)
+	end
 
 	local btnWidth = 63
 	local btnHeight = 16
@@ -272,17 +298,15 @@ function NavigationMenu.drawCredits(canvas)
 
 	-- Draw box
 	gui.drawRectangle(canvas.x, canvas.y, canvas.w, canvas.h, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
-	-- Draw the original Espeon gif image
-	local originalIconSet = Options.IconSetMap[1]
-	local espeonImage = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
-	Drawing.drawImage(espeonImage, canvas.x + 104, canvas.y, 32, 32)
+
+	Drawing.drawButton(NavigationMenu.Buttons.PokemonIcon, canvas.shadow)
 
 	local textLineY = canvas.y + 4
 	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)
 	Drawing.drawText(canvas.x + 3, textLineY, createdByText, Theme.COLORS[NavigationMenu.Colors.highlight], canvas.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	local colOffsetX = Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
+	local colOffsetX = -8 + Utils.getCenteredTextX(Main.CreditsList.CreatedBy, canvas.w)
 	Drawing.drawText(canvas.x + colOffsetX, textLineY, Main.CreditsList.CreatedBy, canvas.text, canvas.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING + 3
 

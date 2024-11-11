@@ -1,7 +1,7 @@
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
-	STREAMERBOT_VERSION = "1.0.4", -- Known streamerbot version. Update this value to inform user to update streamerbot code
+	STREAMERBOT_VERSION = "1.0.5", -- Known streamerbot version. Update this value to inform user to update streamerbot code
 	TEXT_UPDATE_FREQUENCY = 2, -- # of seconds
 	SOCKET_UPDATE_FREQUENCY = 2, -- # of seconds
 	HTTP_UPDATE_FREQUENCY = 2, -- # of seconds
@@ -42,6 +42,16 @@ Network.Options = {
 	["CustomCommandRole"] = "", -- Currently unused, not supported
 }
 
+-- In some cases, allow a mismatch between Tracker code and Streamerbot code
+-- This simply offers convenience for the end user, such that they aren't forced to update to continue using it
+Network.DeprecatedVersions = {
+	-- On version 1.0.5 of Streamerbot code, the message cap limit was assumed to be checked by the Tracker, not Streamerbot itself
+	-- This override forces the Tracker to check the message cap
+	["1.0.5"] = function()
+		RequestHandler.REQUIRES_MESSAGE_CAP = true
+	end,
+}
+
 function Network.initialize()
 	-- Clear and reload Event and Request information
 	EventHandler.reset()
@@ -56,13 +66,20 @@ function Network.initialize()
 	if Network.Options["AutoConnectStartup"] then
 		Network.tryConnect()
 	end
+
+	Program.addFrameCounter("NetworkEventStartup", 30, EventHandler.onStartup, 1, true)
 end
 
 ---Checks current version of the Tracker's Network code against the Streamerbot code version
----@param version string
-function Network.checkVersion(version)
-	Network.currentStreamerbotVersion = version
-	Network.requiresUpdating = Utils.isNewerVersion(Network.STREAMERBOT_VERSION, version)
+---@param externalVersion string
+function Network.checkVersion(externalVersion)
+	local changeFunc = Network.DeprecatedVersions[externalVersion or ""]
+	if type(changeFunc) == "function" then
+		changeFunc()
+	end
+
+	Network.currentStreamerbotVersion = externalVersion
+	Network.requiresUpdating = Utils.isNewerVersion(Network.STREAMERBOT_VERSION, externalVersion)
 	if Network.requiresUpdating then
 		Network.openUpdateRequiredPrompt()
 	end
@@ -311,24 +328,24 @@ function Network.getStreamerbotCode()
 end
 
 function Network.openUpdateRequiredPrompt()
-	local form = Utils.createBizhawkForm("Streamerbot Update Required", 350, 150, 100, 50)
+	local form = ExternalUI.BizForms.createForm(Resources.StreamConnect.PromptUpdateTitle, 350, 150)
 	local x, y, lineHeight = 20, 20, 20
-	forms.label(form, string.format("Streamerbot Tracker Integration code requires an update."), x, y, 330, 20)
+	form:createLabel(Resources.StreamConnect.PromptUpdateDesc1, x, y)
 	y = y + lineHeight
-	forms.label(form, string.format("You must re-import the code to continue using Stream Connect."), x, y, 330, 20)
+	form:createLabel(Resources.StreamConnect.PromptUpdateDesc2, x, y)
 	y = y + lineHeight
 	-- Bottom row buttons
 	y = y + 10
-	forms.button(form, Resources.StreamConnect.PromptNetworkShowMe, function()
-		Utils.closeBizhawkForm(form)
+	form:createButton(Resources.StreamConnect.PromptNetworkShowMe, 40, y, function()
+		form:destroy()
 		StreamConnectOverlay.openGetCodeWindow()
-	end, 40, y, 80, lineHeight + 5)
-	forms.button(form, Resources.StreamConnect.PromptNetworkTurnOff, function()
+	end)
+	form:createButton(Resources.StreamConnect.PromptNetworkTurnOff, 150, y, function()
 		Network.Options["AutoConnectStartup"] = false
 		Main.SaveSettings(true)
 		Network.closeConnections()
-		Utils.closeBizhawkForm(form)
-	end, 150, y, 150, lineHeight + 5)
+		form:destroy()
+	end)
 end
 
 -- Not supported

@@ -15,6 +15,8 @@ LogTabPokemonDetails = {
 	currentEvoSet = 1,
 	prevEvosPerSet = 1,
 	evosPerSet = 3,
+	playerTeam = {},
+	currentStatView = "ShowBST",
 }
 
 LogTabPokemonDetails.TemporaryButtons = {}
@@ -59,6 +61,8 @@ function LogTabPokemonDetails.initialize()
 	LogTabPokemonDetails.currentEvoSet = 1
 	LogTabPokemonDetails.prevEvosPerSet = 1
 	LogTabPokemonDetails.evosPerSet = 3
+	LogTabPokemonDetails.playerTeam = {}
+	LogTabPokemonDetails.currentStatView = "ShowBST"
 end
 
 function LogTabPokemonDetails.refreshButtons()
@@ -89,9 +93,27 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 
 	LogTabPokemonDetails.currentPreEvoSet = 1
 	LogTabPokemonDetails.currentEvoSet = 1
+	LogTabPokemonDetails.currentStatView = "ShowBST"
 
 	if data.p.abilities[1] == data.p.abilities[2] then
 		data.p.abilities[2] = nil
+	end
+
+	-- For checking against pokemon on the player's team
+	LogTabPokemonDetails.playerTeam = {}
+	for _, pokemon in pairs(Program.GameData.PlayerTeam or {}) do
+		if PokemonData.isValid(pokemon.pokemonID) and not LogTabPokemonDetails.playerTeam[pokemon.pokemonID] then
+			local pokemonName = data.p.name
+			-- Use Nickname if looking at the log page for a mon on the player's team
+			if Options["Show nicknames"] and not Utils.isNilOrEmpty(pokemon.nickname) then
+				pokemonName = Utils.formatSpecialCharacters(pokemon.nickname)
+			end
+			LogTabPokemonDetails.playerTeam[pokemon.pokemonID] = {
+				name = pokemonName,
+				ivs = pokemon.ivs,
+				evs = pokemon.evs,
+			}
+		end
 	end
 
 	local abilityButtonArea ={
@@ -535,10 +557,32 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	-- LEARNABLE MOVES
 	offsetY = 0
 	for i, moveInfo in ipairs(data.p.moves) do
+		local nameDisplayed = moveInfo.name
+		-- If the pokemon is on the player's team and has the move hidden power, calc what it is and show
+		local monOnTeamWithHP = (moveInfo.id == MoveData.Values.HiddenPowerId) and LogTabPokemonDetails.playerTeam[data.p.id]
+		if monOnTeamWithHP and monOnTeamWithHP.ivs then
+			local moveType, movePower = MoveData.calcHiddenPowerTypeAndPower(monOnTeamWithHP.ivs)
+			-- Shorten the move name so everything fits
+			nameDisplayed = string.format("%s (%s/%s)",
+				moveInfo.name:sub(1, 8) .. "...",
+				Utils.firstToUpper(moveType),
+				movePower
+			)
+			-- Change stab calculation
+			moveInfo.isstab = Utils.isSTAB(MoveData.Moves[MoveData.Values.HiddenPowerId], moveType, data.p.types)
+		end
+
 		local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", LogTabPokemonDetails.Colors.text)
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return string.format("%02d  %s", moveInfo.level, moveInfo.name) end,
+			getText = function(self)
+				-- add this customization for the Nat. Dex rom hack
+				if moveInfo.level == 0 then
+					return string.format("Evo  %s", nameDisplayed)
+				else
+					return string.format("%02d  %s", moveInfo.level, nameDisplayed)
+				end
+			end,
 			textColor = moveColor,
 			moveId = moveInfo.id,
 			tab = LogTabPokemonDetails.Tabs.LevelMoves,
@@ -563,7 +607,8 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
 				Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
 
-				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
+				-- Don't draw icon for Hidden Power (no room on the screen)
+				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) and not monOnTeamWithHP then
 					local move = MoveData.Moves[self.moveId]
 					local image
 					if move.category == MoveData.Categories.PHYSICAL then
@@ -591,22 +636,49 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	end
 
 	-- LEARNABLE TMS
-	local sortGymsFirst = function(a, b) return (a.gymNum * 1000 + a.tm) < (b.gymNum * 1000 + b.tm) end
-	table.sort(data.p.tmmoves, sortGymsFirst)
-
-	-- Add a spacer to separate Gym TMs from regular TMs
-	for i, tmInfo in ipairs(data.p.tmmoves) do
-		if tmInfo.gymNum > 8 then
-			if i ~= 1 then
-				table.insert(data.p.tmmoves, i, { label = Resources.LogOverlay.LabelOtherTMs})
-				table.insert(data.p.tmmoves, 1, { label = Resources.LogOverlay.LabelGymTMs})
-				break
-			else
-				table.insert(data.p.tmmoves, 1, { label = Resources.LogOverlay.LabelOtherTMs})
+	-- Add unlearnable Gym TMs
+	local gymTMsToAdd = {}
+	local TMsToCheck = Options["Show unlearnable Gym TMs"] and TrainerData.GymTMs or {}
+	for gymNum, gymInfoTM in ipairs(TMsToCheck) do
+		-- Check if the pokemon can already learn this gym TM
+		local found
+		for _, tmInfo in ipairs(data.p.tmmoves) do
+			if tmInfo.tm == gymInfoTM.number then
+				found = true
 				break
 			end
 		end
+		-- If not, add it in as unlearnable
+		if not found then
+			local tmLog = RandomizerLog.Data.TMs[gymInfoTM.number] or {}
+			local moveInternal = MoveData.Moves[tmLog.moveId or 0]
+			local tm = {
+				tm = gymInfoTM.number,
+				moveId = tmLog.moveId or 0,
+				gymNum = gymNum,
+				moveName = (moveInternal and moveInternal.name) or tmLog.name or Constants.BLANKLINE,
+				unlearnable = true,
+			}
+			table.insert(gymTMsToAdd, tm)
+		end
 	end
+	for _, tmInfo in pairs(gymTMsToAdd) do
+		table.insert(data.p.tmmoves, tmInfo)
+	end
+	-- Non-Gym TMs have a value of "9" for gymNum
+	local sortGymsFirst = function(a, b) return (a.gymNum * 1000 + a.tm) < (b.gymNum * 1000 + b.tm) end
+	table.sort(data.p.tmmoves, sortGymsFirst)
+	local numGymTMs = 0
+	for _, tmInfo in ipairs(data.p.tmmoves) do
+		if not tmInfo.gymNum or tmInfo.gymNum > 8 then
+			break
+		end
+		numGymTMs = numGymTMs + 1
+	end
+
+	-- Add a spacer to separate Gym TMs from regular TMs
+	table.insert(data.p.tmmoves, 1, { label = Resources.LogOverlay.LabelGymTMs})
+	table.insert(data.p.tmmoves, numGymTMs + 2, { label = Resources.LogOverlay.LabelOtherTMs})
 
 	offsetY = 0
 	for i, tmInfo in ipairs(data.p.tmmoves) do
@@ -624,7 +696,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		end
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return moveText end,
+			getCustomText = function(self) return moveText end,
 			textColor = moveColor,
 			moveId = tmInfo.moveId,
 			tab = LogTabPokemonDetails.Tabs.TmMoves,
@@ -632,6 +704,13 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogTabPokemonDetails.Pager.currentTab == self.tab and LogTabPokemonDetails.Pager.currentPage == self.pageVisible end,
 			draw = function (self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local color = Theme.COLORS[self.textColor]
+				if tmInfo.unlearnable then
+					color = color - 0x60000000
+				end
+				Drawing.drawText(x + 1, y, self:getCustomText(), color, shadowcolor)
+				-- Physical/Special icon, if applicable
 				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
 					local move = MoveData.Moves[self.moveId]
 					local image
@@ -641,8 +720,14 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 						image = Constants.PixelImages.SPECIAL
 					end
 					if image then
-						Drawing.drawImageAsPixels(image, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+						Drawing.drawImageAsPixels(image, x + moveCategoryOffset, y + 2, { color }, shadowcolor)
 					end
+				end
+				-- If the TM can't be learned, strikethrough
+				if tmInfo.unlearnable then
+					local moveW = Utils.calcWordPixelLength(self:getCustomText())
+					local lessOpacity = Theme.COLORS["Negative text"] - 0x40000000
+					gui.drawLine(x + 1, y + 6, x + moveW + 4, y + 6, lessOpacity)
 				end
 			end,
 			onClick = function(self)
@@ -682,6 +767,64 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	LogTabPokemonDetails.Pager.totalLearnedMoves = #data.p.moves
 	LogTabPokemonDetails.Pager.totalTMMoves = #data.p.tmmoves
 	LogTabPokemonDetails.Pager:changeTab(LogTabPokemonDetails.Tabs.LevelMoves)
+
+	-- LABEL/BUTTON FOR "Show IVs/EVs/BST"
+	local canSeeIVsEVs = LogOverlay.viewedLog == FileManager.PostFixes.AUTORANDOMIZED and LogTabPokemonDetails.playerTeam[pokemonID] ~= nil
+	local showBtnBox = { LogOverlay.TabBox.x + 66, LogOverlay.TabBox.y + 42, 43, 11 } -- x, y, width, height
+
+	local lblStatGraphHeader = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self)
+			if LogTabPokemonDetails.currentStatView == "ShowIVs" then
+				return Resources.LogOverlay.LabelYourIVs
+			elseif LogTabPokemonDetails.currentStatView == "ShowEVs" then
+				return Resources.LogOverlay.LabelYourEVs
+			else
+				return Resources.LogOverlay.LabelBaseStats
+			end
+		end,
+		textColor = LogTabPokemonDetails.Colors.text,
+		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
+		box = { LogOverlay.TabBox.x + 4, showBtnBox[2], showBtnBox[3], showBtnBox[4] },
+	}
+	local lblBaseStatTotal = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, data.p.bst) end,
+		textColor = LogTabPokemonDetails.Colors.text,
+		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
+		box = showBtnBox,
+		isVisible = function(self) return not canSeeIVsEVs end,
+	}
+	local btnChangeStatGraph = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self)
+			if LogTabPokemonDetails.currentStatView == "ShowBST" then
+				return Resources.LogOverlay.LabelShowIVs
+			elseif LogTabPokemonDetails.currentStatView == "ShowIVs" then
+				return Resources.LogOverlay.LabelShowEVs
+			else
+				return Resources.LogOverlay.LabelShowBST
+			end
+		end,
+		textColor = LogTabPokemonDetails.Colors.highlight,
+		boxColors = { LogTabPokemonDetails.Colors.border, LogTabPokemonDetails.Colors.boxFill },
+		box = showBtnBox,
+		isVisible = function(self) return canSeeIVsEVs end,
+		onClick = function(self)
+			-- On click: change from viewing Base Stats -> IVs -> EVs -> Base Stats
+			if LogTabPokemonDetails.currentStatView == "ShowBST" then
+				LogTabPokemonDetails.currentStatView = "ShowIVs"
+			elseif LogTabPokemonDetails.currentStatView == "ShowIVs" then
+				LogTabPokemonDetails.currentStatView = "ShowEVs"
+			else
+				LogTabPokemonDetails.currentStatView = "ShowBST"
+			end
+			Program.redraw(true)
+		end,
+	}
+	table.insert(LogTabPokemonDetails.TemporaryButtons, lblStatGraphHeader)
+	table.insert(LogTabPokemonDetails.TemporaryButtons, lblBaseStatTotal)
+	table.insert(LogTabPokemonDetails.TemporaryButtons, btnChangeStatGraph)
 end
 
 -- USER INPUT FUNCTIONS
@@ -722,7 +865,11 @@ function LogTabPokemonDetails.drawTab()
 	end
 
 	-- Draw Pokemon name
-	local nameText = Utils.toUpperUTF8(data.p.name)
+	local pokemonName = data.p.name
+	if LogTabPokemonDetails.currentStatView ~= "ShowBST" and LogTabPokemonDetails.playerTeam[data.p.id] then
+		pokemonName = LogTabPokemonDetails.playerTeam[data.p.id].name
+	end
+	local nameText = Utils.toUpperUTF8(pokemonName)
 	Drawing.drawTransparentTextbox(LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, nameText, highlightColor, fillColor, shadowcolor)
 
 	-- data.p.helditems -- unused
@@ -735,6 +882,7 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 	local borderColor = Theme.COLORS[LogTabPokemonDetails.Colors.border]
 	local fillColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
 
+	-- If these change, also update "lblStatGraphHeader", "lblBaseStatTotal", etc. above
 	local statBox = {
 		x = LogOverlay.TabBox.x + 6,
 		y = LogOverlay.TabBox.y + 53,
@@ -743,11 +891,6 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 		barW = 8,
 		labelW = 17,
 	}
-
-	-- Draw header for stat box
-	local bstTotal = string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, data.p.bst)
-	Drawing.drawTransparentTextbox(statBox.x, statBox.y - 11, Resources.LogOverlay.LabelBaseStats, textColor, fillColor, shadowcolor)
-	Drawing.drawTransparentTextbox(statBox.x + statBox.width - 39, statBox.y - 11, bstTotal, textColor, fillColor, shadowcolor)
 
 	-- Draw stat box
 	gui.drawRectangle(statBox.x, statBox.y, statBox.width, statBox.height, borderColor, fillColor)
@@ -763,15 +906,31 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 	gui.drawLine(statBox.x - 2, statBox.y + statBox.height, statBox.x, statBox.y + statBox.height, borderColor)
 	gui.drawLine(statBox.x + statBox.width, statBox.y + statBox.height, statBox.x + statBox.width + 2, statBox.y + statBox.height, borderColor)
 
+	local barVals = {}
+	local pokemon = LogTabPokemonDetails.playerTeam[data.p.id]
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		if pokemon ~= nil and LogTabPokemonDetails.currentStatView == "ShowIVs" then
+			barVals[statKey] = pokemon.ivs[statKey] or 0
+		elseif pokemon ~= nil and LogTabPokemonDetails.currentStatView == "ShowEVs" then
+			barVals[statKey] = pokemon.evs[statKey] or 0
+		else
+			barVals[statKey] = data.p[statKey] or 0
+		end
+	end
+
 	local statX = statBox.x + 1
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		local barVal = barVals[statKey]
+		if LogTabPokemonDetails.currentStatView == "ShowIVs" then
+			barVal = math.min(barVal * 8, 255) -- Scale IV bar x8 to fill
+		end
 		-- Draw the vertical bar
-		local barH = math.floor(data.p[statKey] / 255 * (statBox.height - 2) + 0.5)
+		local barH = math.floor(barVal / 255 * (statBox.height - 2) + 0.5)
 		local barY = statBox.y + statBox.height - barH - 1 -- -1/-2 for box pixel border margin
 		local barColor
-		if data.p[statKey] >= 180 then -- top ~70%
+		if barVal >= 180 then -- top ~70%
 			barColor = Theme.COLORS["Positive text"]
-		elseif data.p[statKey] <= 40 then -- bottom ~15%
+		elseif barVal <= 40 then -- bottom ~15%
 			barColor = Theme.COLORS["Negative text"]
 		else
 			barColor = textColor
@@ -783,9 +942,9 @@ function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 
 		-- Draw the bar's label
 		local statLabelOffsetX = (3 - string.len(statKey)) * 2
-		local statValueOffsetX = (3 - string.len(tostring(data.p[statKey]))) * 2
+		local statValueOffsetX = (3 - string.len(tostring(barVals[statKey]))) * 2
 		Drawing.drawText(statX + statLabelOffsetX, statBox.y + statBox.height + 1, Utils.firstToUpper(statKey), textColor, shadowcolor)
-		Drawing.drawText(statX + statValueOffsetX, statBox.y + statBox.height + 11, data.p[statKey], barColor, shadowcolor)
+		Drawing.drawText(statX + statValueOffsetX, statBox.y + statBox.height + 11, barVals[statKey], barColor, shadowcolor)
 		statX = statX + statBox.labelW
 	end
 end

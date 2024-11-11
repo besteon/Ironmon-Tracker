@@ -135,9 +135,17 @@ function CrashRecoveryScreen.goBack()
 end
 
 function CrashRecoveryScreen.readCrashReport()
-	local crashReport = FileManager.readTableFromFile(FileManager.Files.CRASH_REPORT) or {}
-	crashReport.crashedOccurred = (crashReport.crashedOccurred == true) -- convert possible nil to a boolean
-	return crashReport
+	if CrashRecoveryScreen.isEnabled() then
+		local crashReport = FileManager.readTableFromFile(FileManager.Files.CRASH_REPORT) or {}
+		crashReport.crashedOccurred = (crashReport.crashedOccurred == true) -- convert possible nil to a boolean
+		return crashReport
+	else
+		return {
+			crashedOccurred = false,
+			gameName = GameSettings.fullVersionName,
+			romHash = GameSettings.getRomHash(),
+		}
+	end
 end
 
 function CrashRecoveryScreen.logCrashReport(crashedOccurred)
@@ -148,7 +156,8 @@ function CrashRecoveryScreen.logCrashReport(crashedOccurred)
 		gameName = GameSettings.fullVersionName,
 		romHash = GameSettings.getRomHash(),
 	}
-	FileManager.writeTableToFile(crashReport, FileManager.Files.CRASH_REPORT)
+	local filepath = FileManager.prependDir(FileManager.Files.CRASH_REPORT)
+	FileManager.writeTableToFile(crashReport, filepath)
 end
 
 function CrashRecoveryScreen.startSavingBackups()

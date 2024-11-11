@@ -116,8 +116,7 @@ UpdateScreen.Buttons = {
 			if not UpdateScreen.isUpdateSupported() then
 				-- In such a case, open a browser window with a link for manual download...
 				Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
-				-- ... and swap back to main Tracker screen. Default to remind later if they forget to manually update.
-				-- Main.Version.remindMe = true -- Temporarily disabled
+				-- ... and swap back to main Tracker screen.
 				UpdateScreen.exitScreen()
 			else
 				UpdateScreen.beginAutoUpdate()
@@ -130,7 +129,7 @@ UpdateScreen.Buttons = {
 		getText = function(self) return Resources.UpdateScreen.ButtonIgnoreUpdate end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 95, 90, 16 },
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
-		onClick = function() UpdateScreen.exitScreenAndRemindMe(false) end
+		onClick = function() UpdateScreen.exitScreen() end
 	},
 	DevOptIn = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -156,7 +155,7 @@ UpdateScreen.Buttons = {
 	Back = Drawing.createUIElementBackButton(function()
 		-- Don't allow navigating off of this page if an update is in progress
 		if not Drawing.allowCachedImages then return end
-		UpdateScreen.exitScreenAndRemindMe(true)
+		UpdateScreen.exitScreen()
 	end),
 }
 
@@ -260,10 +259,8 @@ function UpdateScreen.isUpdateSupported()
 	return Main.OS == "Windows" or Main.emulator ~= Main.EMU.BIZHAWK28
 end
 
-function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
-	-- Main.Version.remindMe = shouldRemindMe -- Temporarily disabled
+function UpdateScreen.exitScreen()
 	Main.Version.showUpdate = false
-	-- Main.Version.updateAfterRestart = false -- Currently unused
 	Main.SaveSettings(true)
 	UpdateScreen.Buttons.CheckForUpdates:reset()
 	UpdateScreen.showNotes = false
@@ -308,17 +305,7 @@ function UpdateScreen.buildOutPagedButtons()
 	return true
 end
 
--- Currently unused
--- function UpdateScreen.prepareForUpdateAfterRestart()
--- 	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
--- 	Main.Version.updateAfterRestart = true
--- 	Main.SaveSettings(true)
--- 	Program.redraw(true)
--- end
-
 function UpdateScreen.beginAutoUpdate()
-	local imageCacheClearDelay = 60 -- 1 seconds
-	local updateStartDelay = 60 * 5 + 2 -- about 5 seconds
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
@@ -327,10 +314,12 @@ function UpdateScreen.beginAutoUpdate()
 		Tracker.saveData()
 	end
 
+	local updateStartDelay
 	if Main.IsOnBizhawk() then
 		-- Required to make Bizhawk release images so that they can be replaced
 		Drawing.allowCachedImages = false
-		Drawing.clearImageCache(imageCacheClearDelay)
+		Drawing.clearImageCache(60) -- delay 1 second
+		updateStartDelay = 60 * 5 + 2 -- delay a few seconds, so images can uncache and unlock
 	else
 		updateStartDelay = 15
 	end
@@ -351,7 +340,6 @@ function UpdateScreen.performUpdate()
 	if UpdateOrInstall.performParallelUpdate() then
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
-		-- Main.Version.updateAfterRestart = false -- Currently unused
 		Main.Version.showReleaseNotes = true
 		Main.SaveSettings(true)
 		Main.ExitSafely(false)
@@ -365,7 +353,7 @@ function UpdateScreen.performUpdate()
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
 		-- Close any open pop-up forms
-		Program.destroyActiveForm()
+		ExternalUI.BizForms.destroyForm()
 		Drawing.AnimatedPokemon:destroy()
 		-- Restart the Tracker code
 		IronmonTracker.startTracker()

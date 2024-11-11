@@ -8,16 +8,6 @@ local function CustomStreamEvents()
 	-- self.github = "MyUsername/ExtensionRepo" -- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
 	-- self.url = string.format("https://github.com/%s", self.github or "") -- Remove this attribute if no host website available for this extension
 
-	-- The extension will notify Streamerbot to update global vars with these names
-	-- If you want to change them, only change the value, the string part on the right-half
-	local GLOBAL_VARS = {
-		FullRestores = "FullRestores",
-		MaxPotions = "MaxPotions",
-		RareCandies = "RareCandies",
-		EnteredViridianForest = "EnteredViridianForest",
-		DefeatedBrock = "DefeatedBrock",
-	}
-
 	-- Define event information: a unique key, a descriptive name, and how to fulfill any request that triggers it
 	local EVENT_KEY = "G_CustomStreamEvents"
 	local EVENT_NAME = "My Custom In-Game Events"
@@ -32,7 +22,7 @@ local function CustomStreamEvents()
 		-- Send to the Tracker Network a response with a named global variable for what changed
 		-- The global variable's name was sent to this event through the input field of the created request
 		local globalVarName = request.SanitizedInput
-		local globalVarValue = self.PerSeedVars[globalVarName]
+		local globalVarValue = self.GlobalVars[globalVarName]
 		if globalVarValue == nil then
 			globalVarValue = "Updated!"
 		end
@@ -42,6 +32,18 @@ local function CustomStreamEvents()
 		return response
 	end
 
+	-- These variables are what are tracked, saved and reset for each new game
+	-- Use these to detect a change, and trigger an event accordingly
+	self.GlobalVars = {
+		FullRestore = 0,
+		MaxPotion = 0,
+		RareCandy = 0,
+		BigMushroom = 0,
+		EnteredViridianForest = false, -- FRLG
+		DefeatedBrock = false, -- FRLG
+		DefeatedRoxanne = false, -- RSE
+	}
+
 	-- Game IDs for various things
 	-- Many IDs can be found in the /ironmon_tracker/data/ folder
 	-- Item IDs are not explicitly listed, but can be inferred from the item list in a resource file: /ironmon_tracker/Languages/English.lua
@@ -49,19 +51,11 @@ local function CustomStreamEvents()
 		FullRestore = 19,
 		MaxPotion = 20,
 		RareCandy = 68,
+		BigMushroom = 104,
 		LocationForest = 117,
-		TrainerForest1 = 102,
-		TrainerBrock = 414,
-	}
-
-	-- These variables are what are tracked, saved and reset for each new game
-	-- Use these to detect a change, and trigger an event accordingly
-	self.PerSeedVars = {
-		FullRestores = 0,
-		MaxPotions = 0,
-		RareCandies = 0,
-		EnteredViridianForest = false,
-		DefeatedBrock = false,
+		TrainerForest1 = 102, -- FRLG
+		TrainerBrock = 414, -- FRLG
+		TrainerRoxanne = 265, -- RSE
 	}
 
 	-- To properly determine when new items are acquired, need to load them in first at least once
@@ -72,16 +66,17 @@ local function CustomStreamEvents()
 		-- 1:Ruby/Sapphire, 2:Emerald, 3:FireRed/LeafGreen
 		return GameSettings.game == 3
 	end
-	function self.resetSeedVars()
-		local V = self.PerSeedVars
-		V.FullRestores = self.getItemQuantity(GAME_IDS.FullRestore)
-		V.MaxPotions = self.getItemQuantity(GAME_IDS.MaxPotion)
-		V.RareCandies = self.getItemQuantity(GAME_IDS.RareCandy)
+	function self.updateGlobalVars()
+		local V = self.GlobalVars
+		V.FullRestore = self.getItemQuantity(GAME_IDS.FullRestore)
+		V.MaxPotion = self.getItemQuantity(GAME_IDS.MaxPotion)
+		V.RareCandy = self.getItemQuantity(GAME_IDS.RareCandy)
+		V.BigMushroom = self.getItemQuantity(GAME_IDS.BigMushroom)
 		if self.isPlayingFRLG() then
 			V.EnteredViridianForest = self.hasEnteredViridianForest()
 			V.DefeatedBrock = Program.hasDefeatedTrainer(GAME_IDS.TrainerBrock)
 		else
-			-- Code to check for Ruby/Sapphire/Emerald
+			V.DefeatedRoxanne = Program.hasDefeatedTrainer(GAME_IDS.TrainerRoxanne)
 		end
 	end
 	function self.hasEnteredViridianForest()
@@ -99,38 +94,32 @@ local function CustomStreamEvents()
 		return 0
 	end
 	function self.checkForChangesAndNotify()
-		local V = self.PerSeedVars
+		local V = self.GlobalVars
 
-		local prevCount = V.FullRestores
-		V.FullRestores = self.getItemQuantity(GAME_IDS.FullRestore)
-		if V.FullRestores > prevCount then
-			EventHandler.triggerEvent(EVENT_KEY, GLOBAL_VARS.FullRestores)
+		if self.getItemQuantity(GAME_IDS.FullRestore) > V.FullRestore then
+			EventHandler.triggerEvent(EVENT_KEY, "FullRestore")
 		end
-
-		prevCount = V.MaxPotions
-		V.MaxPotions = self.getItemQuantity(GAME_IDS.MaxPotion)
-		if V.MaxPotions > prevCount then
-			EventHandler.triggerEvent(EVENT_KEY, GLOBAL_VARS.MaxPotions)
+		if self.getItemQuantity(GAME_IDS.MaxPotion) > V.MaxPotion then
+			EventHandler.triggerEvent(EVENT_KEY, "MaxPotion")
 		end
-
-		prevCount = V.RareCandies
-		V.RareCandies = self.getItemQuantity(GAME_IDS.RareCandy)
-		if V.RareCandies > prevCount then
-			EventHandler.triggerEvent(EVENT_KEY, GLOBAL_VARS.RareCandies)
+		if self.getItemQuantity(GAME_IDS.RareCandy) > V.RareCandy then
+			EventHandler.triggerEvent(EVENT_KEY, "RareCandy")
+		end
+		if self.getItemQuantity(GAME_IDS.BigMushroom) > V.BigMushroom then
+			EventHandler.triggerEvent(EVENT_KEY, "BigMushroom")
 		end
 
 		if self.isPlayingFRLG() then
 			if not V.EnteredViridianForest and self.hasEnteredViridianForest() then
-				V.EnteredViridianForest = true
-				EventHandler.triggerEvent(EVENT_KEY, GLOBAL_VARS.EnteredViridianForest)
+				EventHandler.triggerEvent(EVENT_KEY, "EnteredViridianForest")
 			end
-
 			if not V.DefeatedBrock and Program.hasDefeatedTrainer(GAME_IDS.TrainerBrock) then
-				V.DefeatedBrock = true
-				EventHandler.triggerEvent(EVENT_KEY, GLOBAL_VARS.DefeatedBrock)
+				EventHandler.triggerEvent(EVENT_KEY, "DefeatedBrock")
 			end
 		else
-			-- Code to check for Ruby/Sapphire/Emerald
+			if not V.DefeatedRoxanne and Program.hasDefeatedTrainer(GAME_IDS.TrainerRoxanne) then
+				EventHandler.triggerEvent(EVENT_KEY, "DefeatedRoxanne")
+			end
 		end
 	end
 
@@ -153,11 +142,12 @@ local function CustomStreamEvents()
 			return
 		end
 		if not loadedVarsThisSeed then
-			self.resetSeedVars()
+			self.updateGlobalVars()
 			loadedVarsThisSeed = true
 		end
 
 		self.checkForChangesAndNotify()
+		self.updateGlobalVars()
 	end
 
 	return self

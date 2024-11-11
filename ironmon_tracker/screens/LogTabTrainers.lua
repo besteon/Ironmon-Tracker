@@ -206,8 +206,10 @@ function LogTabTrainers.buildPagedButtons()
 			end,
 			onClick = function(self)
 				LogOverlay.Windower:changeTab(LogTabTrainerDetails, 1, 1, self.id)
-				Program.redraw(true)
-				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
+				if TrainerInfoScreen.buildScreen(id) then
+					TrainerInfoScreen.previousScreen = TrackerScreen
+					Program.changeScreenView(TrainerInfoScreen)
+				end
 			end,
 			draw = function(self, shadowcolor)
 				LogTabTrainers.drawTrainerPortraitInfo(self, shadowcolor)
@@ -261,9 +263,9 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	local colorList = TrackerScreen.PokeBalls.ColorList
 	local trainerLog = RandomizerLog.Data.Trainers[button.id] or {}
 	-- Easter egg for Giovanni, use masterballs
-	if GameSettings.game == 3 and 348 <= button.id and button.id <= 350 then
+	if TrainerData.isGiovanni(button.id) then
 		image = Constants.PixelImages.MASTERBALL_SMALL
-		colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, }
+		colorList = TrackerScreen.PokeBalls.ColorListMasterBall
 	end
 	if #(trainerLog.party or {}) == 0 then
 		return

@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "4", patch = "1" }
+Main.Version = { major = "8", minor = "8", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -19,13 +19,10 @@ Main.EMU = {
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
-	Main.Version.remindMe = false -- Temporarily disabled (was: true), as no explicitly visible way to "remind me later" that is clear and intuitive
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
-	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
-	-- Main.Version.updateAfterRestart = false -- Currently unused, leaving in for now in case the new stuff doesn't work out
 	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
 	Main.Version.showReleaseNotes = true
 
@@ -34,8 +31,12 @@ function Main.Initialize()
 		crashedOccurred = false,
 	}
 	Main.currentSeed = 1
-	Main.loadNextSeed = false
 	Main.hasRunOnce = false
+
+	-- Game loop control variables
+	Main.loadNextSeed = false -- When enabled, exits the game loop to safely load a new game rom
+	Main.updateRequested = false -- When enabled, exits the game loop to safely shut down and self-update the Tracker
+	Main.forceRestart = false -- When enabled, exits the game loop to refresh and reload all Tracker scripts
 
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
@@ -184,7 +185,7 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
-		while not Main.loadNextSeed and not Main.updateRequested do
+		while not (Main.loadNextSeed or Main.updateRequested or Main.forceRestart) do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
@@ -193,6 +194,9 @@ function Main.Run()
 			Main.LoadNextRom()
 		elseif Main.updateRequested then
 			UpdateScreen.performUpdate()
+		elseif Main.forceRestart then
+			Main.ExitSafely(false)
+			IronmonTracker.startTracker()
 		end
 	else
 		MGBA.printStartupInstructions()
@@ -271,25 +275,56 @@ function Main.SetupFileManager()
 	dofile(fileManagerPath)
 	FileManager.setupWorkingDirectory()
 
+	-- Confirm the working directory was setup properly. Currently a necessary check for accented characters in Windows username.
+	if not FileManager.fileExists(FileManager.Files.TRACKER_CORE) then
+		local err1 = "Error locating Tracker files. Can't find path:"
+		local err2 = FileManager.dir or ""
+		print("> " .. err1)
+		print("> " .. err2)
+		local url = "https://github.com/besteon/Ironmon-Tracker/wiki/FAQ-&-Troubleshooting#folderpermission-issues"
+		print(string.format("More Info: %s", url))
+		Main.DisplayError(err1 .. "\n\n" .. err2, "More Info", function()
+			local result = os.execute(string.format('start "" "%s"', url)) -- Windows
+			if result ~= true and result ~= 0 then -- Failed to execute
+				result = os.execute(string.format('open "%s"', url)) -- Mac OSX
+				if result ~= true and result ~= 0 then -- Failed to execute
+					result = os.execute(string.format('xdg-open "%s"', url)) -- Linux
+				end
+			end
+		end)
+		return false
+	end
+
 	return true
 end
 
--- Displays a given error message in a pop-up dialogue box
-function Main.DisplayError(errMessage)
-	if not Main.IsOnBizhawk() then return end -- Only Bizhawk allows popup form windows
+---Displays a given error message in a pop-up dialogue box
+---@param errMessage string
+---@param moreInfoBtnLabel string? Optional label for a "More Info" button
+---@param moreInfoFunc function? Optional function to execute for "More Info" button
+---@return number? formId The id of the form handle that is created
+function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
+	if not Main.IsOnBizhawk() then return nil end -- Only Bizhawk allows popup form windows
 
 	client.pause()
 	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
+	-- Create the form directly through Bizhawk and not ExternalUI, as it's possible that UI has not been loaded yet
 	local form = forms.newform(400, 150, formTitle, function() client.unpause() end)
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
 
-	forms.label(form, errMessage, 18, 10, 350, 65)
+	forms.label(form, errMessage or "", 18, 10, 350, 65)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
 	end, 155, 80)
+
+	-- Optional additional info button and event function
+	if type(moreInfoFunc) == "function" then
+		forms.button(form, moreInfoBtnLabel or "(?)", moreInfoFunc, 20, 80, 110, 22)
+	end
+	return form
 end
 
 function Main.AfterStartupScreenRedirect()
@@ -297,7 +332,7 @@ function Main.AfterStartupScreenRedirect()
 		return
 	end
 
-	if Main.CrashReport and Main.CrashReport.crashedOccurred then
+	if CrashRecoveryScreen.isEnabled() and Main.CrashReport and Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
 		return
@@ -310,12 +345,6 @@ function Main.AfterStartupScreenRedirect()
 		UpdateScreen.refreshButtons()
 		Main.SaveSettings(true)
 	end
-
-	-- Currently unused
-	-- if Main.Version.updateAfterRestart and not Main.hasRunOnce then
-	-- 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-	-- 	Program.changeScreenView(UpdateScreen)
-	-- end
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -358,8 +387,8 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			-- Ignore patch numbers when checking to notify for a new release
 			local newVersionAvailable = not Main.isOnLatestVersion(string.format("%s.%s.0", major, minor))
 
-			-- Other than choosing to be reminded, only notify when a release comes out that is different than the last recorded newest release
-			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion -- NOTE: "remindMe" temporarily disabled (always false)
+			-- Only notify when a release comes out that is different than the last recorded newest release
+			local shouldNotify = Main.Version.latestAvailable ~= latestReleasedVersion
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
@@ -467,7 +496,8 @@ function Main.LoadNextRom()
 	if nextRomInfo ~= nil then
 		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
 		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
-		local backupfilepath = FileManager.prependDir(FileManager.Folders.BackupSaves) .. FileManager.slash .. backUpName
+		local backupFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.BackupSaves, true)
+		local backupfilepath = backupFolder .. backUpName
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 		Tracker.resetData()
@@ -554,11 +584,12 @@ function Main.GetNextRomFromFolder()
 	-- The Attempts filename for premade roms folders is based on the prefix of the rom: e.g. "FireRedKaizo" from "FireRedKaizo42.gba"
 	local romprefix = string.match(nextRomName, '[^0-9]+') or ""
 	local attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
+	local attemptsFolder = FileManager.getPathOverride("Attempt Counts") or FileManager.dir
 
 	return {
 		fileName = nextRomName,
 		filePath = nextRomPath,
-		attemptsFilePath = FileManager.prependDir(attemptsFileName),
+		attemptsFilePath = attemptsFolder .. attemptsFileName,
 	}
 end
 
@@ -585,25 +616,35 @@ function Main.GenerateNextRom()
 	-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
 	local settingsFileName = FileManager.extractFileNameFromPath(files.settingsList[1])
 	local attemptsFileName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
+	local attemptsFolder = FileManager.getPathOverride("Attempt Counts") or FileManager.dir
+
 	local nextRomName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
-	local nextRomPath = FileManager.prependDir(nextRomName)
+	local nextRomFolder = FileManager.getPathOverride("ROMs and Logs") or FileManager.dir
+	local nextRomPath = nextRomFolder .. nextRomName
 
 	local previousRomName = Main.SaveCurrentRom(nextRomName)
 
 	-- mGBA only, need to unload current ROM but loading another temp ROM
 	if previousRomName ~= nil and not Main.IsOnBizhawk() then
-		emu:loadFile(FileManager.prependDir(previousRomName))
+		emu:loadFile(nextRomFolder .. previousRomName)
+	end
+
+	local javaPath = Options.PATHS["Java Path"]
+	if Utils.isNilOrEmpty(javaPath) then
+		javaPath = "java" -- Default for most operating systems
 	end
 
 	local javacommand = string.format(
-		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
+		'%s -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
+		javaPath,
 		jarPath,
 		settingsPath,
 		romPath,
 		nextRomPath
 	)
 
-	local errorLogFilepath = FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)
+	local errorFolderpath = FileManager.getPathOverride("Randomizer Error Log") or FileManager.dir
+	local errorLogFilepath = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 	local success, fileLines = FileManager.tryOsExecute(javacommand, errorLogFilepath)
 
 	if success then
@@ -622,24 +663,31 @@ function Main.GenerateNextRom()
 		local missingJava = Utils.containsText(output, "'java' is not recognized", true)
 		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
 		local err1
+		local moreInfoLabel, moreinfoUrl
 		if missingJava then
-			err1 = string.format('ERROR: Java not installed, New Run requires "Java 64-bit Offline."')
+			err1 = string.format('ERROR: Java not installed. Please install "Java 64-bit Offline."')
+			moreInfoLabel = "Get Java"
+			moreinfoUrl = "https://www.java.com/en/download/manual.jsp"
 		elseif missing64bit then
-			err1 = string.format('ERROR: Wrong Java installed, New Run requires "Java 64-bit Offline."')
+			err1 = string.format('ERROR: Wrong Java installed. Please install "Java 64-bit Offline."')
+			moreInfoLabel = "Get Java"
+			moreinfoUrl = "https://www.java.com/en/download/manual.jsp"
 		else
 			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
+			moreInfoLabel = "View Error Log"
+			moreinfoUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 		end
 		local err2 = "~~~ The Randomizer program failed to generate a ROM ~~~"
 		print("> " .. err1)
 		print("> " .. err2)
-		Main.DisplayError(err1 .. "\n\n" .. err2)
+		Main.DisplayError(err1 .. "\n\n" .. err2, moreInfoLabel, function() Utils.openBrowserWindow(moreinfoUrl) end)
 		return nil
 	end
 
 	return {
 		fileName = nextRomName,
 		filePath = nextRomPath,
-		attemptsFilePath = FileManager.prependDir(attemptsFileName),
+		attemptsFilePath = attemptsFolder .. attemptsFileName,
 	}
 end
 
@@ -669,7 +717,7 @@ function Main.GetQuickloadFiles()
 		end
 		fileLists.quickloadPath = Options.FILES["ROMs Folder"] -- Assumes absolute path
 	else
-		fileLists.quickloadPath = FileManager.prependDir(FileManager.Folders.Quickload .. FileManager.slash)
+		fileLists.quickloadPath = FileManager.prependDir(FileManager.Folders.Quickload, true)
 	end
 
 	local listsByExtension = {
@@ -759,15 +807,18 @@ function Main.SaveCurrentRom(filename)
 		return nil
 	end
 
-	local filenameCopy = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, FileManager.PostFixes.PREVIOUSATTEMPT)
-	local filepath = FileManager.prependDir(filename)
-	local filepathCopy = FileManager.prependDir(filenameCopy)
+	local folderpath = FileManager.getPathOverride("ROMs and Logs") or FileManager.dir
 
+	local filenameCopy = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, FileManager.PostFixes.PREVIOUSATTEMPT)
+	local filepath = folderpath .. filename
+	local filepathCopy = folderpath .. filenameCopy
+
+	-- If the copy succeeds, also copy the matching log file
 	if FileManager.CopyFile(filepath, filepathCopy, "overwrite") then
 		local logFilename = filename .. FileManager.Extensions.RANDOMIZER_LOGFILE
 		local logFilenameCopy = filenameCopy .. FileManager.Extensions.RANDOMIZER_LOGFILE
-		local logpath = FileManager.prependDir(logFilename)
-		local logpathCopy = FileManager.prependDir(logFilenameCopy)
+		local logpath = folderpath .. logFilename
+		local logpathCopy = folderpath .. logFilenameCopy
 
 		FileManager.CopyFile(logpath, logpathCopy, "overwrite")
 
@@ -782,6 +833,8 @@ end
 --- @return string attemptsFilePath Filepath to an attempts file
 function Main.GetAttemptsFile(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
+
+	local attemptsFolder = FileManager.getPathOverride("Attempt Counts") or FileManager.dir
 
 	-- If temp quickload files are available, use those instead of spending resources to look them up
 	local quickloadFiles = Main.tempQuickloadFiles
@@ -799,14 +852,14 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	end
 	if settingsFileName ~= nil then
 		attemptsFileName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
-		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
+		attemptsFilePath = FileManager.getPathIfExists(attemptsFolder .. attemptsFileName)
 
 		-- Return early if an attemptsFilePath has been found
 		if attemptsFilePath ~= nil then
 			return attemptsFilePath
 		elseif forceUseSettingsFile then
 			-- Force return a filepath to an attempts file to be created based off settings file
-			return FileManager.prependDir(attemptsFileName)
+			return attemptsFolder .. attemptsFileName
 		end
 	end
 
@@ -826,12 +879,7 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
 
 	attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
-	attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
-
-	-- Otherwise, create an attempts file using the name provided by the emulator itself
-	if attemptsFilePath == nil then
-		attemptsFilePath = FileManager.prependDir(string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS))
-	end
+	attemptsFilePath = attemptsFolder .. attemptsFileName
 
 	return attemptsFilePath
 end
@@ -902,9 +950,6 @@ function Main.LoadSettings()
 
 	-- [CONFIG]
 	if settings.config ~= nil then
-		if settings.config.RemindMeLater ~= nil then
-			-- Main.Version.remindMe = settings.config.RemindMeLater -- Temporarily disabled
-		end
 		if settings.config.LatestAvailableVersion ~= nil then
 			Main.Version.latestAvailable = settings.config.LatestAvailableVersion
 		end
@@ -914,10 +959,6 @@ function Main.LoadSettings()
 		if settings.config.ShowUpdateNotification ~= nil then
 			Main.Version.showUpdate = settings.config.ShowUpdateNotification
 		end
-		-- Currently unused
-		-- if settings.config.UpdateAfterRestart ~= nil then
-		-- 	Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
-		-- end
 		if settings.config.ShowReleaseNotes ~= nil then
 			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
 		end
@@ -928,10 +969,21 @@ function Main.LoadSettings()
 				Options.FILES[configKey] = configValue
 			end
 		end
+		for configKey, _ in pairs(Options.PATHS) do
+			local configValue = settings.config[string.gsub(configKey, " ", "_")]
+			if configValue ~= nil then
+				Options.PATHS[configKey] = configValue
+			end
+		end
 	end
 
 	-- [TRACKER]
 	if settings.tracker ~= nil then
+		-- First, check for deprecated options
+		if settings.tracker["Disable_mainscreen_carousel"] ~= nil then
+			Options["Allow carousel rotation"] = not settings.tracker["Disable_mainscreen_carousel"]
+			settings.tracker["Disable_mainscreen_carousel"] = nil
+		end
 		for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 			local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
 			if optionValue ~= nil then
@@ -976,9 +1028,19 @@ function Main.LoadSettings()
 	-- [NETWORK]
 	if settings.network ~= nil then
 		for key, _ in pairs(Network.Options or {}) do
-			local optionValue = settings.network[key]
+			local optionValue = settings.network[string.gsub(key, " ", "_")]
 			if optionValue ~= nil then
 				Network.Options[key] = optionValue
+			end
+		end
+	end
+
+	-- [OVERRIDES]
+	if settings.overrides ~= nil then
+		for key, _ in pairs(Options.Overrides or {}) do
+			local optionValue = settings.overrides[string.gsub(key, " ", "_")]
+			if optionValue ~= nil then
+				Options.Overrides[key] = optionValue
 			end
 		end
 	end
@@ -1025,20 +1087,22 @@ function Main.SaveSettings(forced)
 	settings.controls = settings.controls or {}
 	settings.theme = settings.theme or {}
 	settings.network = settings.network or {}
+	settings.overrides = settings.overrides or {}
 	settings.extensions = settings.extensions or {}
 
 	-- [CONFIG]
-	-- settings.config.RemindMeLater = Main.Version.remindMe -- Temporarily disabled
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
-	-- Currently unused
-	-- settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
 	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
 		settings.config[encodedKey] = Options.FILES[configKey]
+	end
+	for configKey, _ in pairs(Options.PATHS) do
+		local encodedKey = string.gsub(configKey, " ", "_")
+		settings.config[encodedKey] = Options.PATHS[configKey]
 	end
 
 	-- [TRACKER]
@@ -1063,7 +1127,14 @@ function Main.SaveSettings(forced)
 
 	-- [NETWORK]
 	for key, val in pairs(Network.Options or {}) do
-		settings.network[key] = val
+		local encodedKey = string.gsub(key, " ", "_")
+		settings.network[encodedKey] = val
+	end
+
+	-- [OVERRIDES]
+	for key, val in pairs(Options.Overrides or {}) do
+		local encodedKey = string.gsub(key, " ", "_")
+		settings.overrides[encodedKey] = val
 	end
 
 	-- [EXTENSIONS]

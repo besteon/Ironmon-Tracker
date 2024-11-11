@@ -81,18 +81,18 @@ ExtrasScreen.Buttons = {
 	TimerEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonEditTime end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 99, 24, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 134, 24, 11 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Options and Options["Display play time"] end,
 		draw = function(self, shadowcolor)
 			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-			Drawing.drawText(x, self.box[2] - 12, Resources.ExtrasScreen.LabelTimer .. ":", Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(x, self.box[2] - 13, Resources.ExtrasScreen.LabelTimer .. ":", Theme.COLORS[self.textColor], shadowcolor)
 		end,
 		onClick = function(self) ExtrasScreen.openEditTimerPrompt() end,
 	},
 	TimerRelocate = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonRelocateTime end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 99, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 134, 44, 11 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Options and Options["Display play time"] end,
 		onClick = function(self)
 			ExtrasScreen.relocateTimer()
@@ -150,14 +150,17 @@ function ExtrasScreen.createTabs()
 	local tabPadding = 6
 
 	for _, tuple in ipairs(tabs) do
-		local tabText = Resources.ExtrasScreen[tuple[2]]
-		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		ExtrasScreen.Buttons["Tab" .. tuple[1]] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getCustomText = function(self) return Resources.ExtrasScreen[tuple[2]] end,
 			tab = ExtrasScreen.Tabs[tuple[1]],
 			isSelected = false,
-			box = {	startX, startY, tabWidth, tabHeight },
+			box = {
+				startX,
+				startY,
+				(tabPadding * 2) + Utils.calcWordPixelLength(Resources.ExtrasScreen[tuple[2]]),
+				tabHeight
+			},
 			updateSelf = function(self)
 				self.isSelected = (self.tab == ExtrasScreen.currentTab)
 				self.textColor = self.isSelected and ExtrasScreen.Colors.highlight or ExtrasScreen.Colors.text
@@ -177,8 +180,8 @@ function ExtrasScreen.createTabs()
 				if self.isSelected then
 					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
 				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self)
 				ExtrasScreen.currentTab = self.tab
@@ -186,16 +189,19 @@ function ExtrasScreen.createTabs()
 				Program.redraw(true)
 			end,
 		}
-		startX = startX + tabWidth
+		startX = startX + (tabPadding * 2) + Utils.calcWordPixelLength(Resources.ExtrasScreen[tuple[2]])
 	end
 end
 
 function ExtrasScreen.createButtons()
 	local optionKeyMap = {
 		{"Show random ball picker", "OptionShowRandomBallPicker", },
+		{"Show heals as whole number", "OptionShowHealsAsValue", },
+		{"Show Poke Ball catch rate", "OptionShowBallCatchRate", },
 		{"Display repel usage", "OptionDisplayRepelUsage", },
 		{"Display pedometer", "OptionDisplayPedometer", },
 		{"Display play time", "OptionDisplayPlayTime", },
+		{"Display gender", "OptionDisplayGender", },
 		{"Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
 	}
 
@@ -267,38 +273,37 @@ function ExtrasScreen.openEditTimerPrompt()
 	if not wasPaused then
 		Program.GameTimer:pause()
 	end
-	local closeAndUnpauseTimer = function()
+	local tryUnpauseTimer = function()
 		if not wasPaused then
 			Program.GameTimer:unpause()
 		end
-		Utils.closeBizhawkForm()
 	end
-	Input.allowMouse = false
 
-	local form = Utils.createBizhawkForm(Resources.ExtrasScreen.LabelTimer, 320, 130, nil, nil, closeAndUnpauseTimer)
-
+	local form = ExternalUI.BizForms.createForm(Resources.ExtrasScreen.LabelTimer, 320, 130, nil, nil, tryUnpauseTimer)
 	local hour = math.floor(Tracker.Data.playtime / 3600) % 10000
 	local min = math.floor(Tracker.Data.playtime / 60) % 60
 	local sec = Tracker.Data.playtime % 60
-	forms.label(form, "H", 60, 10, 15, 18)
-	forms.label(form, "M", 130, 10, 15, 18)
-	forms.label(form, "S", 200, 10, 15, 18)
-	local hourBox = forms.textbox(form, hour, 40, 30, "SIGNED", 50, 30)
-	local minBox = forms.textbox(form, min, 40, 30, "SIGNED", 120, 30)
-	local secBox = forms.textbox(form, sec, 40, 30, "SIGNED", 190, 30)
-	forms.button(form, Resources.AllScreens.Save, function()
-		hour = tonumber(forms.gettext(hourBox) or "") or 0
-		min = tonumber(forms.gettext(minBox) or "") or 0
-		sec = tonumber(forms.gettext(secBox) or "") or 0
+	form:createLabel("H", 60, 10)
+	form:createLabel("M", 130, 10)
+	form:createLabel("S", 200, 10)
+	local hourBox = form:createTextBox(tostring(hour), 50, 30, 40, 30, "SIGNED", false, true)
+	local minBox = form:createTextBox(tostring(min), 120, 30, 40, 30, "SIGNED", false, true)
+	local secBox = form:createTextBox(tostring(sec), 190, 30, 40, 30, "SIGNED", false, true)
+	form:createButton(Resources.AllScreens.Save, 72, 60, function()
+		hour = tonumber(ExternalUI.BizForms.getText(hourBox)) or 0
+		min = tonumber(ExternalUI.BizForms.getText(minBox)) or 0
+		sec = tonumber(ExternalUI.BizForms.getText(secBox)) or 0
 		-- Update total play time
 		Tracker.Data.playtime = hour * 3600 + min * 60 + sec
 		Program.GameTimer:update()
-		closeAndUnpauseTimer()
+		tryUnpauseTimer()
+		form:destroy()
 		Program.redraw(true)
-	end, 72, 60)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		closeAndUnpauseTimer()
-	end, 157, 60)
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 157, 60, function()
+		tryUnpauseTimer()
+		form:destroy()
+	end)
 end
 
 function ExtrasScreen.relocateTimer()

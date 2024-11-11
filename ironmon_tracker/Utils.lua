@@ -107,6 +107,19 @@ function Utils.split(s, delimiter, trimWhitespace)
 	return result
 end
 
+---Replaces text in a string with some other text; can choose to match only whole words
+---@param source string The text to search through
+---@param find string The text to find within the `source`
+---@param replace string Used to replace the `find` text within the `source`
+---@param onlyWholeWords boolean? Optional, if true will only match wholewords for `find`
+---@return string
+function Utils.replaceText(source, find, replace, onlyWholeWords)
+	if onlyWholeWords then
+		find = '%f[%a]'..find..'%f[%A]'
+	end
+	return (source:gsub(find,replace))
+end
+
 -- Format "START" as "Start", and "a" as "A"
 function Utils.formatControls(gbaButtons)
 	local controlCombination = ""
@@ -128,6 +141,8 @@ function Utils.formatTime(numSeconds)
 end
 
 -- Returns an offset that will center-align the given text based on a specified area's width
+---@param text string
+---@param areaWidth? number Optional, defaults to the full width of the Tracker Screen
 function Utils.getCenteredTextX(text, areaWidth)
 	areaWidth = areaWidth or Constants.SCREEN.RIGHT_GAP
 	local textSize = Utils.calcWordPixelLength(text or "")
@@ -140,8 +155,14 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
+---Returns the number of pixels (width) the provided text uses on the Tracker screen
+---@param text? string
+---@return number
 function Utils.calcWordPixelLength(text)
 	if Utils.isNilOrEmpty(text) or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if type(text) ~= "string" then
+		text = tostring(text)
+	end
 	local pattern = "."
 	if Main.supportsSpecialChars then
 		---@diagnostic disable-next-line: undefined-global, undefined-field
@@ -291,18 +312,26 @@ function Utils.shortenText(text, pixelWidth, appendEllipsis)
 	return text
 end
 
--- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
--- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
--- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
+---Searches `wordlist` for the closest matching `word` based on Levenshtein distance.
+---If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
+---https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
+---@param word string
+---@param wordlist table
+---@param threshold number
+---@return any key
+---@return any result
+---@return number distance
 function Utils.getClosestWord(word, wordlist, threshold)
-	if Utils.isNilOrEmpty(word) then return word end
+	if Utils.isNilOrEmpty(word) then
+		return word, nil, -1
+	end
 	threshold = threshold or 3
 	local function min(a, b, c) return math.min(math.min(a, b), c) end
 	local function matrix(row, col)
 		local m = {}
-		for i = 1,row do
+		for i = 1, row do
 			m[i] = {}
-			for j = 1,col do m[i][j] = 0 end
+			for j = 1, col do m[i][j] = 0 end
 		end
 		return m
 	end
@@ -322,57 +351,33 @@ function Utils.getClosestWord(word, wordlist, threshold)
 		end
 		return M[row][col]
 	end
-	local closestDistance = -1
+	local closestDistance = 9999999
 	local closestWordKey
 	for key, val in pairs(wordlist) do
 		local levRes = lev(word, val)
-		if levRes < closestDistance or closestDistance == -1 then
+		if levRes < closestDistance then
 			closestDistance = levRes
 			closestWordKey = key
+			if closestDistance == 0 then -- exact match
+				break
+			end
 		end
 	end
-	if closestDistance <= threshold then return closestWordKey, wordlist[closestWordKey]
-	else return nil, word
+	if closestDistance <= threshold then
+		return closestWordKey, wordlist[closestWordKey], closestDistance
 	end
+	return nil, word, closestDistance
 end
 
--- Creates a popup Bizhawk form at optional relative location (x,y); returns the created form handle id
+-- Deprecated
 function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockInput)
-	title = title or "Form"
-	width = width or 600
-	height = height or 600
-	x = x or 100
-	y = y or 50
-	blockInput = (blockInput == nil) or (blockInput == true) -- default to true
-
-	-- By default, disable mouse inputs and resume them when the prompt closes
-	-- If a close func is provided, the caller needs to manage disabling/enabling mouse inputs instead
-	if onCloseFunc == nil then
-		Input.allowMouse = false
-		onCloseFunc = Utils.closeBizhawkForm
-	end
-
-	Program.destroyActiveForm()
-	Input.resumeMouse = false -- closing any active form resumes inputs, which we don't want yet
-	local form = forms.newform(width, height, title, onCloseFunc)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, x, y)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		local property = "BlocksInputWhenFocused"
-		if not Utils.isNilOrEmpty(forms.getproperty(form, property)) then
-			forms.setproperty(form, property, blockInput)
-		end
-	end
-
-	return form
+	local form = ExternalUI.BizForms.createForm(title, width, height, x, y, onCloseFunc, blockInput)
+	return form.ControlId
 end
 
+-- Deprecated
 function Utils.closeBizhawkForm(form)
-	form = form or Program.activeFormId
-	client.unpause()
-	forms.destroy(form)
-	Program.activeFormId = 0
-	Input.resumeMouse = true
+	ExternalUI.BizForms.destroyForm(form)
 end
 
 function Utils.randomPokemonID()
@@ -599,7 +604,7 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 		if Program.GameData.friendshipRequired ~= nil and Program.GameData.friendshipRequired > 1 then
 			amt = Program.GameData.friendshipRequired
 		else
-			amt = 220
+			amt = PokemonData.Values.FriendshipRequiredToEvo
 		end
 		return { string.format(friendFormat, amt) }
 	end
@@ -687,6 +692,11 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 
 	-- If move type is typeless or otherwise can't be stab
 	if MoveData.IsTypelessMove[id] or move.category == MoveData.Categories.STATUS or move.power == "0" or move.power == Constants.BLANKLINE then
+		return false
+	end
+
+	-- The default Hidden Power type (NORMAL) can't happen; thus can't be stab
+	if moveType == PokemonData.Types.NORMAL and id == tostring(MoveData.Values.HiddenPowerId) then
 		return false
 	end
 
@@ -927,15 +937,9 @@ function Utils.getWordWrapLines(str, limit)
 	return lines
 end
 
---sets the form location relative to the game window
---this function does what the built in forms.setlocation function supposed to do
---currently that function is bugged and should be fixed in 2.9
+-- Deprecated
 function Utils.setFormLocation(handle, x, y)
-	if handle == nil then return end
-	local ribbonHight = 64 -- so we are below the ribbon menu
-	local actualLocation = client.transformPoint(x,y)
-	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
-	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
+	ExternalUI.BizForms.setWindowLocation(handle, x, y)
 end
 
 function Utils.getSaveBlock1Addr()
@@ -943,6 +947,13 @@ function Utils.getSaveBlock1Addr()
 		return GameSettings.gSaveBlock1
 	end
 	return Memory.readdword(GameSettings.gSaveBlock1ptr)
+end
+
+function Utils.getSaveBlock2Addr()
+	if GameSettings.game == 1 then -- Ruby/Sapphire don't have ptr
+		return GameSettings.gSaveBlock2
+	end
+	return Memory.readdword(GameSettings.gSaveBlock2ptr)
 end
 
 -- Gets the current game's encryption key
@@ -968,7 +979,7 @@ function Utils.getGameStat(statIndex)
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
 
-	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * 0x4)
+	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * Program.Addresses.sizeofGameStat)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
 	if key ~= nil then
@@ -984,7 +995,12 @@ end
 ---@return number starterChoice
 function Utils.getStarterMonChoice()
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
-	local varOffset = GameSettings.game == 3 and 0x62 or 0x46
+	local varOffset
+	if GameSettings.game == 3 then
+		varOffset = Program.Addresses.offsetStarterMonChoiceFRLG
+	else
+		varOffset = Program.Addresses.offsetStarterMonChoiceRSE
+	end
 	return 1 + Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + varOffset)
 end
 

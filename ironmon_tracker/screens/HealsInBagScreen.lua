@@ -141,7 +141,7 @@ function HealsInBagScreen.createButtons()
 		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getCustomText = function(self) return tabText end,
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
 			box = {	startX, startY, tabWidth, TAB_HEIGHT },
@@ -165,8 +165,8 @@ function HealsInBagScreen.createButtons()
 				if self.isSelected then
 					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
 				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self) SCREEN.changeTab(self.tab) end,
 		}
@@ -264,11 +264,15 @@ function HealsInBagScreen.buildPagedButtons(tab)
 			end
 		end
 	elseif tab == SCREEN.Tabs.All then
+		local addedIds = {} -- prevent duplicate items from appearing
 		for bagKey, itemGroup in pairs(Program.GameData.Items) do
 			if type(itemGroup) == "table" then
 				for itemID, _ in pairs(itemGroup) do
-					local sortValue = calcSortValue(itemID)
-					table.insert(tabContents, { id = itemID, bagKey = bagKey, sortValue = sortValue })
+					if not addedIds[itemID] then
+						local sortValue = calcSortValue(itemID)
+						table.insert(tabContents, { id = itemID, bagKey = bagKey, sortValue = sortValue })
+						addedIds[itemID] = true
+					end
 				end
 			end
 		end

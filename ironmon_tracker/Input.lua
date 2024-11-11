@@ -3,11 +3,16 @@ Input = {
 	prevJoypadInput = {},
 	joypadUsedRecently = false,
 	currentColorPicker = nil,
+	allowNewRunCombo = false, -- Disable button combo for 1 second to prevents accidental, consecutive triggers
 	allowMouse = true, -- Accepts input from Mouse; false will ignore all clicks
 	allowJoypad = true, -- Accepts input from Joypad controller; false will ignore joystick/buttons
 	resumeMouse = false, -- Set to true to enable corresponding input on the next frame
 	resumeJoypad = false, -- Set to true to enable corresponding input on the next frame
 }
+
+Input.NO_KEY_MAPPING = "NOTBOUND"
+
+Input.OrderedControllerInputs = { "A", "B",  "Select",  "Start",  "Right",  "Left",  "Up",  "Down",  "R",  "L" }
 
 Input.StatHighlighter = {
 	statIndex = 1, -- Value between 1 and 6 (for each stat stage)
@@ -43,6 +48,7 @@ Input.StatHighlighter = {
 	end,
 	resetSelectedStat = function(self)
 		self.statIndex = 1
+		self.framesSinceInput = self.framesHighlightMax
 	end,
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
@@ -61,12 +67,17 @@ Input.StatHighlighter = {
 }
 
 function Input.initialize()
+	Input.allowNewRunCombo = false
 	Input.allowMouse = true
 	Input.allowJoypad = true
 	Input.resumeMouse = false
 	Input.resumeJoypad = false
 	-- Add compatibility for deprecated functions
 	Input.togglePokemonViewed = Battle.togglePokemonViewed
+	-- Delay 1 second before enabling the New Run button combo
+	Program.addFrameCounter("EnableAllowNewRunCombo", 60, function()
+		Input.allowNewRunCombo = true
+	end, 1, true)
 end
 
 function Input.checkForInput()
@@ -128,10 +139,18 @@ function Input.getJoypadInputFormatted()
 end
 
 function Input.checkJoypadInput()
+	-- Don't process controller buttons while rebinding them
+	if SetupScreen.inProcessOfBinding() then
+		return
+	end
+
 	local joypad = Input.getJoypadInputFormatted()
 	local toggleViewBtn = Options.CONTROLS["Toggle view"] or ""
+	local infoShortcutBtn = Options.CONTROLS["Info shortcut"] or ""
 	local cycleStatBtn = Options.CONTROLS["Cycle through stats"] or ""
 	local markStatBtn = Options.CONTROLS["Mark stat"] or ""
+	local nextBtn = Options.CONTROLS["Next page"] or ""
+	local previousBtn = Options.CONTROLS["Previous page"] or ""
 	local quickloadBtns = Options.CONTROLS["Load next seed"] or ""
 
 	CustomCode.inputCheckMGBA()
@@ -141,16 +160,65 @@ function Input.checkJoypadInput()
 	end
 
 	if joypad[cycleStatBtn] and not Input.prevJoypadInput[cycleStatBtn] then
-		Input.StatHighlighter:cycleToNextStat()
+		if Program.currentScreen == TrackerScreen and not Battle.isViewingOwn then
+			Input.StatHighlighter:cycleToNextStat()
+		end
 	else
 		Input.StatHighlighter:incrementHighlightedFrames()
 	end
 
 	if joypad[markStatBtn] and not Input.prevJoypadInput[markStatBtn] then
-		Input.StatHighlighter:markSelectedStat()
+		if Program.currentScreen == TrackerScreen and not Battle.isViewingOwn then
+			Input.StatHighlighter:markSelectedStat()
+		end
 	end
 
-	if not Main.loadNextSeed then
+	if joypad[nextBtn] and not Input.prevJoypadInput[nextBtn] then
+		if LogOverlay.isDisplayed then
+			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
+				LogTabPokemonDetails.Pager:nextPage()
+			else
+				LogOverlay.Windower:nextPage()
+			end
+		elseif StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.Pager:nextPage()
+		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.nextPage) == "function" then
+			Program.currentScreen.Pager:nextPage()
+		end
+	end
+
+	if joypad[previousBtn] and not Input.prevJoypadInput[previousBtn] then
+		if LogOverlay.isDisplayed then
+			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
+				LogTabPokemonDetails.Pager:prevPage()
+			else
+				LogOverlay.Windower:prevPage()
+			end
+		elseif StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.Pager:prevPage()
+		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.prevPage) == "function" then
+			Program.currentScreen.Pager:prevPage()
+		end
+	end
+
+	if joypad[infoShortcutBtn] and not Input.prevJoypadInput[infoShortcutBtn] then
+		Input.infoShortcutPressed()
+	end
+
+	-- If both next and previous paging buttons pressed, perform a "Go Back" to the previous screen
+	if joypad[nextBtn] and joypad[previousBtn] and not (Input.prevJoypadInput[nextBtn] and Input.prevJoypadInput[previousBtn]) then
+		if Program.currentScreen and Program.currentScreen.Buttons then
+			local backBtn = Program.currentScreen.Buttons.Back or {}
+			if type(backBtn.onClick) == "function" then
+				backBtn:onClick()
+			end
+			if Program.currentScreen == InfoScreen then
+				Program.currentScreen.Buttons.BackTop:onClick()
+			end
+		end
+	end
+
+	if not Main.loadNextSeed and Input.allowNewRunCombo then
 		local allPressed = true
 		for button in string.gmatch(quickloadBtns, '([^,%s]+)') do
 			if not joypad[button] then
@@ -170,6 +238,54 @@ function Input.checkJoypadInput()
 	if not Input.joypadUsedRecently then
 		Input.joypadUsedRecently = joypad["Up"] or joypad["Down"] or joypad["Left"] or joypad["Right"]
 			or joypad["A"] or joypad["B"] or joypad["Start"] or joypad["Select"] or joypad["R"] or joypad["L"]
+	end
+end
+
+function Input.infoShortcutPressed()
+	-- Only open an info screen for Bizhawk if on the base tracker screen, to prevent opening while changing settings or viewing other pages
+	if not Main.IsOnBizhawk() or Program.currentScreen ~= TrackerScreen or Input.StatHighlighter:isActive() then
+		return
+	end
+
+	-- If in battle, lookup on the opposing Pokémon or enemy Trainer
+	if Battle.inBattleScreen then -- Use `inBattleScreen` instead of `inActiveBattle()` for proper timing
+		if Battle.isWildEncounter then
+			local pokemon = Tracker.getPokemon(1, false) or {}
+			if PokemonData.isValid(pokemon.pokemonID) then
+				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
+			end
+		else
+			if TrainerInfoScreen.buildScreen(Battle.opposingTrainerId) then
+				TrainerInfoScreen.previousScreen = TrackerScreen
+				Program.changeScreenView(TrainerInfoScreen)
+			end
+		end
+		return
+	end
+
+	-- Check what type of contextual info to display (such as early game pivots, safari zone, or trainers on routes)
+	local pokemon = Tracker.getPokemon(1, true) or {}
+	local mapId = TrackerAPI.getMapId()
+	if (pokemon.level or 0) < 13 or RouteData.Locations.IsInSafariZone[mapId] then
+		-- If the current route has encounters, use that
+		if RouteData.hasRouteEncounterArea(mapId, RouteData.EncounterArea.LAND) then
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+				mapId = mapId,
+				encounterArea = RouteData.EncounterArea.LAND,
+			})
+		-- Otherwise, check if the current route is an early game city and use the first route
+		elseif RouteData.Locations.EarlyGameCity[mapId] then
+			local earlyRoutes = RouteData.getPivotOrSafariRouteIds() or {}
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
+				mapId = earlyRoutes[1] or mapId,
+				encounterArea = RouteData.EncounterArea.LAND,
+			})
+		end
+	else
+		if TrainersOnRouteScreen.buildScreen(mapId) then
+			TrainersOnRouteScreen.previousScreen = TrackerScreen
+			Program.changeScreenView(TrainersOnRouteScreen)
+		end
 	end
 end
 

@@ -56,11 +56,27 @@ Theme.Manager = {
 }
 
 Theme.Buttons = {
+	ColorStatNumber = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		getText = function(self) return Resources.ThemeScreen.OptionColorStatNumber end,
+		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 97, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 97, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		optionKey = "Color stat numbers by nature",
+		toggleState = false,
+		isVisible = function() return Theme.Screen.displayingThemeManager end,
+		updateSelf = function(self)
+			self.toggleState = (Options[self.optionKey] == true)
+		end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Theme.settingsUpdated = true
+		end
+	},
 	MoveTypeEnabled = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		getText = function(self) return Resources.ThemeScreen.OptionColorBar end,
-		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, 8, 8 },
-		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 108, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 108, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		updateSelf = function(self)
@@ -77,8 +93,8 @@ Theme.Buttons = {
 	DrawTextShadows = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		getText = function(self) return Resources.ThemeScreen.OptionTextShadows end,
-		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, 8, 8 },
-		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 119, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 119, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = Theme.DRAW_TEXT_SHADOWS,
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		updateSelf = function(self) self.toggleState = Theme.DRAW_TEXT_SHADOWS end,
@@ -288,9 +304,13 @@ function Theme.resetPresets()
 end
 
 function Theme.loadPresets()
-	if not FileManager.fileExists(FileManager.Files.THEME_PRESETS) then return end
+	local folderpath = FileManager.getPathOverride("Theme Presets") or FileManager.dir
+	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
+	if not FileManager.fileExists(filepath) then
+		return
+	end
 
-	for index, line in ipairs(FileManager.readLinesFromFile(FileManager.Files.THEME_PRESETS)) do
+	for index, line in ipairs(FileManager.readLinesFromFile(filepath)) do
 		local firstHexIndex = line:find("%x%x%x%x%x%x")
 		if firstHexIndex ~= nil then
 			local themeCode = line:sub(firstHexIndex)
@@ -371,6 +391,25 @@ function Theme.refreshThemePreview()
 	Theme.importThemeFromText(currentThemeCode, false)
 end
 
+function Theme.isValidThemeCode(themeCode)
+	-- A valid Theme code has at minimum 11 total color codes (hexidecimal @ 7 chars each including spaces), bits at the end are optional
+	local MIN_THEME_CODE_LENGTH = 11 * 7
+	if type(themeCode) ~= "string" or themeCode:len() < MIN_THEME_CODE_LENGTH then
+		return false
+	end
+
+	-- Verify the Theme code is correct and each color code can be converted to a hexidecimal value
+	for colorCode in (string.gmatch(themeCode, "[^%s]+") or {}) do
+		if colorCode:len() == 6 then
+			local color = tonumber(colorCode, 16) or -1
+			if color < 0 or color > 0xFFFFFF then
+				return false
+			end
+		end
+	end
+	return true
+end
+
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
 -- applyTheme: if false, this won't replace current theme, but set it as the preview for the mini tracker preview
@@ -380,47 +419,37 @@ function Theme.importThemeFromText(themeCode, applyTheme)
 	end
 
 	themeCode = Theme.formatAsProperThemeCode(themeCode)
-
-	-- A valid string has at minimum N total hex codes (7 chars each including spaces) and a two bits for boolean options
-	local totalHexCodes = 11
-
-	local themeCodeLen = string.len(themeCode)
-	if themeCodeLen < (totalHexCodes * 7) then
+	if not Theme.isValidThemeCode(themeCode) then
 		return false
 	end
 
-	-- Verify the theme config is correct and can be parsed (each entry should be a numerical value)
-	local numHexCodes = 0
-	local theme_colors = {}
-	for color_text in string.gmatch(themeCode, "[^%s]+") do
-		if color_text ~= nil and string.len(color_text) == 6 then
-			local color = tonumber(color_text, 16)
-			if color == nil or color < 0x000000 or color > 0xFFFFFF then
-				return false
-			end
-
-			numHexCodes = numHexCodes + 1
-			theme_colors[numHexCodes] = color_text
+	-- Parse the color codes (the hex codes) from the full Theme code
+	local numColorCodes = 0
+	local colorCodes = {}
+	for hexCode in (string.gmatch(themeCode, "[^%s]+") or {}) do
+		if hexCode:len() == 6 then
+			numColorCodes = numColorCodes + 1
+			colorCodes[numColorCodes] = hexCode
 		end
 	end
 
-	-- Apply as much of the imported theme config to our Theme as possible (must remain compatible with gen4/gen5 Tracker), then load it
-	local index = 1
-	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first [totalHexCodes] hex codes
-		if theme_colors[index] ~= nil then
-			local colorValue = 0xFF000000 + tonumber(theme_colors[index], 16)
+	-- Apply as much of the imported Theme code as possible, must remain compatible with gen4/gen5 Tracker, then load it
+	for i, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first [totalHexCodes] hex codes
+		if colorCodes[i] ~= nil then
+			local colorValue = 0xFF000000 + tonumber(colorCodes[i], 16)
 			if applyTheme then
 				Theme.COLORS[colorkey] = colorValue
 			else
 				Theme.PresetPreviewColors[colorkey] = colorValue
 			end
 		end
-		index = index + 1
 	end
 
 	-- Apply as many boolean options as possible, if they're available
-	if themeCodeLen >= numHexCodes * 7 + 1 then
-		local enableMoveTypes = not (string.sub(themeCode, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
+	local themeCodeLen = themeCode:len()
+	local TAIL_OF_CODE = numColorCodes * 7
+	if themeCodeLen >= TAIL_OF_CODE + 1 then
+		local enableMoveTypes = not (string.sub(themeCode, TAIL_OF_CODE + 1, TAIL_OF_CODE + 1) == "0")
 		if applyTheme then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
 			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
@@ -429,8 +458,8 @@ function Theme.importThemeFromText(themeCode, applyTheme)
 		end
 	end
 
-	if themeCodeLen >= numHexCodes * 7 + 3 then
-		local enableTextShadows = not (string.sub(themeCode, numHexCodes * 7 + 3, numHexCodes * 7 + 3) == "0")
+	if themeCodeLen >= TAIL_OF_CODE + 3 then
+		local enableTextShadows = not (string.sub(themeCode, TAIL_OF_CODE + 3, TAIL_OF_CODE + 3) == "0")
 		if applyTheme then
 			Theme.DRAW_TEXT_SHADOWS = enableTextShadows
 			Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
@@ -482,6 +511,50 @@ function Theme.exportThemeToText()
 	return string.upper(themeCode)
 end
 
+---Saves a Theme code (or current theme) to the ThemeLibrary, with a unique name
+---@param themeName string
+---@param themeCode? string Optional, defaults to currently loaded theme
+---@return boolean success
+function Theme.saveThemeToLibrary(themeName, themeCode)
+	themeName = themeName or Utils.newGUID()
+	themeCode = Theme.formatAsProperThemeCode(themeCode or Theme.exportThemeToText())
+
+	if not Theme.isValidThemeCode(themeCode) then
+		return false
+	end
+
+	-- Check if there already exists a theme with the same name but different code
+	local themeExists = false
+	for _, existingTheme in ipairs(Theme.Presets) do
+		if existingTheme:getText() == themeName then
+			-- Don't add, remove, or change if the theme exists exactly as-is
+			if existingTheme.code == themeCode then
+				return true
+			else
+				themeExists = true
+				-- Remove the old theme from the presets file (will get added back in later)
+				FileManager.removeCustomThemeFromFile(themeName, existingTheme.code)
+				-- Update the old theme with the new code
+				existingTheme.code = themeCode
+				break
+			end
+		end
+	end
+	-- Save the theme to the Custom Themes file
+	FileManager.addCustomThemeToFile(themeName, themeCode)
+
+	-- If the theme doesn't already exist there, add to the Theme Preset list
+	if not themeExists then
+		local newThemePreset = {
+			getText = function(self) return themeName end,
+			code = themeCode
+		}
+		table.insert(Theme.Presets, newThemePreset)
+	end
+
+	return true
+end
+
 ---Returns a the name of a theme if it exist in the theme library; if it doesn't, returns "Custom"
 ---@param themeCode string
 ---@return string
@@ -502,154 +575,126 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonImport, 515, 125)
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.ButtonImport, 515, 125)
 
-	forms.label(form, Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10, 300, 20)
-	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
-	forms.button(form, Resources.AllScreens.Import, function()
-		local formInput = forms.gettext(importTextBox)
-		if formInput ~= nil then
-			-- Check if the import was successful
-			local success = Theme.importThemeFromText(formInput, true)
-			if success then
-				Theme.refreshThemePreview()
-			else
-				print("Error importing Theme Config string:")
-				print(">> " .. formInput)
-				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
-			end
+	form:createLabel(Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10)
+	local importTextBox = form:createTextBox("", 10, 30, 480, 20)
+	form:createButton(Resources.AllScreens.Import, 212, 55, function()
+		local formInput = ExternalUI.BizForms.getText(importTextBox)
+		if Utils.isNilOrEmpty(formInput) then
+			return
 		end
-		Utils.closeBizhawkForm(form)
-	end, 212, 55)
+		-- Check if the import was successful
+		local success = Theme.importThemeFromText(formInput, true)
+		if success then
+			Theme.refreshThemePreview()
+			form:destroy()
+		else
+			local errorMsg = string.format("%s\n\n%s", Resources.ThemeScreen.PromptImportError, formInput)
+			Main.DisplayError(errorMsg)
+		end
+	end)
 end
 
 function Theme.openExportWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonExport, 515, 150)
-
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.ButtonExport, 515, 150)
 	local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex]
-
 	local themeLabel = string.format("%s: %s", Resources.ThemeScreen.PromptThemeFor, themePreset:getText())
-	forms.label(form, themeLabel, 9, 10, 300, 20)
-	forms.label(form, Resources.ThemeScreen.PromptCopyThemeCode .. ":", 9, 30, 300, 20)
-	forms.textbox(form, themePreset.code or "", 480, 20, nil, 10, 55)
-	forms.button(form, Resources.AllScreens.Close, function()
-		Utils.closeBizhawkForm(form)
-	end, 212, 80)
+	form:createLabel(themeLabel, 9, 10)
+	form:createLabel(Resources.ThemeScreen.PromptCopyThemeCode .. ":", 9, 30)
+	form:createTextBox(themePreset.code or "", 10, 55, 480, 20)
+	form:createButton(Resources.AllScreens.Close, 212, 80, function()
+		form:destroy()
+	end)
 end
 
 function Theme.openPresetsWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.Title, 360, 105)
-
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.Title, 360, 105)
 	local themeNameList = {}
 	for _, themePreset in ipairs(Theme.Presets) do
 		table.insert(themeNameList, themePreset:getText())
 	end
 
-	forms.label(form, Resources.ThemeScreen.PromptSelectPreset .. ":", 49, 10, 250, 20)
-	local presetDropdown = forms.dropdown(form, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
-	forms.setdropdownitems(presetDropdown, themeNameList, false) -- Required to prevent alphabetizing the list
-	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
-
-	forms.button(form, Resources.AllScreens.Preview, function()
-		local themeName = forms.gettext(presetDropdown)
-
+	form:createLabel(Resources.ThemeScreen.PromptSelectPreset .. ":", 49, 10)
+	local dropdown = form:createDropdown(themeNameList, 50, 30, 145, 30, nil, false)
+	form:createButton(Resources.AllScreens.Preview, 212, 29, function()
+		local themeName = ExternalUI.BizForms.getText(dropdown)
 		for index, themePreset in ipairs(Theme.Presets) do
 			if themePreset:getText() == themeName then
 				Theme.Screen.currentPreviewIndex = index
 				break
 			end
 		end
-
 		local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex or Theme.PresetsIndex.ACTIVE]
 		Theme.refreshButtons()
 		Theme.Buttons.RemoveTheme:resetButtonToDefault()
 		Theme.importThemeFromText(themePreset.code, false)
-
-		Utils.closeBizhawkForm(form)
-	end, 212, 29)
+		form:destroy()
+	end)
 end
 
 function Theme.openSaveCurrentThemeWindow()
-	local form = Utils.createBizhawkForm(Resources.ThemeScreen.PromptSaveAsTitle, 350, 145)
+	local form = ExternalUI.BizForms.createForm(Resources.ThemeScreen.PromptSaveAsTitle, 350, 145)
 
-	forms.label(form, Resources.ThemeScreen.PromptEnterNameForTheme .. ":", 18, 10, 330, 20)
-	local saveTextBox = forms.textbox(form, "", 290, 30, nil, 20, 30)
-	forms.setproperty(saveTextBox, "MaxLength", 80)
+	form:createLabel(Resources.ThemeScreen.PromptEnterNameForTheme .. ":", 18, 10)
+	local nameTextbox = form:createTextBox("", 20, 30, 290, 30)
+	ExternalUI.BizForms.setProperty(nameTextbox, ExternalUI.BizForms.Properties.MAX_LENGTH, 80)
 
-	Theme.Manager.SaveNewWarning = forms.label(form, "", 18, 55, 330, 20)
-	forms.setproperty(Theme.Manager.SaveNewWarning, "ForeColor", "Red")
+	Theme.Manager.SaveNewWarning = form:createLabel("", 18, 55, 330, 20)
+	ExternalUI.BizForms.setProperty(Theme.Manager.SaveNewWarning, ExternalUI.BizForms.Properties.FORE_COLOR, "Red")
 
-	Theme.Manager.SaveNewConfirm = forms.button(form, Resources.AllScreens.Save, function()
+	Theme.Manager.SaveNewConfirm = form:createButton(Resources.AllScreens.Save, 91, 75, function()
 		-- Clear out warning texts
-		forms.settext(Theme.Manager.SaveNewWarning, "")
+		ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, "")
 
-		local themeName = forms.gettext(saveTextBox)
+		local themeName = ExternalUI.BizForms.getText(nameTextbox)
 		if Utils.isNilOrEmpty(themeName) then
 			return
 		end
 
-		local existingPreset = nil
-		local existingPresetIndex = nil
+		local existingThemeIndex = nil
 		for index, themePreset in ipairs(Theme.Presets) do
 			if themePreset:getText() == themeName then
-				existingPreset = themePreset
-				existingPresetIndex = index
+				existingThemeIndex = index
 				break
 			end
 		end
 
 		-- Check a few conditions that would prevent the user from using a particular Theme name
-		if existingPresetIndex == Theme.PresetsIndex.ACTIVE or existingPresetIndex == Theme.PresetsIndex.DEFAULT then
+		if existingThemeIndex == Theme.PresetsIndex.ACTIVE or existingThemeIndex == Theme.PresetsIndex.DEFAULT then
 			-- Don't allow importing "Active Theme (Custom)" or "Default Theme" as that is reserved
-			forms.settext(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
-			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptCantUseReserved)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
 		elseif themeName:find("%x%x%x%x%x%x") then
-			-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
-			forms.settext(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
-			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
+			-- Don't allow six consecutive hexcode characters, as this screws with parsing it later
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptCantUseConsecutiveChars)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
 			return
-		elseif existingPreset ~= nil and forms.gettext(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
+		elseif existingThemeIndex ~= nil and ExternalUI.BizForms.getText(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
 			-- If the Theme name is already in use, warn the user first
-			forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
-			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewWarning, Resources.ThemeScreen.PromptNameAlreadyInUse)
+			ExternalUI.BizForms.setText(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
 			return
 		end
+		-- Otherwise, no warning text needed
 		Theme.Manager.SaveNewWarning = nil
 		Theme.Manager.SaveNewConfirm = nil
 
-		local themeCode = Theme.exportThemeToText()
-
-		-- If a theme with that name already exists, replace it; otherwise add a reference for it
-		if existingPreset ~= nil then
-			-- Remove the old theme from the presets file
-			FileManager.removeCustomThemeFromFile(themeName, existingPreset.code)
-			-- Update the old theme with the new code
-			existingPreset.code = themeCode
-		else
-			-- Create the new theme and add it to the library list
-			existingPreset = {
-				getText = function(self) return themeName end,
-				code = themeCode
-			}
-			table.insert(Theme.Presets, existingPreset)
-		end
-
-		-- Add the saved theme to the presets file and refresh
-		FileManager.addCustomThemeToFile(themeName, themeCode)
+		Theme.saveThemeToLibrary(themeName)
 		Theme.refreshThemePreview()
-
-		Utils.closeBizhawkForm(form)
-	end, 91, 75)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		Utils.closeBizhawkForm(form)
-	end, 176, 75)
+		form:destroy()
+	end)
+	form:createButton(Resources.AllScreens.Cancel, 176, 75, function()
+		form:destroy()
+	end)
 end
 
 -- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist
 function Theme.populateThemePresets()
-	if FileManager.fileExists(FileManager.Files.THEME_PRESETS) then
+	local folderpath = FileManager.getPathOverride("Theme Presets") or FileManager.dir
+	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
+	if FileManager.fileExists(filepath) then
 		return
 	end
 
@@ -705,9 +750,9 @@ function Theme.drawThemeLibrary()
 	}
 	local botbox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
-		y = topbox.y + topbox.height + 13,
+		y = topbox.y + topbox.height,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = 45,
+		height = 58,
 	}
 
 	-- Draw header text
@@ -726,7 +771,9 @@ function Theme.drawThemeLibrary()
 
 	-- Draw bottom Theme screen view box and its header
 	gui.drawRectangle(botbox.x, botbox.y, botbox.width, botbox.height, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
-	Drawing.drawText(botbox.x + 0, botbox.y - 11, Resources.ThemeScreen.HeaderActiveThemeOptions .. ":", Theme.COLORS["Header text"], headerShadow)
+
+	-- No room currently for this text
+	-- Drawing.drawText(botbox.x + 0, botbox.y - 11, Resources.ThemeScreen.HeaderActiveThemeOptions .. ":", Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw all buttons
 	for _, button in pairs(Theme.Buttons) do

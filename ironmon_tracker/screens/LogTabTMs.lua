@@ -167,8 +167,10 @@ function LogTabTMs.buildGymTMButtons()
 				end,
 				onClick = function(self)
 					LogOverlay.Windower:changeTab(LogTabTrainerDetails, 1, 1, self.trainerId)
-					Program.redraw(true)
-					-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.trainerId) -- TODO: (future feature) implied redraw
+					if TrainerInfoScreen.buildScreen(self.trainerId) then
+						TrainerInfoScreen.previousScreen = TrackerScreen
+						Program.changeScreenView(TrainerInfoScreen)
+					end
 				end,
 			}
 			table.insert(LogTabTMs.GymLabelButtons, gymButton)

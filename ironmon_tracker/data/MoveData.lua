@@ -1,5 +1,15 @@
-MoveData = {
-	totalMoves = 354,
+MoveData = {}
+
+MoveData.Values = {
+	HiddenPowerId = 237,
+	WeatherBallId = 311,
+	LowKickId = 67,
+	FlailId = 175,
+	ReversalId = 179,
+	EruptionId = 284,
+	WaterSpoutId = 323,
+	ReturnId = 216,
+	FrustrationId = 218,
 }
 
 MoveData.IsRand = {
@@ -7,6 +17,7 @@ MoveData.IsRand = {
 	movePower = false,
 	moveAccuracy = false,
 	movePP = false,
+	moveCategory = false,
 }
 
 -- Move categories identify the type of attack a move is: physical, special, or status
@@ -98,30 +109,20 @@ MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected b
 	["353"] = true, -- Doom Desire
 }
 
+MoveData.IsOHKOMove = {
+	[ "12"] = true, -- Guillotine
+	[ "32"] = true, -- Horn Drill
+	[ "90"] = true, -- Fissure
+	["329"] = true, -- Sheer Cold
+}
+
 function MoveData.initialize()
-	-- Reads the Move's type, power, accuracy, and pp
-	-- If any data at all was randomized, read in full move data from memory
-	if MoveData.checkIfDataIsRandomized() then
-		for moveId=1, MoveData.totalMoves, 1 do
-			local moveData = MoveData.Moves[moveId]
+	-- For easier category lookups
+	MoveData.Categories[1] = MoveData.Categories.PHYSICAL
+	MoveData.Categories[2] = MoveData.Categories.SPECIAL
+	MoveData.Categories[3] = MoveData.Categories.STATUS
 
-			local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
-			if moveInfo ~= nil then
-				moveData.type = moveInfo.type
-				moveData.accuracy = moveInfo.accuracy
-				moveData.pp = moveInfo.pp
-
-				-- Don't overwrite manually entered data for moves with special powers (randomizer sets them to "1")
-				if moveInfo.power ~= "1" then
-					moveData.power = moveInfo.power
-				end
-
-				if moveData.power ~= "0" then
-					moveData.category = MoveData.TypeToCategory[moveData.type]
-				end
-			end
-		end
-	end
+	MoveData.buildData()
 end
 
 function MoveData.updateResources()
@@ -136,52 +137,99 @@ function MoveData.updateResources()
 	end
 end
 
+--- Reads the Move's type, power, accuracy, and pp from the game memory.
+---@param forced boolean? Optional, forces the data to be read in from the game
+function MoveData.buildData(forced)
+	-- Don't bother reading in game data if it's not randomized (might not need this check)
+	if not forced and not MoveData.checkIfDataIsRandomized() then
+		return
+	end
+
+	for moveId = 1, #MoveData.Moves, 1 do
+		local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
+		if moveInfo ~= nil then
+			local moveInternal = MoveData.Moves[moveId]
+
+			-- Don't overwrite manually entered power values for moves with variable power; randomizer sets them to "1"
+			if not moveInternal.variablepower then
+				moveInternal.power = moveInfo.power
+			end
+
+			if MoveData.IsRand.moveCategory and moveInfo.category ~= nil then
+				moveInternal.category = moveInfo.category
+			-- For non-status moves with actual power, update their type categories if the move's type changed
+			elseif moveInternal.power ~= "0" and moveInfo.type ~= moveInternal.type and moveInternal.category ~= MoveData.Categories.STATUS then
+				moveInternal.category = MoveData.TypeToCategory[moveInfo.type]
+			end
+
+			-- Update all other base values
+			moveInternal.type = moveInfo.type
+			moveInternal.accuracy = moveInfo.accuracy
+			moveInternal.pp = moveInfo.pp
+		end
+	end
+end
+
 function MoveData.readMoveInfoFromMemory(moveId)
-	local moveData = Memory.readdword(GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01)
+	local addr = GameSettings.gBattleMoves + (moveId * Program.Addresses.sizeofBattleMove)
+	local moveData = Memory.readdword(addr + Program.Addresses.offsetBattleMoves)
+	-- Optional move flags for the Physical/Special split rom patch (in vanilla, this value is 0)
+	local moveFlags = Memory.readbyte(addr + (Program.Addresses.offsetBattleMoves * 8))
 
 	local movePower = Utils.getbits(moveData, 0, 8)
 	local moveType = Utils.getbits(moveData, 8, 8)
 	local moveAccuracy = Utils.getbits(moveData, 16, 8)
 	local movePP = Utils.getbits(moveData, 24, 8)
+	local moveCategory = Utils.getbits(moveFlags, 6, 2)
 
 	return {
 		power = tostring(movePower),
 		type = PokemonData.TypeIndexMap[moveType],
 		accuracy = tostring(moveAccuracy),
 		pp = tostring(movePP),
+		category = MoveData.Categories[moveCategory], -- For physical/special split; nil if not applicable
 	}
 end
 
+---Returns true if the game's data is randomized (accuracy is not absolute); false otherwise
+---@return boolean
 function MoveData.checkIfDataIsRandomized()
 	local areTypesRandomized = false
 	local arePowersRandomized = false
 	local areAccuraciesRandomized = false
 	local arePPsRandomized = false
+	local areCategoriesChanged = false
 
 	-- Check once if any data was randomized
-	local moveInfo = MoveData.readMoveInfoFromMemory(33) -- Tackle
+	local moveInfo = MoveData.readMoveInfoFromMemory(314) -- Air Cutter
 	if moveInfo ~= nil then
-		areTypesRandomized = moveInfo.type ~= PokemonData.Types.NORMAL
-		arePowersRandomized = moveInfo.power ~= "35"
+		areTypesRandomized = moveInfo.type ~= PokemonData.Types.FLYING
+		arePowersRandomized = moveInfo.power ~= "55"
 		areAccuraciesRandomized = moveInfo.accuracy ~= "95"
-		arePPsRandomized = moveInfo.pp ~= "35"
+		arePPsRandomized = moveInfo.pp ~= "25"
+		-- For checking Physical/Special split; in vanilla this would be nil/unchanged
+		areCategoriesChanged = moveInfo.category == MoveData.Categories.SPECIAL
 	end
 
 	-- Check twice if any data was randomized (Randomizer does *not* force a change)
-	if not areTypesRandomized or not arePowersRandomized or not areAccuraciesRandomized or not arePPsRandomized then
-		moveInfo = MoveData.readMoveInfoFromMemory(56) -- Hydro Pump
+	if not (areTypesRandomized and arePowersRandomized and areAccuraciesRandomized and arePPsRandomized and areCategoriesChanged) then
+		moveInfo = MoveData.readMoveInfoFromMemory(128) -- Clamp
 		if moveInfo ~= nil then
 			if moveInfo.type ~= PokemonData.Types.WATER then
 				areTypesRandomized = true
 			end
-			if moveInfo.power ~= "120" then
+			if moveInfo.power ~= "35" then
 				arePowersRandomized = true
 			end
-			if moveInfo.accuracy ~= "80" then
+			if moveInfo.accuracy ~= "75" then
 				areAccuraciesRandomized = true
 			end
-			if moveInfo.pp ~= "5" then
+			if moveInfo.pp ~= "10" then
 				arePPsRandomized = true
+			end
+			-- For checking Physical/Special split; in vanilla this would be nil/unchanged
+			if moveInfo.category == MoveData.Categories.PHYSICAL then
+				areCategoriesChanged = true
 			end
 		end
 	end
@@ -190,12 +238,75 @@ function MoveData.checkIfDataIsRandomized()
 	MoveData.IsRand.movePower = arePowersRandomized
 	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
 	MoveData.IsRand.movePP = arePPsRandomized
+	MoveData.IsRand.moveCategory = areCategoriesChanged
 
-	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
+	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized or areCategoriesChanged
 end
 
+---Returns true if the moveId is a valid, existing id of a move in MoveData.Moves
+---@param moveId number
+---@return boolean
 function MoveData.isValid(moveId)
-	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
+	return moveId ~= nil and moveId >= 1 and moveId <= #MoveData.Moves
+end
+
+---Returns true if the move is a One-Hit KO move (i.e. Sheer Cold)
+---@param moveId number|string
+---@return boolean
+function MoveData.isOHKO(moveId)
+	return MoveData.IsOHKOMove[tostring(moveId)] ~= nil
+end
+
+---Returns the move category of the move, such as Physical, Special, or Status; returns None if move not found
+---@param moveId number|string
+---@param moveType? string Optional, if provided (and not phys/spec split) will use this type to determine the category
+---@return string category
+function MoveData.getCategory(moveId, moveType)
+	local move = MoveData.Moves[tonumber(moveId or "") or -1] or MoveData.BlankMove
+	moveType = moveType or move.type
+	if MoveData.IsRand.moveCategory then
+		return move.category or MoveData.Categories.NONE
+	end
+	return MoveData.TypeToCategory[moveType] or MoveData.Categories.NONE
+end
+
+---Calculate the type & power of Hidden Power using a Pokémon's individual values (hp, atk, def, spa, spd, spe)
+---@param ivs table Must contain key/value pairs for: hp, atk, def, spa, spd, spe
+---@return string moveType The type of the move, or PokemonData.Types.UNKNOWN if it can't be calculated
+---@return integer movePower the power of the move, between 30 and 70 inclusive; or 0 if unknown
+function MoveData.calcHiddenPowerTypeAndPower(ivs)
+	local moveType, movePower = MoveData.HiddenPowerTypeList[1], 0 -- unknown
+	if not ivs or not ivs.hp then
+		return moveType, movePower
+	end
+
+	-- Formula: https://bulbapedia.bulbagarden.net/wiki/Hidden_Power_(move)/Calculation#Generation_III_onward
+	-- Type Bits: If a number is odd, its least significant bit is 1; otherwise (if the number is even), it is 0.
+	local tBits = {
+		hp = ivs.hp % 2,
+		atk = ivs.atk % 2,
+		def = ivs.def % 2,
+		spe = ivs.spe % 2,
+		spa = ivs.spa % 2,
+		spd = ivs.spd % 2,
+	}
+	-- Power Bits: If a variable has a remainder of 2 or 3 when divided by 4, this bit is 1; otherwise, the bit is 0.
+	local pBits = {
+		hp = math.floor((ivs.hp % 4) / 2),
+		atk = math.floor((ivs.atk % 4) / 2),
+		def = math.floor((ivs.def % 4) / 2),
+		spe = math.floor((ivs.spe % 4) / 2),
+		spa = math.floor((ivs.spa % 4) / 2),
+		spd = math.floor((ivs.spd % 4) / 2),
+	}
+	-- Perform the cacluation
+	local typeSum = tBits.hp + (2 * tBits.atk) + (4 * tBits.def) + (8 * tBits.spe) + (16 * tBits.spa) + (32 * tBits.spd)
+	local typeIndex = math.floor(typeSum * 15 / 63) -- results in 0 through 15, inclusive
+	moveType = MoveData.HiddenPowerTypeList[typeIndex + 2] or MoveData.HiddenPowerTypeList[1] -- 1st is "unknown", 2nd is "fighting"
+	local moveSum = pBits.hp + (2 * pBits.atk) + (4 * pBits.def) + (8 * pBits.spe) + (16 * pBits.spa) + (32 * pBits.spd)
+	movePower = math.floor(moveSum * 40 / 63) + 30 -- results in 30 through 70, inclusive
+
+	return moveType, movePower
 end
 
 MoveData.BlankMove = {
@@ -342,6 +453,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "13",
@@ -538,6 +650,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "33",
@@ -699,6 +812,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "50",
@@ -865,6 +979,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "68",
@@ -876,6 +991,7 @@ MoveData.Moves = {
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
 		priority = "-- 5",
+		variablepower = true,
 	},
 	{
 		id = "69",
@@ -886,6 +1002,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "70",
@@ -1005,6 +1122,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "83",
@@ -1077,6 +1195,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "91",
@@ -1180,6 +1299,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "102",
@@ -1325,6 +1445,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "118",
@@ -1621,6 +1742,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "150",
@@ -1742,6 +1864,7 @@ MoveData.Moves = {
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "163",
@@ -1865,6 +1988,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "176",
@@ -1902,6 +2026,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "180",
@@ -2247,6 +2372,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "217",
@@ -2256,6 +2382,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "218",
@@ -2266,6 +2393,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "219",
@@ -2302,6 +2430,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "223",
@@ -2445,6 +2574,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "238",
@@ -2502,6 +2632,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
 		priority = "-- 5",
+		variablepower = true,
 	},
 	{
 		id = "244",
@@ -2615,6 +2746,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
+		variablepower = true,
 	},
 	{
 		id = "256",
@@ -2880,6 +3012,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
+		variablepower = true,
 	},
 	{
 		id = "284",
@@ -2889,6 +3022,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "285",
@@ -3251,6 +3385,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "324",
@@ -3307,6 +3442,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.SPECIAL,
+		variablepower = true,
 	},
 	{
 		id = "330",

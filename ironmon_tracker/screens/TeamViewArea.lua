@@ -89,10 +89,10 @@ function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
 			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
 
 			if isEgg then
-				local iconset = Options.getIconSet()
-				local eggIcon = FileManager.buildImagePath(iconset.folder, "412", iconset.extension) -- #412 = egg
-				if eggIcon ~= nil then
-					Drawing.drawImage(eggIcon, self.x + 1 + (iconset.xOffset or 0), yOffset - 7 + (iconset.yOffset or 0), 32, 32)
+				local eggImagePath = Drawing.getImagePath("PokemonIcon", tostring(PokemonData.Values.EggId))
+				if eggImagePath then
+					local iconset = Options.getIconSet()
+					Drawing.drawImage(eggImagePath, self.x + 1 + (iconset.xOffset or 0), yOffset - 7 + (iconset.yOffset or 0), 32, 32)
 				end
 			end
 
