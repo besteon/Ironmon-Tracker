@@ -1142,7 +1142,7 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[39] = 137 + offset -- mt. pyre grass/cave
 	RandomizerLog.RouteSetNumToIdMap[40] = 163 + offset -- victory road grass/cave
 	RandomizerLog.RouteSetNumToIdMap[41] = 241 + offset -- safari zone SE grass/cave
-	RandomizerLog.RouteSetNumToIdMap[42] = 52 + offset -- underwater surfing
+	RandomizerLog.RouteSetNumToIdMap[42] = 52 -- underwater surfing
 	RandomizerLog.RouteSetNumToIdMap[43] = 189 + offset -- abandoned ship surfing
 	RandomizerLog.RouteSetNumToIdMap[44] = 189 + offset -- abandoned ship fishing
 	RandomizerLog.RouteSetNumToIdMap[45] = 134 + offset -- granite cave grass/cave
