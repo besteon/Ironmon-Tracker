@@ -4064,7 +4064,7 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 319, rate = 0.40, minLv = 30, maxLv = 35, },
 		},
 	}
-	RouteData.Info[51] = {
+	RouteData.Info[274] = {
 		name = "Route 124 Water",
 		icon = RouteData.Icons.OceanWaves,
 		[RouteData.EncounterArea.UNDERWATER] = {
@@ -4121,7 +4121,7 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 319, rate = 0.40, minLv = 30, maxLv = 35, },
 		},
 	}
-	RouteData.Info[52] = {
+	RouteData.Info[51] = {
 		name = "Route 126 Water",
 		icon = RouteData.Icons.OceanWaves,
 		[RouteData.EncounterArea.UNDERWATER] = {
@@ -4154,7 +4154,7 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 319, rate = 0.40, minLv = 30, maxLv = 35, },
 		},
 	}
-	RouteData.Info[53] = {
+	RouteData.Info[52] = {
 		name = "Route 127 Water",
 		icon = RouteData.Icons.OceanWaves,
 	}
@@ -4183,7 +4183,7 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 222, rate = 0.15, minLv = 30, maxLv = 35, },
 		},
 	}
-	RouteData.Info[54] = {
+	RouteData.Info[53] = {
 		name = "Route 128 Water",
 		icon = RouteData.Icons.OceanWaves,
 	}
