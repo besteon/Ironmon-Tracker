@@ -255,11 +255,18 @@ function NotebookTrainersByArea.buildScreen()
 		-- AREA NAME
 		local areaName = RouteData.getRouteOrAreaName(areaInfo.routeId, true)
 		areaName = Utils.shortenText(areaName, 90, true)
-		local areaColor
-		if areaInfo.routeId == TrackerAPI.getMapId() then
+		local areaColor = SCREEN.Colors.text
+		local currentMapId = TrackerAPI.getMapId()
+		if areaInfo.routeId == currentMapId then
 			areaColor = SCREEN.Colors.highlight
 		else
-			areaColor = SCREEN.Colors.text
+			local route = RouteData.Info[areaInfo.routeId] or {}
+			for _, areaRouteId in ipairs(route.area or {}) do
+				if areaRouteId == currentMapId then
+					areaColor = SCREEN.Colors.highlight
+					break
+				end
+			end
 		end
 		local nameBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
