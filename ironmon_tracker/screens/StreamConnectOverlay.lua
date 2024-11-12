@@ -731,12 +731,12 @@ local function buildGameTab()
 		local btnName = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return event.Name end,
-			textColor = SCREEN.Colors.text,
+			textColor = SCREEN.Colors.highlight,
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 2
-				self.textColor = btnEnabled.toggleState and SCREEN.Colors.text or "Negative text"
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+				self.textColor = btnEnabled.toggleState and SCREEN.Colors.highlight or "Negative text"
 			end,
 			-- draw = function(self, shadowcolor)
 			-- 	Drawing.drawUnderline(self)
@@ -745,7 +745,22 @@ local function buildGameTab()
 			-- end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnName)
-		addLeftAligned(btnName)
+
+		local btnTriggerEffect = {
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.REFERENCE_RIGHT,
+			getText = function(self) return event.TriggerEffect or "" end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, 11, 11 },
+			isVisible = function(self) return buttonRow:isVisible() and not Utils.isNilOrEmpty(self:getText()) end,
+			updateSelf = function(self)
+				self.box[2] = btnName.box[2] + ROW_HEIGHT / 2
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnTriggerEffect)
+		btnName.box[1] = _leftEdgeX + ROW_PADDING
+		btnTriggerEffect.box[1] = _leftEdgeX + ROW_PADDING + 2
+		_leftEdgeX = btnName.box[1] + btnWidth + ROW_PADDING
 	end
 
 	local bottomRowY = SCREEN.Canvas.y + SCREEN.Canvas.h - 15

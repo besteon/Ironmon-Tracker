@@ -421,13 +421,13 @@ function Drawing.drawButton(button, shadowcolor)
 		Drawing.drawText(x + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.disabled then
-			textColor = "Negative text"
+			textColor = Theme.COLORS["Negative text"]
 		end
 		Drawing.drawText(x + width + 1, y - 2, text, textColor, shadowcolor)
 
 		-- Draw a mark if the checkbox button is toggled on
 		if button.toggleState then
-			local toggleColor = Utils.inlineIf(button.disabled, "Negative text", button.toggleColor or "Positive text")
+			local toggleColor = (button.disabled and "Negative text") or button.toggleColor or "Positive text"
 			gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[toggleColor])
 			gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[toggleColor])
 		end

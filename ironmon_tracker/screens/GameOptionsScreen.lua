@@ -1,6 +1,7 @@
 GameOptionsScreen = {
 	Colors = {
 		text = "Lower box text",
+		highlight = "Intermediate text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
 	},
@@ -118,6 +119,7 @@ function GameOptionsScreen.createButtons()
 		{ "Show physical special icons", "OptionShowPhysicalSpecial", },
 		{ "Show move effectiveness", "OptionShowMoveEffectiveness", },
 		{ "Calculate variable damage", "OptionCalculateVariableDamage", },
+		{ "Show Poke Ball catch rate", "OptionShowBallCatchRate", },
 		{ "Count enemy PP usage", "OptionCountEnemyPP", },
 		{ "Show last damage calcs", "OptionShowLastDamage", },
 		{ "Reveal info if randomized", "OptionRevealRandomizedInfo", },
@@ -177,8 +179,11 @@ function GameOptionsScreen.createButtons()
 	startY = Constants.SCREEN.MARGIN + TAB_HEIGHT + 14
 	local optionKeyMapOther = {
 		{ "Hide stats until summary shown", "OptionHideStatsUntilSummary", },
+		{ "Show nicknames", "OptionShowNicknames", },
 		{ "Show experience points bar", "OptionShowExpBar", },
+		{ "Show heals as whole number", "OptionShowHealsAsValue", },
 		{ "Determine friendship readiness", "OptionDetermineFriendship", },
+		{ "Open Book Play Mode", "OptionOpenBookPlayMode", },
 	}
 	for _, optionTuple in ipairs(optionKeyMapOther) do
 		SCREEN.Buttons[optionTuple[1]] = {
@@ -200,11 +205,26 @@ function GameOptionsScreen.createButtons()
 					else
 						Tracker.Data.hasCheckedSummary = true
 					end
+				elseif self.optionKey == "Open Book Play Mode" then
+					if self.toggleState and not LogOverlay.hasParsedThisLog() then
+						LogOverlay.preloadForOpenBook()
+					end
 				end
 				Program.redraw(true)
 			end
 		}
 		startY = startY + Constants.SCREEN.LINESPACING + 1
+	end
+
+	SCREEN.Buttons["Open Book Play Mode"].draw = function(self, shadowcolor)
+		if not self.toggleState then
+			return
+		end
+		local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+		local color = Theme.COLORS[SCREEN.Colors.highlight]
+		local warningMsg = Resources.GameOptionsScreen.LabelExtraTimeWarning
+		Drawing.drawImageAsPixels(Constants.PixelImages.WARNING, x + 10, y + h + 3, color, shadowcolor)
+		Drawing.drawText(x + 20, y + h + 2, warningMsg, color, shadowcolor)
 	end
 end
 

@@ -1405,13 +1405,18 @@ function Program.updateBagItems()
 				if quantity > 0 then
 					if MiscData.HealingItems[itemID] then
 						items.HPHeals[itemID] = quantity
-					elseif MiscData.PPItems[itemID] then
+					end
+					if MiscData.PPItems[itemID] then
 						items.PPHeals[itemID] = quantity
-					elseif MiscData.StatusItems[itemID] then
+					end
+					if MiscData.StatusItems[itemID] then
 						items.StatusHeals[itemID] = quantity
-					elseif MiscData.EvolutionStones[itemID] then
+					end
+					if MiscData.EvolutionStones[itemID] then
 						items.EvoStones[itemID] = quantity
-					else
+					end
+					-- If the item wasn't categorized anywhere, mark as "Other"
+					if not (items.HPHeals[itemID] or items.PPHeals[itemID] or items.StatusHeals[itemID] or items.EvoStones[itemID]) then
 						items.Other[itemID] = quantity
 					end
 				end

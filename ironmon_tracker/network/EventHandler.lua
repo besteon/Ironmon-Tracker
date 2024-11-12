@@ -47,6 +47,7 @@ function EventHandler.reset()
 	EventHandler.Queues = {
 		BallRedeems = { Requests = {}, },
 	}
+	EventData.initialize()
 end
 
 ---Checks if the event is of a known event type
@@ -84,8 +85,9 @@ end
 ---@param eventKey string IEvent.Key
 ---@param fulfillFunc function Must return a string or a partial Response table { Message="", GlobalVars={} }
 ---@param name? string (Optional) A descriptive name for the event
+---@param effect? string (Optional) When the event is triggered, this is a description of the effect that occurs
 ---@return boolean success
-function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name)
+function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name, effect)
 	if Utils.isNilOrEmpty(eventKey) or type(fulfillFunc) ~= "function" then
 		return false
 	end
@@ -93,16 +95,17 @@ function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name)
 		Key = eventKey,
 		Type = EventHandler.EventTypes.Game,
 		Name = name or eventKey,
+		TriggerEffect = effect or "",
 		Fulfill = fulfillFunc,
 	}))
 end
 
----Internally triggers an event by creating a new Request for it
+---Internally triggers an event by creating a new Request for it; only if the Network is connected
 ---@param eventKey string IEvent.Key
 ---@param input? string
 function EventHandler.triggerEvent(eventKey, input)
 	local event = EventHandler.Events[eventKey or false]
-	if not EventHandler.isValidEvent(event) then
+	if not Network.isConnected() or not EventHandler.isValidEvent(event) then
 		return
 	end
 	RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
@@ -284,6 +287,9 @@ function EventHandler.addDefaultEvents()
 		event.Key = key
 		event.Name = Resources.StreamConnect[tostring(key) .. "_Name"]
 		event.Help = Resources.StreamConnect[tostring(key) .. "_Help"]
+		if event.Type == EventHandler.EventTypes.Game then
+			event.TriggerEffect = Resources.StreamConnect[tostring(key) .. "_TriggerEffect"] or ""
+		end
 		local eventCopy = EventHandler.IEvent:new()
 		FileManager.copyTable(event, eventCopy)
 		EventHandler.addNewEvent(eventCopy)
@@ -965,6 +971,33 @@ EventHandler.DefaultEvents = {
 				response.Message = string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)
 			end
 			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
+		end,
+	},
+
+	-- GE_: Game Events
+	GE_GameOver = {
+		Type = EventHandler.EventTypes.Game,
+		Process = function(self, request)
+			-- Don't fulfill if already triggered this seed
+			if EventData.Vars[self.Key] then
+				return false
+			end
+			-- Returns true if the game is over
+			return GameOverScreen.status and GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+		end,
+		Fulfill = function(self, request)
+			local status = GameOverScreen.status == GameOverScreen.Statuses.WON and "WON" or "LOSS"
+			local leadPokemon = TrackerAPI.getPlayerPokemon(1) or {}
+			local output = string.format("%s %s", status, leadPokemon.pokemonID or 0)
+			local response = {
+				Message = "",
+				GlobalVars = {
+					-- Example Global Var output: "LOSS 213"
+					[self.Key] = output,
+				},
+			}
+			EventData.Vars[self.Key] = output
 			return response
 		end,
 	},

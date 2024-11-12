@@ -1,5 +1,12 @@
 EventData = {}
 
+-- Used to record information about the current game state with relation to triggering game events
+EventData.Vars = {}
+
+function EventData.initialize()
+	EventData.Vars = {}
+end
+
 -- Internal helper functions
 
 -- The max # of items to show for any commands that output a list of items (try keep chat message output short)
@@ -288,6 +295,26 @@ function EventData.getTrainer(params)
 	local trainerId
 	if not Utils.isNilOrEmpty(params) then
 		trainerId = tonumber(params or "") or 0
+		-- If param is not a number, check if it's a commonly known trainer
+		if trainerId == 0 then
+			local foundIds
+			for trainerName, trainerIds in pairs(TrainerData.CommonTrainers or {}) do
+				if Utils.containsText(trainerName, params, true) then
+					foundIds = trainerIds
+					break
+				end
+			end
+			if type(foundIds) == "number" then
+				trainerId = foundIds
+			elseif type(foundIds) == "table" then
+				for _, id in pairs(foundIds) do
+					if TrainerData.shouldUseTrainer(id) then
+						trainerId = id
+						break
+					end
+				end
+			end
+		end
 	else
 		trainerId = TrackerAPI.getOpponentTrainerId()
 	end
@@ -697,6 +724,37 @@ function EventData.getHeals(params)
 	end
 
 	local info = {}
+
+	local categories = {
+		{
+			key = "HP",
+			display = function() return displayHP end,
+			items = {},
+			gameTable = Program.GameData.Items.HPHeals,
+			dataTable = MiscData.HealingItems,
+		},
+		{
+			key = "PP",
+			display = function() return displayPP end,
+			items = {},
+			gameTable = Program.GameData.Items.PPHeals,
+			dataTable = MiscData.PPItems,
+		},
+		{
+			key = "Status",
+			display = function() return displayStatus end,
+			items = {},
+			gameTable = Program.GameData.Items.StatusHeals,
+			dataTable = MiscData.StatusItems,
+		},
+		{
+			key = "Berries",
+			display = function() return displayBerries end,
+			items = {},
+		},
+	}
+	local BERRIES_INDEX = 4
+
 	-- This helps custom sort items based on their effectiveness; better ones display first
 	local function getSortableItem(id, quantity)
 		if not MiscData.Items[id or 0] or (quantity or 0) <= 0 then return nil end
@@ -718,8 +776,7 @@ function EventData.getHeals(params)
 
 	-- Filter all healing related items into different categories
 	local addedIds = {} -- prevent duplicate items from appearing in the output
-	local healingItems, ppItems, statusItems, berryItems = {}, {}, {}, {}
-	local function addItemIntoCategories(id, quantity, categoryTable, dataTable)
+	local function addItemIntoCategory(id, quantity, category)
 		if (id or 0) == 0 or (quantity or 0) == 0 or addedIds[id] then
 			return
 		end
@@ -727,41 +784,32 @@ function EventData.getHeals(params)
 		if not itemInfo then
 			return
 		end
-		addedIds[id] = true
-		table.insert(categoryTable, itemInfo)
-		if displayBerries and dataTable[id].pocket == MiscData.BagPocket.Berries then
-			table.insert(berryItems, itemInfo)
+		if category.display() then
+			table.insert(category.items, itemInfo)
+			addedIds[id] = true
+		end
+		if displayBerries and category.dataTable[id].pocket == MiscData.BagPocket.Berries then
+			table.insert(categories[BERRIES_INDEX].items, itemInfo)
+			addedIds[id] = true
 		end
 	end
-	for id, quantity in pairs(Program.GameData.Items.HPHeals or {}) do
-		addItemIntoCategories(id, quantity, healingItems, MiscData.HealingItems)
-	end
-	for id, quantity in pairs(Program.GameData.Items.PPHeals or {}) do
-		addItemIntoCategories(id, quantity, ppItems, MiscData.PPItems)
-	end
-	for id, quantity in pairs(Program.GameData.Items.StatusHeals or {}) do
-		addItemIntoCategories(id, quantity, statusItems, MiscData.StatusItems)
+	for _, category in ipairs(categories) do
+		for id, quantity in pairs(category.gameTable or {}) do
+			addItemIntoCategory(id, quantity, category)
+		end
 	end
 
 	-- Sort the items in their respective categories
 	local function sortFunc(a,b) return a.value > b.value or (a.value == b.value and a.id < b.id) end
-	local function sortAndCombine(label, items)
-		table.sort(items, sortFunc)
-		local t = {}
-		for _, item in ipairs(items) do table.insert(t, item.text) end
-		table.insert(info, string.format("[%s] %s", label, table.concat(t, ", ")))
-	end
-	if displayHP and #healingItems > 0 then
-		sortAndCombine("HP", healingItems)
-	end
-	if displayPP and #ppItems > 0 then
-		sortAndCombine("PP", ppItems)
-	end
-	if displayStatus and #statusItems > 0 then
-		sortAndCombine("Status", statusItems)
-	end
-	if displayBerries and #berryItems > 0 then
-		sortAndCombine("Berries", berryItems)
+	for _, category in ipairs(categories) do
+		if category.display() and #category.items > 0 then
+			table.sort(category.items, sortFunc)
+			local t = {}
+			for _, item in ipairs(category.items) do
+				table.insert(t, item.text)
+			end
+			table.insert(info, string.format("[%s] %s", category.key, table.concat(t, ", ")))
+		end
 	end
 
 	local prefix = string.format("%s %s", Resources.TrackerScreen.HealsInBag, OUTPUT_CHAR)
