@@ -200,9 +200,9 @@ ScreenResources{
 		TabControls = "Controls", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
+		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
@@ -245,9 +245,6 @@ ScreenResources{
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
 		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
-		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
-		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
-		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
@@ -263,17 +260,29 @@ ScreenResources{
 	},
 	GameOptionsScreen = {
 		Title = "Gameplay Options", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
+		TabGameOver = "Game Over", -- NEEDS TRANSLATION
+		TabOther = "Other", -- NEEDS TRANSLATION
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
+		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionShowPhysicalSpecial = "Show physical special icons", -- NEEDS TRANSLATION
 		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
+		OptionLeadPokemonFaints = "Lead Pokémon faints", -- NEEDS TRANSLATION
+		OptionHighestLevelFaints = "Highest level faints", -- NEEDS TRANSLATION
+		OptionEntirePartyFaints = "Entire party faints", -- NEEDS TRANSLATION
+		OptionOpenBookPlayMode = "Open Book play mode", -- NEEDS TRANSLATION
+		LabelExtraTimeWarning = "May add extra load time", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
@@ -527,7 +536,6 @@ ScreenResources{
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION
 		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
 		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
-		LabelNotesGrade = "Notes Grade", -- NEEDS TRANSLATION
 		ButtonViewGrade = "View", -- NEEDS TRANSLATION
 		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
 		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
@@ -536,6 +544,7 @@ ScreenResources{
 		ButtonSaveAttempt = "Save this attempt", -- NEEDS TRANSLATION
 		ButtonSaveSuccessful = "Saved in Tracker folder", -- NEEDS TRANSLATION
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
+		ButtonGradeMyNotes = "Grade my notes", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
 	},
@@ -615,8 +624,6 @@ ScreenResources{
 		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
 		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
-		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION
-		LabelExtraTimeWarning = "May add extra load time", -- NEEDS TRANSLATION
 		PromptShareSeedTitle = "Share Randomizer Seed", -- NEEDS TRANSLATION
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.", -- NEEDS TRANSLATION
 	},
@@ -661,6 +668,8 @@ ScreenResources{
 		CMD_Move_Help = "name > Displays game info for a move.",
 		CMD_Ability_Name = "Ability Info",
 		CMD_Ability_Help = "name > Displays game info for a Pokémon's ability.",
+		CMD_Trainer_Name = "Trainer Info",
+		CMD_Trainer_Help = "[name id] > Displays info about the most recent trainer fought, or for a specific trainer name or id.",
 		CMD_Route_Name = "Route Info",
 		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
 		CMD_Dungeon_Name = "Dungeon Info",
@@ -705,6 +714,8 @@ ScreenResources{
 		CR_ChangeFavoriteThree_Name = "Change Starter Favorite: #3",
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
+		GE_GameOver_Name = "When the game is over...",
+		GE_GameOver_TriggerEffect = "Update SB Global Variables",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",

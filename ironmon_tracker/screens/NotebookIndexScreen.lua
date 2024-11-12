@@ -169,13 +169,18 @@ function NotebookIndexScreen.buildScreen()
 
 	-- Recount trainers fought and defeated
 	SCREEN.Data.trainersDefeated = 0
-	SCREEN.Data.totalTrainers = #TrainerData.OrderedIds
+	SCREEN.Data.totalTrainers = 0
+	local trainersToExclude = TrainerData.getExcludedTrainers()
+	local includeSevii = GameSettings.game ~= 3 or NotebookTrainersByArea.Buttons.CheckboxSevii.toggleState -- get option from other screen
 	for _, trainerId in ipairs(TrainerData.OrderedIds or {}) do
-		if TrainerData.shouldUseTrainer(trainerId) then
+		if TrainerData.shouldUseTrainer(trainerId) and not trainersToExclude[trainerId] then
 			local trainerInternal = TrainerData.getTrainerInfo(trainerId)
-			local onSevii = GameSettings.game == 3 and trainerInternal.routeId >= 230
-			if not onSevii and TrackerAPI.hasDefeatedTrainer(trainerId) then
-				SCREEN.Data.trainersDefeated = SCREEN.Data.trainersDefeated + 1
+			-- Only count trainer if it's not on Sevii or otherwise included due to game version / checkbox
+			if includeSevii or trainerInternal.routeId < 230 then
+				SCREEN.Data.totalTrainers = SCREEN.Data.totalTrainers + 1
+				if TrackerAPI.hasDefeatedTrainer(trainerId) then
+					SCREEN.Data.trainersDefeated = SCREEN.Data.trainersDefeated + 1
+				end
 			end
 		end
 	end

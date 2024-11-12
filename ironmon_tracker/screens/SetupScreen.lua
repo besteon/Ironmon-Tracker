@@ -416,11 +416,11 @@ function SetupScreen.createButtons()
 	local startY = Constants.SCREEN.MARGIN + 78
 
 	local optionKeyMap = {
-		{"Show Team View", "OptionShowTeamView", },
-		{"Right justified numbers", "OptionRightJustifiedNumbers", },
-		{"Show nicknames", "OptionShowNicknames", },
-		{"Track PC Heals", "OptionTrackPCHeals", },
-		{"PC heals count downward", "OptionPCHealsCountDown", },
+		{ "Show random ball picker", "OptionShowRandomBallPicker", },
+		{ "Show Team View", "OptionShowTeamView", },
+		{ "Right justified numbers", "OptionRightJustifiedNumbers", },
+		{ "Track PC Heals", "OptionTrackPCHeals", },
+		{ "PC heals count downward", "OptionPCHealsCountDown", },
 	}
 
 	for _, optionTuple in ipairs(optionKeyMap) do
@@ -510,12 +510,12 @@ function SetupScreen.createButtons()
 	startY = startY + Constants.SCREEN.LINESPACING + 3
 
 	local carouselKeyMap = {
-		{"Badges", "CarouselBadges", },
-		{"Notes", "CarouselNotes", },
-		{"RouteInfo", "CarouselRouteInfo", },
-		{"Trainers", "CarouselTrainers", },
-		{"LastAttack", "CarouselLastAttack", },
-		{"Pedometer", "CarouselPedometer", },
+		{ "Badges", "CarouselBadges", },
+		{ "Notes", "CarouselNotes", },
+		{ "RouteInfo", "CarouselRouteInfo", },
+		{ "Trainers", "CarouselTrainers", },
+		{ "LastAttack", "CarouselLastAttack", },
+		{ "Pedometer", "CarouselPedometer", },
 	}
 
 	local function saveCarouselSettings()
@@ -553,12 +553,12 @@ function SetupScreen.createButtons()
 
 	-- TAB: CONTROLS
 	local controlKeyMap = {
-		{"Toggle view", "PromptEditControllerToggleView", },
-		{"Info shortcut", "PromptEditControllerInfoShortcut", },
-		{"Cycle through stats", "PromptEditControllerCycleStats", },
-		{"Mark stat", "PromptEditControllerMarkStat", },
-		{"Next page", "PromptEditControllerNextPage", },
-		{"Previous page", "PromptEditControllerPreviousPage", },
+		{ "Toggle view", "PromptEditControllerToggleView", },
+		{ "Info shortcut", "PromptEditControllerInfoShortcut", },
+		{ "Cycle through stats", "PromptEditControllerCycleStats", },
+		{ "Mark stat", "PromptEditControllerMarkStat", },
+		{ "Next page", "PromptEditControllerNextPage", },
+		{ "Previous page", "PromptEditControllerPreviousPage", },
 	}
 
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 13

@@ -5,6 +5,7 @@ TrainerData = {}
 TrainerData.Trainers = {}
 TrainerData.OrderedIds = {}
 TrainerData.GymTMs = {}
+TrainerData.CommonTrainers = {} -- Commonly known trainers, used for !trainer command lookups
 TrainerData.FinalTrainer = {} -- The final trainer to defeat to win Ironmon
 
 TrainerData.TrainerGroups = {
@@ -123,6 +124,7 @@ end
 function TrainerData.buildData()
 	TrainerData.Trainers = {}
 	TrainerData.GymTMs = {}
+	TrainerData.CommonTrainers = {}
 	TrainerData.FinalTrainer = {}
 	if GameSettings.game == 1 then -- Ruby / Sapphire
 		TrainerData.setupTrainersAsRubySapphire()
@@ -286,6 +288,28 @@ function TrainerData.setupTrainersAsRubySapphire()
 		{ leader = "Tate & Liza", number = 4, },
 		{ leader = "Wallace", number = 3, },
 	}
+	TrainerData.CommonTrainers = {
+		["Rival 1"] = { 520, 523, 526, 529, 532, 535 },
+		["Rival 2"] = { 521, 524, 527, 530, 533, 536 },
+		["Rival 3"] = { 522, 525, 528, 531, 534, 537 },
+		["Rival 4"] = { 661, 662, 663, 664, 665, 666 },
+		["Roxanne"] = { 265 },
+		["Brawly"] = { 266 },
+		["Wattson"] = { 267 },
+		["Flannery"] = { 268 },
+		["Norman"] = { 269 },
+		["Winona"] = { 270 },
+		["Tate Liza"] = { 271 },
+		["Tate & Liza"] = { 271 },
+		["Wallace"] = { 272 }, -- 8th gym leader
+		["Sidney"] = { 261 },
+		["Phoebe"] = { 262 },
+		["Glacia"] = { 263 },
+		["Drake"] = { 264 },
+		["Steven"] = { 335 }, -- Elite 4 champion
+		["Wally 1"] = { 656 },
+		["Wally 2"] = { 519 },
+	}
 
 	-- Ordered by average level of party Pokémon, lowest to highest
 	TrainerData.OrderedIds = {
@@ -421,6 +445,30 @@ function TrainerData.setupTrainersAsEmerald()
 		{ leader = "Winona", number = 40, },
 		{ leader = "Tate & Liza", number = 4, },
 		{ leader = "Juan", number = 3, },
+	}
+	TrainerData.CommonTrainers = {
+		["Rival 1"] = { 520, 523, 526, 529, 532, 535 },
+		["Rival 2"] = { 521, 524, 527, 530, 533, 536 },
+		["Rival 3"] = { 522, 525, 528, 531, 534, 537 },
+		["Rival 4"] = { 593, 592, 599, 600, 665, 666 },
+		["Rival 5"] = { 661, 662, 663, 664, 768, 769 },
+		["Roxanne"] = { 265 },
+		["Brawly"] = { 266 },
+		["Wattson"] = { 267 },
+		["Flannery"] = { 268 },
+		["Norman"] = { 269 },
+		["Winona"] = { 270 },
+		["Tate Liza"] = { 271 },
+		["Tate & Liza"] = { 271 },
+		["Juan"] = { 272 }, -- 8th gym leader
+		["Sidney"] = { 261 },
+		["Phoebe"] = { 262 },
+		["Glacia"] = { 263 },
+		["Drake"] = { 264 },
+		["Wallace"] = { 335 }, -- Elite 4 champion
+		["Steven"] = { 804 }, -- Final trainer
+		["Wally 1"] = { 656 },
+		["Wally 2"] = { 519 },
 	}
 
 	-- Ordered by average level of party Pokémon, lowest to highest
@@ -569,6 +617,32 @@ function TrainerData.setupTrainersAsFRLG()
 		{ leader = "Sabrina", number = 4, },
 		{ leader = "Blaine", number = 38, },
 		{ leader = "Giovanni", number = 26, },
+	}
+	TrainerData.CommonTrainers = {
+		["Rival 1"] = { 326, 327, 328 },
+		["Rival 2"] = { 329, 330, 331 },
+		["Rival 3"] = { 332, 333, 334 },
+		["Rival 4"] = { 426, 427, 428 },
+		["Rival 5"] = { 429, 430, 431 },
+		["Rival 6"] = { 432, 433, 434 },
+		["Rival 7"] = { 435, 436, 437 },
+		["Brock"] = { 414 },
+		["Misty"] = { 415 },
+		["Lt. Surge"] = { 416 },
+		["Erika"] = { 417 },
+		["Koga"] = { 418 },
+		["Sabrina"] = { 420 },
+		["Blaine"] = { 419 },
+		["Giovanni Hideout"] = { 348 },
+		["Giovanni Silph Co."] = { 349 },
+		["Giovanni Gym"] = { 350 },
+		["Dojo"] = { 317 },
+		["Lorelei"] = { 410 },
+		["Bruno"] = { 411 },
+		["Agatha"] = { 412 },
+		["Lance"] = { 413 },
+		["Champion"] = { 438, 439, 440 },
+		["Jimmy"] = { 102 }, -- Bonus trainer, commonly referred to as "Jimmy"
 	}
 
 	-- Ordered by average level of party Pokémon, lowest to highest (includes sevii)
