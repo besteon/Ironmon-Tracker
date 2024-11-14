@@ -673,6 +673,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D, 0x080cf9f9 },
 			{ 0x080ce8b1, 0x080ce8c5 },
 		},
+		Task_HandleConfirmStarterInput = {
+			{ 0x0810a330, 0x0810a350, 0x0810a350 }, -- Task_StarterChoose5 in Ruby
+			{ 0x0810a330, 0x0810a350, 0x0810a350 }, -- Task_StarterChoose5 in Sapphire
+			{ 0x08134400 },
+			{ nil }, -- Unused/Unavailable for FireRed
+			{ nil }, -- Unused/Unavailable for LeafGreen
+		},
 		BattleIntroDrawPartySummaryScreens = {
 			{ 0x08011601, 0x08011601, 0x08011601 }, --bc_801333C
 			{ 0x08011601, 0x08011601, 0x08011601 },

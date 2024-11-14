@@ -178,6 +178,7 @@ function GameOptionsScreen.createButtons()
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	startY = Constants.SCREEN.MARGIN + TAB_HEIGHT + 14
 	local optionKeyMapOther = {
+		{ "Show starter ball info", "OptionShowStarterBallInfo", },
 		{ "Hide stats until summary shown", "OptionHideStatsUntilSummary", },
 		{ "Show nicknames", "OptionShowNicknames", },
 		{ "Show experience points bar", "OptionShowExpBar", },

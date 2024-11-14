@@ -266,6 +266,7 @@ ScreenResources{
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
 		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
