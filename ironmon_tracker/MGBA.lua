@@ -619,6 +619,10 @@ MGBA.OptionMap = {
 		optionKey = "Show Poke Ball catch rate",
 		getText = function() return Resources.MGBA.OptionShowBallCatchRate end,
 	},
+	[31] = {
+		optionKey = "Show starter ball info",
+		getText = function() return Resources.MGBA.OptionShowStarterBallInfo end,
+	},
 	-- QUICKLOAD SETUP
 	[35] = {
 		optionKey = "Use premade ROMs",

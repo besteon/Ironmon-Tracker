@@ -268,6 +268,7 @@ ScreenResources{
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
 		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
@@ -823,6 +824,7 @@ ScreenResources{
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
 		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
 		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
 		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
 		OptionPhysicalSpecialIcons = "Physical/Special icons", -- NEEDS TRANSLATION

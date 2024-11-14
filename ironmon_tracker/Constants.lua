@@ -116,6 +116,7 @@ Constants.OrderedLists = {
 		"Show random ball picker",
 		"Show heals as whole number",
 		"Show Poke Ball catch rate",
+		"Show starter ball info",
 		"Hide stats until summary shown",
 		"Right justified numbers",
 		"Show nicknames",

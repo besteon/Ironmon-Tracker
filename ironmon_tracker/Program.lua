@@ -5,6 +5,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCheckedGameSettings = false,
 	hasCompletedTutorial = false,
+	isViewingStarter = false,
 	activeFormId = 0,
 	lastActiveTimestamp = 0,
 	clientFpsMultiplier = 1,
@@ -295,6 +296,7 @@ function Program.initialize()
 	Program.inCatchingTutorial = false
 	Program.hasCheckedGameSettings = false
 	Program.hasCompletedTutorial = false
+	Program.isViewingStarter = false
 	Program.lastActiveTimestamp = os.time()
 	Program.Frames.waitToDraw = 1
 	Program.Frames.highAccuracyUpdate = 0
@@ -450,6 +452,8 @@ function Program.update()
 				if Program.currentScreen == StartupScreen then
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
+				elseif Options["Show starter ball info"] and RouteData.Locations.IsInLab[TrackerAPI.getMapId()] then
+					Program.checkForStarterSelection()
 				end
 
 				if Network.isConnected() then
@@ -587,6 +591,61 @@ end
 function Program.removeFrameCounter(label)
 	if label == nil then return end
 	Program.Frames.Others[label] = nil
+end
+
+function Program.checkForStarterSelection()
+	-- Only bother checking if the player doesn't have a Pokémon in their party
+	if TrackerAPI.getPlayerPokemon() ~= nil then
+		-- Player just received the Pokémon, so swap back to main Tracker Screen
+		if Program.isViewingStarter then
+			Program.isViewingStarter = false
+			Program.changeScreenView(TrackerScreen)
+		end
+		return
+	end
+
+	-- For FRLG, the starter ball selection process is known through a SpecialVar result
+	-- For RSE, this is instead processed through the tasks system, as data inside one task
+
+	local starterSpecies
+	if GameSettings.game == 3 then -- FRLG
+		local varResult = Memory.readword(GameSettings.gSpecialVar_Result)
+		-- Choice dialogue open / Starter chosen but not received yet
+		if varResult == 1 or varResult == 255 then -- 1 (YES), 255 (Choice dialogue open)
+			local offset = 0x4
+			starterSpecies = Memory.readword(Utils.getSaveBlock1Addr() + GameSettings.gameVarsOffset + offset)
+		end
+	elseif GameSettings.Task_HandleConfirmStarterInput ~= nil then -- RSE
+		local confirmAddr
+		if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput_NatDex_113
+		else
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput
+		end
+		local taskFuncAddr = Memory.readdword(GameSettings.gTasks)
+		if taskFuncAddr >= confirmAddr and taskFuncAddr < confirmAddr + 10 then
+			local tStarterSelectionOffset = 0x8
+			local choiceIndex = Memory.readword(GameSettings.gTasks + tStarterSelectionOffset)
+			local choiceToRivalId = { [0] = 520, [1] = 523, [2] = 526 }
+			local trainerGame = TrackerAPI.getTrainerGameData(choiceToRivalId[choiceIndex] or 0)
+			if trainerGame and trainerGame.party then
+				starterSpecies = (trainerGame.party[1] or {}).pokemonID
+			end
+		end
+	end
+
+	-- Change screen if the starter selection is/isnt in process
+	if PokemonData.isValid(starterSpecies) and Program.currentScreen == TrackerScreen then
+		Program.isViewingStarter = true
+		if Main.IsOnBizhawk() then
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, starterSpecies)
+		else
+			MGBA.Screens.LookupPokemon:setData(starterSpecies, true)
+		end
+	elseif not PokemonData.isValid(starterSpecies) and Program.currentScreen == InfoScreen then
+		Program.isViewingStarter = false
+		Program.changeScreenView(TrackerScreen)
+	end
 end
 
 function Program.updateRepelSteps()
