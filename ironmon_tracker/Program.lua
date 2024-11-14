@@ -616,8 +616,14 @@ function Program.checkForStarterSelection()
 			starterSpecies = Memory.readword(Utils.getSaveBlock1Addr() + GameSettings.gameVarsOffset + offset)
 		end
 	elseif GameSettings.Task_HandleConfirmStarterInput ~= nil then -- RSE
+		local confirmAddr
+		if CustomCode.RomHacks.isPlayingNatDex() then
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput_NatDex
+		else
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput
+		end
 		local taskFuncAddr = Memory.readdword(GameSettings.gTasks)
-		if taskFuncAddr >= GameSettings.Task_HandleConfirmStarterInput and taskFuncAddr < GameSettings.Task_HandleConfirmStarterInput + 10 then
+		if taskFuncAddr >= confirmAddr and taskFuncAddr < confirmAddr + 10 then
 			local tStarterSelectionOffset = 0x8
 			local choiceIndex = Memory.readword(GameSettings.gTasks + tStarterSelectionOffset)
 			local choiceToRivalId = { [0] = 520, [1] = 523, [2] = 526 }

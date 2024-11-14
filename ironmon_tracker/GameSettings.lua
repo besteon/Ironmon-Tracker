@@ -680,6 +680,14 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ nil }, -- Unused/Unavailable for FireRed
 			{ nil }, -- Unused/Unavailable for LeafGreen
 		},
+		-- Used exclusively for the NatDex rom hack
+		Task_HandleConfirmStarterInput_NatDex = {
+			{ nil },
+			{ nil },
+			{ 0x08134dc0 },
+			{ nil }, -- Unused/Unavailable for FireRed
+			{ nil }, -- Unused/Unavailable for LeafGreen
+		},
 		BattleIntroDrawPartySummaryScreens = {
 			{ 0x08011601, 0x08011601, 0x08011601 }, --bc_801333C
 			{ 0x08011601, 0x08011601, 0x08011601 },
