@@ -643,12 +643,28 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0823eac8, 0x0823eb38, 0x0823A290, 0x08237BA8, 0x08238F18, 0x0823E9EC, 0x081FB4D0 },
 			{ 0x0823eaa4, 0x0823eb14 },
 		},
+		-- Used exclusively for the NatDex rom hack (v1.1.3 or lower)
+		gTrainers_NatDex_113 = {
+			{ nil },
+			{ nil },
+			{ 0x08311190 },
+			{ 0x0823d818, 0x0823d818 }, -- Note: only the FireRed v1.1 address is used
+			{ nil },
+		},
 		gTrainerClassNames = {
 			{ 0x081f0208, 0x081f0220, 0x081f0220 },
 			{ 0x081f0198, 0x081f01b0, 0x081f01b0 },
 			{ 0x0830fcd4 },
 			{ 0x0823e558, 0x0823e5c8, 0x823A800, 0x8238118, 0x8239488, 0x08239488, 0x81FBA40 },
 			{ 0x0823e534, 0x0823e5a4 },
+		},
+		-- Used exclusively for the NatDex rom hack (v1.1.3 or lower)
+		gTrainerClassNames_NatDex_113 = {
+			{ nil },
+			{ nil },
+			{ 0x0830c120 },
+			{ 0x0823d2a8, 0x0823d2a8 }, -- Note: only the FireRed v1.1 address is used
+			{ nil },
 		},
 		sTMHMMoves = {
 			{ 0x08376504, 0x0837651c, 0x0837651c },
@@ -680,8 +696,8 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ nil }, -- Unused/Unavailable for FireRed
 			{ nil }, -- Unused/Unavailable for LeafGreen
 		},
-		-- Used exclusively for the NatDex rom hack
-		Task_HandleConfirmStarterInput_NatDex = {
+		-- Used exclusively for the NatDex rom hack (v1.1.3 or lower)
+		Task_HandleConfirmStarterInput_NatDex_113 = {
 			{ nil },
 			{ nil },
 			{ 0x08134dc0 },

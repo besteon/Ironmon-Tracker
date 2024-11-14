@@ -617,8 +617,8 @@ function Program.checkForStarterSelection()
 		end
 	elseif GameSettings.Task_HandleConfirmStarterInput ~= nil then -- RSE
 		local confirmAddr
-		if CustomCode.RomHacks.isPlayingNatDex() then
-			confirmAddr = GameSettings.Task_HandleConfirmStarterInput_NatDex
+		if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput_NatDex_113
 		else
 			confirmAddr = GameSettings.Task_HandleConfirmStarterInput
 		end
