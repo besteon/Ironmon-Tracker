@@ -822,6 +822,7 @@ ScreenResources{
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
 		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
 		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
 		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
 		OptionPhysicalSpecialIcons = "Physical/Special icons", -- NEEDS TRANSLATION

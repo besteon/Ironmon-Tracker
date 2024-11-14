@@ -637,7 +637,11 @@ function Program.checkForStarterSelection()
 	-- Change screen if the starter selection is/isnt in process
 	if PokemonData.isValid(starterSpecies) and Program.currentScreen == TrackerScreen then
 		Program.isViewingStarter = true
-		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, starterSpecies)
+		if Main.IsOnBizhawk() then
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, starterSpecies)
+		else
+			MGBA.Screens.LookupPokemon:setData(starterSpecies, true)
+		end
 	elseif not PokemonData.isValid(starterSpecies) and Program.currentScreen == InfoScreen then
 		Program.isViewingStarter = false
 		Program.changeScreenView(TrackerScreen)
