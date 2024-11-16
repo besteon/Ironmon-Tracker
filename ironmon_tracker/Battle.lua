@@ -851,6 +851,7 @@ function Battle.trySwapScreenBackToMain()
 		[TrainersOnRouteScreen] = true,
 		[RandomEvosScreen] = true,
 		[MoveHistoryScreen] = true,
+		[CatchRatesScreen] = true,
 		[TypeDefensesScreen] = true,
 		[CoverageCalcScreen] = true,
 		[HealsInBagScreen] = true,
