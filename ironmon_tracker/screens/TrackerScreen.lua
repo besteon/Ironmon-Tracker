@@ -283,9 +283,9 @@ TrackerScreen.Buttons = {
 	MovesHistory = {
 		-- Invisible clickable button
 		type = Constants.ButtonTypes.NO_BORDER,
-		textColor = "Intermediate text", -- set later after highlight color is calculated
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 77, 10 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 69, 81, 10, 10 },
+		textColor = "Header text", -- set later after highlight color is calculated
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 75, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 75, 10 },
 		boxColors = { "Header text", "Main background" },
 		isVisible = function()
 			local pokemon = Tracker.getViewedPokemon() or {}
@@ -300,7 +300,25 @@ TrackerScreen.Buttons = {
 			if hasMoves then
 				Program.changeScreenView(MoveHistoryScreen)
 			end
-		end
+		end,
+	},
+	CatchRates = {
+		-- Invisible clickable button
+		type = Constants.ButtonTypes.NO_BORDER,
+		textColor = "Header text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
+		boxColors = { "Header text", "Main background" },
+		isVisible = function()
+			return Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter
+		end,
+		onClick = function(self)
+			local pokemon = TrackerAPI.getEnemyPokemon()
+			if CatchRatesScreen.buildScreen(pokemon) then
+				CatchRatesScreen.previousScreen = TrackerScreen
+				Program.changeScreenView(CatchRatesScreen)
+			end
+		end,
 	},
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,

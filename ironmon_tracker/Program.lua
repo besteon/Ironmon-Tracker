@@ -55,6 +55,9 @@ Program = {
 		offsetPokemonStatsSpaSpd = 0x60,
 		offsetRivalName = 0x3A4C, -- SaveBlock1
 		offsetOptionsButtonMode = 0x13, -- SaveBlock2
+		offsetPokedex = 0x18, -- SaveBlock2
+		offsetPokedexOwned = 0x10, -- SaveBlock2's Pokedex struct
+		offsetPokedexSeen = 0x44, -- SaveBlock2's Pokedex struct
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -90,6 +93,7 @@ Program.GameData = {
 		healingTotal = 0, -- A calculation of total HP heals
 		healingPercentage = 0, -- A calculation of percentage heals
 		-- Each of the below: map of [itemId] -> quanity of item
+		PokeBalls = {},
 		HPHeals = {},
 		PPHeals = {},
 		StatusHeals = {},
@@ -1434,6 +1438,7 @@ function Program.updateBagItems()
 	Program.GameData.Items = {
 		healingTotal = 0,
 		healingPercentage = 0,
+		PokeBalls = {},
 		HPHeals = {},
 		PPHeals = {},
 		StatusHeals = {},
@@ -1447,8 +1452,8 @@ function Program.updateBagItems()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
 		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
+		[saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
 		-- Don't have a use for these yet, so not reading them from memory
-		-- [saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
 		-- [saveBlock1Addr + GameSettings.bagPocket_TmHm_offset] = GameSettings.bagPocket_TmHm_Size,
 	}
 	for address, size in pairs(addressesToScan) do
@@ -1462,6 +1467,9 @@ function Program.updateBagItems()
 					quantity = Utils.bit_xor(quantity, key)
 				end
 				if quantity > 0 then
+					if MiscData.PokeBalls[itemID] then
+						items.PokeBalls[itemID] = quantity
+					end
 					if MiscData.HealingItems[itemID] then
 						items.HPHeals[itemID] = quantity
 					end
@@ -1475,7 +1483,7 @@ function Program.updateBagItems()
 						items.EvoStones[itemID] = quantity
 					end
 					-- If the item wasn't categorized anywhere, mark as "Other"
-					if not (items.HPHeals[itemID] or items.PPHeals[itemID] or items.StatusHeals[itemID] or items.EvoStones[itemID]) then
+					if not (items.PokeBalls[itemID] or items.HPHeals[itemID] or items.PPHeals[itemID] or items.StatusHeals[itemID] or items.EvoStones[itemID]) then
 						items.Other[itemID] = quantity
 					end
 				end

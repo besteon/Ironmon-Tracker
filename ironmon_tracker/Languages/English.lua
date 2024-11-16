@@ -577,6 +577,14 @@ ScreenResources{
 		PromptPokemonTitle = "Pokédex Look up",
 		PromptPokemonDesc = "Choose a Pokémon to look up",
 	},
+	CatchRatesScreen = {
+		Title = "Ball Catch Rates",
+		PokemonsHPPercent = "Estimated HP",
+		PokemonsStatus = "Status",
+		HeaderBall = "Ball",
+		HeaderBag = "Bag",
+		HeaderRate = "Rate",
+	},
 	TypeDefensesScreen = {
 		Immunities = "Immunities",
 		Resistances = "Resistances",
