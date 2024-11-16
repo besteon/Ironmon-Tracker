@@ -439,7 +439,7 @@ end
 ---@param hpCurrent number
 ---@param level number? Optional, the Pokémon level, used only for Nest Ball; defaults to 5
 ---@param status number? Optional, defaults to "None"
----@param ball number? Optional, defaults to Poké Ball (item id = 3)
+---@param ball number? Optional, defaults to Poké Ball (item id = 4)
 ---@param terrain number? Optional, defaults to 0 (no terrain); use 3 for UNDERWATER
 ---@param battleTurn number? Optional, defaults to 0; first turn of a battle
 ---@return number
@@ -449,7 +449,7 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 	end
 	level = level or 5
 	status = status or MiscData.StatusType.None
-	ball = ball or 3
+	ball = ball or 4
 	terrain = terrain or 0
 	battleTurn = battleTurn or 0
 
@@ -467,35 +467,40 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 
 	-- Determine ball type bonus multiplier
 	local ballBonusMap = {
-		[0] = 255, --Master Ball
-		[1] = 20, --Ultra Ball
-		[2] = 15, --Great Ball
-		[3] = 10, --Poke Ball
-		[4] = 15, --Safari Ball
-		[5] = 30, --Net Ball; only for WATER or BUG types
-		[6] = 35, --Dive Ball; only when map type is UNDERWATER
-		[7] = 40, --Nest Ball; subtract level of enemy, floor is 10
-		[8] = 30, --Repeat Ball; only if pokemon is flagged as caught already
-		[9] = 10, --Timer Ball; add turn counter, caps at 40
-		[10] = 10, --Luxury Ball
-		[11] = 10, --Premier Ball
+		[1] = 255, -- Master Ball
+		[2] = 20, -- Ultra Ball
+		[3] = 15, -- Great Ball
+		[4] = 10, -- Poke Ball
+		[5] = 15, -- Safari Ball
+		[6] = 30, -- Net Ball; only for WATER or BUG types
+		[7] = 35, -- Dive Ball; only when map type is UNDERWATER
+		[8] = 40, -- Nest Ball; subtract level of enemy, floor is 10
+		[9] = 30, -- Repeat Ball; only if pokemon is flagged as caught already
+		[10] = 10, -- Timer Ball; add turn counter, caps at 40
+		[11] = 10, -- Luxury Ball
+		[12] = 10, -- Premier Ball
 	}
 	local ballBonus
-	if ball <= 4 or ball >= 10 then
+	if ball <= 5 or ball >= 11 then
 		ballBonus = ballBonusMap[ball] or 10 -- default: poké ball
-	elseif ball == 5 and (pokemon.types[1] == PokemonData.Types.WATER or pokemon.types[2] == PokemonData.Types.WATER or pokemon.types[1] == PokemonData.Types.BUG or pokemon.types[2] == PokemonData.Types.BUG) then
-		ballBonus = ballBonusMap[5]
-	elseif ball == 6 and terrain == 3 then -- terrain 3: UNDERWATER
-		ballBonus = ballBonusMap[6]
-	elseif ball == 7 then
-		ballBonus = math.max(10, 40 - level)
+	elseif ball == 6 and (pokemon.types[1] == PokemonData.Types.WATER or pokemon.types[2] == PokemonData.Types.WATER or pokemon.types[1] == PokemonData.Types.BUG or pokemon.types[2] == PokemonData.Types.BUG) then
+		ballBonus = ballBonusMap[ball]
+	elseif ball == 7 and terrain == 3 then -- terrain 3: UNDERWATER
+		ballBonus = ballBonusMap[ball]
 	elseif ball == 8 then
-		-- Data not available yet for calculation, default to poké ball
-		ballBonus = 10
+		ballBonus = math.max(10, 40 - level)
 	elseif ball == 9 then
+		local dexAddr = Utils.getSaveBlock2Addr() + Program.Addresses.offsetPokedex + Program.Addresses.offsetPokedexOwned
+		local bitIndex = math.floor((pokemonID - 1) / 8)
+		local bitRemainder = (pokemonID - 1) % 8
+		local dexValue = Memory.readbyte(dexAddr + bitIndex)
+		if Utils.getbits(dexValue, bitRemainder, 1) == 1 then -- if 1, has caught the mon previously
+			ballBonus = ballBonusMap[ball]
+		end
+	elseif ball == 10 then
 		ballBonus = math.min(10 + battleTurn, 40)
 	end
-	ballBonus = ballBonus / 10
+	ballBonus = (ballBonus or 10) / 10
 
 	-- Determine status bonus multiplier
 	local statusBonusMap = {
