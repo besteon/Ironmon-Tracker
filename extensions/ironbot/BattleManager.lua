@@ -83,17 +83,39 @@ BattleManager.DefaultDamageParams = {
 	attackerUsedCharge = false,
 }
 
---- Calculates the damage done by an attack according to the params given
---- @param params table Params table, like BattleManager.DefaultDamageParams
---- @return number minDmg, number maxDmg, number minCritDmg, number maxCritDmg
-function BattleManager.calculateDamage(params)
-	-- Handle fixed Damage
-	local moveId = tonumber(params.move.id)-1
-	if BattleManager.MoveParams[moveId].fixedDamage ~= nil then
-		local fixedDamage = BattleManager.MoveParams[moveId].fixedDamage
-		return fixedDamage, fixedDamage, fixedDamage, fixedDamage
-	end
+BattleManager.StatEstimations = {}
 
+--- Estimates the foe's attack or special attack according to damage taken
+--- Fills the BattleManager.StatEstimations table
+--- @param damageTaken integer Damage taken by the player's Pokemon
+--- @param attackerId integer Pokemon ID of the Attacker
+--- @param params table Params table, like BattleManager.DefaultDamageParams
+function BattleManager.estimateAttack(damageTaken, attackerId, params)
+	if params.move.category == MoveData.Categories.STATUS then return end
+	local stat = "atk"
+	if params.move.category == MoveData.Categories.SPECIAL then
+		stat = "spa"
+	end
+	local coeffs = BattleManager.getParamCoeffs(params)
+	local estimation = ((damageTaken / (coeffs.stockpile * coeffs.doubleDmg * coeffs.charge * coeffs.stab * coeffs.typeEffectiveness) - 2.0) /
+		(coeffs.burn * coeffs.screen * coeffs.targets * coeffs.weather * coeffs.flashFire)) * 50.0 * coeffs.defense / ((2.0*coeffs.level/5.0 + 2.0) * coeffs.power)
+	local nbOfEstims = 1
+	if BattleManager.StatEstimations[attackerId] ~= nil and BattleManager.StatEstimations[attackerId][stat] ~= nil then
+		nbOfEstims = #BattleManager.StatEstimations[attackerId]["all_"..stat] + 1
+	end
+	BattleManager.StatEstimations[attackerId]["all_"..stat][nbOfEstims] = estimation
+	local avgEstim = 0.0
+	for i = 1,#BattleManager.StatEstimations[attackerId]["all_"..stat] do
+		avgEstim = avgEstim + BattleManager.StatEstimations[attackerId]["all_"..stat][i]
+	end
+	avgEstim = avgEstim / nbOfEstims
+	BattleManager.StatEstimations[attackerId][stat] = avgEstim
+end
+
+--- Returns all the needed coefficients to calculate damage from the params
+--- @param params table Params table, like BattleManager.DefaultDamageParams
+--- @return table coeffs Table containing all coefficients
+function BattleManager.getParamCoeffs(params)
 	local level = params.level
 	local power = params.move.power
 	local attack = params.attackerAttackStat
@@ -186,6 +208,39 @@ function BattleManager.calculateDamage(params)
 			end
 		end
 	end
+	return {
+		level = level,
+		power = power,
+		attack = attack,
+		critAttack = critAttack,
+		defense = defense,
+		critDefense = critDefense,
+		burn = burn,
+		screen = screen,
+		targets = targets,
+		weather = weather,
+		flashFire = flashFire,
+		stockpile = stockpile,
+		doubleDmg = doubleDmg,
+		charge = charge,
+		stab = stab,
+		typeEffectiveness = typeEffectiveness
+	}
+end
+
+--- Calculates the damage done by an attack according to the params given
+--- @param params table Params table, like BattleManager.DefaultDamageParams
+--- @return number minDmg, number maxDmg, number minCritDmg, number maxCritDmg
+function BattleManager.calculateDamage(params)
+	-- Handle fixed Damage
+	local moveId = tonumber(params.move.id)
+	if BattleManager.MoveParams[moveId].fixedDamage ~= nil then
+		local fixedDamage = BattleManager.MoveParams[moveId].fixedDamage
+		return fixedDamage, fixedDamage, fixedDamage, fixedDamage
+	end
+
+	-- Get param coefficients
+	local coeffs = BattleManager.getParamCoeffs(params)
 
 	-- Move Params
 	local hitMin = 1.0
@@ -195,25 +250,27 @@ function BattleManager.calculateDamage(params)
 		hitMax = BattleManager.MoveParams[moveId].hitMax
 	end
 
+	-- Damage variation
 	local minRand = 0.85
 	if params.move.id == "255" then
 		minRand = 1.0
 	end
 	local maxRand = 1.0
 
-	print("Power=" .. tostring(power) .. " / Attack=" .. tostring(attack) .. " / Defense=" .. tostring(defense) .. " / Burn=" .. tostring(burn) .. " / Screen=" .. tostring(screen)
-		.. " / Targets=" .. tostring(targets) .. " / Weather=" .. tostring(weather) .. " / FlashFire=" .. tostring(flashFire) .. " / Stockpile=" .. tostring(stockpile)
-		.. " / DoubleDmg=" .. tostring(doubleDmg) .. " / Charge=" .. tostring(charge) .. " / Stab=" .. tostring(stab) .. " / Effectiveness=" .. tostring(typeEffectiveness)
-		.. " / HitMin=" .. tostring(hitMin) .. " / HitMax=" .. tostring(hitMax))
-	local flatDmg = (((2.0*level/5.0 + 2.0) * power * attack / defense) / 50.0 * burn * screen * targets * weather * flashFire + 2.0)
-		* stockpile * doubleDmg * charge * stab * typeEffectiveness
+	-- Calculate Damage
+	print("Power=" .. tostring(coeffs.power) .. " / Attack=" .. tostring(coeffs.attack) .. " / Defense=" .. tostring(coeffs.defense) .. " / Burn=" .. tostring(coeffs.burn) .. " / Screen=" .. tostring(coeffs.screen)
+		.. " / Targets=" .. tostring(coeffs.targets) .. " / Weather=" .. tostring(coeffs.weather) .. " / FlashFire=" .. tostring(coeffs.flashFire) .. " / Stockpile=" .. tostring(coeffs.stockpile)
+		.. " / DoubleDmg=" .. tostring(coeffs.doubleDmg) .. " / Charge=" .. tostring(coeffs.charge) .. " / Stab=" .. tostring(coeffs.stab) .. " / Effectiveness=" .. tostring(coeffs.typeEffectiveness)
+		.. " / HitMin=" .. tostring(coeffs.hitMin) .. " / HitMax=" .. tostring(coeffs.hitMax))
+	local flatDmg = (((2.0*coeffs.level/5.0 + 2.0) * coeffs.power * coeffs.attack / coeffs.defense) / 50.0 * coeffs.burn * coeffs.screen * coeffs.targets * coeffs.weather * coeffs.flashFire + 2.0)
+		* coeffs.stockpile * coeffs.doubleDmg * coeffs.charge * coeffs.stab * coeffs.typeEffectiveness
 	local critical = 2.0
 	if params.move.id == "248" or params.move.id == "255" or params.move.id == "353" or
 	   params.targetAbility.id == 4 or params.targetAbility.id == 75 then
 		critical = 1.0
 	end
-	local flatCritDmg = (((2.0*level/5.0 + 2.0) * power * critAttack / critDefense) / 50.0 * burn * targets * weather * flashFire + 2.0)
-		* stockpile * critical * doubleDmg * charge * stab * typeEffectiveness
+	local flatCritDmg = (((2.0*coeffs.level/5.0 + 2.0) * coeffs.power * coeffs.critAttack / coeffs.critDefense) / 50.0 * coeffs.burn * coeffs.targets * coeffs.weather * coeffs.flashFire + 2.0)
+		* coeffs.stockpile * critical * coeffs.doubleDmg * coeffs.charge * coeffs.stab * coeffs.typeEffectiveness
 	local minDmg = math.floor(flatDmg * minRand * hitMin)
 	local maxDmg = math.ceil(flatDmg * maxRand * hitMax)
 	local minCritDmg = math.floor(flatCritDmg * minRand * hitMin)
@@ -305,7 +362,7 @@ BattleManager.MoveParams = {
 	{statusInflicted = {BattleManager.Status.Paralysis}, statusInflictedChance = 30},--Body Slam
 	{trapFoe = true},--Wrap
 	{recoilPercentage = 25},--Take Down
-	{loopUntilFail = true},-- Thrash
+	{loopUntilFail = true},--Thrash
 	{recoilPercentage = 33},--Double-Edge
 	{statsFoeChange = {["def"]=-1}},--Tail Whip
 	{statusInflicted = {BattleManager.Status.Poison}, statusInflictedChance = 30},--Poison Sting
@@ -334,6 +391,7 @@ BattleManager.MoveParams = {
 	{waitAfter = true},--Hyper Beam
 	{},--Peck
 	{},--Drill Peck
+	{},--Submission
 	{},--Low Kick
 	{},--Counter
 	{fixedOwnLevelDamage = true},--Seismic Toss
