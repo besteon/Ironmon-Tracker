@@ -1173,7 +1173,6 @@ function Program.getLearnedMoveInfoTable()
 			battleStructAddress = Program.Addresses.battleStructDefault
 		end
 
-		-- Note: Determining who is leveling up is a bit buggy, sometimes the wrong mon gets its levelup move tracked
 		local partyIndex = Memory.readbyte(battleStructAddress + Program.Addresses.offsetPokemonGettingExp) + 1 -- Party index of player (1-6)
 		local pokemon = Tracker.getPokemon(partyIndex, true)
 		if pokemon ~= nil then

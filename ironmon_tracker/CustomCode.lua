@@ -277,6 +277,7 @@ end
 function CustomCode.checkForRomHacks()
 	-- For NatDex v1.1.3 and lower, it did not have these addresses for the new Trainers lookup feature
 	if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
+		GameSettings.gLevelUpLearnsets = GameSettings.gLevelUpLearnsets_NatDex_113
 		GameSettings.gTrainers = GameSettings.gTrainers_NatDex_113
 		GameSettings.gTrainerClassNames = GameSettings.gTrainerClassNames_NatDex_113
 	end
