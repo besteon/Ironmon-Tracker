@@ -445,6 +445,16 @@ function Battle.updateTrackedInfo()
 		end
 	end
 
+	-- For trainer battles only, attempt to do a 1-time info tracking for the active Pokémon's moveset (records initial moveset)
+	if not Battle.isWildEncounter then
+		local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or {}
+		Tracker.tryTrackInitialMoveset(ownLeftPokemon)
+		if Battle.numBattlers > 2 then
+			local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn, true) or {}
+			Tracker.tryTrackInitialMoveset(ownRightPokemon)
+		end
+	end
+
 	-- Always track your own Pokemons' abilities, unless you are in a half-double battle alongside an NPC (3 + 3 vs 3 + 3)
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	if ownLeftPokemon ~= nil and Battle.Combatants.LeftOwn <= Battle.partySize then

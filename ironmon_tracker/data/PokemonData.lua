@@ -544,6 +544,31 @@ function PokemonData.calcCatchRate(pokemonID, hpMax, hpCurrent, level, status, b
 	end
 end
 
+---Reads from the game data all of the level-up moves learned by a Pokémon species
+---@param pokemonID number
+---@return table learnedMoves A list moves, each entry as a table: { id = number, level = number }
+function PokemonData.readLevelUpMoves(pokemonID)
+	local learnedMoves = {}
+	if not PokemonData.isValid(pokemonID) then
+		return learnedMoves
+	end
+	-- https://github.com/pret/pokefirered/blob/d2c592030d78d1a46df1cba562a3c7af677dbf21/src/data/pokemon/level_up_learnsets.h
+	local LEVEL_UP_END = 0xFFFF
+	-- gLevelUpLearnsets is an array of addresses for all Pokémon species; each entry is a 4 byte address
+	local levelUpLearnsetPtr = Memory.readdword(GameSettings.gLevelUpLearnsets + (pokemonID * 4))
+	for i=0, 50, 1 do -- MAX of 51 iterations, as a failsafe
+		-- Each entry is 2 bytes formatted as: #define LEVEL_UP_MOVE(lvl, move) ((lvl << 9) | move)
+		local levelUpMove = Memory.readword(levelUpLearnsetPtr + (i * 2))
+		if levelUpMove == LEVEL_UP_END then
+			break
+		end
+		local moveId = Utils.getbits(levelUpMove, 0, 9)
+		local level = Utils.getbits(levelUpMove, 9, 7)
+		table.insert(learnedMoves, { id = moveId, level = level })
+	end
+	return learnedMoves
+end
+
 PokemonData.TypeIndexMap = {
 	[0x00] = PokemonData.Types.NORMAL,
 	[0x01] = PokemonData.Types.FIGHTING,

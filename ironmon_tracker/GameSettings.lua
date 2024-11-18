@@ -636,6 +636,20 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08, 0x082104ec },
 			{ 0x08253ac0, 0x08253b30 },
 		},
+		gLevelUpLearnsets = {
+			{ 0x08207bc8, 0x08207be0, 0x08207be0 },
+			{ 0x08207b58, 0x08207b70, 0x08207b70 },
+			{ 0x0832937c },
+			{ 0x0825d7b4, 0x0825d824, 0x08258F7C, 0x08256894, 0x08257C04, 0x0825D6D8, 0x0821A1BC },
+			{ 0x0825d794, 0x0825d804 },
+		},
+		gLevelUpLearnsets_NatDex_113 = {
+			{ nil },
+			{ nil },
+			{ 0x08349750 },
+			{ 0x0829050c, 0x0829050c }, -- Note: only the FireRed v1.1 address is used
+			{ nil },
+		},
 		gTrainers = {
 			{ 0x081f04fc, 0x081f0514, 0x081f0514 },
 			{ 0x081f048c, 0x081f04a4, 0x081f04a4 },
