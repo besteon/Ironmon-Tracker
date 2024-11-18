@@ -36,6 +36,22 @@ function TrackerAPI.getEnemyPokemon(partySlotNum)
 	return Tracker.getPokemon(partySlotNum or 1, false)
 end
 
+---Returns a `Program.DefaultPokemon` list of Pokemon data from the game, of the 2-4 pokemon active in the current battle
+---@return table battlers [1] = LeftOwn, [2] = LeftOther, [3] = RightOwn, [4] = RightOther
+function TrackerAPI.getActiveBattlePokemon()
+	local battlers = {}
+	if not Battle.inActiveBattle() then
+		return battlers
+	end
+	battlers[1] = TrackerAPI.getPlayerPokemon(Battle.Combatants.LeftOwn)
+	battlers[2] = TrackerAPI.getEnemyPokemon(Battle.Combatants.LeftOther)
+	if Battle.numBattlers > 2 then
+		battlers[3] = TrackerAPI.getPlayerPokemon(Battle.Combatants.RightOwn)
+		battlers[4] = TrackerAPI.getEnemyPokemon(Battle.Combatants.RightOther)
+	end
+	return battlers
+end
+
 ---For a given Pokemon object, returns its abilityId (alternatively, use `PokemonData.getAbilityId(p, n)`)
 ---@param pokemon table A data object templated like `Program.DefaultPokemon`
 ---@return number abilityId 0 if pokemon or ability is not valid

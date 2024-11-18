@@ -459,18 +459,28 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
-	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	local pokemonViewed = Tracker.getViewedPokemon() or {}
-	if pokemonViewed.pokemonID == pokemon.pokemonID then
-		data.x.viewedPokemonLevel = pokemonViewed.level or 0
-	else
+	-- Used for highlighting which moves have already been learned, but only for a matching Pokémon in battle
+	local matchedPokemon
+	if Battle.inActiveBattle() then
+		for _, mon in ipairs(TrackerAPI.getActiveBattlePokemon()) do
+			if mon.pokemonID and mon.pokemonID == pokemon.pokemonID then
+				matchedPokemon = mon
+				data.x.viewedPokemonLevel = mon.level or 0
+				break
+			end
+		end
+	elseif ownLeadPokemon.pokemonID == pokemon.pokemonID then
+		matchedPokemon = ownLeadPokemon
+		data.x.viewedPokemonLevel = ownLeadPokemon.level
+	end
+	if not data.x.viewedPokemonLevel then
 		data.x.viewedPokemonLevel = 0
 	end
 
 	-- Experience yield
-	if data.x.viewedPokemonLevel ~= 0 then
-		local yield = PokemonData.Pokemon[pokemonViewed.pokemonID].expYield or 0
-		local ratio = Battle.isWildEncounter and (pokemonViewed.level / 7) or (pokemonViewed.level * 3 / 14)
+	if matchedPokemon and matchedPokemon.level > 0 then
+		local yield = PokemonData.Pokemon[matchedPokemon.pokemonID].expYield or 0
+		local ratio = Battle.isWildEncounter and (matchedPokemon.level / 7) or (matchedPokemon.level * 3 / 14)
 		data.p.expYield = math.floor(yield * ratio)
 	else
 		data.p.expYield = pokemon.expYield or Constants.BLANKLINE

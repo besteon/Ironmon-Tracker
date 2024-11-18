@@ -28,7 +28,16 @@ Tracker.DefaultData = {
 	-- Number of seconds of playtime for this play session
 	playtime = 0,
 	-- Used to track information about all Pokémon seen thus far
-	allPokemon = {},
+	allPokemon = {
+		-- moves = {}, -- table: Moves (size N)
+		-- abilities = {}, -- table: Abilities (size 2)
+		-- sm = {}, -- table: Stat Markings (size 6)
+		-- eW = 0, -- number: Wild Encounter count
+		-- eT = 0, -- number: Trainer Encounters count
+		-- eL = 0, -- number: Last level seen
+		-- note = "", -- string: A note written by the user
+		-- autoTrackMoves = false, -- boolean: performs a 1-time automatic tracking of active pokemon used in trainer battles
+	},
 	-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
 	encounterTable = {},
 	-- [mapId] = {{pID=#, lv=#}, ...} List of pokemon encounters for the whole area; stores both pokemonIDs & highest level encountered
@@ -320,6 +329,27 @@ function Tracker.isTrackingMove(pokemonID, moveId, level)
 		end
 	end
 	return false
+end
+
+--- Performs a 1-time tracking of the pokemon's current movesset, and of the pokemon's level-up moves
+--- @param pokemon table -- a `Program.DefaultPokemon` object
+function Tracker.tryTrackInitialMoveset(pokemon)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemon.pokemonID)
+	if trackedPokemon.autoTrackMoves then
+		return
+	end
+	trackedPokemon.autoTrackMoves = true
+
+	-- Only track a pokemon's move if it could have naturally learned it
+	local learnedMoves = PokemonData.readLevelUpMoves(pokemon.pokemonID)
+	for _, move in ipairs(pokemon.moves or {}) do
+		for _, learnedMove in ipairs(learnedMoves or {}) do
+			if move.id and move.id == learnedMove.id and learnedMove.level <= pokemon.level then
+				Tracker.TrackMove(pokemon.pokemonID, learnedMove.id, learnedMove.level)
+				break
+			end
+		end
+	end
 end
 
 --- @param trainerId number The trainerId to check if it's a rival
