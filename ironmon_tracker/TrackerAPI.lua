@@ -23,16 +23,22 @@ Other useful internal Tracker data and functions can be found in:
 -----------------------------------
 
 ---Returns a `Program.DefaultPokemon` table of Pokemon data from the game
----@param partySlotNum? number Optional, the party slot number of the Pokemon on the player's team; default: 1
+---@param partySlotNum? number Optional, the party slot number of the Pokemon on the player's team; default: first active pokemon
 ---@return table|nil pokemon
 function TrackerAPI.getPlayerPokemon(partySlotNum)
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = Battle.Combatants.LeftOwn
+	end
 	return Tracker.getPokemon(partySlotNum or 1, true)
 end
 
 ---Returns a `Program.DefaultPokemon` table of Pokemon data from the game
----@param partySlotNum? number Optional, the party slot number of the Pokemon on the enemy team; default: 1
+---@param partySlotNum? number Optional, the party slot number of the Pokemon on the enemy team; default: first active pokemon
 ---@return table|nil pokemon
 function TrackerAPI.getEnemyPokemon(partySlotNum)
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = Battle.Combatants.LeftOther
+	end
 	return Tracker.getPokemon(partySlotNum or 1, false)
 end
 
@@ -73,20 +79,26 @@ function TrackerAPI.getPokemonTypes(isPlayersMon, isOnLeft)
 end
 
 ---Returns true if the Pokémon in slot # is shiny (for the player's team or the enemy)
----@param partySlotNum? number Default = 1st
----@param isEnemy? boolean Default = true
+---@param partySlotNum? number Default = 1st active pokemon
+---@param isEnemy? boolean Default = false
 ---@return boolean
 function TrackerAPI.isShiny(partySlotNum, isEnemy)
-	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= false) or {}
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = isEnemy ~= true and Battle.Combatants.LeftOwn or Battle.Combatants.LeftOther
+	end
+	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= true) or {}
 	return (pokemon.isShiny == true)
 end
 
 ---Returns true if the Pokémon in slot # has PokéRus (for the player's team or the enemy)
----@param partySlotNum? number Default = 1st
----@param isEnemy? boolean Default = true
+---@param partySlotNum? number Default = 1st active pokemon
+---@param isEnemy? boolean Default = false
 ---@return boolean
 function TrackerAPI.hasPokerus(partySlotNum, isEnemy)
-	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= false) or {}
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = isEnemy ~= true and Battle.Combatants.LeftOwn or Battle.Combatants.LeftOther
+	end
+	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= true) or {}
 	return (pokemon.hasPokerus == true)
 end
 
