@@ -36,7 +36,6 @@ Tracker.DefaultData = {
 		-- eT = 0, -- number: Trainer Encounters count
 		-- eL = 0, -- number: Last level seen
 		-- note = "", -- string: A note written by the user
-		-- autoTrackMoves = false, -- boolean: performs a 1-time automatic tracking of active pokemon used in trainer battles
 	},
 	-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
 	encounterTable = {},
@@ -44,6 +43,8 @@ Tracker.DefaultData = {
 	safariEncounters = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
 	hiddenPowers = {},
+	-- performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
+	initialMoveset = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
 	centerHeals = 0,
 	-- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
@@ -334,11 +335,10 @@ end
 --- Performs a 1-time tracking of the pokemon's current movesset, and of the pokemon's level-up moves
 --- @param pokemon table -- a `Program.DefaultPokemon` object
 function Tracker.tryTrackInitialMoveset(pokemon)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemon.pokemonID)
-	if trackedPokemon.autoTrackMoves then
+	if (pokemon.personality or 0) == 0 or Tracker.Data.initialMoveset[pokemon.personality] then
 		return
 	end
-	trackedPokemon.autoTrackMoves = true
+	Tracker.Data.initialMoveset[pokemon.personality] = true
 
 	-- Only track a pokemon's move if it could have naturally learned it
 	local learnedMoves = PokemonData.readLevelUpMoves(pokemon.pokemonID)
