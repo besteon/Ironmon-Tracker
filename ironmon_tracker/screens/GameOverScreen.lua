@@ -274,9 +274,9 @@ function GameOverScreen.loadTempSaveState()
 
 	---@diagnostic disable-next-line: undefined-global
 	memorysavestate.loadcorestate(GameOverScreen.battleStartSaveState)
-
 	GameOverScreen.clearTempSaveStates()
 	Battle.resetBattle()
+	Program.updateDataNextFrame()
 end
 
 function GameOverScreen.clearTempSaveStates()

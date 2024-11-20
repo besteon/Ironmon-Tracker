@@ -14,10 +14,6 @@ TrainersOnRouteScreen = {
 }
 local SCREEN = TrainersOnRouteScreen
 
-local function hasData()
-	return SCREEN.Data.routeId ~= nil
-end
-
 SCREEN.Pager = {
 	Buttons = {},
 	currentPage = 0,
@@ -53,7 +49,7 @@ SCREEN.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
 		getText = function()
-			if hasData() then
+			if SCREEN.Data.isReady then
 				local routeName = RouteData.getRouteOrAreaName(SCREEN.Data.routeId, true)
 				return string.format("%s  %s", routeName or Constants.BLANKLINE, SCREEN.Data.trainerCount)
 			else
@@ -61,7 +57,25 @@ SCREEN.Buttons = {
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 4, 10, 12 },
-		isVisible = function(self) return hasData() end,
+		isVisible = function(self) return SCREEN.Data.isReady end,
+	},
+	TotalPokemonOnTrainers = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getCustomText = function()
+			if SCREEN.Data.isReady then
+				return string.format("%s/%s", SCREEN.Data.pokemonDefeated or 0, SCREEN.Data.pokemonTotal or 0)
+			else
+				return string.rep(Constants.HIDDEN_INFO, 3)
+			end
+		end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 9, 9 },
+		isVisible = function(self) return SCREEN.Data.isReady end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local textColor = Theme.COLORS[self.textColor]
+			Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL_SMALL, x, y, TrackerScreen.PokeBalls.ColorList, shadowcolor)
+			Drawing.drawText(x + w + 1, y - 2, self:getCustomText(), textColor, shadowcolor)
+		end,
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -120,6 +134,8 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 	local route = RouteData.Info[routeId]
 	SCREEN.Data.routeId = routeId
 	SCREEN.Data.trainerList = {} -- TODO: Unsure if needed
+	SCREEN.Data.pokemonDefeated = 0
+	SCREEN.Data.pokemonTotal = 0
 
 	local ROW_START_X = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 7
 	local ROW_START_Y = Constants.SCREEN.MARGIN + 23
@@ -155,7 +171,9 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 		trainerCount = trainerCount + 1
 		if trainerGame.defeated then
 			trainersDefeated = trainersDefeated + 1
+			SCREEN.Data.pokemonDefeated = SCREEN.Data.pokemonDefeated + trainerGame.partySize
 		end
+		SCREEN.Data.pokemonTotal = SCREEN.Data.pokemonTotal + trainerGame.partySize
 
 		local buttonRow = {
 			type = Constants.ButtonTypes.NO_BORDER,
@@ -326,6 +344,8 @@ function TrainersOnRouteScreen.buildScreen(routeId)
 		end
 	end
 
+	SCREEN.Data.isReady = true
+
 	return true
 end
 
@@ -346,6 +366,9 @@ function TrainersOnRouteScreen.clearBuiltData()
 	SCREEN.Data.routeId = nil
 	SCREEN.Data.trainerList = {}
 	SCREEN.Data.trainerCount = ""
+	SCREEN.Data.pokemonDefeated = 0
+	SCREEN.Data.pokemonTotal = 0
+	SCREEN.Data.isReady = false
 	SCREEN.Pager.Buttons = {}
 end
 

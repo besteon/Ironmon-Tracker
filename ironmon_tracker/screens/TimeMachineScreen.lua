@@ -181,6 +181,7 @@ function TimeMachineScreen.loadRestorePoint(restorePointId)
 	if not Main.IsOnBizhawk() or restorePointId == nil then return end
 	memorysavestate.loadcorestate(restorePointId)
 	-- Battle.resetBattle()
+	Program.updateDataNextFrame()
 end
 
 function TimeMachineScreen.cleanupOldRestorePoints(forceRemoveAll)

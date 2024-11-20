@@ -268,6 +268,7 @@ ScreenResources{
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
 		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
@@ -578,6 +579,14 @@ ScreenResources{
 		PromptPokemonTitle = "Pokédex Look up", -- NEEDS TRANSLATION
 		PromptPokemonDesc = "Choose a Pokémon to look up", -- NEEDS TRANSLATION
 	},
+	CatchRatesScreen = {
+		Title = "Ball Catch Rates", -- NEEDS TRANSLATION
+		PokemonsHPPercent = "Estimated HP", -- NEEDS TRANSLATION
+		PokemonsStatus = "Status", -- NEEDS TRANSLATION
+		HeaderBall = "Ball", -- NEEDS TRANSLATION
+		HeaderBag = "Bag", -- NEEDS TRANSLATION
+		HeaderRate = "Rate", -- NEEDS TRANSLATION
+	},
 	TypeDefensesScreen = {
 		Immunities = "Immunities", -- NEEDS TRANSLATION
 		Resistances = "Resistances", -- NEEDS TRANSLATION
@@ -823,6 +832,7 @@ ScreenResources{
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
 		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
 		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
 		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
 		OptionPhysicalSpecialIcons = "Physical/Special icons", -- NEEDS TRANSLATION

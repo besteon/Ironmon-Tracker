@@ -118,7 +118,7 @@ function Battle.update()
 	end
 
 	-- First check if the player is actually in a battle before updating other battle data
-	if Program.Frames.highAccuracyUpdate == 0 and not Program.inCatchingTutorial then
+	if (Program.Frames.highAccuracyUpdate == 0 or Program.updateRequired) and not Program.inCatchingTutorial then
 		Battle.updateBattleStatus()
 	end
 	if not Battle.inActiveBattle() then
@@ -129,10 +129,10 @@ function Battle.update()
 		return
 	end
 
-	if Program.Frames.highAccuracyUpdate == 0 then
+	if Program.Frames.highAccuracyUpdate == 0 or Program.updateRequired then
 		Battle.updateHighAccuracy()
 	end
-	if Program.Frames.lowAccuracyUpdate == 0 then
+	if Program.Frames.lowAccuracyUpdate == 0 or Program.updateRequired then
 		Battle.updateLowAccuracy()
 		CustomCode.afterBattleDataUpdate()
 	end
@@ -442,6 +442,16 @@ function Battle.updateTrackedInfo()
 					end
 				end
 			end
+		end
+	end
+
+	-- For trainer battles only, attempt to do a 1-time info tracking for the active Pokémon's moveset (records initial moveset)
+	if not Battle.isWildEncounter then
+		local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or {}
+		Tracker.tryTrackInitialMoveset(ownLeftPokemon)
+		if Battle.numBattlers > 2 then
+			local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn, true) or {}
+			Tracker.tryTrackInitialMoveset(ownRightPokemon)
 		end
 	end
 
@@ -851,6 +861,7 @@ function Battle.trySwapScreenBackToMain()
 		[TrainersOnRouteScreen] = true,
 		[RandomEvosScreen] = true,
 		[MoveHistoryScreen] = true,
+		[CatchRatesScreen] = true,
 		[TypeDefensesScreen] = true,
 		[CoverageCalcScreen] = true,
 		[HealsInBagScreen] = true,

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 public class CPHInline
 {
 	// Internal Streamerbot Properties
-	private const string VERSION = "1.0.6"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const string VERSION = "1.0.8"; // Used to compare against known version # in Tracker code, to check if this code needs updating
 	private const bool DEBUG_LOG_EVENTS = false;
 	private const string GVAR_ConnectionDataFolder = "connectionDataFolder"; // "data" folder override global variable; define is Streamerbot
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
@@ -534,11 +534,17 @@ public class CPHInline
 			// Check first if the user has defined alternative data folder
 			var directoryOverride = CPH.GetGlobalVar<string>(GVAR_ConnectionDataFolder, true);
 			if (!string.IsNullOrEmpty(directoryOverride) && !directoryOverride.Equals("NONE") && Directory.Exists(directoryOverride))
-				dataDirectory = directoryOverride;
+			{
+				_inboundFile = Path.Combine(directoryOverride, INBOUND_FILENAME); // Responses (incoming)
+				_outboundFile = Path.Combine(directoryOverride, OUTBOUND_FILENAME); // Requests (outgoing)
+			}
+			else
+			{
+				_inboundFile = Path.Combine(dataDirectory, DATA_FOLDER, INBOUND_FILENAME); // Responses (incoming)
+				_outboundFile = Path.Combine(dataDirectory, DATA_FOLDER, OUTBOUND_FILENAME); // Requests (outgoing)
+			}
 
 			// Create required inbound/outbound files
-			_inboundFile = Path.Combine(dataDirectory, DATA_FOLDER, INBOUND_FILENAME); // Responses (incoming)
-			_outboundFile = Path.Combine(dataDirectory, DATA_FOLDER, OUTBOUND_FILENAME); // Requests (outgoing)
 			using(StreamWriter sw = File.AppendText(_inboundFile)){};
 			using(StreamWriter sw = File.AppendText(_outboundFile)){};
 		} catch (Exception e) {}

@@ -1,10 +1,12 @@
 Program = {
 	currentScreen = 1,
 	previousScreens = {}, -- breadcrumbs for clicking the Back button
+	updateRequired = false,
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCheckedGameSettings = false,
 	hasCompletedTutorial = false,
+	isViewingStarter = false,
 	activeFormId = 0,
 	lastActiveTimestamp = 0,
 	clientFpsMultiplier = 1,
@@ -54,6 +56,9 @@ Program = {
 		offsetPokemonStatsSpaSpd = 0x60,
 		offsetRivalName = 0x3A4C, -- SaveBlock1
 		offsetOptionsButtonMode = 0x13, -- SaveBlock2
+		offsetPokedex = 0x18, -- SaveBlock2
+		offsetPokedexOwned = 0x10, -- SaveBlock2's Pokedex struct
+		offsetPokedexSeen = 0x44, -- SaveBlock2's Pokedex struct
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -89,6 +94,7 @@ Program.GameData = {
 		healingTotal = 0, -- A calculation of total HP heals
 		healingPercentage = 0, -- A calculation of percentage heals
 		-- Each of the below: map of [itemId] -> quanity of item
+		PokeBalls = {},
 		HPHeals = {},
 		PPHeals = {},
 		StatusHeals = {},
@@ -291,10 +297,12 @@ function Program.initialize()
 	end
 
 	-- Reset variables when a new game is loaded
+	Program.updateRequired = false
 	Program.inStartMenu = false
 	Program.inCatchingTutorial = false
 	Program.hasCheckedGameSettings = false
 	Program.hasCompletedTutorial = false
+	Program.isViewingStarter = false
 	Program.lastActiveTimestamp = os.time()
 	Program.Frames.waitToDraw = 1
 	Program.Frames.highAccuracyUpdate = 0
@@ -336,6 +344,9 @@ function Program.mainLoop()
 	CustomCode.afterEachFrame()
 	Program.redraw(false)
 	Program.stepFrames() -- TODO: Really want a better way to handle this
+	if Program.updateRequired then
+		Program.updateRequired = false
+	end
 end
 
 -- 'forced' = true will force a draw, skipping the normal frame wait time
@@ -398,7 +409,7 @@ end
 
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
-	if Program.Frames.highAccuracyUpdate == 0 then
+	if Program.Frames.highAccuracyUpdate == 0 or Program.updateRequired then
 		if Main.IsOnBizhawk() then
 			Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
 		end
@@ -439,7 +450,7 @@ function Program.update()
 	end
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
-	if Program.Frames.lowAccuracyUpdate == 0 then
+	if Program.Frames.lowAccuracyUpdate == 0 or Program.updateRequired then
 		Program.updateCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
@@ -450,6 +461,19 @@ function Program.update()
 				if Program.currentScreen == StartupScreen then
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
+				elseif Options["Show starter ball info"] and RouteData.Locations.IsInLab[TrackerAPI.getMapId()] then
+					Program.checkForStarterSelection()
+				end
+
+				if Network.isConnected() then
+					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
+				end
+			end
+
+			if not Program.hasCheckedGameSettings then
+				Program.hasCheckedGameSettings = true
+				if Options["Override Button Mode to LR"] then
+					Program.changeGameSettingForLR()
 				end
 
 				if Network.isConnected() then
@@ -502,7 +526,7 @@ function Program.update()
 	end
 
 	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
-	if Program.Frames.three_sec_update == 0 then
+	if Program.Frames.three_sec_update == 0 or Program.updateRequired then
 		Program.updateBagItems()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
@@ -525,9 +549,14 @@ function Program.update()
 		end
 	end
 
-	if Program.Frames.lowAccuracyUpdate == 0 then
+	if Program.Frames.lowAccuracyUpdate == 0 or Program.updateRequired then
 		CustomCode.afterProgramDataUpdate()
 	end
+end
+
+---Signals Program, and Battle, to read in the game data again (useful for when loading a Tracker save state)
+function Program.updateDataNextFrame()
+	Program.updateRequired = true
 end
 
 function Program.stepFrames()
@@ -587,6 +616,61 @@ end
 function Program.removeFrameCounter(label)
 	if label == nil then return end
 	Program.Frames.Others[label] = nil
+end
+
+function Program.checkForStarterSelection()
+	-- Only bother checking if the player doesn't have a Pokémon in their party
+	if TrackerAPI.getPlayerPokemon() ~= nil then
+		-- Player just received the Pokémon, so swap back to main Tracker Screen
+		if Program.isViewingStarter then
+			Program.isViewingStarter = false
+			Program.changeScreenView(TrackerScreen)
+		end
+		return
+	end
+
+	-- For FRLG, the starter ball selection process is known through a SpecialVar result
+	-- For RSE, this is instead processed through the tasks system, as data inside one task
+
+	local starterSpecies
+	if GameSettings.game == 3 then -- FRLG
+		local varResult = Memory.readword(GameSettings.gSpecialVar_Result)
+		-- Choice dialogue open / Starter chosen but not received yet
+		if varResult == 1 or varResult == 255 then -- 1 (YES), 255 (Choice dialogue open)
+			local offset = 0x4
+			starterSpecies = Memory.readword(Utils.getSaveBlock1Addr() + GameSettings.gameVarsOffset + offset)
+		end
+	elseif GameSettings.Task_HandleConfirmStarterInput ~= nil then -- RSE
+		local confirmAddr
+		if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput_NatDex_113
+		else
+			confirmAddr = GameSettings.Task_HandleConfirmStarterInput
+		end
+		local taskFuncAddr = Memory.readdword(GameSettings.gTasks)
+		if taskFuncAddr >= confirmAddr and taskFuncAddr < confirmAddr + 10 then
+			local tStarterSelectionOffset = 0x8
+			local choiceIndex = Memory.readword(GameSettings.gTasks + tStarterSelectionOffset)
+			local choiceToRivalId = { [0] = 520, [1] = 523, [2] = 526 }
+			local trainerGame = TrackerAPI.getTrainerGameData(choiceToRivalId[choiceIndex] or 0)
+			if trainerGame and trainerGame.party then
+				starterSpecies = (trainerGame.party[1] or {}).pokemonID
+			end
+		end
+	end
+
+	-- Change screen if the starter selection is/isnt in process
+	if PokemonData.isValid(starterSpecies) and Program.currentScreen == TrackerScreen then
+		Program.isViewingStarter = true
+		if Main.IsOnBizhawk() then
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, starterSpecies)
+		else
+			MGBA.Screens.LookupPokemon:setData(starterSpecies, true)
+		end
+	elseif not PokemonData.isValid(starterSpecies) and Program.currentScreen == InfoScreen then
+		Program.isViewingStarter = false
+		Program.changeScreenView(TrackerScreen)
+	end
 end
 
 function Program.updateRepelSteps()
@@ -1110,7 +1194,6 @@ function Program.getLearnedMoveInfoTable()
 			battleStructAddress = Program.Addresses.battleStructDefault
 		end
 
-		-- Note: Determining who is leveling up is a bit buggy, sometimes the wrong mon gets its levelup move tracked
 		local partyIndex = Memory.readbyte(battleStructAddress + Program.Addresses.offsetPokemonGettingExp) + 1 -- Party index of player (1-6)
 		local pokemon = Tracker.getPokemon(partyIndex, true)
 		if pokemon ~= nil then
@@ -1375,6 +1458,7 @@ function Program.updateBagItems()
 	Program.GameData.Items = {
 		healingTotal = 0,
 		healingPercentage = 0,
+		PokeBalls = {},
 		HPHeals = {},
 		PPHeals = {},
 		StatusHeals = {},
@@ -1388,8 +1472,8 @@ function Program.updateBagItems()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
 		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
+		[saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
 		-- Don't have a use for these yet, so not reading them from memory
-		-- [saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
 		-- [saveBlock1Addr + GameSettings.bagPocket_TmHm_offset] = GameSettings.bagPocket_TmHm_Size,
 	}
 	for address, size in pairs(addressesToScan) do
@@ -1403,6 +1487,9 @@ function Program.updateBagItems()
 					quantity = Utils.bit_xor(quantity, key)
 				end
 				if quantity > 0 then
+					if MiscData.PokeBalls[itemID] then
+						items.PokeBalls[itemID] = quantity
+					end
 					if MiscData.HealingItems[itemID] then
 						items.HPHeals[itemID] = quantity
 					end
@@ -1416,7 +1503,7 @@ function Program.updateBagItems()
 						items.EvoStones[itemID] = quantity
 					end
 					-- If the item wasn't categorized anywhere, mark as "Other"
-					if not (items.HPHeals[itemID] or items.PPHeals[itemID] or items.StatusHeals[itemID] or items.EvoStones[itemID]) then
+					if not (items.PokeBalls[itemID] or items.HPHeals[itemID] or items.PPHeals[itemID] or items.StatusHeals[itemID] or items.EvoStones[itemID]) then
 						items.Other[itemID] = quantity
 					end
 				end

@@ -273,6 +273,18 @@ function CustomCode.logError(err)
 	end
 end
 
+---Checks if the rom loaded is a supported rom hack, and if so loads additional code for it
+function CustomCode.checkForRomHacks()
+	-- For NatDex v1.1.3 and lower, it did not have these addresses for the new Trainers lookup feature
+	if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
+		GameSettings.gLevelUpLearnsets = GameSettings.gLevelUpLearnsets_NatDex_113
+		GameSettings.gTrainers = GameSettings.gTrainers_NatDex_113
+		GameSettings.gTrainerClassNames = GameSettings.gTrainerClassNames_NatDex_113
+	end
+end
+
+---Returns true if the rom loaded is NatDex modified, and the extension is enabled and running
+---@return boolean
 function CustomCode.RomHacks.isPlayingNatDex()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
@@ -283,6 +295,20 @@ function CustomCode.RomHacks.isPlayingNatDex()
 	return type(extension.checkIfNatDexROM) == "function" and extension:checkIfNatDexROM()
 end
 
+---Returns true if the NatDex rom and extension are of a specific version or lower (for checking compatibility)
+---@param version string Example: 1.1.3
+---@return boolean
+function CustomCode.RomHacks.isNatDexVersionOrLower(version)
+	if not CustomCode.RomHacks.isPlayingNatDex() then
+		return false
+	end
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
+	local extension = TrackerAPI.getExtensionSelf(EXT_KEY) or {}
+	return not Utils.isNewerVersion(extension.version or "0.0.0", version)
+end
+
+---Returns true if the rom loaded is MoveExpansion modified, and the extension is enabled and running
+---@return boolean
 function CustomCode.RomHacks.isPlayingMoveExpansion()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MoveExpansion
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
