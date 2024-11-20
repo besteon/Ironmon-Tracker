@@ -96,6 +96,7 @@ FileManager.LuaCode = {
 	{ name = "MiscData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MiscData.lua", },
 	{ name = "RouteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RouteData.lua", },
 	{ name = "DataHelper", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua", },
+	{ name = "EventData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "EventData.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
@@ -119,6 +120,8 @@ FileManager.LuaCode = {
 	{ name = "MGBADisplay", filepath = "MGBADisplay.lua", },
 	{ name = "TrackerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackerScreen.lua", },
 	{ name = "InfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua", },
+	{ name = "TrainerInfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrainerInfoScreen.lua", },
+	{ name = "TrainersOnRouteScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrainersOnRouteScreen.lua", },
 	{ name = "NavigationMenu", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NavigationMenu.lua", },
 	{ name = "StartupScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StartupScreen.lua", },
 	{ name = "UpdateScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "UpdateScreen.lua", },
@@ -126,6 +129,10 @@ FileManager.LuaCode = {
 	{ name = "ExtrasScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ExtrasScreen.lua", },
 	{ name = "QuickloadScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "QuickloadScreen.lua", },
 	{ name = "GameOptionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOptionsScreen.lua", },
+	{ name = "NotebookIndexScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookIndexScreen.lua", },
+	{ name = "NotebookPokemonSeen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookPokemonSeen.lua", },
+	{ name = "NotebookPokemonNoteView", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookPokemonNoteView.lua", },
+	{ name = "NotebookTrainersByArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NotebookTrainersByArea.lua", },
 	{ name = "TrackedDataScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua", },
 	{ name = "LanguageScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LanguageScreen.lua", },
 	{ name = "StatsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua", },
@@ -134,6 +141,7 @@ FileManager.LuaCode = {
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
 	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
+	{ name = "StatMarkingScoreSheet", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatMarkingScoreSheet.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
 	{ name = "TimeMachineScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua", },
 	{ name = "CustomExtensionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua", },
@@ -152,7 +160,6 @@ FileManager.LuaCode = {
 	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
 	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua"},
-	{ name = "BattleEffectsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleEffectsScreen.lua", },
 	{ name = "StreamConnectOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamConnectOverlay.lua", },
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
@@ -761,8 +768,6 @@ function FileManager.addCustomThemeToFile(themeName, themeCode)
 	local filepath = folderpath .. FileManager.Files.THEME_PRESETS
 	local file = io.open(filepath, "a")
 	if not file then
-		-- Don't really want to flood the console with error messages; if important, use Main.DisplayError()
-		-- print(string.format('> ERROR: Unable to save custom Theme "%s" to file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return
 	end
 
@@ -783,8 +788,6 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 
 	local file = io.open(filepath, "w")
 	if not file then
-		-- Don't really want to flood the console with error messages; if important, use Main.DisplayError()
-		-- print(string.format('> ERROR: Unable to remove custom Theme "%s" from file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return false
 	end
 
@@ -809,8 +812,12 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 	return true
 end
 
--- Recursively copies the contents of 'source' table into 'destination' table
+---Recursively copies the contents of 'source' table into 'destination' table
+---@param source table
+---@param destination? table Optional, creates a new empty table if none provided
+---@return table destination
 function FileManager.copyTable(source, destination)
+	destination = destination or {}
 	for key, val in pairs(source or {}) do
 		if type(val) == "table" then
 			destination[key] = {}
@@ -819,6 +826,7 @@ function FileManager.copyTable(source, destination)
 			destination[key] = val
 		end
 	end
+	return destination
 end
 
 --- Loads the external Json library into FileManager.JsonLibrary

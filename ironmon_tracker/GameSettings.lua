@@ -502,19 +502,13 @@ function GameSettings.setEwramAddresses()
 		sSpecialFlags = { 0x0202e8e2, 0x020375fc, { 0x020370e0, 0x020370e0 + jpOffset }, }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + jpOffset }, },
 		-- RS: gAbilitiesPerBank
-
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
-		gStatuses3 = { 0x02024c98, 0x020242ac, {0x02023dfc, 0x02023dfc + jpOffset},},
-		gSideStatuses = { 0x02024c7a, 0x0202428e, {0x02023dde, 0x02023dde + jpOffset},},
-		gSideTimers = { 0x02024c80, 0x02024294, {0x02023de4, 0x02023de4 + jpOffset},},
-		gDisableStructs = { 0x02024ca8, 0x020242bc, {0x02023e0c, 0x02023e0c + jpOffset},},
-		gLockedMoves = { 0x02024c54, 0x02024268, {0x02023db8, 0x02023db8 + jpOffset},},
-		gWishFutureKnock = { 0x02024dbc, 0x020243d0, {0x02023f20, 0x02023f20 + jpOffset},},
-		gPaydayMoney = { 0x02024d1a, 0x020243d0, {0x02023e7e, 0x02023e7e + jpOffset},},
 
-		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
+		-- RS uses saveblock directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
+		gSaveBlock2 = { 0x02024ea4, nil, nil },
 		gameFlagsOffset = { 0x1220, 0x1270, 0xEE0 },
+		gameRegItemOffset = { 0x496, 0x496, 0x296 },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
 		gameVarsOffset = { 0x1340, 0x139C, 0x1000 }, -- SaveBlock1 -> vars[VARS_COUNT]
 		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -641,6 +635,20 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0831f72c },
 			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08, 0x082104ec },
 			{ 0x08253ac0, 0x08253b30 },
+		},
+		gTrainers = {
+			{ 0x081f04fc, 0x081f0514, 0x081f0514 },
+			{ 0x081f048c, 0x081f04a4, 0x081f04a4 },
+			{ 0x08310030 },
+			{ 0x0823eac8, 0x0823eb38, 0x0823A290, 0x08237BA8, 0x08238F18, 0x0823E9EC, 0x081FB4D0 },
+			{ 0x0823eaa4, 0x0823eb14 },
+		},
+		gTrainerClassNames = {
+			{ 0x081f0208, 0x081f0220, 0x081f0220 },
+			{ 0x081f0198, 0x081f01b0, 0x081f01b0 },
+			{ 0x0830fcd4 },
+			{ 0x0823e558, 0x0823e5c8, 0x823A800, 0x8238118, 0x8239488, 0x08239488, 0x81FBA40 },
+			{ 0x0823e534, 0x0823e5a4 },
 		},
 		sTMHMMoves = {
 			{ 0x08376504, 0x0837651c, 0x0837651c },

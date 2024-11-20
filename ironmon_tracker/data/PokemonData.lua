@@ -228,9 +228,18 @@ function PokemonData.buildData(forced)
 			local baseHPAttack = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats)
 			local baseDefenseSpeed = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 2)
 			local baseSpASpD = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats + 4)
-			pokemon.bstCalculated = Utils.getbits(baseHPAttack, 0, 8) + Utils.getbits(baseHPAttack, 8, 8)
-				+ Utils.getbits(baseDefenseSpeed, 0, 8) + Utils.getbits(baseDefenseSpeed, 8, 8)
-				+ Utils.getbits(baseSpASpD, 0, 8) + Utils.getbits(baseSpASpD, 8, 8)
+			pokemon.baseStats = {
+				hp = Utils.getbits(baseHPAttack, 0, 8),
+				atk = Utils.getbits(baseHPAttack, 8, 8),
+				def = Utils.getbits(baseDefenseSpeed, 0, 8),
+				spe = Utils.getbits(baseDefenseSpeed, 8, 8),
+				spa = Utils.getbits(baseSpASpD, 0, 8),
+				spd = Utils.getbits(baseSpASpD, 8, 8)
+			}
+			pokemon.bstCalculated = 0
+			for _, baseStat in pairs(pokemon.baseStats) do
+				pokemon.bstCalculated = pokemon.bstCalculated + baseStat
+			end
 
 			-- Types (2 bytes)
 			local typesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetTypes)
@@ -298,13 +307,15 @@ function PokemonData.getTypeResource(typename)
 	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.unknown
 end
 
---- @return integer abilityId The abilityId of the Pokémon, or 0 if it doesn't exist
-function PokemonData.getAbilityId(pokemonID, abilityNum)
-	if abilityNum == nil or not PokemonData.isValid(pokemonID) then
+---@param pokemonID number
+---@param abilityIndex number Specify 0 for the first ability or 1 for the second ability
+---@return integer abilityId The abilityId of the Pokémon, or 0 if it doesn't exist
+function PokemonData.getAbilityId(pokemonID, abilityIndex)
+	if abilityIndex == nil or not PokemonData.isValid(pokemonID) then
 		return 0
 	end
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	return pokemon.abilities[abilityNum + 1] or 0 -- abilityNum stored from memory as [0 or 1]
+	return pokemon.abilities[abilityIndex + 1] or 0 -- abilityNum stored from memory as [0 or 1]
 end
 
 ---Returns true if the pokemonId is a valid, existing id of a pokemon in PokemonData.Pokemon

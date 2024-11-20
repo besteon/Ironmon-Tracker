@@ -40,17 +40,6 @@ function Utils.getbits(value, startIndex, numBits)
 	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
 end
 
-function Utils.generateBitwiseMap(value, size)
-	local map = {}
-	for i=0,size-1, 1 do
-		map[i] = value % 2 == 1
-		if value > 0 then
-			value = Utils.bit_rshift(value, 1)
-		end
-	end
-	return map
-end
-
 function Utils.addhalves(value)
 	local b = Utils.getbits(value, 0, 16)
 	local c = Utils.getbits(value, 16, 16)
@@ -152,6 +141,8 @@ function Utils.formatTime(numSeconds)
 end
 
 -- Returns an offset that will center-align the given text based on a specified area's width
+---@param text string
+---@param areaWidth? number Optional, defaults to the full width of the Tracker Screen
 function Utils.getCenteredTextX(text, areaWidth)
 	areaWidth = areaWidth or Constants.SCREEN.RIGHT_GAP
 	local textSize = Utils.calcWordPixelLength(text or "")
@@ -321,18 +312,26 @@ function Utils.shortenText(text, pixelWidth, appendEllipsis)
 	return text
 end
 
--- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
--- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
--- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
+---Searches `wordlist` for the closest matching `word` based on Levenshtein distance.
+---If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
+---https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
+---@param word string
+---@param wordlist table
+---@param threshold number
+---@return any key
+---@return any result
+---@return number distance
 function Utils.getClosestWord(word, wordlist, threshold)
-	if Utils.isNilOrEmpty(word) then return word end
+	if Utils.isNilOrEmpty(word) then
+		return word, nil, -1
+	end
 	threshold = threshold or 3
 	local function min(a, b, c) return math.min(math.min(a, b), c) end
 	local function matrix(row, col)
 		local m = {}
-		for i = 1,row do
+		for i = 1, row do
 			m[i] = {}
-			for j = 1,col do m[i][j] = 0 end
+			for j = 1, col do m[i][j] = 0 end
 		end
 		return m
 	end
@@ -352,18 +351,22 @@ function Utils.getClosestWord(word, wordlist, threshold)
 		end
 		return M[row][col]
 	end
-	local closestDistance = -1
+	local closestDistance = 9999999
 	local closestWordKey
 	for key, val in pairs(wordlist) do
 		local levRes = lev(word, val)
-		if levRes < closestDistance or closestDistance == -1 then
+		if levRes < closestDistance then
 			closestDistance = levRes
 			closestWordKey = key
+			if closestDistance == 0 then -- exact match
+				break
+			end
 		end
 	end
-	if closestDistance <= threshold then return closestWordKey, wordlist[closestWordKey]
-	else return nil, word
+	if closestDistance <= threshold then
+		return closestWordKey, wordlist[closestWordKey], closestDistance
 	end
+	return nil, word, closestDistance
 end
 
 -- Deprecated
@@ -944,6 +947,13 @@ function Utils.getSaveBlock1Addr()
 		return GameSettings.gSaveBlock1
 	end
 	return Memory.readdword(GameSettings.gSaveBlock1ptr)
+end
+
+function Utils.getSaveBlock2Addr()
+	if GameSettings.game == 1 then -- Ruby/Sapphire don't have ptr
+		return GameSettings.gSaveBlock2
+	end
+	return Memory.readdword(GameSettings.gSaveBlock2ptr)
 end
 
 -- Gets the current game's encryption key

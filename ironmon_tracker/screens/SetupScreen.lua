@@ -16,14 +16,22 @@ SetupScreen = {
 			tabKey = "Carousel",
 			resourceKey = "TabCarousel",
 		},
+		Controls = {
+			index = 3,
+			tabKey = "Controls",
+			resourceKey = "TabControls",
+		},
 	},
 	currentTab = 1,
 	changeIconInSeconds = 3, -- Number of seconds
+	currentButtonToBind = nil,
+	currentInputsPressed = {},
 }
 local SCREEN = SetupScreen
 local TAB_HEIGHT = 12
 
 SCREEN.Buttons = {
+	-- GENERAL TAB BUTTONS
 	ChoosePortrait = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self)
@@ -111,6 +119,15 @@ SCREEN.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	ManageData = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.SetupScreen.ButtonManageData end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 60, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
+		onClick = function() Program.changeScreenView(TrackedDataScreen) end
+	},
+
+	-- CAROUSEL TAB BUTTONS
 	EnableCarousel = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Allow carousel rotation",
@@ -125,28 +142,193 @@ SCREEN.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	EditControls = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.SetupScreen.ButtonEditControls end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 38, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
-		onClick = function() SCREEN.openEditControlsWindow() end
+
+	-- CONTROL TAB BUTTONS
+	OptionHaveTrackerChangeLR = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Override Button Mode to LR",
+		getText = function(self) return " " .. Resources.SetupScreen.OptionOverrideButtonModeLR end,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 26, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 26, 8, 8 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and not SCREEN.inProcessOfBinding() end,
+		toggleState = true,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			if Options["Override Button Mode to LR"] then
+				Program.changeGameSettingForLR()
+			end
+			Program.redraw(true)
+		end
 	},
-	ManageData = {
+	ControlsEditAll = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.SetupScreen.ButtonManageData end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 47, Constants.SCREEN.MARGIN + 135, 60, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
-		onClick = function() Program.changeScreenView(TrackedDataScreen) end
+		getText = function(self) return Resources.SetupScreen.ButtonEditAll end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 35, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and not SCREEN.inProcessOfBinding() end,
+		onClick = function() SCREEN.openEditControlsWindow() end,
+	},
+	ControlsRestoreDefaults = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self)
+			if self.confirmReset then
+				return Resources.TrackedDataScreen.ButtonClearConfirm
+			else
+				return "Restore Defaults" or Resources.TrackedDataScreen.ButtonClearData
+			end
+		end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 43, Constants.SCREEN.MARGIN + 135, 72, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and not SCREEN.inProcessOfBinding() end,
+		confirmReset = false,
+		updateSelf = function(self)
+			if self.confirmReset then
+				self.textColor = "Negative text"
+			else
+				self.textColor = SCREEN.Colors.text
+			end
+		end,
+		onClick = function(self)
+			if self.confirmReset then
+				self.confirmReset = false
+				SCREEN.restoreDefaultControls()
+			else
+				self.confirmReset = true
+			end
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+		reset = function(self)
+			self.confirmReset = false
+			self:updateSelf()
+		end,
+	},
+
+	-- BINDING A BUTTON SCREEN
+	ControlBindingChosenButton = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return string.format("%s:", Resources.SetupScreen.LabelCurrentControllerBinding) end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 27, 11, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			local controlLabel = Utils.replaceText(SCREEN.currentButtonToBind:getCustomText(), ":", "")
+			local centerX = Utils.getCenteredTextX(controlLabel, Constants.SCREEN.RIGHT_GAP) - 1
+			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 12, controlLabel, highlight, shadowcolor)
+
+			local controlBinding = Options.CONTROLS[SCREEN.currentButtonToBind.optionKey]
+			local style
+			if controlBinding == Input.NO_KEY_MAPPING then
+				controlBinding = "- - -"
+			else
+				controlBinding = controlBinding:gsub(" ", ""):gsub(",", " + ") -- Format as "A + B + START"
+				style = "underline"
+			end
+			centerX = Utils.getCenteredTextX(controlBinding, Constants.SCREEN.RIGHT_GAP) - 2
+			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 23, controlBinding, highlight, shadowcolor, nil, nil, style)
+		end,
+	},
+	ControlBindingNewButton = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return string.format("%s:", Resources.SetupScreen.LabelNewControllerBinding) end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 67, 11, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local buttonBeingPressed, centerX
+			if #SCREEN.currentInputsPressed > 0 then
+				buttonBeingPressed = table.concat(SCREEN.currentInputsPressed, " + ")
+				centerX = Utils.getCenteredTextX(buttonBeingPressed, Constants.SCREEN.RIGHT_GAP) - 2
+			else
+				local currentTimeCounter = (os.time() % 3) + 1
+				buttonBeingPressed = string.format("%s%s", Resources.SetupScreen.LabelWaiting, string.rep(".", currentTimeCounter))
+				centerX = Constants.SCREEN.MARGIN + 50
+			end
+			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 12, buttonBeingPressed, Theme.COLORS["Positive text"], shadowcolor)
+		end,
+	},
+	ControlBindingInstructions = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return Resources.SetupScreen.LabelPressControllerButtons end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 106, 11, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+	},
+	ControlBindingNumAllowed = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return string.format("%s: %s", Resources.SetupScreen.LabelButtonsAllowed, SCREEN.currentButtonToBind.allowedInputs) end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 117, 11, 11 },
+		isVisible = function(self)
+			return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() and SCREEN.currentButtonToBind.allowedInputs < 999
+		end,
+	},
+	ControlBindingUnbind = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Unbind" or Resources.AllScreens.Save end, -- TODO: Language
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 93, 34, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+		onClick = function()
+			Options.CONTROLS[SCREEN.currentButtonToBind.optionKey] = Input.NO_KEY_MAPPING
+			Main.SaveSettings(true)
+			SCREEN.currentButtonToBind = nil
+			SCREEN.currentInputsPressed = {}
+			Program.redraw(true)
+		end,
+	},
+	ControlBindingSave = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return " " .. Resources.AllScreens.Save end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 27, Constants.SCREEN.MARGIN + 135, 36, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+		onClick = function()
+			if #SCREEN.currentInputsPressed > 0 then
+				local newBinding = table.concat(SCREEN.currentInputsPressed, ", ")
+				Options.CONTROLS[SCREEN.currentButtonToBind.optionKey] = newBinding
+				Main.SaveSettings(true)
+			end
+			SCREEN.currentButtonToBind = nil
+			SCREEN.currentInputsPressed = {}
+			Program.redraw(true)
+		end,
+	},
+	ControlBindingCancel = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return " " .. Resources.AllScreens.Cancel end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 135, 36, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and SCREEN.inProcessOfBinding() end,
+		onClick = function()
+			SCREEN.currentButtonToBind = nil
+			SCREEN.currentInputsPressed = {}
+			Program.redraw(true)
+		end,
 	},
 	Back = Drawing.createUIElementBackButton(function()
-		SCREEN.currentTab = SCREEN.Tabs.General
-		Program.changeScreenView(NavigationMenu)
+		local isBinding = SCREEN.inProcessOfBinding()
+		SCREEN.currentButtonToBind = nil
+		SCREEN.currentInputsPressed = {}
+		if isBinding then
+			Program.redraw(true)
+		else
+			SCREEN.currentTab = SCREEN.Tabs.General
+			SCREEN.Buttons.ControlsRestoreDefaults:reset()
+			Program.changeScreenView(SCREEN.previousScreen or NavigationMenu)
+			SCREEN.previousScreen = nil
+		end
 	end),
 }
 
+SetupScreen.Pager = {
+	prevPage = function(self)
+		SetupScreen.Buttons.CycleIconBackward:onClick()
+	end,
+	nextPage = function(self)
+		SetupScreen.Buttons.CycleIconForward:onClick()
+	end,
+}
+
 function SetupScreen.initialize()
+	SCREEN.previousScreen = nil
 	SCREEN.currentTab = SCREEN.Tabs.General
+	SCREEN.currentButtonToBind = nil
 	SCREEN.createTabs()
 	SCREEN.createButtons()
 
@@ -216,6 +398,9 @@ function SetupScreen.createTabs()
 				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self)
+				if self.tab ~= SCREEN.Tabs.Controls then
+					SCREEN.Buttons.ControlsRestoreDefaults:reset()
+				end
 				SCREEN.currentTab = self.tab
 				SCREEN.refreshButtons()
 				Program.redraw(true)
@@ -231,11 +416,11 @@ function SetupScreen.createButtons()
 	local startY = Constants.SCREEN.MARGIN + 78
 
 	local optionKeyMap = {
-		{"Show Team View", "OptionShowTeamView", },
-		{"Right justified numbers", "OptionRightJustifiedNumbers", },
-		{"Show nicknames", "OptionShowNicknames", },
-		{"Track PC Heals", "OptionTrackPCHeals", },
-		{"PC heals count downward", "OptionPCHealsCountDown", },
+		{ "Show random ball picker", "OptionShowRandomBallPicker", },
+		{ "Show Team View", "OptionShowTeamView", },
+		{ "Right justified numbers", "OptionRightJustifiedNumbers", },
+		{ "Track PC Heals", "OptionTrackPCHeals", },
+		{ "PC heals count downward", "OptionPCHealsCountDown", },
 	}
 
 	for _, optionTuple in ipairs(optionKeyMap) do
@@ -325,12 +510,12 @@ function SetupScreen.createButtons()
 	startY = startY + Constants.SCREEN.LINESPACING + 3
 
 	local carouselKeyMap = {
-		{"Badges", "CarouselBadges", },
-		{"Notes", "CarouselNotes", },
-		{"RouteInfo", "CarouselRouteInfo", },
-		{"Trainers", "CarouselTrainers", },
-		{"LastAttack", "CarouselLastAttack", },
-		{"Pedometer", "CarouselPedometer", },
+		{ "Badges", "CarouselBadges", },
+		{ "Notes", "CarouselNotes", },
+		{ "RouteInfo", "CarouselRouteInfo", },
+		{ "Trainers", "CarouselTrainers", },
+		{ "LastAttack", "CarouselLastAttack", },
+		{ "Pedometer", "CarouselPedometer", },
 	}
 
 	local function saveCarouselSettings()
@@ -365,18 +550,132 @@ function SetupScreen.createButtons()
 		}
 		startY = startY + Constants.SCREEN.LINESPACING
 	end
+
+	-- TAB: CONTROLS
+	local controlKeyMap = {
+		{ "Toggle view", "PromptEditControllerToggleView", },
+		{ "Info shortcut", "PromptEditControllerInfoShortcut", },
+		{ "Cycle through stats", "PromptEditControllerCycleStats", },
+		{ "Mark stat", "PromptEditControllerMarkStat", },
+		{ "Next page", "PromptEditControllerNextPage", },
+		{ "Previous page", "PromptEditControllerPreviousPage", },
+	}
+
+	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 13
+	startY = Constants.SCREEN.MARGIN + 40
+
+	SCREEN.Buttons["Control" .. "Load next seed"] = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.GEAR,
+		optionKey = "Load next seed",
+		allowedInputs = 999, -- No limit to number of button input allowed for this binding
+		getCustomText = function(self) return string.format("%s:", Resources.SetupScreen.PromptEditControllerLoadNext) end,
+		clickableArea = { startX - 90, startY, 100, 21 },
+		box = {	startX, startY, 10, 10 },
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and not SCREEN.inProcessOfBinding() end,
+		onClick = function(self)
+			SCREEN.currentButtonToBind = self
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local bindingColor
+			local controlLabel = self:getCustomText()
+			local controlBinding = Options.CONTROLS[self.optionKey]
+			if controlBinding ~= Options.Defaults.CONTROLS[self.optionKey] then
+				bindingColor = Theme.COLORS["Positive text"]
+			else
+				bindingColor = Theme.COLORS[SCREEN.Colors.highlight]
+			end
+			controlBinding = controlBinding:gsub(" ", ""):gsub(",", " + ") -- Format as "A + B + START"
+			local centerX = Utils.getCenteredTextX(controlBinding, Constants.SCREEN.RIGHT_GAP) - 2
+			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, y - 2, controlLabel, Theme.COLORS[SCREEN.Colors.text], shadowcolor)
+			Drawing.drawText(Constants.SCREEN.WIDTH + centerX, y + 8, controlBinding, bindingColor, shadowcolor, nil, nil, "underline")
+		end,
+	}
+
+	startY = startY + (Constants.SCREEN.LINESPACING * 2)
+
+	local COL2_X_OFFSET = 86
+	for _, controlTuple in ipairs(controlKeyMap) do
+		SCREEN.Buttons["Control" .. controlTuple[1]] = {
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.GEAR,
+			optionKey = controlTuple[1],
+			allowedInputs = 1, -- Max of 1 button input allowed for this binding
+			getCustomText = function(self) return string.format("%s:", Resources.SetupScreen[controlTuple[2]]) end,
+			clickableArea = { startX - 50, startY, 60, 10 },
+			box = {	startX, startY, 10, 10 },
+			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Controls and not SCREEN.inProcessOfBinding() end,
+			onClick = function(self)
+				SCREEN.currentButtonToBind = self
+				Program.redraw(true)
+			end,
+			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local leftX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
+				local bindingColor, style
+				local controlLabel = self:getCustomText()
+				local controlBinding = Options.CONTROLS[self.optionKey]
+				if controlBinding == Input.NO_KEY_MAPPING then
+					controlBinding = "- - -"
+				else
+					style = "underline"
+				end
+				if controlBinding ~= Options.Defaults.CONTROLS[self.optionKey] then
+					bindingColor = Theme.COLORS["Positive text"]
+				else
+					bindingColor = Theme.COLORS[SCREEN.Colors.highlight]
+				end
+				Drawing.drawText(leftX, y - 2, controlLabel, Theme.COLORS[SCREEN.Colors.text], shadowcolor)
+				Drawing.drawText(leftX + COL2_X_OFFSET, y - 2, controlBinding, bindingColor, shadowcolor, nil, nil, style)
+			end,
+		}
+		startY = startY + Constants.SCREEN.LINESPACING + 1
+	end
+end
+
+function SetupScreen.inProcessOfBinding()
+	return SCREEN.currentButtonToBind ~= nil
+end
+
+function SetupScreen.checkCurrentJoypadInput()
+	local joypad = Input.getJoypadInputFormatted()
+	local pressedInputs = {}
+	for _, inputKey in ipairs(Input.OrderedControllerInputs) do
+		if joypad[inputKey] then
+			table.insert(pressedInputs, inputKey)
+		end
+	end
+	if #pressedInputs > 0 then
+		if SetupScreen.inProcessOfBinding() and #pressedInputs > SCREEN.currentButtonToBind.allowedInputs then
+			SCREEN.currentInputsPressed = { pressedInputs[1] }
+		else
+			SCREEN.currentInputsPressed = pressedInputs
+		end
+	end
+	return pressedInputs
+end
+
+function SetupScreen.restoreDefaultControls()
+	FileManager.copyTable(Options.Defaults.CONTROLS, Options.CONTROLS)
+	Main.SaveSettings(true)
 end
 
 function SetupScreen.openEditControlsWindow()
-	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
+	local form = ExternalUI.BizForms.createForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 290, 75, 20)
 
 	form:createLabel(Resources.SetupScreen.PromptEditControllerDesc, 19, 10)
 
 	local controlKeyMap = {
 		{"Load next seed", "PromptEditControllerLoadNext", },
 		{"Toggle view", "PromptEditControllerToggleView", },
+		{"Info shortcut", "PromptEditControllerInfoShortcut", },
 		{"Cycle through stats", "PromptEditControllerCycleStats", },
 		{"Mark stat", "PromptEditControllerMarkStat", },
+		{"Next page", "PromptEditControllerNextPage", },
+		{"Previous page", "PromptEditControllerPreviousPage", },
 	}
 
 	local inputTextboxes = {}
@@ -384,10 +683,15 @@ function SetupScreen.openEditControlsWindow()
 	local col2X = 220
 	local offsetY = 35
 
+	local NOT_BOUND_TEXT = "- - -"
 	for i, controlTuple in ipairs(controlKeyMap) do
 		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
+		local controlBinding = Options.CONTROLS[controlTuple[1]]
+		if controlBinding == Input.NO_KEY_MAPPING then
+			controlBinding = NOT_BOUND_TEXT
+		end
 		form:createLabel(controlLabel, col1X, offsetY)
-		inputTextboxes[i] = form:createTextBox(Options.CONTROLS[controlTuple[1]], col2X, offsetY - 2, 140, 21)
+		inputTextboxes[i] = form:createTextBox(controlBinding, col2X, offsetY - 2, 140, 21)
 		offsetY = offsetY + 24
 	end
 
@@ -395,13 +699,18 @@ function SetupScreen.openEditControlsWindow()
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
 	form:createButton(saveCloseLabel, 45, offsetY + 5, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
-			local text = ExternalUI.BizForms.getText(inputTextboxes[i])
-			local controlCombination = Utils.formatControls(text)
+			local controlCombination = ExternalUI.BizForms.getText(inputTextboxes[i])
+			if controlCombination == NOT_BOUND_TEXT then
+				controlCombination = Input.NO_KEY_MAPPING
+			else
+				controlCombination = Utils.formatControls(controlCombination)
+			end
 			if not Utils.isNilOrEmpty(controlCombination) then
 				Options.CONTROLS[controlTuple[1]] = controlCombination
 			end
 		end
 		Main.SaveSettings(true)
+		SCREEN.refreshButtons()
 		Program.redraw(true)
 		form:destroy()
 	end)

@@ -3,6 +3,7 @@ Battle = {
 	dataReady = false,
 	isWildEncounter = false,
 	isGhost = false,
+	lastPokemonSeen = 0,
 	opposingTrainerId = 0,
 	isViewingOwn = true, -- If the Tracker screen is viewing your own pokemon, or the enemy
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
@@ -22,7 +23,6 @@ Battle = {
 	prevDamageTotal = 0,
 	damageReceived = 0,
 	lastEnemyMoveId = 0,
-
 	enemyHasAttacked = false,
 	firstActionTaken = false,
 
@@ -54,7 +54,6 @@ Battle = {
 		[0] = {},
 		[1] = {},
 	},
-	LastMoves = {},
 }
 
 -- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
@@ -91,6 +90,7 @@ function Battle.initialize()
 	Battle.isViewingLeft = true
 	Battle.isWildEncounter = false
 	Battle.isGhost = false
+	Battle.lastPokemonSeen = 0
 	Battle.attacker = 0
 	Battle.turnCount = -1
 	Battle.prevDamageTotal = 0
@@ -283,19 +283,15 @@ function Battle.updateViewSlots()
 	--Track if ally pokemon changes, to reset transform and ability changes
 	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn and Battle.BattleParties[0][prevOwnPokemonLeft] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
-		Battle.LastMoves[0] = 0
 	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn and Battle.BattleParties[0][prevOwnPokemonRight] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
-		Battle.LastMoves[2] = 0
 	end
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleParties[1][prevEnemyPokemonLeft] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
-		Battle.LastMoves[1] = 0
 		Battle.changeOpposingPokemonView(true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleParties[1][prevEnemyPokemonRight] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
-		Battle.LastMoves[3] = 0
 		Battle.changeOpposingPokemonView(false)
 	end
 end
@@ -404,25 +400,6 @@ function Battle.updateTrackedInfo()
 											Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
 										end
 									end
-								else
-									-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
-									local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
-									local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
-									local transformData = attacker.transformData
-									if transformData and not transformData.isOwn then
-										-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic)
-										if lastMoveByAttacker == attacker.moves[1] or lastMoveByAttacker == attacker.moves[2] or lastMoveByAttacker == attacker.moves[3] or lastMoveByAttacker == attacker.moves[4] then
-											local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
-											if attackingMon ~= nil then
-												Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
-											end
-										end
-									end
-
-									--Only track ability-changing moves if they also did not fail/miss
-									if Utils.bit_and(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-										Battle.trackAbilityChanges(lastMoveByAttacker,nil)
-									end
 								end
 							else
 								-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
@@ -445,12 +422,10 @@ function Battle.updateTrackedInfo()
 									Battle.trackAbilityChanges(lastMoveByAttacker, nil)
 								end
 							end
-							--only get one chance to record
-							Battle.AbilityChangeData.recordNextMove = false
 						end
+						--only get one chance to record
+						Battle.AbilityChangeData.recordNextMove = false
 					end
-				else
-					Battle.LastMoves[Battle.attacker] = 0
 				end
 			end
 		else
@@ -562,6 +537,7 @@ end
 
 function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 	Tracker.TrackEncounter(opposingPokemon.pokemonID, Battle.isWildEncounter)
+	Battle.lastPokemonSeen = opposingPokemon.pokemonID
 
 	local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
 	battleFlags = battleFlags or Memory.readdword(GameSettings.gBattleTypeFlags)
@@ -594,6 +570,10 @@ function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 
 	if Battle.isWildEncounter and Battle.CurrentRoute.hasInfo then
 		Tracker.TrackRouteEncounter(Program.GameData.mapId, Battle.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
+		-- Additional tracked info for Safari Encounters
+		if RouteData.Locations.IsInSafariZone[Program.GameData.mapId] then
+			Tracker.TrackSafariEncounter(Program.GameData.mapId, opposingPokemon.pokemonID, opposingPokemon.level)
+		end
 	end
 end
 
@@ -837,7 +817,6 @@ function Battle.endCurrentBattle()
 		[0] = {},
 		[1] = {},
 	}
-	Battle.LastMoves = {}
 
 	Program.recalcLeadPokemonHealingInfo()
 
@@ -868,6 +847,8 @@ end
 function Battle.trySwapScreenBackToMain()
 	local screenAllowsAutoSwap = {
 		[InfoScreen] = true,
+		[TrainerInfoScreen] = true,
+		[TrainersOnRouteScreen] = true,
 		[RandomEvosScreen] = true,
 		[MoveHistoryScreen] = true,
 		[TypeDefensesScreen] = true,

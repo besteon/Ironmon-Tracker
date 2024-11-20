@@ -39,23 +39,6 @@ EventHandler.CommandRoles = {
 
 ---Runs additional functions after Network attempts to connect
 function EventHandler.onStartup()
-	local settingsUpdated = false
-
-	local ballqEvent = EventHandler.Events.CMD_BallQueue or {}
-	local ballqRequest = EventHandler.Queues.BallRedeems.ActiveRequest
-	if ballqEvent.O_ShowBallQueueOnStartup and ballqRequest ~= nil then
-		-- Only show message if it wasn't shown the last startup
-		local lasGUID = Main.MetaSettings["network"].LastBallQueueGUID or ""
-		if lasGUID ~= ballqRequest.GUID then
-			EventHandler.triggerEvent("CMD_BallQueue")
-			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
-			settingsUpdated = true
-		end
-	end
-
-	if settingsUpdated then
-		Main.SaveSettings(true)
-	end
 end
 
 ---Clears out existing event info; similar to initialize(), but managed by Network
@@ -64,6 +47,7 @@ function EventHandler.reset()
 	EventHandler.Queues = {
 		BallRedeems = { Requests = {}, },
 	}
+	EventData.initialize()
 end
 
 ---Checks if the event is of a known event type
@@ -101,8 +85,9 @@ end
 ---@param eventKey string IEvent.Key
 ---@param fulfillFunc function Must return a string or a partial Response table { Message="", GlobalVars={} }
 ---@param name? string (Optional) A descriptive name for the event
+---@param effect? string (Optional) When the event is triggered, this is a description of the effect that occurs
 ---@return boolean success
-function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name)
+function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name, effect)
 	if Utils.isNilOrEmpty(eventKey) or type(fulfillFunc) ~= "function" then
 		return false
 	end
@@ -110,16 +95,17 @@ function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name)
 		Key = eventKey,
 		Type = EventHandler.EventTypes.Game,
 		Name = name or eventKey,
+		TriggerEffect = effect or "",
 		Fulfill = fulfillFunc,
 	}))
 end
 
----Internally triggers an event by creating a new Request for it
+---Internally triggers an event by creating a new Request for it; only if the Network is connected
 ---@param eventKey string IEvent.Key
 ---@param input? string
 function EventHandler.triggerEvent(eventKey, input)
 	local event = EventHandler.Events[eventKey or false]
-	if not EventHandler.isValidEvent(event) then
+	if not Network.isConnected() or not EventHandler.isValidEvent(event) then
 		return
 	end
 	RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
@@ -301,6 +287,9 @@ function EventHandler.addDefaultEvents()
 		event.Key = key
 		event.Name = Resources.StreamConnect[tostring(key) .. "_Name"]
 		event.Help = Resources.StreamConnect[tostring(key) .. "_Help"]
+		if event.Type == EventHandler.EventTypes.Game then
+			event.TriggerEffect = Resources.StreamConnect[tostring(key) .. "_TriggerEffect"] or ""
+		end
 		local eventCopy = EventHandler.IEvent:new()
 		FileManager.copyTable(event, eventCopy)
 		EventHandler.addNewEvent(eventCopy)
@@ -333,6 +322,18 @@ function EventHandler.cleanupDuplicateCommandRequests()
 				end
 			end
 		end
+	end
+end
+
+---Used to run a standalone function for a given event
+---@param eventKey string A matching event key found in `EventHandler.Events`
+---@param funcName string The name of a function found within the event
+---@param ... unknown Any additional parameters
+function EventHandler.runEventFunc(eventKey, funcName, ...)
+	local event = EventHandler.Events[eventKey or false] or {}
+	local func = event[funcName or false]
+	if type(func) == "function" then
+		func(...)
 	end
 end
 
@@ -471,119 +472,144 @@ EventHandler.DefaultEvents = {
 	CMD_Pokemon = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!pokemon",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getPokemon(request.SanitizedInput) end,
 	},
 	CMD_BST = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!bst",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getBST(request.SanitizedInput) end,
 	},
 	CMD_Weak = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!weak",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getWeak(request.SanitizedInput) end,
 	},
 	CMD_Move = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!move",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getMove(request.SanitizedInput) end,
 	},
 	CMD_Ability = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!ability",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getAbility(request.SanitizedInput) end,
 	},
 	CMD_Route = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!route",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getRoute(request.SanitizedInput) end,
+	},
+	CMD_Trainer = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!trainer",
+		Fulfill = function(self, request) return EventData.getTrainer(request.SanitizedInput) end,
 	},
 	CMD_Dungeon = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!dungeon",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getDungeon(request.SanitizedInput) end,
 	},
 	CMD_Unfought = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!unfought",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getUnfoughtTrainers(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getUnfoughtTrainers(request.SanitizedInput) end,
 	},
 	CMD_Pivots = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!pivots",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getPivots(request.SanitizedInput) end,
 	},
 	CMD_Revo = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!revo",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getRevo(request.SanitizedInput) end,
 	},
 	CMD_Coverage = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!coverage",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getCoverage(request.SanitizedInput) end,
 	},
 	CMD_Heals = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!heals",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getHeals(request.SanitizedInput) end,
 	},
 	CMD_TMs = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!tms",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getTMsHMs(request.SanitizedInput) end,
 	},
 	CMD_Search = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!search",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getSearch(request.SanitizedInput) end,
 	},
 	CMD_SearchNotes = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!searchnotes",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getSearchNotes(request.SanitizedInput) end,
 	},
 	CMD_Favorites = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!favorites",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getFavorites(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getFavorites(request.SanitizedInput) end,
 	},
 	CMD_Theme = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!theme",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getTheme(request.SanitizedInput) end,
 	},
 	CMD_GameStats = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!gamestats",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getGameStats(request.SanitizedInput) end,
 	},
 	CMD_Progress = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!progress",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getProgress(request.SanitizedInput) end,
 	},
 	CMD_Log = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!log",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getLog(request.SanitizedInput) end,
 	},
 	CMD_BallQueue = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!ballqueue",
 		Options = { "O_ShowBallQueueOnStartup", },
 		O_ShowBallQueueOnStartup = false,
-		Fulfill = function(self, request) return DataHelper.EventRequests.getBallQueue(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getBallQueue(request.SanitizedInput) end,
+		TryDisplayMessage = function(self, ...)
+			-- Only show if the option to show is enabled and there exists a ball pick request
+			local ballqEvent = EventHandler.Events.CMD_BallQueue or {}
+			local ballqRequest = EventHandler.Queues.BallRedeems.ActiveRequest
+			if not ballqEvent.O_ShowBallQueueOnStartup or ballqRequest == nil then
+				return
+			end
+			-- Only show message if in the lab without a pokemon
+			if not RouteData.Locations.IsInLab[Program.GameData.mapId] or Tracker.getPokemon(1, true) ~= nil then
+				return
+			end
+			-- Only show message if it wasn't shown the last startup
+			local lasGUID = Main.MetaSettings["network"].LastBallQueueGUID or ""
+			if lasGUID == ballqRequest.GUID then
+				return
+			end
+			EventHandler.triggerEvent("CMD_BallQueue")
+			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
+			Main.SaveSettings(true)
+		end,
 	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!about",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getAbout(request.SanitizedInput) end,
 	},
 	CMD_Help = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!help",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getHelp(request.SanitizedInput) end,
 	},
 
 	-- CR_: Channel Rewards (Point Redeems)
@@ -945,6 +971,33 @@ EventHandler.DefaultEvents = {
 				response.Message = string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)
 			end
 			response.AdditionalInfo.AutoComplete = self.O_AutoComplete
+			return response
+		end,
+	},
+
+	-- GE_: Game Events
+	GE_GameOver = {
+		Type = EventHandler.EventTypes.Game,
+		Process = function(self, request)
+			-- Don't fulfill if already triggered this seed
+			if EventData.Vars[self.Key] then
+				return false
+			end
+			-- Returns true if the game is over
+			return GameOverScreen.status and GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+		end,
+		Fulfill = function(self, request)
+			local status = GameOverScreen.status == GameOverScreen.Statuses.WON and "WON" or "LOSS"
+			local leadPokemon = TrackerAPI.getPlayerPokemon(1) or {}
+			local output = string.format("%s %s", status, leadPokemon.pokemonID or 0)
+			local response = {
+				Message = "",
+				GlobalVars = {
+					-- Example Global Var output: "LOSS 213"
+					[self.Key] = output,
+				},
+			}
+			EventData.Vars[self.Key] = output
 			return response
 		end,
 	},

@@ -199,15 +199,15 @@ ScreenResources{
 		Title = "Tracker Setup", -- NEEDS TRANSLATION
 		TabGeneral = "General", -- NEEDS TRANSLATION
 		TabCarousel = "Carousel", -- NEEDS TRANSLATION
+		TabControls = "Controls", -- NEEDS TRANSLATION
 		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
+		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
-		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
 		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
@@ -218,12 +218,22 @@ ScreenResources{
 		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
+		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
+		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
+		LabelCurrentControllerBinding = "Current controller binding", -- NEEDS TRANSLATION
+		LabelNewControllerBinding = "New controller binding", -- NEEDS TRANSLATION
+		LabelWaiting = "Waiting", -- NEEDS TRANSLATION
+		LabelPressControllerButtons = "Press controller button(s) to bind.", -- NEEDS TRANSLATION
+		LabelButtonsAllowed = "Buttons allowed", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
 		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
-		PromptEditControllerLoadNext = "Load next seed", -- NEEDS TRANSLATION
+		PromptEditControllerLoadNext = "Load new seed", -- NEEDS TRANSLATION
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
+		PromptEditControllerInfoShortcut = "Trainers / Pivots", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
+		PromptEditControllerNextPage = "Next page", -- NEEDS TRANSLATION
+		PromptEditControllerPreviousPage = "Previous page", -- NEEDS TRANSLATION
 		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
 	},
 	ExtrasScreen = {
@@ -237,9 +247,6 @@ ScreenResources{
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
 		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
 		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
-		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
-		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
-		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
@@ -255,17 +262,29 @@ ScreenResources{
 	},
 	GameOptionsScreen = {
 		Title = "Gameplay Options", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
+		TabGameOver = "Game Over", -- NEEDS TRANSLATION
+		TabOther = "Other", -- NEEDS TRANSLATION
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
+		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
+		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionShowPhysicalSpecial = "Show physical special icons", -- NEEDS TRANSLATION
 		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
+		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
+		OptionLeadPokemonFaints = "Lead Pokémon faints", -- NEEDS TRANSLATION
+		OptionHighestLevelFaints = "Highest level faints", -- NEEDS TRANSLATION
+		OptionEntirePartyFaints = "Entire party faints", -- NEEDS TRANSLATION
+		OptionOpenBookPlayMode = "Open Book play mode", -- NEEDS TRANSLATION
+		LabelExtraTimeWarning = "May add extra load time", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
@@ -414,6 +433,32 @@ ScreenResources{
 		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
 		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
 	},
+	NotebookIndexScreen = {
+		Title = "Tracker Notebook", -- NEEDS TRANSLATION
+		LabelReviewDescription = "Review notes about the game", -- NEEDS TRANSLATION
+		LabelPokemonSeen = "Pokémon Seen", -- NEEDS TRANSLATION
+		LabelTrainersFought = "Trainers Fought", -- NEEDS TRANSLATION
+	},
+	NotebookPokemonSeen = {
+		Title = "All Pokémon Seen", -- NEEDS TRANSLATION
+		LabelAll = "All", -- NEEDS TRANSLATION
+		LabelSeen = "Seen", -- NEEDS TRANSLATION
+	},
+	NotebookPokemonNoteView = {
+		HeaderMoveHistory = "Move History", -- NEEDS TRANSLATION
+	},
+	NotebookTrainersByArea = {
+		Title = "All Trainers by Area", -- NEEDS TRANSLATION
+		CheckboxShowCompleted = "Show completed", -- NEEDS TRANSLATION
+		CheckboxSevii = "Sevii", -- NEEDS TRANSLATION
+	},
+	TrainerInfoScreen = {
+		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
+		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
+		LabelUsableItems = "Usable Items", -- NEEDS TRANSLATION
+		LabelDouble = "Double", -- NEEDS TRANSLATION
+		LabelBattle = "Battle!", -- NEEDS TRANSLATION
+	},
 	CustomExtensionsScreen = {
 		Title = "Custom Extensions", -- NEEDS TRANSLATION
 		ButtonGetExtensions = "Get Extensions", -- NEEDS TRANSLATION
@@ -493,6 +538,7 @@ ScreenResources{
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION
 		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
 		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
+		ButtonViewGrade = "View", -- NEEDS TRANSLATION
 		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
 		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
 		ButtonRetryBattle = "Retry the battle", -- NEEDS TRANSLATION
@@ -500,8 +546,17 @@ ScreenResources{
 		ButtonSaveAttempt = "Save this attempt", -- NEEDS TRANSLATION
 		ButtonSaveSuccessful = "Saved in Tracker folder", -- NEEDS TRANSLATION
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
+		ButtonGradeMyNotes = "Grade my notes", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+	},
+	StatMarkingScoreSheet = {
+		Title = "Stat Marking Score Sheet", -- NEEDS TRANSLATION
+		LabelGreatMarks = "Great marks", -- NEEDS TRANSLATION
+		LabelPoorMarks = "Poor marks", -- NEEDS TRANSLATION
+		LabelTotal = "Total", -- NEEDS TRANSLATION
+		LabelPercentage = "Percentage", -- NEEDS TRANSLATION
+		MessageTakeNotesByMarking = "Take notes while playing by marking stats on opposing Pokémon. (The Speed stat is excluded from grading.)", -- NEEDS TRANSLATION
 	},
 	RandomEvosScreen = {
 		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
@@ -571,8 +626,6 @@ ScreenResources{
 		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
 		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
-		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION
-		LabelExtraTimeWarning = "May add extra load time", -- NEEDS TRANSLATION
 		PromptShareSeedTitle = "Share Randomizer Seed", -- NEEDS TRANSLATION
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.", -- NEEDS TRANSLATION
 	},
@@ -598,50 +651,6 @@ ScreenResources{
 		FilterTrainerName = "Trainer Name", -- NEEDS TRANSLATION
 		FilterRouteName = "Route Name", -- NEEDS TRANSLATION
 	},
-	BattleEffectsScreen = {
-		Title = "Battle Effects", -- NEEDS TRANSLATION
-		TextTurn = "Turn", -- NEEDS TRANSLATION
-		TextTerrain = "Terrain", -- NEEDS TRANSLATION
-		TextWeather = "Weather", -- NEEDS TRANSLATION
-		TextWeatherTurns = "Weather turns", -- NEEDS TRANSLATION
-		TextAllied = "Allied", -- NEEDS TRANSLATION
-		TextEnemy = "Enemy", -- NEEDS TRANSLATION
-		TextTeam = "Team", -- NEEDS TRANSLATION
-		TextMon = "Mon", -- NEEDS TRANSLATION
-		TextField = "Field", -- NEEDS TRANSLATION
-		TextTurnsRemaining = "Left", -- NEEDS TRANSLATION
-		TextLastMove = "Last Move", -- NEEDS TRANSLATION
-		TextNotAvailable ="N/A", -- NEEDS TRANSLATION
-
-		WeatherDefault = "None", -- NEEDS TRANSLATION
-		WeatherRain = "Rain", -- NEEDS TRANSLATION
-		WeatherSandstorm = "Sandstorm", -- NEEDS TRANSLATION
-		WeatherSunlight =  "Sunlight", -- NEEDS TRANSLATION
-		WeatherHail =  "Hail", -- NEEDS TRANSLATION
-		TerrainDefault = "Building", -- NEEDS TRANSLATION
-		TerrainGrass = "Grass", -- NEEDS TRANSLATION
-		TerrainLongGrass = "Long Grass", -- NEEDS TRANSLATION
-		TerrainSand = "Sand", -- NEEDS TRANSLATION
-		TerrainUnderwater = "Underwater", -- NEEDS TRANSLATION
-		TerrainWater = "Water", -- NEEDS TRANSLATION
-		TerrainPond = "Pond", -- NEEDS TRANSLATION
-		TerrainMountain = "Mountain", -- NEEDS TRANSLATION
-		TerrainCave = "Cave", -- NEEDS TRANSLATION
-
-		EffectConfused = "Confused", -- NEEDS TRANSLATION
-		EffectMustAttack = "Must Attack", -- NEEDS TRANSLATION
-		EffectTrapped = "Trapped", -- NEEDS TRANSLATION
-		EffectCannotAct = "Recharging", -- NEEDS TRANSLATION
-		EffectAirborne = "Airborne", -- NEEDS TRANSLATION
-		EffectUnderground = "Underground", -- NEEDS TRANSLATION
-		EffectUnderwater = "Underwater", -- NEEDS TRANSLATION
-		EffectDrowsy = "Drowsy", -- NEEDS TRANSLATION
-		EffectProtectUses = "Protection Uses", -- NEEDS TRANSLATION
-		EffectPerishCount = "Perish Count", -- NEEDS TRANSLATION
-		EffectCannotEscape = "Can't Escape", -- NEEDS TRANSLATION
-		EffectTruant = "Loafing", -- NEEDS TRANSLATION
-		EffectFutureSight = "Future Attack", -- NEEDS TRANSLATION
-	},
 	TeamViewArea = {
 		EggNickname = "EGG", -- NEEDS TRANSLATION
 	},
@@ -661,14 +670,16 @@ ScreenResources{
 		CMD_Move_Help = "name > Displays game info for a move.",
 		CMD_Ability_Name = "Ability Info",
 		CMD_Ability_Help = "name > Displays game info for a Pokémon's ability.",
+		CMD_Trainer_Name = "Trainer Info",
+		CMD_Trainer_Help = "[name id] > Displays info about the most recent trainer fought, or for a specific trainer name or id.",
 		CMD_Route_Name = "Route Info",
 		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
 		CMD_Dungeon_Name = "Dungeon Info",
 		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
 		CMD_Unfought_Name = "Unfought Trainers",
-		CMD_Unfought_Help = "[dungeon] [sevii]> Displays a list of areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' to include partially completed dungeons.)",
+		CMD_Unfought_Help = "[dungeon] [no doubles] [sevii] > Lists areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' for partially completed dungeons and/or 'nodoubles' to exclude double battles.)",
 		CMD_Pivots_Name = "Pivots Seen",
-		CMD_Pivots_Help = "> Displays known early game wild encounters for an area.",
+		CMD_Pivots_Help = "[safari] > Displays known early game wild encounters for an area. (Add param 'safari' for high-level encounters from Safari Zone).",
 		CMD_Revo_Name = "Pokémon Random Evolutions",
 		CMD_Revo_Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		CMD_Coverage_Name = "Move Coverage Effectiveness",
@@ -705,6 +716,8 @@ ScreenResources{
 		CR_ChangeFavoriteThree_Name = "Change Starter Favorite: #3",
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
+		GE_GameOver_Name = "When the game is over...",
+		GE_GameOver_TriggerEffect = "Update SB Global Variables",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
@@ -804,6 +817,7 @@ ScreenResources{
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
 		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION

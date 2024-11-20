@@ -185,15 +185,36 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
+			-- Only activate for wild encounter battles
+			if not Battle.isWildEncounter then
+				return
+			end
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then
 				return
 			end
-			local routeInfo = {
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
 				mapId = Program.GameData.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
-			}
-			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
-		end
+			})
+		end,
+	},
+	TrainerDetails = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.BATTLE_BALLS,
+		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 78, 61, 16, 16 },
+		isVisible = function() return not Battle.isViewingOwn end,
+		onClick = function(self)
+			-- Only activate for trainer battles
+			if Battle.isWildEncounter then
+				return
+			end
+			local trainerId = TrackerAPI.getOpponentTrainerId()
+			if TrainerInfoScreen.buildScreen(trainerId) then
+				Program.changeScreenView(TrainerInfoScreen)
+			end
+		end,
 	},
 	AbilityUpper = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -390,17 +411,6 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	BattleDetails = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
-		isVisible = function() return Battle.inActiveBattle() and not Battle.isWildEncounter and not Battle.isViewingOwn end,
-		onClick = function(self)
-			BattleEffectsScreen.loadData()
-			BattleEffectsScreen.refreshIndex()
-			Program.changeScreenView(BattleEffectsScreen)
-		end
-	},
 	TrainerSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.SWORD_ATTACK,
@@ -410,7 +420,11 @@ TrackerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.TRAINERS end,
-		--onClick = function(self) end
+		onClick = function(self)
+			if TrainersOnRouteScreen.buildScreen(TrackerAPI.getMapId()) then
+				Program.changeScreenView(TrainersOnRouteScreen)
+			end
+		end
 	},
 }
 
@@ -433,6 +447,7 @@ TrackerScreen.PokeBalls = {
 	ColorList = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, }, -- Colors used to draw all Pokeballs
 	ColorListGray = { Drawing.Colors.BLACK, Utils.calcGrayscale(0xFFF04037, 0.6), Drawing.Colors.WHITE, },
 	ColorListFainted = { Drawing.Colors.BLACK, 0x22F04037, 0x44FFFFFF, },
+	ColorListMasterBall = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, 0xFFCB5C95 },
 	getLabel = function(ballIndex)
 		if ballIndex == 1 then
 			return Resources.TrackerScreen.RandomBallLeft
@@ -719,7 +734,7 @@ function TrackerScreen.buildCarousel()
 	-- TRAINERS
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.TRAINERS] = {
 		type = TrackerScreen.CarouselTypes.TRAINERS,
-		framesToShow = 360,
+		framesToShow = 420,
 		lockedSpeed = true,
 		canShow = function(self)
 			if not SetupScreen.Buttons.CarouselTrainers.toggleState then
@@ -732,7 +747,7 @@ function TrackerScreen.buildCarousel()
 			if RouteData.hasRouteTrainers() then
 				local routeId = TrackerAPI.getMapId()
 				local route = RouteData.Info[routeId]
-				local routeName = route.area and route.area.name or route.name
+				local routeName = RouteData.getRouteOrAreaName(routeId)
 				local defeatedTrainersList, totalInArea
 				if route.area ~= nil then
 					defeatedTrainersList, totalInArea = Program.getDefeatedTrainersByCombinedArea(route.area)
@@ -822,12 +837,14 @@ function TrackerScreen.updateButtonStates()
 	end
 end
 
-function TrackerScreen.openNotePadWindow(pokemonId)
+function TrackerScreen.openNotePadWindow(pokemonId, onCloseFunc)
 	if not PokemonData.isValid(pokemonId) then return end
 
 	local BLANK = Constants.BLANKLINE
 	local pokemonName = PokemonData.Pokemon[pokemonId].name
-	local form = ExternalUI.BizForms.createForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
+	local form = ExternalUI.BizForms.createForm(
+		string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName),
+		465, 220, nil, nil, onCloseFunc)
 
 	form:createLabel(string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10)
 	local noteTextBox = form:createTextBox(Tracker.getNote(pokemonId), 10, 30, 430, 20)
@@ -1121,9 +1138,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 		else
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, data.x.encounters)
-			routeText = string.format("%s:", Resources.TrackerScreen.BattleTeam)
-			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
+			routeText = "" -- string.format("%s:", Resources.TrackerScreen.BattleTeam) -- Remove word "Team" as there's no space
+			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
+			Drawing.drawButton(TrackerScreen.Buttons.TrainerDetails, shadowcolor)
+			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
 		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
@@ -1178,13 +1196,13 @@ function TrackerScreen.drawStatsArea(data)
 	local borderColor = Theme.COLORS["Upper box border"]
 	local bgColor = Theme.COLORS["Upper box background"]
 	local shadowcolor = Utils.calcShadowColor(bgColor)
-	local statBoxWidth = 101
-	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
+	local mainBoxWidth = 101
+	local statOffsetX = Constants.SCREEN.WIDTH + mainBoxWidth + 1
 	local statOffsetY = 7
 
 	-- Draw the border box for the Stats area
-	local x, y = Constants.SCREEN.WIDTH + statBoxWidth, 5
-	local w, h = Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75
+	local x, y = Constants.SCREEN.WIDTH + mainBoxWidth, 5
+	local w, h = Constants.SCREEN.RIGHT_GAP - mainBoxWidth - 5, 75
 	gui.drawRectangle(x, y, w, h, borderColor, bgColor)
 	if RouteData.Locations.CanPCHeal[TrackerAPI.getMapId()] then
 		if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end

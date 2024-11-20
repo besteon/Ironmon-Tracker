@@ -264,11 +264,15 @@ function HealsInBagScreen.buildPagedButtons(tab)
 			end
 		end
 	elseif tab == SCREEN.Tabs.All then
+		local addedIds = {} -- prevent duplicate items from appearing
 		for bagKey, itemGroup in pairs(Program.GameData.Items) do
 			if type(itemGroup) == "table" then
 				for itemID, _ in pairs(itemGroup) do
-					local sortValue = calcSortValue(itemID)
-					table.insert(tabContents, { id = itemID, bagKey = bagKey, sortValue = sortValue })
+					if not addedIds[itemID] then
+						local sortValue = calcSortValue(itemID)
+						table.insert(tabContents, { id = itemID, bagKey = bagKey, sortValue = sortValue })
+						addedIds[itemID] = true
+					end
 				end
 			end
 		end

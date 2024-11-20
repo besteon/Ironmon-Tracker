@@ -3,6 +3,7 @@ Program = {
 	previousScreens = {}, -- breadcrumbs for clicking the Back button
 	inStartMenu = false,
 	inCatchingTutorial = false,
+	hasCheckedGameSettings = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
 	lastActiveTimestamp = 0,
@@ -51,10 +52,16 @@ Program = {
 		offsetPokemonStatsMaxHpAtk = 0x58,
 		offsetPokemonStatsDefSpe = 0x5C,
 		offsetPokemonStatsSpaSpd = 0x60,
+		offsetRivalName = 0x3A4C, -- SaveBlock1
+		offsetOptionsButtonMode = 0x13, -- SaveBlock2
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
 		sizeofExpTableLevel = 0x4,
+		sizeofTrainer = 0x28,
+		sizeofTrainerName = 12,
+		sizeofTrainerClass = 13,
+		sizeofMaxTrainerItems = 4,
 		sizeofBattlePokemon = 0x58,
 		sizeofBattleMove = 0xC,
 		sizeofTaskStruct = 0x28,
@@ -66,7 +73,8 @@ Program = {
 	},
 	Values = {
 		ShinyOdds = 8, -- n/65536
-	}
+		ButtonModeLR = 1, -- 0:NORMAL(HELP), 1:LR, 2:L_EQUALS_A; default setting for new game is 0
+	},
 }
 
 Program.GameData = {
@@ -285,6 +293,7 @@ function Program.initialize()
 	-- Reset variables when a new game is loaded
 	Program.inStartMenu = false
 	Program.inCatchingTutorial = false
+	Program.hasCheckedGameSettings = false
 	Program.hasCompletedTutorial = false
 	Program.lastActiveTimestamp = os.time()
 	Program.Frames.waitToDraw = 1
@@ -307,6 +316,12 @@ function Program.initialize()
 	Program.Pedometer:initialize()
 	Program.GameTimer:initialize()
 	Program.AutoSaver:updateSaveCount()
+
+	Program.addFrameCounter("Program:DelayedStartup", 60, Program.delayedStartup, 1, true)
+end
+
+function Program.delayedStartup()
+	Options.alertImportantChanges()
 end
 
 function Program.mainLoop()
@@ -409,6 +424,13 @@ function Program.update()
 				end
 			end
 		end
+
+		if SetupScreen.inProcessOfBinding() then
+			local inputsPressed = SetupScreen.checkCurrentJoypadInput()
+			if #inputsPressed > 0 then
+				Program.redraw(true)
+			end
+		end
 	end
 
 	-- Don't bother reading game data before a game even begins
@@ -428,6 +450,17 @@ function Program.update()
 				if Program.currentScreen == StartupScreen then
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
+				end
+
+				if Network.isConnected() then
+					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
+				end
+			end
+
+			if not Program.hasCheckedGameSettings then
+				Program.hasCheckedGameSettings = true
+				if Options["Override Button Mode to LR"] then
+					Program.changeGameSettingForLR()
 				end
 			end
 
@@ -780,6 +813,142 @@ function Program.readNewPokemon(startAddress, personality)
 	})
 end
 
+---Reads in Trainer game data from memory.
+---@param trainerId number
+---@return table trainer A `Program.GameTrainer` object
+function Program.readTrainerGameData(trainerId)
+	local trainer = Program.GameTrainer:new({
+		trainerId = trainerId,
+		defeated = Program.hasDefeatedTrainer(trainerId),
+	})
+
+	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
+	trainer.partyFlags = Memory.readbyte(startAddress)
+	trainer.trainerPic = Memory.readbyte(startAddress + 0x03)
+	trainer.doubleBattle = Memory.readbyte(startAddress + 0x18) ~= 0
+	trainer.aiFlags = Memory.readdword(startAddress + 0x1C) -- AI_SCRIPT_CHECK_BAD_MOVE(1 << 0) | AI_SCRIPT_TRY_TO_FAINT(1 << 2) | AI_SCRIPT_CHECK_VIABILITY(1 << 1)
+	trainer.partySize = Memory.readbyte(startAddress + 0x20)
+	trainer.items = {
+		Memory.readword(startAddress + 0x10),
+		Memory.readword(startAddress + 0x12),
+		Memory.readword(startAddress + 0x14),
+		Memory.readword(startAddress + 0x16),
+	}
+
+	-- GENDER
+	local genderBit = Utils.getbits(Memory.readbyte(startAddress + 0x02), 7, 1)
+	if genderBit == 0 then
+		trainer.gender = MiscData.Gender.MALE
+	elseif genderBit == 1 then
+		trainer.gender = MiscData.Gender.FEMALE
+	else
+		trainer.gender = MiscData.Gender.UNKNOWN
+	end
+
+	-- TRAINER CLASS
+	local classId = Memory.readbyte(startAddress + 0x01)
+	local classStartAddr = GameSettings.gTrainerClassNames + (classId * Program.Addresses.sizeofTrainerClass)
+	trainer.trainerClass = ""
+	for i = 0, Program.Addresses.sizeofTrainerClass - 1, 1 do
+		local charByte = Memory.readbyte(classStartAddr + i)
+		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
+		trainer.trainerClass = trainer.trainerClass .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+	end
+	trainer.trainerClass = Utils.formatSpecialCharacters(trainer.trainerClass)
+
+	-- TRAINER NAME
+	local trainerNameAddr
+	-- Don't use the Rival's true name if playing FRLG, as that is hidden information used to calc enemy Pokémon natures
+	if GameSettings.game == 3 and TrainerData.isRival(trainerId) then
+		trainerNameAddr = Utils.getSaveBlock1Addr() + Program.Addresses.offsetRivalName
+	else
+		trainerNameAddr = startAddress + 0x04
+	end
+	trainer.trainerName = ""
+	for i = 0, Program.Addresses.sizeofTrainerName - 1, 1 do
+		local charByte = Memory.readbyte(trainerNameAddr + i)
+		if charByte == Program.Addresses.nicknameCharEnd then break end -- end of sequence
+		trainer.trainerName = trainer.trainerName .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+	end
+	trainer.trainerName = Utils.formatSpecialCharacters(trainer.trainerName)
+
+	-- TRAINER PARTY MONS
+	local function readPartyPokemon(partyPtr)
+		local partyData = {}
+
+		-- #define F_TRAINER_PARTY_CUSTOM_MOVESET (1 << 0) even = default moveset, odd = custom moveset
+		-- #define F_TRAINER_PARTY_HELD_ITEM      (1 << 1) 2 or greater = held item, 1 or lower = no item
+		if trainer.partyFlags == 0 then -- TrainerMonNoItemDefaultMoves (flag: 0 << 0)
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 8 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+				})
+			end
+		elseif trainer.partyFlags == 1 then -- TrainerMonNoItemCustomMoves (flag: 1 << 0)
+			-- TODO: Untested, not available in FRLG
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 16 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					moves = { -- u16 moves[MAX_MON_MOVES];
+						Memory.readword(partyPtr + offset + 0x06),
+						Memory.readword(partyPtr + offset + 0x08),
+						Memory.readword(partyPtr + offset + 0x0A),
+						Memory.readword(partyPtr + offset + 0x0C),
+					}
+				})
+			end
+		elseif trainer.partyFlags == 2 then -- TrainerMonItemDefaultMoves (flag: 1 << 1)
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 8 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					heldItem = Memory.readword(partyPtr + offset + 0x06),-- u16 heldItem;
+				})
+			end
+		elseif trainer.partyFlags == 3 then -- TrainerMonItemCustomMoves (flag: 1 << 0 | 1 << 1)
+			for i = 0, trainer.partySize - 1, 1 do
+				local offset = i * 16 -- mon size in bytes
+				table.insert(partyData, {
+					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					heldItem = Memory.readword(partyPtr + offset + 0x06),-- u16 heldItem;
+					moves = { -- u16 moves[MAX_MON_MOVES];
+						Memory.readword(partyPtr + offset + 0x08),
+						Memory.readword(partyPtr + offset + 0x0A),
+						Memory.readword(partyPtr + offset + 0x0C),
+						Memory.readword(partyPtr + offset + 0x0E),
+					}
+				})
+			end
+		end
+		return partyData
+	end
+
+	trainer.party = {}
+	local partyPtr = Memory.readdword(startAddress + 0x24)
+	local partyData = readPartyPokemon(partyPtr)
+	for _, pokemon in ipairs(partyData or {}) do
+		table.insert(trainer.party, {
+			pokemonID = pokemon.species or 0,
+			level = pokemon.level or 0,
+			ivs = math.floor(pokemon.iv * 31 / 255), -- fixedIV = iv * MAX_PER_STAT_IVS(31) / 255
+			heldItem = pokemon.heldItem or 0,
+			moves = pokemon.moves or {}, -- Holds "Custom Moves", as defined for a tiny subset of trainers
+		})
+	end
+
+	return trainer
+end
+
 -- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
 function Program.getTeamCounts()
 	local numAlive, total = 0, 0
@@ -930,7 +1099,8 @@ function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 	-- If the battle message relates to learning a new move, read in that move id
-	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg <= GameSettings.BattleScript_LearnMoveReturn then
+	-- Note: The very last address (excluded) is called for any level-up, not just level-ups involving learning a new move
+	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg < GameSettings.BattleScript_LearnMoveReturn then
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
 
 		local battleStructAddress
@@ -944,6 +1114,7 @@ function Program.getLearnedMoveInfoTable()
 		local partyIndex = Memory.readbyte(battleStructAddress + Program.Addresses.offsetPokemonGettingExp) + 1 -- Party index of player (1-6)
 		local pokemon = Tracker.getPokemon(partyIndex, true)
 		if pokemon ~= nil then
+			--Utils.printDebug("Move: %s, Battle Script: %s, Pokemon: %s, Level: %s", moveToLearnId, battleMsg, pokemon.pokemonID, pokemon.level)
 			return {
 				pokemonID = pokemon.pokemonID,
 				level = pokemon.level,
@@ -1025,6 +1196,20 @@ function Program.isInStartMenu()
 
 	local startMenuWindowId = Memory.readbyte(GameSettings.sStartMenuWindowId)
 	return startMenuWindowId == 1
+end
+
+---Forcibly change the in-game option for "Button Mode" from "HELP" to "LR"; allowing additional Tracker controls
+---@param forced? boolean Optional, if true will force change the setting regardless of game being played or existing setting
+function Program.changeGameSettingForLR(forced)
+	-- Do not change this setting if playing FireRed NatDex, as that rom hack defaults to ButtonMode:LR
+	if not forced and GameSettings.game == 3 and CustomCode.RomHacks.isPlayingNatDex() then
+		return
+	end
+	local addr2 = Utils.getSaveBlock2Addr()
+	local currentSetting = Memory.readbyte(addr2 + Program.Addresses.offsetOptionsButtonMode)
+	if forced or currentSetting == 0 then -- 0 is the default setting for the game
+		Memory.writebyte(addr2 + Program.Addresses.offsetOptionsButtonMode, Program.Values.ButtonModeLR)
+	end
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
@@ -1220,13 +1405,18 @@ function Program.updateBagItems()
 				if quantity > 0 then
 					if MiscData.HealingItems[itemID] then
 						items.HPHeals[itemID] = quantity
-					elseif MiscData.PPItems[itemID] then
+					end
+					if MiscData.PPItems[itemID] then
 						items.PPHeals[itemID] = quantity
-					elseif MiscData.StatusItems[itemID] then
+					end
+					if MiscData.StatusItems[itemID] then
 						items.StatusHeals[itemID] = quantity
-					elseif MiscData.EvolutionStones[itemID] then
+					end
+					if MiscData.EvolutionStones[itemID] then
 						items.EvoStones[itemID] = quantity
-					else
+					end
+					-- If the item wasn't categorized anywhere, mark as "Other"
+					if not (items.HPHeals[itemID] or items.PPHeals[itemID] or items.StatusHeals[itemID] or items.EvoStones[itemID]) then
 						items.Other[itemID] = quantity
 					end
 				end
@@ -1330,6 +1520,41 @@ Program.DefaultPokemon = {
 }
 
 function Program.DefaultPokemon:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+
+---A Trainer data struct read in from game memory
+Program.GameTrainer = {
+	trainerId = 0, -- The internal ID number of the trainer
+	defeated = false, -- If the player has defeated this trainer; requires a separate game data read
+	-- /*0x00*/ u8 partyFlags;
+	partyFlags = 0,
+	-- /*0x01*/ u8 trainerClass;
+	trainerClass = 0,
+	-- /*0x02*/ u8 encounterMusic_gender; // last bit is gender
+	gender = 0,
+	-- /*0x03*/ u8 trainerPic;
+	trainerPic = 0,
+	-- /*0x04*/ u8 trainerName[12];
+	trainerName = 0, -- size: 12
+	-- /*0x10*/ u16 items[MAX_TRAINER_ITEMS];
+	items = {}, -- value: itemId, size: 4
+	-- /*0x18*/ bool8 doubleBattle;
+	doubleBattle = false,
+	-- /*0x1C*/ u32 aiFlags;
+	aiFlags = 0,
+	-- /*0x20*/ u8 partySize;
+	partySize = 0,
+	-- /*0x24*/ const union TrainerMonPtr party; (pointer)
+	party = {
+		-- Example party member: { pokemonID=1, level=5, ivs=31, heldItem=13, moves={33,45,0,0} }
+	},
+}
+
+function Program.GameTrainer:new(o)
 	o = o or {}
 	setmetatable(o, self)
 	self.__index = self

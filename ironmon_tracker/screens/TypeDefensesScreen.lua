@@ -35,7 +35,8 @@ TypeDefensesScreen.Buttons = {
 	Back = Drawing.createUIElementBackButton(function()
 		TypeDefensesScreen.pokemonID = nil
 		if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
-			Program.changeScreenView(TrackerScreen)
+			Program.changeScreenView(TypeDefensesScreen.previousScreen or TrackerScreen)
+			TypeDefensesScreen.previousScreen = nil
 		else
 			Program.changeScreenView(InfoScreen)
 		end
