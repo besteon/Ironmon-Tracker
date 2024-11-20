@@ -1065,7 +1065,7 @@ function BattleEffectsScreen.drawScreen()
 		BattleEffectsScreen.Buttons.Back.onClick()
 		return
 	end
-	BattleEffectsScreen.loadData()
+	--BattleEffectsScreen.loadData()
 	drawTitle()
 	drawBattleDiagram()
 	if BattleEffectsScreen.viewingIndividualStatuses then
