@@ -435,6 +435,8 @@ end
 function NotebookPokemonNoteView.clearBuiltData()
 	SCREEN.Data = {}
 	SCREEN.Data.isReady = false
+	SCREEN.Buttons.Type1.image = nil
+	SCREEN.Buttons.Type2.image = nil
 end
 
 function NotebookPokemonNoteView.rebuildData()

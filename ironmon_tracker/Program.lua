@@ -1,6 +1,7 @@
 Program = {
 	currentScreen = 1,
 	previousScreens = {}, -- breadcrumbs for clicking the Back button
+	updateRequired = false,
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCheckedGameSettings = false,
@@ -296,6 +297,7 @@ function Program.initialize()
 	end
 
 	-- Reset variables when a new game is loaded
+	Program.updateRequired = false
 	Program.inStartMenu = false
 	Program.inCatchingTutorial = false
 	Program.hasCheckedGameSettings = false
@@ -342,6 +344,9 @@ function Program.mainLoop()
 	CustomCode.afterEachFrame()
 	Program.redraw(false)
 	Program.stepFrames() -- TODO: Really want a better way to handle this
+	if Program.updateRequired then
+		Program.updateRequired = false
+	end
 end
 
 -- 'forced' = true will force a draw, skipping the normal frame wait time
@@ -404,7 +409,7 @@ end
 
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
-	if Program.Frames.highAccuracyUpdate == 0 then
+	if Program.Frames.highAccuracyUpdate == 0 or Program.updateRequired then
 		if Main.IsOnBizhawk() then
 			Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
 		end
@@ -445,7 +450,7 @@ function Program.update()
 	end
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
-	if Program.Frames.lowAccuracyUpdate == 0 then
+	if Program.Frames.lowAccuracyUpdate == 0 or Program.updateRequired then
 		Program.updateCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
@@ -510,7 +515,7 @@ function Program.update()
 	end
 
 	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
-	if Program.Frames.three_sec_update == 0 then
+	if Program.Frames.three_sec_update == 0 or Program.updateRequired then
 		Program.updateBagItems()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
@@ -533,9 +538,14 @@ function Program.update()
 		end
 	end
 
-	if Program.Frames.lowAccuracyUpdate == 0 then
+	if Program.Frames.lowAccuracyUpdate == 0 or Program.updateRequired then
 		CustomCode.afterProgramDataUpdate()
 	end
+end
+
+---Signals Program, and Battle, to read in the game data again (useful for when loading a Tracker save state)
+function Program.updateDataNextFrame()
+	Program.updateRequired = true
 end
 
 function Program.stepFrames()

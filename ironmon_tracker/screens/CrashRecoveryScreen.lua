@@ -226,6 +226,7 @@ function CrashRecoveryScreen.undoRecoverSave()
 		if restorePoint.id then
 			memorysavestate.loadcorestate(restorePoint.id)
 			Tracker.Data.playtime = restorePoint.playtime
+			Program.updateDataNextFrame()
 		end
 		CrashRecoveryScreen.undoSaveRestorePoint = nil
 	else
