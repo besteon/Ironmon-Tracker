@@ -1,10 +1,52 @@
 QuickloadScreen = {
-	textColor = "Lower box text",
-	borderColor = "Lower box border",
-	boxFillColor = "Lower box background",
+	Colors = {
+		text = "Lower box text",
+		highlight = "Intermediate text",
+		positive = "Positive text",
+		negative = "Negative text",
+		border = "Lower box border",
+		boxFill = "Lower box background",
+	},
+	Tabs = {
+		General = {
+			index = 1,
+			tabKey = "General",
+			resourceKey = "TabGeneral",
+		},
+		Profiles = {
+			index = 2,
+			tabKey = "Profiles",
+			resourceKey = "TabProfiles",
+		},
+		Edit = {
+			index = 3,
+			tabKey = "Edit",
+			resourceKey = "TabEdit",
+		},
+		Options = {
+			index = 4,
+			tabKey = "Options",
+			resourceKey = "TabOptions",
+		},
+	},
+	currentTab = nil,
+	Profiles = {}, -- populated from JSON as a luatable: { [GUID] = IProfile() }
+}
+local SCREEN = QuickloadScreen
+local TAB_HEIGHT = 12
+local CANVAS = {
+	X = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+	Y = Constants.SCREEN.MARGIN + 10 + TAB_HEIGHT,
+	W = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+	H = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10 - TAB_HEIGHT,
 }
 
-QuickloadScreen.SetButtonSetup = {
+SCREEN.Modes = {
+	GENERATE = "Generate",
+	PREMADE = "Premade",
+}
+
+SCREEN.SetButtonSetup = {
 	["ROMs Folder"] = {
 		resourceKey = "OptionRomsFolder",
 		offsetY = Constants.SCREEN.MARGIN + 55,
@@ -27,22 +69,108 @@ QuickloadScreen.SetButtonSetup = {
 	},
 }
 
-QuickloadScreen.Buttons = {
-	ButtonCombo = {
+SCREEN.Buttons = {
+	-- Description + Button Combo
+	NewRunsDescription = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function() return Resources.QuickloadScreen.ButtonCombo .. ":" end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 130, 11 },
+		-- TODO: change to reflect the selected profile, if set to ROMs Folder
+		getCustomText = function() return string.format("%s:", Resources.QuickloadScreen.NewRunsDescription) end,
+		box = { CANVAS.X + 2, CANVAS.Y + 2, CANVAS.W - 2, 22 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
 		draw = function(self, shadowcolor)
-			local offsetX = Utils.calcWordPixelLength(self:getText())
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local wrappedText = Utils.getWordWrapLines(self:getCustomText(), 31) or {}
+			local textColor = Theme.COLORS[self.textColor]
+			local lineY = y
+			for _, line in ipairs(wrappedText) do
+				Drawing.drawText(x, lineY, line, textColor, shadowcolor)
+				lineY = lineY + Constants.SCREEN.LINESPACING - 1
+			end
+			lineY = lineY + 2
 			local comboRaw = Options.CONTROLS["Load next seed"] or Constants.BLANKLINE
 			local comboFormatted = comboRaw:gsub(" ", ""):gsub(",", " + ")
-			Drawing.drawText(self.box[1] + offsetX + 5, self.box[2], comboFormatted, Theme.COLORS["Intermediate text"], shadowcolor)
+			local centerX = Utils.getCenteredTextX(comboFormatted, w) - 2
+			Drawing.drawText(x + centerX, lineY, comboFormatted, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+			-- Lazily update the height of this button based on how tall it is drawn
+			self.box[4] = lineY + 9 - y
 		end,
 		onClick = function()
 			SetupScreen.currentTab = SetupScreen.Tabs.Controls
 			SetupScreen.previousScreen = QuickloadScreen
 			Program.changeScreenView(SetupScreen)
-		end
+		end,
+	},
+	-- Game Profile label + Active profile
+	SelectedGameProfile = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		box = { CANVAS.X + 3, CANVAS.Y + 65, CANVAS.W - 6, 33 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
+		draw = function(self, shadowcolor)
+			local profile = QuickloadScreen.getSelectedProfile()
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local textColor = Theme.COLORS[SCREEN.Colors.text]
+			local highlightColor = Theme.COLORS[SCREEN.Colors.highlight]
+			-- Draw Header
+			Drawing.drawText(x + 1, y - 11, string.format("%s:", "Selected Game Profile"), textColor, shadowcolor)
+			-- Draw Icon
+			local iconFilepath
+			if not profile or Utils.isNilOrEmpty(profile.GameVersion) then
+				iconFilepath = FileManager.buildImagePath("boxart", "unknown", ".png")
+			else
+				iconFilepath = FileManager.buildImagePath("boxart", profile.GameVersion, ".png")
+			end
+			Drawing.drawImage(iconFilepath, x + 1, y + 1, 32, 32)
+			gui.drawLine(x + 33, y, x + 33, y + 32, Theme.COLORS[SCREEN.Colors.border])
+			-- Draw Profile Information
+			-- TODO: find a way to display "Generate" vs. "Premade"
+			local col2X = x + 35
+			if not profile then
+				Drawing.drawText(col2X, y + 5, "Game Profile Missing", highlightColor, shadowcolor)
+				Drawing.drawText(col2X, y + 15, "(create one below...)", textColor - 0x20000000, shadowcolor)
+				return
+			end
+			Drawing.drawText(col2X, y + 1, string.format("%s", profile.Name), highlightColor, shadowcolor)
+			local attemptsFormatted = Utils.formatNumberWithCommas(profile.AttemptsCount)
+			Drawing.drawText(col2X, y + 11, string.format("%s: %s", "Attempts", attemptsFormatted), textColor, shadowcolor)
+			local dateFormatted = os.date("%x", profile.LastUsedDate) -- date, (e.g., 09/16/98)
+			if type(dateFormatted) == "string" then
+				Drawing.drawText(col2X, y + 21, string.format("%s: %s", "Last Played", dateFormatted), textColor - 0x30000000, shadowcolor)
+			end
+		end,
+	},
+	ChangeSelectedProfile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.TRIANGLE_DOWN,
+		getText = function(self)
+			local profile = QuickloadScreen.getSelectedProfile()
+			if profile then
+				return "Change Profile" or Resources.QuickloadScreen.ChangeProfile
+			else
+				return "Add New Profile" or Resources.QuickloadScreen.AddNewProfile
+			end
+		end,
+		box = { CANVAS.X + 27, CANVAS.Y + 103, 84, 16 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
+		updateSelf = function(self)
+			local profile = QuickloadScreen.getSelectedProfile()
+			if profile and self.image ~= Constants.PixelImages.TRIANGLE_DOWN then
+				self.image = Constants.PixelImages.TRIANGLE_DOWN
+				self.textColor = SCREEN.Colors.text
+			elseif not profile and self.image ~= Constants.PixelImages.INSTALL_BOX then
+				self.image = Constants.PixelImages.INSTALL_BOX
+				self.textColor = SCREEN.Colors.positive
+			end
+		end,
+		onClick = function()
+			local profile = QuickloadScreen.getSelectedProfile()
+			if profile then
+				SCREEN.currentTab = SCREEN.Tabs.Profiles
+			else
+				SCREEN.currentTab = SCREEN.Tabs.Edit
+			end
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
 	},
 	PremadeRoms = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -52,6 +180,7 @@ QuickloadScreen.Buttons = {
 		box = {	Constants.SCREEN.WIDTH + 13, Constants.SCREEN.MARGIN + 44, 8, 8 },
 		toggleState = false,
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		isVisible = function(self) return false end, -- TODO: Debug
 		onClick = function(self)
 			-- Only one can be enabled at a time
 			Options["Generate ROM each time"] = false
@@ -70,8 +199,8 @@ QuickloadScreen.Buttons = {
 
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
-			QuickloadScreen.verifyOptions()
-			QuickloadScreen.refreshButtons()
+			SCREEN.verifyOptions()
+			SCREEN.refreshButtons()
 			NavigationMenu.refreshButtons()
 			Program.redraw(true)
 		end
@@ -84,6 +213,7 @@ QuickloadScreen.Buttons = {
 		box = {	Constants.SCREEN.WIDTH + 13, Constants.SCREEN.MARGIN + 74, 8, 8 },
 		toggleState = false,
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		isVisible = function(self) return false end, -- TODO: Debug
 		onClick = function(self)
 			-- Only one can be enabled at a time
 			Options["Use premade ROMs"] = false
@@ -91,8 +221,8 @@ QuickloadScreen.Buttons = {
 
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
-			QuickloadScreen.verifyOptions()
-			QuickloadScreen.refreshButtons()
+			SCREEN.verifyOptions()
+			SCREEN.refreshButtons()
 			NavigationMenu.refreshButtons()
 			Program.redraw(true)
 		end
@@ -101,45 +231,51 @@ QuickloadScreen.Buttons = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Refocus emulator after load",
 		getText = function(self) return Resources.QuickloadScreen.OptionRefocusEmulator end,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 110, 8 },
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 8, 8 },
+		clickableArea = { CANVAS.X + 4, CANVAS.Y + 4, 110, 8 },
+		box = {	CANVAS.X + 4, CANVAS.Y + 4, 8, 8 },
 		toggleState = false,
-		isVisible = function(self) return Main.emulator ~= Main.EMU.BIZHAWK28 end, -- Option not needed nor used for Bizhawk 2.8
+		-- Option not needed nor used for Bizhawk 2.8
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Options and Main.emulator ~= Main.EMU.BIZHAWK28 end,
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
 			self.toggleState = Options.toggleSetting(self.optionKey)
 			Program.redraw(true)
 		end
 	},
-	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(NavigationMenu) end),
+	Back = Drawing.createUIElementBackButton(function()
+		Program.changeScreenView(NavigationMenu)
+		SCREEN.currentTab = SCREEN.Tabs.General
+	end),
 }
 
 function QuickloadScreen.initialize()
-	QuickloadScreen.createButtons()
+	SCREEN.currentTab = SCREEN.Tabs.General
+	SCREEN.createTabs()
+	SCREEN.createButtons()
 
-	local romfolderBtn = QuickloadScreen.Buttons["ROMs Folder"]
-	local jarBtn = QuickloadScreen.Buttons["Randomizer JAR"]
-	local gbaBtn = QuickloadScreen.Buttons["Source ROM"]
-	local rnqsBtn = QuickloadScreen.Buttons["Settings File"]
+	local romfolderBtn = SCREEN.Buttons["ROMs Folder"]
+	local jarBtn = SCREEN.Buttons["Randomizer JAR"]
+	local gbaBtn = SCREEN.Buttons["Source ROM"]
+	local rnqsBtn = SCREEN.Buttons["Settings File"]
 
-	romfolderBtn.clickFunction = QuickloadScreen.handleSetRomFolder
-	jarBtn.clickFunction = QuickloadScreen.handleSetRandomizerJar
-	gbaBtn.clickFunction = QuickloadScreen.handleSetSourceRom
-	rnqsBtn.clickFunction = QuickloadScreen.handleSetCustomSettings
+	romfolderBtn.clickFunction = SCREEN.handleSetRomFolder
+	jarBtn.clickFunction = SCREEN.handleSetRandomizerJar
+	gbaBtn.clickFunction = SCREEN.handleSetSourceRom
+	rnqsBtn.clickFunction = SCREEN.handleSetCustomSettings
 
-	for _, button in pairs(QuickloadScreen.Buttons) do
+	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
-			button.textColor = QuickloadScreen.textColor
+			button.textColor = SCREEN.Colors.text
 		end
 		if button.boxColors == nil then
-			button.boxColors = { QuickloadScreen.borderColor, QuickloadScreen.boxFillColor }
+			button.boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill }
 		end
 	end
 
-	QuickloadScreen.verifyOptions()
+	SCREEN.verifyOptions()
 
-	local optionPremade = QuickloadScreen.Buttons.PremadeRoms.optionKey
-	local optionGenerate = QuickloadScreen.Buttons.GenerateRom.optionKey
+	local optionPremade = SCREEN.Buttons.PremadeRoms.optionKey
+	local optionGenerate = SCREEN.Buttons.GenerateRom.optionKey
 
 	-- If neither premade seeds nor generate ROM each time are enabled, try turning one on if files are setup already
 	local settingsChanged = false
@@ -160,16 +296,66 @@ function QuickloadScreen.initialize()
 		Main.SaveSettings(true)
 	end
 
-	QuickloadScreen.Buttons.PremadeRoms.toggleState = Options[optionPremade]
-	QuickloadScreen.Buttons.GenerateRom.toggleState = Options[optionGenerate]
+	-- TODO: move this later
+	SCREEN.loadProfiles()
+
+	SCREEN.Buttons.PremadeRoms.toggleState = Options[optionPremade]
+	SCREEN.Buttons.GenerateRom.toggleState = Options[optionGenerate]
 	NavigationMenu.refreshButtons()
-	QuickloadScreen.refreshButtons()
+	SCREEN.refreshButtons()
+end
+
+function QuickloadScreen.createTabs()
+	local startX = CANVAS.X
+	local startY = CANVAS.Y - TAB_HEIGHT
+	local tabPadding = 5
+
+	-- TABS
+	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
+		local tabText = Resources.QuickloadScreen[tab.resourceKey]
+		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
+		SCREEN.Buttons["Tab" .. tab.tabKey] = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getCustomText = function(self) return tabText end,
+			tab = SCREEN.Tabs[tab.tabKey],
+			isSelected = false,
+			box = {	startX, startY, tabWidth, TAB_HEIGHT },
+			updateSelf = function(self)
+				self.isSelected = (self.tab == SCREEN.currentTab)
+				self.textColor = self.isSelected and SCREEN.Colors.highlight or SCREEN.Colors.text
+			end,
+			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local w, h = self.box[3], self.box[4]
+				local color = Theme.COLORS[self.boxColors[1]]
+				local bgColor = Theme.COLORS[self.boxColors[2]]
+				gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, bgColor, bgColor) -- Box fill
+				if not self.isSelected then
+					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, Drawing.ColorEffects.DARKEN, Drawing.ColorEffects.DARKEN)
+				end
+				gui.drawLine(x + 1, y, x + w - 1, y, color) -- Top edge
+				gui.drawLine(x, y + 1, x, y + h - 1, color) -- Left edge
+				gui.drawLine(x + w, y + 1, x + w, y + h - 1, color) -- Right edge
+				if self.isSelected then
+					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
+				end
+				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
+			end,
+			onClick = function(self)
+				SCREEN.currentTab = self.tab
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end,
+		}
+		startX = startX + tabWidth
+	end
 end
 
 function QuickloadScreen.createButtons()
 	local filenameCutoff = 98
-	for optionKey, optionObj in pairs(QuickloadScreen.SetButtonSetup) do
-		QuickloadScreen.Buttons[optionKey] = {
+	for optionKey, optionObj in pairs(SCREEN.SetButtonSetup) do
+		SCREEN.Buttons[optionKey] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
 			getText = function(self)
 				if not self:statusIconVisible() then
@@ -185,6 +371,7 @@ function QuickloadScreen.createButtons()
 			isSet = false,
 			statusIconVisible = optionObj.statusIconVisible,
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, optionObj.offsetY, 24, 11 },
+			isVisible = function(self) return false end, -- TODO: Debug
 			updateSelf = function(self)
 				if not self.isSet then
 					self.filename = ""
@@ -226,7 +413,7 @@ function QuickloadScreen.createButtons()
 					Options.FILES[self.optionKey] = ""
 					self.isSet = false
 					Main.SaveSettings(true)
-					QuickloadScreen.refreshButtons()
+					SCREEN.refreshButtons()
 					Program.redraw(true)
 				else
 					if type(self.clickFunction) == "function" then
@@ -239,8 +426,69 @@ function QuickloadScreen.createButtons()
 	end
 end
 
+---Returns the currently selected profile used for New Runs; or nil if none selected
+---@return table|nil profile `QuickloadScreen.IProfile`
+function QuickloadScreen.getSelectedProfile()
+	return SCREEN.Profiles[Options["Selected Profile"] or ""]
+end
+
+---Loads or creates a set of Profiles from the JSON file stored in the Tracker folder
+function QuickloadScreen.loadProfiles()
+	if not FileManager.fileExists(FileManager.Files.NEWRUN_PROFILES) then
+		SCREEN.createInitialProfile()
+	else
+		SCREEN.Profiles = FileManager.decodeJsonFile(FileManager.Files.NEWRUN_PROFILES) or {}
+	end
+end
+
+---Saves the current set of Profiles stored in this SCREEN to a JSON file, saved in the tracker files
+---@return boolean success
+function QuickloadScreen.saveProfiles()
+	local success = FileManager.encodeToJsonFile(FileManager.Files.NEWRUN_PROFILES, SCREEN.Profiles or {})
+	return success == true
+end
+
+function QuickloadScreen.createInitialProfile()
+	SCREEN.Profiles = {}
+	-- If no previous New Run method was used, create an empty profiles json
+	if not (Options["Generate ROM each time"] or Options["Use premade ROMs"]) then
+		FileManager.encodeToJsonFile(FileManager.Files.NEWRUN_PROFILES, SCREEN.Profiles)
+		return
+	end
+
+	local profile = QuickloadScreen.IProfile:new({
+		GameVersion = Utils.toLowerUTF8(GameSettings.versioncolor),
+		AttemptsCount = Main.currentSeed or 0,
+	})
+
+	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
+	if Options["Generate ROM each time"] then
+		profile.Name = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1] or "") or ""
+		profile.Mode = SCREEN.Modes.GENERATE
+		profile.Paths.Settings = quickloadFiles.settingsList[1] or ""
+		profile.Paths.Jar = quickloadFiles.jarList[1] or ""
+		profile.Paths.Rom = quickloadFiles.romList[1] or ""
+	else -- Options["Use premade ROMs"]
+		local romsFolderName = FileManager.extractFolderNameFromPath(quickloadFiles.quickloadPath or "") or ""
+		if not Utils.isNilOrEmpty(romsFolderName) then
+			profile.Name = string.format("ROMS: %s", romsFolderName)
+		end
+		profile.Mode = SCREEN.Modes.PREMADE
+		profile.Paths.RomsFolder = quickloadFiles.quickloadPath
+	end
+
+	if Utils.isNilOrEmpty(profile.Name) then
+		profile.Name = string.format("Unknown Profile (%s)", profile.GUID:sub(1, 4))
+	end
+
+	SCREEN.Profiles[profile.GUID] = profile
+	QuickloadScreen.saveProfiles()
+	Options["Selected Profile"] = profile.GUID
+	Main.SaveSettings(true)
+end
+
 function QuickloadScreen.refreshButtons()
-	for _, button in pairs(QuickloadScreen.Buttons) do
+	for _, button in pairs(SCREEN.Buttons) do
 		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
@@ -248,10 +496,10 @@ function QuickloadScreen.refreshButtons()
 end
 
 function QuickloadScreen.verifyOptions()
-	local romfolderBtn = QuickloadScreen.Buttons["ROMs Folder"]
-	local jarBtn = QuickloadScreen.Buttons["Randomizer JAR"]
-	local gbaBtn = QuickloadScreen.Buttons["Source ROM"]
-	local rnqsBtn = QuickloadScreen.Buttons["Settings File"]
+	local romfolderBtn = SCREEN.Buttons["ROMs Folder"]
+	local jarBtn = SCREEN.Buttons["Randomizer JAR"]
+	local gbaBtn = SCREEN.Buttons["Source ROM"]
+	local rnqsBtn = SCREEN.Buttons["Settings File"]
 
 	-- Determine if the files are setup properly based on Settings.ini filepaths or files found in [quickload] folder
 	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
@@ -282,7 +530,7 @@ function QuickloadScreen.handleSetRomFolder(button)
 
 		Main.SaveSettings(true)
 	end
-	QuickloadScreen.refreshButtons()
+	SCREEN.refreshButtons()
 	Program.redraw(true)
 end
 
@@ -300,7 +548,7 @@ function QuickloadScreen.handleSetRandomizerJar(button)
 			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
 		end
 	end
-	QuickloadScreen.refreshButtons()
+	SCREEN.refreshButtons()
 	Program.redraw(true)
 end
 
@@ -318,7 +566,7 @@ function QuickloadScreen.handleSetSourceRom(button)
 			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
 		end
 	end
-	QuickloadScreen.refreshButtons()
+	SCREEN.refreshButtons()
 	Program.redraw(true)
 end
 
@@ -344,84 +592,87 @@ function QuickloadScreen.handleSetCustomSettings(button)
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
 	end
-	QuickloadScreen.refreshButtons()
+	SCREEN.refreshButtons()
 	Program.redraw(true)
 end
 
 -- USER INPUT FUNCTIONS
 function QuickloadScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, QuickloadScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function QuickloadScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[QuickloadScreen.boxFillColor])
+	gui.defaultTextBackground(Theme.COLORS[SCREEN.Colors.boxFill])
 
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[QuickloadScreen.boxFillColor])
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+	local canvas = {
+		x = CANVAS.X,
+		y = CANVAS.Y,
+		width = CANVAS.W,
+		height = CANVAS.H,
+		text = Theme.COLORS[SCREEN.Colors.text],
+		border = Theme.COLORS[SCREEN.Colors.border],
+		fill = Theme.COLORS[SCREEN.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
+	}
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.QuickloadScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.QuickloadScreen.Title), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
-	local offsetY = topboxY
+	local offsetY = canvas.y
 
 	-- Draw text to explain a choice should be made
 	offsetY = offsetY + 18
 	local chooseText = string.format("%s:", Resources.QuickloadScreen.ChoiceHeader)
-	Drawing.drawText(topboxX + 2, offsetY, chooseText, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+	-- Drawing.drawText(canvas.x + 2, offsetY, chooseText, canvas.text, canvas.shadow)
 	offsetY = offsetY + Constants.SCREEN.LINESPACING + 1
 
 	local boxes = {
-		{ x = topboxX + 4, y = offsetY, w = topboxWidth - 8, h = 30, },
-		{ x = topboxX + 4, y = offsetY + 30, w = topboxWidth - 8, h = 60, },
+		{ x = canvas.x + 4, y = offsetY, w = canvas.width - 8, h = 30, },
+		{ x = canvas.x + 4, y = offsetY + 30, w = canvas.width - 8, h = 60, },
 	}
-	for _, box in ipairs(boxes) do
-		gui.drawRectangle(box.x + 1, box.y + 1, box.w, box.h, shadowcolor)
-		gui.drawRectangle(box.x, box.y, box.w, box.h, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
-	end
-
-	-- Removing for now, might add in later if quickload setup gets redone
-	-- Draw near the bottom of the screen showing what settings are currently loaded
-	-- local labelInfo
-	-- if QuickloadScreen.Buttons.PremadeRoms.toggleState then
-	-- 	gui.drawRectangle(boxes[1].x, boxes[1].y, boxes[1].w, boxes[1].h, Theme.COLORS["Intermediate text"])
-	-- 	if QuickloadScreen.Buttons["ROMs Folder"].isSet then
-	-- 		local foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
-	-- 		if not Utils.isNilOrEmpty(foldername) then
-	-- 			if foldername:len() < 18 then
-	-- 				labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelFolder, foldername)
-	-- 			else
-	-- 				labelInfo = foldername
-	-- 			end
-	-- 		end
-	-- 	end
-	-- elseif QuickloadScreen.Buttons.GenerateRom.toggleState then
-	-- 	gui.drawRectangle(boxes[2].x, boxes[2].y, boxes[2].w, boxes[2].h, Theme.COLORS["Intermediate text"])
-	-- 	if QuickloadScreen.Buttons["Settings File"].isSet then
-	-- 		local filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
-	-- 		if not Utils.isNilOrEmpty(filename) then
-	-- 			if filename:len() < 18 then
-	-- 				labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelSettings, filename)
-	-- 			else
-	-- 				labelInfo = filename
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
-	-- if labelInfo ~= nil then
-	-- 	Drawing.drawText(topboxX + 2, topboxY + 126, labelInfo, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+	-- for _, box in ipairs(boxes) do
+	-- 	gui.drawRectangle(box.x + 1, box.y + 1, box.w, box.h, canvas.shadow)
+	-- 	gui.drawRectangle(box.x, box.y, box.w, box.h, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
 	-- end
 
 	-- Draw all buttons
-	for _, button in pairs(QuickloadScreen.Buttons) do
-		Drawing.drawButton(button, shadowcolor)
+	for _, button in pairs(SCREEN.Buttons) do
+		Drawing.drawButton(button, canvas.shadow)
 	end
+end
+
+-- Profile object prototypes
+
+QuickloadScreen.IProfile = {
+	-- Required unique GUID
+	GUID = "",
+	-- Display Name
+	Name = "",
+	-- New Run Mode, either: SCREEN.Modes. "Generate" or "Premade"
+	Mode = "",
+	-- Game Version color, all lowercase
+	GameVersion = "",
+	-- Attempts Count for this profile
+	AttemptsCount = 0,
+	-- Date the profile was last used for New Run
+	LastUsedDate = 0,
+	-- Available Paths used by this profile
+	Paths = {},
+}
+---Creates and returns a new IEvent object
+---@param o? table Optional initial object table
+---@return table event An IEvent object
+function QuickloadScreen.IProfile:new(o)
+	o = o or {}
+	o.GUID = o.GUID or Utils.newGUID()
+	o.LastUsedDate = o.LastUsedDate or os.time()
+	setmetatable(o, self)
+	self.__index = self
+	return o
 end

@@ -55,7 +55,11 @@ NavigationMenu.Buttons = {
 				self.textColor = NavigationMenu.Colors.highlight
 			end
 		end,
-		onClick = function() Program.changeScreenView(QuickloadScreen) end
+		onClick = function()
+			QuickloadScreen.currentTab = QuickloadScreen.Tabs.General
+			QuickloadScreen.refreshButtons()
+			Program.changeScreenView(QuickloadScreen)
+		end
 	},
 	Notebook = {
 		getText = function(self) return "Notebook" or Resources.NavigationMenu.ButtonNotebook end,

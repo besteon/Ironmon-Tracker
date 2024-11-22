@@ -287,7 +287,11 @@ ScreenResources{
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup",
-		ButtonCombo = "Buttons",
+		TabGeneral = "General",
+		TabProfiles = "Profiles",
+		TabEdit = "Edit",
+		TabOptions = "Options",
+		NewRunsDescription = "The Tracker will create a NEW, randomized game ROM file when the button combo is pressed",
 		ChoiceHeader = "How to load a New Run",
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk",
 		OptionPremadeRoms = "Use premade ROMs",
