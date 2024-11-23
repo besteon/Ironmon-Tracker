@@ -1,3 +1,12 @@
+--[[
+TODO LIST
+- Change Tracker TDAT file to replace old with new name, based on profile's settings name
+- Change New Run load next seed process to add a setting to auto-update the profile's game version
+- Add way to change the selected profile in use
+- Add way to add a new profile, edit an existing profile, or delete a profile (consider Bizhawk forms)
+- Run tests for Tracker upgrade with no New Run info set, Roms Folder set, as well as Generate rom set.
+]]
+
 QuickloadScreen = {
 	Colors = {
 		text = "Lower box text",
@@ -113,12 +122,7 @@ SCREEN.Buttons = {
 			-- Draw Header
 			Drawing.drawText(x + 1, y - 11, string.format("%s:", "Selected Game Profile"), textColor, shadowcolor)
 			-- Draw Icon
-			local iconFilepath
-			if not profile or Utils.isNilOrEmpty(profile.GameVersion) then
-				iconFilepath = FileManager.buildImagePath("boxart", "unknown", ".png")
-			else
-				iconFilepath = FileManager.buildImagePath("boxart", profile.GameVersion, ".png")
-			end
+			local iconFilepath = SCREEN.getBoxArtIcon(profile)
 			Drawing.drawImage(iconFilepath, x + 1, y + 1, 32, 32)
 			gui.drawLine(x + 33, y, x + 33, y + 32, Theme.COLORS[SCREEN.Colors.border])
 			-- Draw Profile Information
@@ -227,6 +231,30 @@ SCREEN.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	CurrentPage = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return SCREEN.Pager:getPageText() end,
+		box = { CANVAS.X + 54, CANVAS.Y + 135, 50, 10, },
+		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Profiles and SCREEN.Pager.totalPages > 1 end,
+	},
+	PrevPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.LEFT_ARROW,
+		box = { CANVAS.X + 42, CANVAS.Y + 136, 10, 10, },
+		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Profiles and SCREEN.Pager.totalPages > 1 end,
+		onClick = function(self)
+			SCREEN.Pager:prevPage()
+		end
+	},
+	NextPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.RIGHT_ARROW,
+		box = { CANVAS.X + 96, CANVAS.Y + 136, 10, 10, },
+		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Profiles and SCREEN.Pager.totalPages > 1 end,
+		onClick = function(self)
+			SCREEN.Pager:nextPage()
+		end
+	},
 	RefocusEmulator = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Refocus emulator after load",
@@ -246,6 +274,37 @@ SCREEN.Buttons = {
 		Program.changeScreenView(NavigationMenu)
 		SCREEN.currentTab = SCREEN.Tabs.General
 	end),
+}
+
+SCREEN.Pager = {
+	Buttons = {},
+	currentPage = 0,
+	totalPages = 0,
+	defaultSort = function(a, b) return a.index < b.index end,
+	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer, sortFunc)
+		table.sort(self.Buttons, sortFunc or self.defaultSort)
+		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP + 1
+		local cutoffY = Constants.SCREEN.HEIGHT - 20
+		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
+		self.currentPage = 1
+		self.totalPages = totalPages or 1
+	end,
+	getPageText = function(self)
+		if self.totalPages <= 1 then return Resources.AllScreens.Page end
+		local text = string.format("%s/%s", self.currentPage, self.totalPages)
+		local bufferSize = 7 - text:len()
+		return string.rep(" ", bufferSize) .. text
+	end,
+	prevPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+		Program.redraw(true)
+	end,
+	nextPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = (self.currentPage % self.totalPages) + 1
+		Program.redraw(true)
+	end,
 }
 
 function QuickloadScreen.initialize()
@@ -298,6 +357,7 @@ function QuickloadScreen.initialize()
 
 	-- TODO: move this later
 	SCREEN.loadProfiles()
+	SCREEN.buildProfileButtons()
 
 	SCREEN.Buttons.PremadeRoms.toggleState = Options[optionPremade]
 	SCREEN.Buttons.GenerateRom.toggleState = Options[optionGenerate]
@@ -426,6 +486,57 @@ function QuickloadScreen.createButtons()
 	end
 end
 
+function QuickloadScreen.buildProfileButtons()
+	SCREEN.Pager.Buttons = {}
+
+	-- Sort the loaded profiles by most recent, then alphabetically
+	local profiles = {}
+	for _, profile in pairs(SCREEN.Profiles or {}) do
+		table.insert(profiles, profile)
+	end
+	table.sort(profiles, function(a,b)
+		return a.LastUsedDate > b.LastUsedDate or (a.LastUsedDate == b.LastUsedDate and a.Name < b.Name)
+	end)
+
+	-- Build buttons for each profile
+	for i, profile in ipairs(profiles) do
+		local button = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			profile = profile,
+			index = i,
+			dimensions = { width = CANVAS.W - 6, height = 33 },
+			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Profiles and SCREEN.Pager.currentPage == self.pageVisible end,
+			-- includeInGrid = function(self) return true end,
+			onClick = function(self)
+				-- TODO: Do select or edit thing
+				print(string.format("Profile clicked: %s [%s]", self.profile.Name, self.profile.GUID))
+			end,
+			draw = function(self, shadowcolor)
+				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+				local textColor = Theme.COLORS[SCREEN.Colors.text]
+				local highlightColor = Theme.COLORS[SCREEN.Colors.highlight]
+				-- Draw Icon
+				local iconFilepath = SCREEN.getBoxArtIcon(self.profile)
+				Drawing.drawImage(iconFilepath, x + 1, y + 1, 32, 32)
+				gui.drawLine(x + 33, y, x + 33, y + 32, Theme.COLORS[SCREEN.Colors.border])
+				-- Draw Profile Information
+				-- TODO: find a way to display "Generate" vs. "Premade"
+				local col2X = x + 35
+				Drawing.drawText(col2X, y + 1, string.format("%s", self.profile.Name), highlightColor, shadowcolor)
+				local attemptsFormatted = Utils.formatNumberWithCommas(self.profile.AttemptsCount)
+				Drawing.drawText(col2X, y + 11, string.format("%s: %s", "Attempts", attemptsFormatted), textColor, shadowcolor)
+				local dateFormatted = os.date("%x", self.profile.LastUsedDate) -- date, (e.g., 09/16/98)
+				if type(dateFormatted) == "string" then
+					Drawing.drawText(col2X, y + 21, string.format("%s: %s", "Last Played", dateFormatted), textColor - 0x30000000, shadowcolor)
+				end
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, button)
+	end
+
+	SCREEN.Pager:realignButtonsToGrid(CANVAS.X + 3, CANVAS.Y + 14, 0, 0)
+end
+
 ---Returns the currently selected profile used for New Runs; or nil if none selected
 ---@return table|nil profile `QuickloadScreen.IProfile`
 function QuickloadScreen.getSelectedProfile()
@@ -456,8 +567,8 @@ function QuickloadScreen.createInitialProfile()
 		return
 	end
 
+	-- Leave GameVersion blank to auto-set when its first New Run occurs
 	local profile = QuickloadScreen.IProfile:new({
-		GameVersion = Utils.toLowerUTF8(GameSettings.versioncolor),
 		AttemptsCount = Main.currentSeed or 0,
 	})
 
@@ -487,8 +598,57 @@ function QuickloadScreen.createInitialProfile()
 	Main.SaveSettings(true)
 end
 
+---Returns a full filepath to the box art icon used to display this profile information
+---@param profile? table IProfile
+---@return string filepath
+function QuickloadScreen.getBoxArtIcon(profile)
+	local iconName
+	if not profile or Utils.isNilOrEmpty(profile.GameVersion) then
+		iconName = "unknown"
+	else
+		iconName = profile.GameVersion
+	end
+	return FileManager.buildImagePath("boxart", iconName, ".png")
+end
+
+---Sets the active profile used for New Runs to `profile`, updating the respective `Options.FILES` values to match
+---@param profile table IProfile
+---@return boolean success
+function QuickloadScreen.setActiveProfile(profile)
+	if not profile or not (profile.Mode == SCREEN.Modes.GENERATE or profile.Mode == SCREEN.Modes.PREMADE) then
+		return false
+	end
+
+	-- Apply profile's New Run settings to Tracker Options
+	local isGenerateMode = profile.Mode == SCREEN.Modes.GENERATE
+	Options["Selected Profile"] = profile.GUID
+	Options["Generate ROM each time"] = isGenerateMode
+	Options["Use premade ROMs"] = not isGenerateMode
+	Options.FILES["ROMs Folder"] = not isGenerateMode and profile.Paths.RomsFolder or ""
+	Options.FILES["Randomizer JAR"] = isGenerateMode and profile.Paths.Jar or ""
+	Options.FILES["Source ROM"] = isGenerateMode and profile.Paths.Rom or ""
+	Options.FILES["Settings File"] = isGenerateMode and profile.Paths.Settings or ""
+	Main.ReadAttemptsCount(true)
+	Main.SaveSettings(true)
+
+	-- Double-check the attempts counts are correct (prioritize the file)
+	if Main.currentSeed ~= profile.AttemptsCount then
+		SCREEN.Profiles[profile.GUID].AttemptsCount = Main.currentSeed
+		SCREEN.saveProfiles()
+	end
+
+	-- TODO: Load in TDAT data for that profile
+
+	return true
+end
+
 function QuickloadScreen.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
+	for _, button in pairs(SCREEN.Pager.Buttons) do
 		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
@@ -599,6 +759,7 @@ end
 -- USER INPUT FUNCTIONS
 function QuickloadScreen.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Pager.Buttons)
 end
 
 -- DRAWING FUNCTIONS
@@ -643,6 +804,9 @@ function QuickloadScreen.drawScreen()
 
 	-- Draw all buttons
 	for _, button in pairs(SCREEN.Buttons) do
+		Drawing.drawButton(button, canvas.shadow)
+	end
+	for _, button in pairs(SCREEN.Pager.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
 end
