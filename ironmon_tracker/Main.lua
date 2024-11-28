@@ -94,12 +94,12 @@ end
 function Main.Run()
 	if Main.IsOnBizhawk() then
 		-- mGBA hates infinite loops. This "wait for startup" is handled differently
-		if GameSettings.getRomName() == nil or GameSettings.getRomName() == "Null" then
+		if GameSettings.getRomName() == "" or GameSettings.getRomName() == "Null" then
 			print("> Waiting for a game ROM to be loaded... (File -> Open ROM)")
 		end
 		local romLoaded = false
 		while not romLoaded do
-			if GameSettings.getRomName() ~= nil and GameSettings.getRomName() ~= "Null" then
+			if GameSettings.getRomName() ~= "" and GameSettings.getRomName() ~= "Null" then
 				romLoaded = true
 			end
 			Main.frameAdvance()
@@ -576,7 +576,7 @@ function Main.GetNextRomFromFolder()
 	end
 
 	if nextRomName == nil or not FileManager.fileExists(nextRomPath) then
-		nextRomName = nextRomName or (GameSettings.getRomName() or "UNNAMED") .. FileManager.Extensions.GBA_ROM
+		nextRomName = nextRomName or GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM
 		print(string.format("> ERROR: Unable to find next ROM to load: %s", nextRomName))
 		Main.DisplayError(string.format("Unable to find next ROM to load: %s", nextRomName) .. "\n\nMake sure your ROMs are numbered sequentially and the ROMs folder is correct.")
 		return nil
@@ -763,7 +763,7 @@ function Main.GetNextBizhawkRomInfoLegacy()
 	end
 
 	-- Split the ROM name into its prefix and numerical values
-	local currentRomName = GameSettings.getRomName() or ""
+	local currentRomName = GameSettings.getRomName()
 	local currentRomPrefix = string.match(currentRomName, '[^0-9]+') or ""
 	local currentRomNumber = string.match(currentRomName, '[0-9]+') or "0"
 
@@ -870,7 +870,7 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	-- If on Bizhawk, can just get the currently loaded ROM
 	-- mGBA however does NOT return the filename, so need to use the quickload folder files
 	if Main.IsOnBizhawk() then
-		quickloadRomName = GameSettings.getRomName() or ""
+		quickloadRomName = GameSettings.getRomName()
 	else
 		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
 		quickloadRomName = quickloadFiles.romList[1] or ""
@@ -903,7 +903,7 @@ function Main.ReadAttemptsCount(forceUseSettingsFile)
 		end
 	elseif Options["Use premade ROMs"] then
 		if Main.IsOnBizhawk() then -- mostly for Bizhawk
-			local romname = GameSettings.getRomName() or ""
+			local romname = GameSettings.getRomName()
 			local romnumber = string.match(romname, '[0-9]+') or "1"
 			if romnumber ~= "1" then
 				Main.currentSeed = tonumber(romnumber)

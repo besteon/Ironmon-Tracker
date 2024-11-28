@@ -582,20 +582,29 @@ function QuickloadScreen.createInitialProfile()
 	else -- Options["Use premade ROMs"]
 		local romsFolderName = FileManager.extractFolderNameFromPath(quickloadFiles.quickloadPath or "") or ""
 		if not Utils.isNilOrEmpty(romsFolderName) then
-			profile.Name = string.format("ROMS: %s", romsFolderName)
+			profile.Name = string.format("%s Premade ROMs", romsFolderName)
 		end
 		profile.Mode = SCREEN.Modes.PREMADE
-		profile.Paths.RomsFolder = quickloadFiles.quickloadPath
+		profile.Paths.RomsFolder = FileManager.tryAppendSlash(quickloadFiles.quickloadPath)
 	end
 
 	if Utils.isNilOrEmpty(profile.Name) then
-		profile.Name = string.format("Unknown Profile (%s)", profile.GUID:sub(1, 4))
+		profile.Name = string.format("Unknown Profile %s", profile.GUID:sub(1, 4))
 	end
+
+	profile.Paths.Tdat = SCREEN.generateTdatFilePath(profile)
 
 	SCREEN.Profiles[profile.GUID] = profile
 	QuickloadScreen.saveProfiles()
 	Options["Selected Profile"] = profile.GUID
 	Main.SaveSettings(true)
+end
+
+---Builds a full filepath to the TDAT file that will be used by the specified `profile`
+---@param profile table IProfile
+---@return string filepath
+function QuickloadScreen.generateTdatFilePath(profile)
+	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
 end
 
 ---Returns a full filepath to the box art icon used to display this profile information
@@ -636,8 +645,6 @@ function QuickloadScreen.setActiveProfile(profile)
 		SCREEN.Profiles[profile.GUID].AttemptsCount = Main.currentSeed
 		SCREEN.saveProfiles()
 	end
-
-	-- TODO: Load in TDAT data for that profile
 
 	return true
 end

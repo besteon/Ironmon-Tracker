@@ -227,13 +227,15 @@ function GameSettings.initialize()
 	GameSettings.hasInitialized = true
 end
 
+---Gets the ROM name as defined by the emulator, or an empty string if not found
+---@return string
 function GameSettings.getRomName()
 	if Main.IsOnBizhawk() then
 		return gameinfo.getromname() or ""
-	else
-		if emu == nil then return nil end -- I don't think this is needed anymore, but leaving it in for safety
+	elseif emu ~= nil then
 		return emu:getGameTitle() or ""
 	end
+	return ""
 end
 
 function GameSettings.getRomHash()
@@ -1348,4 +1350,65 @@ function GameSettings.getTrackerAutoSaveName()
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
+end
+
+---Returns the ROM filename (includes file extension) used by the specified `profile`
+---@param profile? table Optional, uses the specific profile to retrieve name & path; default uses currently loaded game profile
+---@return string filename
+function GameSettings.getGameProfileRomName(profile)
+	profile = profile or QuickloadScreen.getSelectedProfile() or {}
+
+	local filename
+	if profile.Mode == QuickloadScreen.Modes.GENERATE then
+		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
+		local settingsFileName = FileManager.extractFileNameFromPath(profile.Paths.Settings or "")
+		filename = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
+	elseif profile.Mode == QuickloadScreen.Modes.PREMADE then
+		filename = GameSettings.getRomName()
+		local filepath = (profile.Paths.RomsFolder or "") .. filename .. FileManager.Extensions.GBA_ROM
+		if not FileManager.fileExists(filepath) then
+			-- File doesn't exist, try again with underscores instead of spaces (awkward Bizhawk issue)
+			filename = filename:gsub(" ", "_")
+		end
+	end
+
+	return filename or (GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
+end
+
+---Returns the full ROM filepath used by the specified `profile`
+---@param profile? table Optional, uses the specific profile to retrieve path; default uses currently loaded game profile
+---@return string filepath
+function GameSettings.getGameProfileRomPath(profile)
+	profile = profile or QuickloadScreen.getSelectedProfile() or {}
+	local filepath
+	if profile.Mode == QuickloadScreen.Modes.GENERATE then
+		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
+		local settingsFileName = FileManager.extractFileNameFromPath(profile.Paths.Settings or "")
+		local filename = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
+		filepath = FileManager.prependDir(filename)
+	elseif profile.Mode == QuickloadScreen.Modes.PREMADE then
+		local filename = GameSettings.getRomName()
+		filepath = (profile.Paths.RomsFolder or "") .. filename .. FileManager.Extensions.GBA_ROM
+		if not FileManager.fileExists(filepath) then
+			-- File doesn't exist, try again with underscores instead of spaces (awkward Bizhawk issue)
+			filename = filename:gsub(" ", "_")
+			filepath = (profile.Paths.RomsFolder or "") .. filename .. FileManager.Extensions.GBA_ROM
+		end
+	end
+	return filepath or (GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
+end
+
+---Returns the full TDAT filepath used by the specified `profile`
+---@param profile? table Optional, uses the specific profile to retrieve path; default uses currently loaded game profile
+---@return string filepath
+function GameSettings.getGameProfileTdatPath(profile)
+	profile = profile or QuickloadScreen.getSelectedProfile()
+	-- New TDAT file storage method; TDAT name matches profile name
+	if profile and profile.Paths and profile.Paths.Tdat then
+		return profile.Paths.Tdat
+	end
+	-- Otherwise, legacy TDAT file storage Method; TDAT name is the rom game version
+	local filename = GameSettings.getTrackerAutoSaveName()
+	local filepath = FileManager.getTdatFolderPath() .. filename
+	return filepath
 end

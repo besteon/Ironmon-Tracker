@@ -501,6 +501,10 @@ function FileManager.getPathOverride(key)
 	return FileManager.tryAppendSlash(folderpath)
 end
 
+function FileManager.getTdatFolderPath()
+	return FileManager.getPathOverride("Tracker Data") or FileManager.dir
+end
+
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
@@ -645,6 +649,15 @@ function FileManager.CopyFile(filepath, filepathCopy, overwriteOrAppend)
 	copyOfFile:close()
 
 	return true
+end
+
+function FileManager.deleteFile(filepath)
+	if (filepath or "") == "" then
+		return false
+	end
+	pcall(function()
+		os.remove(filepath)
+	end)
 end
 
 ---Writes the contents of `table` to the file at `filepath`

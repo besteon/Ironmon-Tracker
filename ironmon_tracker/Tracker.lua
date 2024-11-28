@@ -9,7 +9,7 @@ Tracker.LoadStatusKeys = {
 	AUTO_DISABLED = "TrackedDataMsgAutoDisabled",
 	ERROR = "TrackedDataMsgError",
 }
-Tracker.LoadStatus = nil
+Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 
 Tracker.DefaultData = {
 	-- NOTE: These root attributes cannot be nil, or they won't be loaded from the TDAT file
@@ -72,23 +72,7 @@ mt.__index = function(_, key)
 end
 
 function Tracker.initialize()
-	-- First create a default, non-nil Tracker Data
 	Tracker.resetData()
-
-	-- Then attempt to load in data from autosave TDAT file
-	if Options["Auto save tracked game data"] then
-		local filename = GameSettings.getTrackerAutoSaveName()
-		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
-		local filepath = folderpath .. filename
-		local loadStatus = Tracker.loadData(filepath)
-
-		-- If the autosave file doesn't exist, then this is a new game
-		if loadStatus == Tracker.LoadStatusKeys.ERROR then
-			Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
-		end
-	else
-		Tracker.LoadStatus = Tracker.LoadStatusKeys.AUTO_DISABLED
-	end
 end
 
 --- @param slotNumber number Which party slot (1-6) to get
@@ -542,28 +526,39 @@ function Tracker.resetData()
 		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES),
 		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH),
 	})
+	Tracker.AutoSave.reset()
+	Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 end
 
-function Tracker.saveData(filename)
-	filename = filename or GameSettings.getTrackerAutoSaveName()
-	local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
-	local filepath = folderpath .. filename
+---Saves the Tracker Data (TDAT) to a file
+---@param filepath? string Optional, the filepath that the TDAT file will be saved to; defaults to selected New Run game profile
+function Tracker.saveData(filepath)
+	filepath = filepath or GameSettings.getGameProfileTdatPath()
 	FileManager.writeTableToFile(Tracker.Data, filepath)
 end
 
--- Attempts to load Tracked data from the file 'filepath', sets and returns 'Tracker.LoadStatus' to a status from 'Tracker.LoadStatusKeys'
--- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
-function Tracker.loadData(filepath, forced)
-	if not filepath then
-		local folderpath = FileManager.getPathOverride("Tracker Data") or FileManager.dir
-		local filename = GameSettings.getTrackerAutoSaveName()
-		filepath = folderpath .. filename
+---Saves the Tracker Data (TDAT) to a file specified by `filepath`
+---@param filename string The filename that the TDAT file will be saved-as
+function Tracker.saveDataAsCopy(filename)
+	if Utils.isNilOrEmpty(filename) then
+		return
 	end
+	local path = FileManager.getTdatFolderPath() .. filename
+	FileManager.writeTableToFile(Tracker.Data, path)
+end
+
+---Loads the Tracker Data (TDAT) from a file specified by `filepath`, with option to `overwrite`
+---@param filepath? string Optional, the filepath that the TDAT file will be loaded from; defaults to selected New Run game profile
+---@param overwrite? boolean Optional, if true will forcibly overwrite currently loaded data with new data; default: false
+---@return string loadStatus The `Tracker.LoadStatus` string, respresenting one of `Tracker.LoadStatusKeys`
+function Tracker.loadData(filepath, overwrite)
+	filepath = filepath or GameSettings.getGameProfileTdatPath()
+	overwrite = overwrite ~= true -- Defaults to false
 
 	-- Loose safety check to ensure a valid data file is loaded
-	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
+	local fileExtension = FileManager.extractFileExtensionFromPath(filepath):lower()
+	if fileExtension ~= FileManager.Extensions.TRACKED_DATA:sub(2) then -- ignore leading period
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
-		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
 		return Tracker.LoadStatus
 	end
 
@@ -577,7 +572,7 @@ function Tracker.loadData(filepath, forced)
 	Tracker.resetData()
 
 	-- If the loaded data's romHash doesn't match this current game exactly, use the empty data; otherwise use the loaded data
-	if not forced and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
+	if not overwrite and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 		return Tracker.LoadStatus
 	end
@@ -662,5 +657,66 @@ function Tracker.checkForLegacyTrackedData(data)
 				end
 			end
 		end
+	end
+end
+
+-- Information about the auto-save data loaded in from the TDAT file
+Tracker.AutoSave = {
+	-- The filepath location of the TDAT file that is used for auto loading/saving
+	Tdat = "",
+}
+
+function Tracker.AutoSave.reset()
+	Tracker.AutoSave.Tdat = ""
+end
+
+function Tracker.AutoSave.isEnabled()
+	return Options["Auto save tracked game data"] == true
+end
+
+---Automatically saves Tracker data (TDAT); triggers every few minutes and only if game is being played
+function Tracker.AutoSave.saveToFile()
+	-- Also don't auto save if the game hasn't started being played; nothing to save
+	if not Tracker.AutoSave.isEnabled() or TrackerAPI.getPlayerPokemon() == nil then
+		return
+	end
+	if not Utils.isNilOrEmpty(Tracker.AutoSave.Tdat) then
+		Tracker.saveData(Tracker.AutoSave.Tdat)
+	else
+		Tracker.saveData()
+	end
+end
+
+---Automatically loads Tracker data (TDAT); triggers on startup
+function Tracker.AutoSave.loadFromFile()
+	if not Tracker.AutoSave.isEnabled() then
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.AUTO_DISABLED
+		return
+	end
+
+	-- TODO: solve issue if no profile exists, user doesnt use New Run (TODO: Test this)
+
+	local fileToLoad = GameSettings.getGameProfileTdatPath()
+	Tracker.AutoSave.Tdat = fileToLoad
+
+	-- Fallback to old method of storing TDAT if file isn't there for new method
+	local shouldCreateProfileTDAT = false
+	if not FileManager.fileExists(fileToLoad) then
+		fileToLoad = FileManager.getTdatFolderPath() .. GameSettings.getTrackerAutoSaveName()
+		-- Require updating the TDAT filename to new method if a profile exists for it
+		shouldCreateProfileTDAT = QuickloadScreen.getSelectedProfile() ~= nil
+	end
+
+	Tracker.loadData(fileToLoad)
+
+	-- If no autosave file could be loaded, then treat this as a new game
+	if Tracker.LoadStatus == Tracker.LoadStatusKeys.ERROR then
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
+	end
+
+	-- After the data is loaded, rename the TDAT file if necessary
+	if shouldCreateProfileTDAT and FileManager.fileExists(fileToLoad) then
+		FileManager.CopyFile(fileToLoad, Tracker.AutoSave.Tdat)
+		FileManager.deleteFile(Tracker.AutoSave.Tdat)
 	end
 end
