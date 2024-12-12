@@ -75,6 +75,7 @@ FileManager.Urls = {
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
 	DISCUSSIONS = "https://github.com/besteon/Ironmon-Tracker/discussions/389", -- Discussion: "Help us translate the Ironmon Tracker"
+	NEW_RUNS = "https://github.com/besteon/Ironmon-Tracker/wiki/New-Runs-Setup",
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 	STREAM_CONNECT = "https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide",
 }

@@ -1,6 +1,6 @@
 --[[
 TODO LIST
-- Change Tracker TDAT file to replace old with new name, based on profile's settings name
+- Change Tracker TDAT file to replace old with new name, based on profile's settings name (almost done)
 - Change New Run load next seed process to add a setting to auto-update the profile's game version
 - Add way to change the selected profile in use
 - Add way to add a new profile, edit an existing profile, or delete a profile (consider Bizhawk forms)
@@ -508,8 +508,7 @@ function QuickloadScreen.buildProfileButtons()
 			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Profiles and SCREEN.Pager.currentPage == self.pageVisible end,
 			-- includeInGrid = function(self) return true end,
 			onClick = function(self)
-				-- TODO: Do select or edit thing
-				print(string.format("Profile clicked: %s [%s]", self.profile.Name, self.profile.GUID))
+				QuickloadScreen.addEditProfilePrompt(self.profile)
 			end,
 			draw = function(self, shadowcolor)
 				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -618,6 +617,140 @@ function QuickloadScreen.getBoxArtIcon(profile)
 		iconName = profile.GameVersion
 	end
 	return FileManager.buildImagePath("boxart", iconName, ".png")
+end
+
+function QuickloadScreen.addEditProfilePrompt(profile)
+	profile = profile or QuickloadScreen.IProfile:new()
+	if profile.Paths == nil then
+		profile.Paths = {}
+	end
+
+	local controlsGenerate = {}
+	local controlsPremade = {}
+	local checkboxGenerate, checkboxPremade
+	local function _updateVisibility()
+		local isGenerate = checkboxGenerate ~= nil and ExternalUI.BizForms.isChecked(checkboxGenerate)
+		local isPremade = checkboxPremade ~= nil and ExternalUI.BizForms.isChecked(checkboxPremade)
+		for _, controlId in pairs(controlsGenerate) do
+			ExternalUI.BizForms.setProperty(controlId, ExternalUI.BizForms.Properties.VISIBLE, isGenerate)
+		end
+		for _, controlId in pairs(controlsPremade) do
+			ExternalUI.BizForms.setProperty(controlId, ExternalUI.BizForms.Properties.VISIBLE, isPremade)
+		end
+	end
+	local function _extractFolderPath(filepath)
+		if not Utils.isNilOrEmpty(filepath) then
+			local folder, _, _ = FileManager.getPathParts(filepath)
+			return folder
+		end
+		return filepath
+	end
+
+	-- TODO: Language Resources
+	local W, H = 450, 320
+	local X = 15
+	local FILE_BOX_W = 370
+	local lineY = 10
+	local form = ExternalUI.BizForms.createForm("Add/Edit Profile", W, H, 50, 10)
+	-- NAME
+	form:createLabel("Profile Name:", X, lineY)
+	local textboxName = form:createTextBox(profile.Name or "", X + 134, lineY, 235, 20)
+	lineY = lineY + 22
+	-- MODE
+	form:createLabel("Mode (choose one):", X, lineY)
+	lineY = lineY + 20
+	checkboxGenerate = form:createCheckbox("Generate new ROMs", X + 30, lineY, function()
+		if ExternalUI.BizForms.isChecked(checkboxGenerate) then
+			ExternalUI.BizForms.setChecked(checkboxPremade, false)
+		end
+		_updateVisibility()
+	end)
+	checkboxPremade = form:createCheckbox("Premade ROMs folder", X + 200, lineY, function()
+		if ExternalUI.BizForms.isChecked(checkboxPremade) then
+			ExternalUI.BizForms.setChecked(checkboxGenerate, false)
+		end
+		_updateVisibility()
+	end)
+	lineY = lineY + 30
+	-- SOURCE ROM
+	controlsGenerate.labelROM = form:createLabel("Source ROM (a .GBA file):", X, lineY)
+	controlsPremade.labelROM = form:createLabel("Folder containing your randomized ROMs and log files:", X, lineY)
+	lineY = lineY + 20
+	controlsGenerate.textboxROM = form:createTextBox(profile.Paths.Rom or "", X, lineY, FILE_BOX_W, 20)
+	controlsGenerate.buttonROM = form:createButton("...", X + FILE_BOX_W + 10, lineY - 5, function()
+		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxROM)
+		currentPath = _extractFolderPath(currentPath)
+		local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
+		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", currentPath, filterOptions)
+		if success then
+			ExternalUI.BizForms.setText(controlsGenerate.textboxROM, newPath)
+		end
+	end, 35, 25)
+	-- ROMS FOLDER
+	controlsPremade.textboxFOLDER = form:createTextBox(profile.Paths.RomsFolder or "", X, lineY, FILE_BOX_W, 20)
+	controlsPremade.buttonFOLDER = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
+		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxFOLDER)
+		currentPath = _extractFolderPath(currentPath)
+		local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
+		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", currentPath, filterOptions)
+		if success then
+			newPath = _extractFolderPath(newPath)
+			ExternalUI.BizForms.setText(controlsGenerate.textboxFOLDER, newPath or "")
+		end
+	end, 35, 25)
+	lineY = lineY + 27
+	-- RANDOMIZER JAR
+	controlsGenerate.labelJAR = form:createLabel("Randomizer Program (a .JAR file):", X, lineY)
+	lineY = lineY + 20
+	controlsGenerate.textboxJAR = form:createTextBox(profile.Paths.Jar or "", X, lineY, FILE_BOX_W, 20)
+	controlsGenerate.buttonJAR = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
+		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxJAR)
+		currentPath = _extractFolderPath(currentPath)
+		local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
+		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT JAR", currentPath, filterOptions)
+		if success then
+			ExternalUI.BizForms.setText(controlsGenerate.textboxJAR, newPath)
+		end
+	end, 35, 25)
+	lineY = lineY + 27
+	-- SETTINGS FILE
+	controlsGenerate.labelRNQS = form:createLabel("Randomizer Settings (a .RNQS file):", X, lineY)
+	lineY = lineY + 20
+	controlsGenerate.textboxCustom = form:createTextBox(profile.Paths.Settings or "", X, lineY, FILE_BOX_W, 20)
+	controlsGenerate.buttonCustom = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
+		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxCustom)
+		currentPath = _extractFolderPath(currentPath)
+		-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
+		if Utils.isNilOrEmpty(currentPath) then
+			currentPath = FileManager.getRandomizerSettingsPath()
+		end
+		local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
+		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT RNQS", currentPath, filterOptions)
+		if success then
+			ExternalUI.BizForms.setText(controlsGenerate.textboxCustom, newPath)
+		end
+	end, 35, 25)
+	lineY = lineY + 40
+
+	-- SAVE/CANCEL/HELP
+	local buttonSave = form:createButton(Resources.AllScreens.Save, X + 80, lineY, function()
+		-- TODO: save it, rebuild, redraw
+		form:destroy()
+		Program.redraw(true)
+	end)
+	local buttonCancel = form:createButton(Resources.AllScreens.Cancel, X + 175, lineY, function()
+		form:destroy()
+	end)
+	local buttonHelp = form:createButton("Help Guide", X + 330, lineY, function()
+		Utils.openBrowserWindow(FileManager.Urls.NEW_RUNS, Resources.NavigationMenu.MessageCheckConsole)
+	end)
+
+	if profile.Mode == SCREEN.Modes.PREMADE then
+		ExternalUI.BizForms.setChecked(checkboxPremade, true)
+	else
+		ExternalUI.BizForms.setChecked(checkboxGenerate, true)
+	end
+	_updateVisibility()
 end
 
 ---Sets the active profile used for New Runs to `profile`, updating the respective `Options.FILES` values to match
@@ -843,6 +976,7 @@ function QuickloadScreen.IProfile:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()
 	o.LastUsedDate = o.LastUsedDate or os.time()
+	o.Paths = o.Paths or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o

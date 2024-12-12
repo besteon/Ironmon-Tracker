@@ -73,6 +73,7 @@ end
 
 function Tracker.initialize()
 	Tracker.resetData()
+	Tracker.AutoSave.reset()
 end
 
 --- @param slotNumber number Which party slot (1-6) to get
@@ -526,7 +527,6 @@ function Tracker.resetData()
 		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES),
 		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH),
 	})
-	Tracker.AutoSave.reset()
 	Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 end
 
@@ -717,6 +717,6 @@ function Tracker.AutoSave.loadFromFile()
 	-- After the data is loaded, rename the TDAT file if necessary
 	if shouldCreateProfileTDAT and FileManager.fileExists(fileToLoad) then
 		FileManager.CopyFile(fileToLoad, Tracker.AutoSave.Tdat)
-		FileManager.deleteFile(Tracker.AutoSave.Tdat)
+		FileManager.deleteFile(fileToLoad)
 	end
 end
