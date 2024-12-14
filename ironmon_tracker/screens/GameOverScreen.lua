@@ -292,8 +292,8 @@ function GameOverScreen.saveCurrentGameFiles()
 	local saveFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.SavedGames, true)
 	FileManager.createFolder(saveFolder)
 
-	local romname = GameSettings.getGameProfileRomName()
-	local rompath = GameSettings.getGameProfileRomPath()
+	local romname = QuickloadScreen.getGameProfileRomName()
+	local rompath = QuickloadScreen.getGameProfileRomPath()
 
 	local romnameToSave
 	if Options["Generate ROM each time"] then

@@ -1,8 +1,6 @@
 --[[
 TODO LIST
-- Change Tracker TDAT file to replace old with new name, based on profile's settings name (almost done)
-- Change New Run load next seed process to add a setting to auto-update the profile's game version
-- Add way to change the selected profile in use
+- Add way to change the active profile in use
 - Add way to delete a profile
 - Run tests for Tracker upgrade with no New Run info set, Roms Folder set, as well as Generate rom set.
 ]]
@@ -27,19 +25,15 @@ QuickloadScreen = {
 			tabKey = "Profiles",
 			resourceKey = "TabProfiles",
 		},
-		Edit = {
-			index = 3,
-			tabKey = "Edit",
-			resourceKey = "TabEdit",
-		},
 		Options = {
-			index = 4,
+			index = 3,
 			tabKey = "Options",
 			resourceKey = "TabOptions",
 		},
 	},
 	currentTab = nil,
 	Profiles = {}, -- populated from JSON as a luatable: { [GUID] = IProfile() }
+	FORCE_UPDATE_GAME_VERSION = "ForceUpdateGameVersion",
 }
 local SCREEN = QuickloadScreen
 local TAB_HEIGHT = 12
@@ -82,7 +76,7 @@ SCREEN.Buttons = {
 	-- Description + Button Combo
 	NewRunsDescription = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		-- TODO: change to reflect the selected profile, if set to ROMs Folder
+		-- TODO: change to reflect the active profile, if set to ROMs Folder
 		getCustomText = function() return string.format("%s:", Resources.QuickloadScreen.NewRunsDescription) end,
 		box = { CANVAS.X + 2, CANVAS.Y + 2, CANVAS.W - 2, 22 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
@@ -110,17 +104,17 @@ SCREEN.Buttons = {
 		end,
 	},
 	-- Game Profile label + Active profile
-	SelectedGameProfile = {
+	ActiveGameProfile = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		box = { CANVAS.X + 3, CANVAS.Y + 65, CANVAS.W - 6, 33 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
 		draw = function(self, shadowcolor)
-			local profile = QuickloadScreen.getSelectedProfile()
+			local profile = QuickloadScreen.getActiveProfile()
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local textColor = Theme.COLORS[SCREEN.Colors.text]
 			local highlightColor = Theme.COLORS[SCREEN.Colors.highlight]
 			-- Draw Header
-			Drawing.drawText(x + 1, y - 11, string.format("%s:", "Selected Game Profile"), textColor, shadowcolor)
+			Drawing.drawText(x + 1, y - 11, string.format("%s:", "Active Game Profile"), textColor, shadowcolor)
 			-- Draw Icon
 			local iconFilepath = SCREEN.getBoxArtIcon(profile)
 			Drawing.drawImage(iconFilepath, x + 1, y + 1, 32, 32)
@@ -142,11 +136,11 @@ SCREEN.Buttons = {
 			end
 		end,
 	},
-	ChangeSelectedProfile = {
+	ChangeActiveProfile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		getText = function(self)
-			local profile = QuickloadScreen.getSelectedProfile()
+			local profile = QuickloadScreen.getActiveProfile()
 			if profile then
 				return "Change Profile" or Resources.QuickloadScreen.ChangeProfile
 			else
@@ -156,7 +150,7 @@ SCREEN.Buttons = {
 		box = { CANVAS.X + 27, CANVAS.Y + 103, 84, 16 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
 		updateSelf = function(self)
-			local profile = QuickloadScreen.getSelectedProfile()
+			local profile = QuickloadScreen.getActiveProfile()
 			if profile and self.image ~= Constants.PixelImages.TRIANGLE_DOWN then
 				self.image = Constants.PixelImages.TRIANGLE_DOWN
 				self.textColor = SCREEN.Colors.text
@@ -166,14 +160,13 @@ SCREEN.Buttons = {
 			end
 		end,
 		onClick = function()
-			local profile = QuickloadScreen.getSelectedProfile()
-			if profile then
-				SCREEN.currentTab = SCREEN.Tabs.Profiles
-			else
-				SCREEN.currentTab = SCREEN.Tabs.Edit
-			end
+			SCREEN.currentTab = SCREEN.Tabs.Profiles
 			SCREEN.refreshButtons()
 			Program.redraw(true)
+			local profile = SCREEN.getActiveProfile()
+			if not profile then
+				SCREEN.addEditProfilePrompt()
+			end
 		end,
 	},
 	PremadeRoms = {
@@ -357,6 +350,7 @@ function QuickloadScreen.initialize()
 
 	-- TODO: move this later
 	SCREEN.loadProfiles()
+	SCREEN.checkForceUpdateGameVersion()
 	SCREEN.buildProfileButtons()
 
 	SCREEN.Buttons.PremadeRoms.toggleState = Options[optionPremade]
@@ -486,6 +480,16 @@ function QuickloadScreen.createButtons()
 	end
 end
 
+-- Checks if the active profile still needs it's game version update.
+-- This can only be performed after a successful New Run is completed, as it requires a game ROM from that profile to be created to know it's game version
+function QuickloadScreen.checkForceUpdateGameVersion()
+	local profile = SCREEN.getActiveProfile() or {}
+	if profile.GameVersion == QuickloadScreen.FORCE_UPDATE_GAME_VERSION and GameSettings.versioncolor then
+		profile.GameVersion = Utils.toLowerUTF8(GameSettings.versioncolor)
+		SCREEN.saveProfiles()
+	end
+end
+
 function QuickloadScreen.buildProfileButtons()
 	SCREEN.Pager.Buttons = {}
 
@@ -511,7 +515,7 @@ function QuickloadScreen.buildProfileButtons()
 				if not self.boxColors then
 					self.boxColors = {}
 				end
-				if SCREEN.getSelectedProfile() == profile then
+				if SCREEN.getActiveProfile() == profile then
 					self.boxColors[1] = SCREEN.Colors.positive
 				else
 					self.boxColors[1] = SCREEN.Colors.border
@@ -547,10 +551,10 @@ function QuickloadScreen.buildProfileButtons()
 	SCREEN.refreshButtons()
 end
 
----Returns the currently selected profile used for New Runs; or nil if none selected
+---Returns the currently active profile used for New Runs; or nil if none in use
 ---@return IProfile|nil profile
-function QuickloadScreen.getSelectedProfile()
-	return SCREEN.Profiles[Options["Selected Profile"] or ""]
+function QuickloadScreen.getActiveProfile()
+	return SCREEN.Profiles[Options["Active Profile"] or ""]
 end
 
 ---Loads or creates a set of Profiles from the JSON file stored in the Tracker folder
@@ -909,7 +913,7 @@ function QuickloadScreen.setActiveProfile(profile)
 
 	-- Apply profile's New Run settings to Tracker Options
 	local isGenerateMode = profile.Mode == SCREEN.Modes.GENERATE
-	Options["Selected Profile"] = profile.GUID
+	Options["Active Profile"] = profile.GUID
 	Options["Generate ROM each time"] = isGenerateMode
 	Options["Use premade ROMs"] = not isGenerateMode
 	Options.FILES["ROMs Folder"] = not isGenerateMode and profile.Paths.RomsFolder or ""
@@ -1042,6 +1046,67 @@ function QuickloadScreen.handleSetCustomSettings(button)
 	end
 	SCREEN.refreshButtons()
 	Program.redraw(true)
+end
+
+---Returns the ROM filename (includes file extension) used by the specified `profile`
+---@param profile? table Optional, uses the specific profile to retrieve name & path; default uses currently loaded game profile
+---@return string filename
+function QuickloadScreen.getGameProfileRomName(profile)
+	profile = profile or QuickloadScreen.getActiveProfile() or {}
+
+	local filename
+	if profile.Mode == QuickloadScreen.Modes.GENERATE then
+		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
+		local settingsFileName = FileManager.extractFileNameFromPath(profile.Paths.Settings or "")
+		filename = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
+	elseif profile.Mode == QuickloadScreen.Modes.PREMADE then
+		filename = GameSettings.getRomName()
+		local filepath = (profile.Paths.RomsFolder or "") .. filename .. FileManager.Extensions.GBA_ROM
+		if not FileManager.fileExists(filepath) then
+			-- File doesn't exist, try again with underscores instead of spaces (awkward Bizhawk issue)
+			filename = filename:gsub(" ", "_")
+		end
+	end
+
+	return filename or (GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
+end
+
+---Returns the full ROM filepath used by the specified `profile`
+---@param profile? table Optional, uses the specific profile to retrieve path; default uses currently loaded game profile
+---@return string filepath
+function QuickloadScreen.getGameProfileRomPath(profile)
+	profile = profile or SCREEN.getActiveProfile() or {}
+	local filepath
+	if profile.Mode == SCREEN.Modes.GENERATE then
+		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
+		local settingsFileName = FileManager.extractFileNameFromPath(profile.Paths.Settings or "")
+		local filename = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
+		filepath = FileManager.prependDir(filename)
+	elseif profile.Mode == SCREEN.Modes.PREMADE then
+		local filename = GameSettings.getRomName()
+		filepath = (profile.Paths.RomsFolder or "") .. filename .. FileManager.Extensions.GBA_ROM
+		if not FileManager.fileExists(filepath) then
+			-- File doesn't exist, try again with underscores instead of spaces (awkward Bizhawk issue)
+			filename = filename:gsub(" ", "_")
+			filepath = (profile.Paths.RomsFolder or "") .. filename .. FileManager.Extensions.GBA_ROM
+		end
+	end
+	return filepath or (GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
+end
+
+---Returns the full TDAT filepath used by the specified `profile`
+---@param profile? table Optional, uses the specific profile to retrieve path; default uses currently loaded game profile
+---@return string filepath
+function QuickloadScreen.getGameProfileTdatPath(profile)
+	profile = profile or SCREEN.getActiveProfile()
+	-- New TDAT file storage method; TDAT name matches profile name
+	if profile and profile.Paths and profile.Paths.Tdat then
+		return profile.Paths.Tdat
+	end
+	-- Otherwise, legacy TDAT file storage Method; TDAT name is the rom game version
+	local filename = GameSettings.getTrackerAutoSaveName()
+	local filepath = FileManager.getTdatFolderPath() .. filename
+	return filepath
 end
 
 -- USER INPUT FUNCTIONS

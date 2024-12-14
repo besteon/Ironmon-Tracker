@@ -503,6 +503,16 @@ function Main.LoadNextRom()
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 		Tracker.resetData()
 
+		-- Check if this profile's game version has not yet been set/updated (requires loading a newly created rom to deterine version)
+		local profile = QuickloadScreen.getActiveProfile()
+		if profile then
+			profile.AttemptsCount = Main.currentSeed
+			if Utils.isNilOrEmpty(profile.GameVersion) then
+				profile.GameVersion = QuickloadScreen.FORCE_UPDATE_GAME_VERSION
+			end
+			QuickloadScreen.saveProfiles()
+		end
+
 		if Main.IsOnBizhawk() then
 			savestate.save(backupfilepath .. FileManager.Extensions.BIZHAWK_SAVESTATE, true) -- true: suppresses the on-screen display message
 			GameOverScreen.clearTempSaveStates()

@@ -533,7 +533,7 @@ end
 ---Saves the Tracker Data (TDAT) to a file
 ---@param filepath? string Optional, the filepath that the TDAT file will be saved to; defaults to selected New Run game profile
 function Tracker.saveData(filepath)
-	filepath = filepath or GameSettings.getGameProfileTdatPath()
+	filepath = filepath or QuickloadScreen.getGameProfileTdatPath()
 	FileManager.writeTableToFile(Tracker.Data, filepath)
 end
 
@@ -552,7 +552,7 @@ end
 ---@param overwrite? boolean Optional, if true will forcibly overwrite currently loaded data with new data; default: false
 ---@return string loadStatus The `Tracker.LoadStatus` string, respresenting one of `Tracker.LoadStatusKeys`
 function Tracker.loadData(filepath, overwrite)
-	filepath = filepath or GameSettings.getGameProfileTdatPath()
+	filepath = filepath or QuickloadScreen.getGameProfileTdatPath()
 	overwrite = overwrite ~= true -- Defaults to false
 
 	-- Loose safety check to ensure a valid data file is loaded
@@ -696,15 +696,15 @@ function Tracker.AutoSave.loadFromFile()
 
 	-- TODO: solve issue if no profile exists, user doesnt use New Run (TODO: Test this)
 
-	local fileToLoad = GameSettings.getGameProfileTdatPath()
-	Tracker.AutoSave.Tdat = fileToLoad
+	Tracker.AutoSave.Tdat = QuickloadScreen.getGameProfileTdatPath()
+	local fileToLoad = Tracker.AutoSave.Tdat
 
 	-- Fallback to old method of storing TDAT if file isn't there for new method
 	local shouldCreateProfileTDAT = false
 	if not FileManager.fileExists(fileToLoad) then
 		fileToLoad = FileManager.getTdatFolderPath() .. GameSettings.getTrackerAutoSaveName()
 		-- Require updating the TDAT filename to new method if a profile exists for it
-		shouldCreateProfileTDAT = QuickloadScreen.getSelectedProfile() ~= nil
+		shouldCreateProfileTDAT = QuickloadScreen.getActiveProfile() ~= nil
 	end
 
 	Tracker.loadData(fileToLoad)

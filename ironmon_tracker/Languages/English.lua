@@ -289,7 +289,6 @@ ScreenResources{
 		Title = "New Runs Setup",
 		TabGeneral = "General",
 		TabProfiles = "Profiles",
-		TabEdit = "Edit",
 		TabOptions = "Options",
 		NewRunsDescription = "The Tracker will create a NEW, randomized game ROM file when the button combo is pressed",
 		ChoiceHeader = "How to load a New Run",
