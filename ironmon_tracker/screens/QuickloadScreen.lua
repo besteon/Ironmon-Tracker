@@ -3,7 +3,7 @@ TODO LIST
 - Change Tracker TDAT file to replace old with new name, based on profile's settings name (almost done)
 - Change New Run load next seed process to add a setting to auto-update the profile's game version
 - Add way to change the selected profile in use
-- Add way to add a new profile, edit an existing profile, or delete a profile (consider Bizhawk forms)
+- Add way to delete a profile
 - Run tests for Tracker upgrade with no New Run info set, Roms Folder set, as well as Generate rom set.
 ]]
 
@@ -507,6 +507,16 @@ function QuickloadScreen.buildProfileButtons()
 			dimensions = { width = CANVAS.W - 6, height = 33 },
 			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Profiles and SCREEN.Pager.currentPage == self.pageVisible end,
 			-- includeInGrid = function(self) return true end,
+			updateSelf = function(self)
+				if not self.boxColors then
+					self.boxColors = {}
+				end
+				if SCREEN.getSelectedProfile() == profile then
+					self.boxColors[1] = SCREEN.Colors.positive
+				else
+					self.boxColors[1] = SCREEN.Colors.border
+				end
+			end,
 			onClick = function(self)
 				QuickloadScreen.addEditProfilePrompt(self.profile)
 			end,
@@ -534,10 +544,11 @@ function QuickloadScreen.buildProfileButtons()
 	end
 
 	SCREEN.Pager:realignButtonsToGrid(CANVAS.X + 3, CANVAS.Y + 14, 0, 0)
+	SCREEN.refreshButtons()
 end
 
 ---Returns the currently selected profile used for New Runs; or nil if none selected
----@return table|nil profile `QuickloadScreen.IProfile`
+---@return IProfile|nil profile
 function QuickloadScreen.getSelectedProfile()
 	return SCREEN.Profiles[Options["Selected Profile"] or ""]
 end
@@ -571,6 +582,7 @@ function QuickloadScreen.createInitialProfile()
 		AttemptsCount = Main.currentSeed or 0,
 	})
 
+	-- Define initial profile attributes based on current New Run settings/files
 	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
 	if Options["Generate ROM each time"] then
 		profile.Name = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1] or "") or ""
@@ -587,27 +599,51 @@ function QuickloadScreen.createInitialProfile()
 		profile.Paths.RomsFolder = FileManager.tryAppendSlash(quickloadFiles.quickloadPath)
 	end
 
+	SCREEN.addUpdateProfile(profile, true)
+end
+
+---Adds a new profile or updates an existing profile in the `QuickloadScreen.Profiles` list
+---@param profile IProfile
+---@param setAsActive? boolean Optional, if true then this will also set the profile as the active profile; default false
+---@return boolean success Returns true if the profile was successfully added; false otherwise
+function QuickloadScreen.addUpdateProfile(profile, setAsActive)
+	if not profile or Utils.isNilOrEmpty(profile.Mode) then
+		return false
+	end
+
+	-- Check various attributes and auto-generate them if necessary
+	if Utils.isNilOrEmpty(profile.GUID) then
+		profile.GUID = Utils.newGUID()
+	end
 	if Utils.isNilOrEmpty(profile.Name) then
 		profile.Name = string.format("Unknown Profile %s", profile.GUID:sub(1, 4))
 	end
+	if type(profile.Paths) ~= "table" then
+		profile.Paths = {}
+	end
+	if Utils.isNilOrEmpty(profile.Paths.Tdat) then
+		profile.Paths.Tdat = SCREEN.generateTdatFilePath(profile)
+	end
 
-	profile.Paths.Tdat = SCREEN.generateTdatFilePath(profile)
-
+	-- Add/update the profile to the list, and save
 	SCREEN.Profiles[profile.GUID] = profile
-	QuickloadScreen.saveProfiles()
-	Options["Selected Profile"] = profile.GUID
-	Main.SaveSettings(true)
+	SCREEN.saveProfiles()
+	if setAsActive then
+		SCREEN.setActiveProfile(profile)
+	end
+	SCREEN.buildProfileButtons()
+	return true
 end
 
 ---Builds a full filepath to the TDAT file that will be used by the specified `profile`
----@param profile table IProfile
+---@param profile IProfile
 ---@return string filepath
 function QuickloadScreen.generateTdatFilePath(profile)
 	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
 end
 
 ---Returns a full filepath to the box art icon used to display this profile information
----@param profile? table IProfile
+---@param profile? IProfile
 ---@return string filepath
 function QuickloadScreen.getBoxArtIcon(profile)
 	local iconName
@@ -625,16 +661,24 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		profile.Paths = {}
 	end
 
-	local controlsGenerate = {}
-	local controlsPremade = {}
-	local checkboxGenerate, checkboxPremade
+	local W, H = 500, 370
+	local X = 15
+	local FILE_BOX_W = 420
+	local lineY = 10
+
+	-- TODO: Language Resources
+
+	local form = ExternalUI.BizForms.createForm("Add/Edit Profile", W, H, 50, 10)
+	form.Controls.Generate = {}
+	form.Controls.Premade = {}
+
 	local function _updateVisibility()
-		local isGenerate = checkboxGenerate ~= nil and ExternalUI.BizForms.isChecked(checkboxGenerate)
-		local isPremade = checkboxPremade ~= nil and ExternalUI.BizForms.isChecked(checkboxPremade)
-		for _, controlId in pairs(controlsGenerate) do
+		local isGenerate = ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate)
+		local isPremade = ExternalUI.BizForms.isChecked(form.Controls.checkboxPremade)
+		for _, controlId in pairs(form.Controls.Generate) do
 			ExternalUI.BizForms.setProperty(controlId, ExternalUI.BizForms.Properties.VISIBLE, isGenerate)
 		end
-		for _, controlId in pairs(controlsPremade) do
+		for _, controlId in pairs(form.Controls.Premade) do
 			ExternalUI.BizForms.setProperty(controlId, ExternalUI.BizForms.Properties.VISIBLE, isPremade)
 		end
 	end
@@ -645,80 +689,150 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		end
 		return filepath
 	end
+	local function _autoUpdateBlueTextValues()
+		if ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate) then
+			local chosenRomText = FileManager.extractFileNameFromPath(profile.Paths.Rom or "", true)
+			ExternalUI.BizForms.setText(form.Controls.Generate.labelChosenROM, chosenRomText)
+			local chosenJarText = FileManager.extractFileNameFromPath(profile.Paths.Jar or "", true)
+			ExternalUI.BizForms.setText(form.Controls.Generate.labelChosenJAR, chosenJarText)
+			local chosenSettingsText = FileManager.extractFileNameFromPath(profile.Paths.Settings or "", true)
+			ExternalUI.BizForms.setText(form.Controls.Generate.labelChosenSettings, chosenSettingsText)
+			local createdRomName = FileManager.extractFileNameFromPath(chosenSettingsText)
+			if not Utils.isNilOrEmpty(createdRomName) then
+				createdRomName = string.format("%s %s%s", createdRomName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
+			end
+			ExternalUI.BizForms.setText(form.Controls.Generate.labelCreatedRomValue, createdRomName)
+		elseif ExternalUI.BizForms.isChecked(form.Controls.checkboxPremade) then
+			local chosenFolderText = FileManager.extractFolderNameFromPath(profile.Paths.RomsFolder or "")
+			ExternalUI.BizForms.setText(form.Controls.Premade.labelChosenFolder, chosenFolderText)
+		end
+	end
+	local function _autoUpdateProfileName()
+		-- Don't auto change the name if one already exists
+		if not Utils.isNilOrEmpty(ExternalUI.BizForms.getText(form.Controls.textboxProfileName)) then
+			return
+		end
+		local name
+		if ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate) then
+			local path = ExternalUI.BizForms.getText(form.Controls.Generate.textboxRNQS)
+			name = FileManager.extractFileNameFromPath(path)
+		elseif ExternalUI.BizForms.isChecked(form.Controls.checkboxPremade) then
+			local path = ExternalUI.BizForms.getText(form.Controls.Premade.textboxFOLDER)
+			local folderName = FileManager.extractFolderNameFromPath(path)
+			if not Utils.isNilOrEmpty(folderName) then
+				name = string.format("%s Premade ROMs", folderName)
+			end
+		end
+		if not Utils.isNilOrEmpty(name) then
+			ExternalUI.BizForms.setText(form.Controls.textboxProfileName, name)
+		end
+	end
+	local function _verifyFilesAndUpdateButtons()
+		local allVerified = true
+		if ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate) then
+			if Utils.isNilOrEmpty(ExternalUI.BizForms.getText(form.Controls.Generate.textboxROM)) then
+				allVerified = false
+			end
+			if Utils.isNilOrEmpty(ExternalUI.BizForms.getText(form.Controls.Generate.textboxJAR)) then
+				allVerified = false
+			end
+			if Utils.isNilOrEmpty(ExternalUI.BizForms.getText(form.Controls.Generate.textboxRNQS)) then
+				allVerified = false
+			end
+		elseif ExternalUI.BizForms.isChecked(form.Controls.checkboxPremade) then
+			if Utils.isNilOrEmpty(ExternalUI.BizForms.getText(form.Controls.Premade.textboxFOLDER)) then
+				allVerified = false
+			end
+		else
+			allVerified = false
+		end
+		ExternalUI.BizForms.setProperty(form.Controls.buttonSave, ExternalUI.BizForms.Properties.ENABLED, allVerified)
+	end
 
-	-- TODO: Language Resources
-	local W, H = 450, 320
-	local X = 15
-	local FILE_BOX_W = 370
-	local lineY = 10
-	local form = ExternalUI.BizForms.createForm("Add/Edit Profile", W, H, 50, 10)
-	-- NAME
-	form:createLabel("Profile Name:", X, lineY)
-	local textboxName = form:createTextBox(profile.Name or "", X + 134, lineY, 235, 20)
-	lineY = lineY + 22
 	-- MODE
-	form:createLabel("Mode (choose one):", X, lineY)
+	form.Controls.labelMode = form:createLabel("Mode (choose one):", X, lineY)
 	lineY = lineY + 20
-	checkboxGenerate = form:createCheckbox("Generate new ROMs", X + 30, lineY, function()
-		if ExternalUI.BizForms.isChecked(checkboxGenerate) then
-			ExternalUI.BizForms.setChecked(checkboxPremade, false)
+	form.Controls.checkboxGenerate = form:createCheckbox("Generate new ROMs", X + 70, lineY, function()
+		if ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate) then
+			ExternalUI.BizForms.setChecked(form.Controls.checkboxPremade, false)
 		end
 		_updateVisibility()
 	end)
-	checkboxPremade = form:createCheckbox("Premade ROMs folder", X + 200, lineY, function()
-		if ExternalUI.BizForms.isChecked(checkboxPremade) then
-			ExternalUI.BizForms.setChecked(checkboxGenerate, false)
+	form.Controls.checkboxPremade = form:createCheckbox("Premade ROMs folder", X + 240, lineY, function()
+		if ExternalUI.BizForms.isChecked(form.Controls.checkboxPremade) then
+			ExternalUI.BizForms.setChecked(form.Controls.checkboxGenerate, false)
 		end
 		_updateVisibility()
 	end)
 	lineY = lineY + 30
+
 	-- SOURCE ROM
-	controlsGenerate.labelROM = form:createLabel("Source ROM (a .GBA file):", X, lineY)
-	controlsPremade.labelROM = form:createLabel("Folder containing your randomized ROMs and log files:", X, lineY)
+	form.Controls.Generate.labelROM = form:createLabel("Source ROM (a .GBA file):", X, lineY)
+	form.Controls.Generate.labelChosenROM = form:createLabel("", X + 200, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.Generate.labelChosenROM, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
 	lineY = lineY + 20
-	controlsGenerate.textboxROM = form:createTextBox(profile.Paths.Rom or "", X, lineY, FILE_BOX_W, 20)
-	controlsGenerate.buttonROM = form:createButton("...", X + FILE_BOX_W + 10, lineY - 5, function()
-		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxROM)
+	form.Controls.Generate.textboxROM = form:createTextBox(profile.Paths.Rom or "", X, lineY - 1, FILE_BOX_W, 20)
+	form.Controls.Generate.buttonROM = form:createButton("...", X + FILE_BOX_W + 10, lineY - 5, function()
+		local currentPath = ExternalUI.BizForms.getText(form.Controls.Generate.textboxROM)
 		currentPath = _extractFolderPath(currentPath)
 		local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", currentPath, filterOptions)
 		if success then
-			ExternalUI.BizForms.setText(controlsGenerate.textboxROM, newPath)
+			ExternalUI.BizForms.setText(form.Controls.Generate.textboxROM, newPath)
 		end
+		_verifyFilesAndUpdateButtons()
+		_autoUpdateBlueTextValues()
 	end, 35, 25)
+
 	-- ROMS FOLDER
-	controlsPremade.textboxFOLDER = form:createTextBox(profile.Paths.RomsFolder or "", X, lineY, FILE_BOX_W, 20)
-	controlsPremade.buttonFOLDER = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
-		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxFOLDER)
+	lineY = lineY - 20
+	form.Controls.Premade.labelROM = form:createLabel("Folder with randomized ROMs:", X, lineY)
+	form.Controls.Premade.labelChosenFolder = form:createLabel("", X + 200, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.Premade.labelChosenFolder, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+	lineY = lineY + 20
+	form.Controls.Premade.textboxFOLDER = form:createTextBox(profile.Paths.RomsFolder or "", X, lineY - 1, FILE_BOX_W, 20)
+	form.Controls.Premade.buttonFOLDER = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
+		local currentPath = ExternalUI.BizForms.getText(form.Controls.Premade.textboxFOLDER)
 		currentPath = _extractFolderPath(currentPath)
 		local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", currentPath, filterOptions)
 		if success then
 			newPath = _extractFolderPath(newPath)
-			ExternalUI.BizForms.setText(controlsGenerate.textboxFOLDER, newPath or "")
+			ExternalUI.BizForms.setText(form.Controls.Premade.textboxFOLDER, newPath or "")
+			_autoUpdateProfileName()
 		end
+		_verifyFilesAndUpdateButtons()
+		_autoUpdateBlueTextValues()
 	end, 35, 25)
-	lineY = lineY + 27
+	lineY = lineY + 32
+
 	-- RANDOMIZER JAR
-	controlsGenerate.labelJAR = form:createLabel("Randomizer Program (a .JAR file):", X, lineY)
+	form.Controls.Generate.labelJAR = form:createLabel("Randomizer Program (a .JAR file):", X, lineY)
+	form.Controls.Generate.labelChosenJAR = form:createLabel("", X + 200, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.Generate.labelChosenJAR, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
 	lineY = lineY + 20
-	controlsGenerate.textboxJAR = form:createTextBox(profile.Paths.Jar or "", X, lineY, FILE_BOX_W, 20)
-	controlsGenerate.buttonJAR = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
-		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxJAR)
+	form.Controls.Generate.textboxJAR = form:createTextBox(profile.Paths.Jar or "", X, lineY - 1, FILE_BOX_W, 20)
+	form.Controls.Generate.buttonJAR = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
+		local currentPath = ExternalUI.BizForms.getText(form.Controls.Generate.textboxJAR)
 		currentPath = _extractFolderPath(currentPath)
 		local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT JAR", currentPath, filterOptions)
 		if success then
-			ExternalUI.BizForms.setText(controlsGenerate.textboxJAR, newPath)
+			ExternalUI.BizForms.setText(form.Controls.Generate.textboxJAR, newPath)
 		end
+		_verifyFilesAndUpdateButtons()
+		_autoUpdateBlueTextValues()
 	end, 35, 25)
-	lineY = lineY + 27
+	lineY = lineY + 32
+
 	-- SETTINGS FILE
-	controlsGenerate.labelRNQS = form:createLabel("Randomizer Settings (a .RNQS file):", X, lineY)
+	form.Controls.Generate.labelRNQS = form:createLabel("Randomizer Settings (a .RNQS file):", X, lineY)
+	form.Controls.Generate.labelChosenSettings = form:createLabel("", X + 200, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.Generate.labelChosenSettings, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
 	lineY = lineY + 20
-	controlsGenerate.textboxCustom = form:createTextBox(profile.Paths.Settings or "", X, lineY, FILE_BOX_W, 20)
-	controlsGenerate.buttonCustom = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
-		local currentPath = ExternalUI.BizForms.getText(controlsGenerate.textboxCustom)
+	form.Controls.Generate.textboxRNQS = form:createTextBox(profile.Paths.Settings or "", X, lineY - 1, FILE_BOX_W, 20)
+	form.Controls.Generate.buttonSettings = form:createButton("...", X + FILE_BOX_W + 10, lineY - 4, function()
+		local currentPath = ExternalUI.BizForms.getText(form.Controls.Generate.textboxRNQS)
 		currentPath = _extractFolderPath(currentPath)
 		-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
 		if Utils.isNilOrEmpty(currentPath) then
@@ -727,34 +841,66 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT RNQS", currentPath, filterOptions)
 		if success then
-			ExternalUI.BizForms.setText(controlsGenerate.textboxCustom, newPath)
+			ExternalUI.BizForms.setText(form.Controls.Generate.textboxRNQS, newPath)
+			_autoUpdateProfileName()
 		end
+		_verifyFilesAndUpdateButtons()
+		_autoUpdateBlueTextValues()
 	end, 35, 25)
-	lineY = lineY + 40
+	lineY = lineY + 30
+	form.Controls.Generate.labelCreatedRomName = form:createLabel("Tracker will create this ROM file:", X, lineY)
+	form.Controls.Generate.labelCreatedRomValue = form:createLabel("", X + 200, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.Generate.labelCreatedRomValue, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+	lineY = lineY + 20
+	form.Controls.labelDivider = form:createLabel(string.rep("-", 200), X, lineY, W - X * 2 - 1, 20)
+	lineY = lineY + 25
+
+	-- NAME
+	form.Controls.labelName = form:createLabel("Profile Name:", X, lineY)
+	form.Controls.textboxProfileName = form:createTextBox(profile.Name or "", X + 144, lineY - 1, 275, 20)
+	lineY = lineY + 30
 
 	-- SAVE/CANCEL/HELP
-	local buttonSave = form:createButton(Resources.AllScreens.Save, X + 80, lineY, function()
-		-- TODO: save it, rebuild, redraw
+	form.Controls.buttonSave = form:createButton(Resources.AllScreens.Save, X + 95, lineY, function()
+		if ExternalUI.BizForms.isCheckedChecked(form.Controls.checkboxGenerate) then
+			profile.Mode = SCREEN.Modes.GENERATE
+			profile.Paths.Rom = ExternalUI.BizForms.getText(form.Controls.Generate.textboxROM) or ""
+			profile.Paths.Jar = ExternalUI.BizForms.getText(form.Controls.Generate.textboxJAR) or ""
+			profile.Paths.Settings = ExternalUI.BizForms.getText(form.Controls.Generate.textboxRNQS) or ""
+		elseif ExternalUI.BizForms.isCheckedChecked(form.Controls.checkboxPremade) then
+			profile.Mode = SCREEN.Modes.PREMADE
+			profile.Paths.RomsFolder = ExternalUI.BizForms.getText(form.Controls.Premade.textboxFOLDER) or ""
+		else
+			_verifyFilesAndUpdateButtons()
+			_autoUpdateBlueTextValues()
+			return
+		end
+		_autoUpdateProfileName()
+		profile.Name = ExternalUI.BizForms.getText(form.Controls.textboxProfileName) or ""
+		SCREEN.addUpdateProfile(profile)
 		form:destroy()
 		Program.redraw(true)
 	end)
-	local buttonCancel = form:createButton(Resources.AllScreens.Cancel, X + 175, lineY, function()
+	form.Controls.buttonCancel = form:createButton(Resources.AllScreens.Cancel, X + 195, lineY, function()
 		form:destroy()
 	end)
-	local buttonHelp = form:createButton("Help Guide", X + 330, lineY, function()
+	form.Controls.buttonHelp = form:createButton("Help Guide", X + 295, lineY, function()
 		Utils.openBrowserWindow(FileManager.Urls.NEW_RUNS, Resources.NavigationMenu.MessageCheckConsole)
 	end)
 
+	-- OTHER SETUP
 	if profile.Mode == SCREEN.Modes.PREMADE then
-		ExternalUI.BizForms.setChecked(checkboxPremade, true)
+		ExternalUI.BizForms.setChecked(form.Controls.checkboxPremade, true)
 	else
-		ExternalUI.BizForms.setChecked(checkboxGenerate, true)
+		ExternalUI.BizForms.setChecked(form.Controls.checkboxGenerate, true)
 	end
+	_verifyFilesAndUpdateButtons()
 	_updateVisibility()
+	_autoUpdateBlueTextValues()
 end
 
 ---Sets the active profile used for New Runs to `profile`, updating the respective `Options.FILES` values to match
----@param profile table IProfile
+---@param profile IProfile
 ---@return boolean success
 function QuickloadScreen.setActiveProfile(profile)
 	if not profile or not (profile.Mode == SCREEN.Modes.GENERATE or profile.Mode == SCREEN.Modes.PREMADE) then
@@ -778,6 +924,8 @@ function QuickloadScreen.setActiveProfile(profile)
 		SCREEN.Profiles[profile.GUID].AttemptsCount = Main.currentSeed
 		SCREEN.saveProfiles()
 	end
+
+	SCREEN.refreshButtons()
 
 	return true
 end
@@ -953,6 +1101,7 @@ end
 
 -- Profile object prototypes
 
+---@class IProfile
 QuickloadScreen.IProfile = {
 	-- Required unique GUID
 	GUID = "",
@@ -969,9 +1118,9 @@ QuickloadScreen.IProfile = {
 	-- Available Paths used by this profile
 	Paths = {},
 }
----Creates and returns a new IEvent object
+---Creates and returns a new IProfile object
 ---@param o? table Optional initial object table
----@return table event An IEvent object
+---@return IProfile profile An IProfile object
 function QuickloadScreen.IProfile:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()

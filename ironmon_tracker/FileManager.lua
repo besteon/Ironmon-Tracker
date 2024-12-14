@@ -557,6 +557,8 @@ function FileManager.getCustomFolderPath()
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
+---@param path string
+---@return string
 function FileManager.extractFolderNameFromPath(path)
 	if path == nil or path == "" then return "" end
 
@@ -573,6 +575,9 @@ function FileManager.extractFolderNameFromPath(path)
 	return ""
 end
 
+---@param path string
+---@param includeExtension? boolean Optional, includes the file extension; default: false
+---@return string
 function FileManager.extractFileNameFromPath(path, includeExtension)
 	if path == nil or path == "" then return "" end
 
@@ -584,6 +589,8 @@ function FileManager.extractFileNameFromPath(path, includeExtension)
 	end
 end
 
+---@param path string
+---@return string
 function FileManager.extractFileExtensionFromPath(path)
 	if path == nil or path == "" then return "" end
 
