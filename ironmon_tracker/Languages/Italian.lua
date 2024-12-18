@@ -184,6 +184,7 @@ ScreenResources{
 		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION
 		ButtonExtras = "Extras", -- NEEDS TRANSLATION
 		ButtonQuickload = "New Runs", -- NEEDS TRANSLATION
+		ButtonNotebook = "Notebook", -- NEEDS TRANSLATION
 		ButtonLanguage = "Language", -- NEEDS TRANSLATION
 		ButtonUpdate = "Update", -- NEEDS TRANSLATION
 		ButtonExtensions = "Extensions", -- NEEDS TRANSLATION
