@@ -112,8 +112,8 @@ SCREEN.Buttons = {
 			-- Draw Profile Information
 			local col2X = x + 35
 			if not profile then
-				Drawing.drawText(col2X, y + 5, "No active profile", highlightColor, shadowcolor)
-				Drawing.drawText(col2X, y + 15, "(click to add one)", textColor - 0x20000000, shadowcolor)
+				Drawing.drawText(col2X, y + 5, Resources.QuickloadScreen.LabelNoActiveProfile, highlightColor, shadowcolor)
+				Drawing.drawText(col2X, y + 15, Resources.QuickloadScreen.LabelClickToAdd, textColor - 0x20000000, shadowcolor)
 				return
 			end
 			Drawing.drawText(col2X, y + 1, string.format("%s", profile.Name), highlightColor, shadowcolor)
@@ -124,7 +124,7 @@ SCREEN.Buttons = {
 			else
 				attemptsFormatted = tostring(profile.AttemptsCount)
 			end
-			Drawing.drawText(col2X, y + 11, string.format("%s: %s", "Attempts", attemptsFormatted), textColor, shadowcolor)
+			Drawing.drawText(col2X, y + 11, string.format("%s: %s", Resources.QuickloadScreen.LabelProfileAttempts, attemptsFormatted), textColor, shadowcolor)
 
 			local dateFormatted
 			if (profile.LastUsedDate or 0) == 0 then
@@ -133,15 +133,13 @@ SCREEN.Buttons = {
 				dateFormatted = os.date("%x", profile.LastUsedDate) -- date, (e.g., 09/16/98)
 			end
 			if type(dateFormatted) == "string" then
-				Drawing.drawText(col2X, y + 21, string.format("%s: %s", "Last played", dateFormatted), textColor - 0x30000000, shadowcolor)
+				Drawing.drawText(col2X, y + 21, string.format("%s: %s", Resources.QuickloadScreen.LabelProfileLastPlayed, dateFormatted), textColor - 0x30000000, shadowcolor)
 			end
 		end,
 	},
 	LoadLastPlayedGame = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self)
-			return string.format("%s", "Load last played game" or Resources.QuickloadScreen.ButtonLoadGame)
-		end,
+		getText = function(self) return Resources.QuickloadScreen.ButtonLoadLastGame end,
 		box = { CANVAS.X + 23, CANVAS.Y + 98, 94, 11 },
 		isVisible = function(self)
 			if SCREEN.currentTab ~= SCREEN.Tabs.General then
@@ -159,9 +157,9 @@ SCREEN.Buttons = {
 		getText = function(self)
 			local profile = SCREEN.getActiveProfile()
 			if profile and profile.Mode == SCREEN.Modes.PREMADE then
-				return string.format("%s", "Go next seed" or Resources.QuickloadScreen.ButtonLoadGame)
+				return Resources.QuickloadScreen.ButtonGoNextSeed
 			else
-				return string.format("%s", "Create new game" or Resources.QuickloadScreen.ButtonLoadGame)
+				return Resources.QuickloadScreen.ButtonCreateNewGame
 			end
 		end,
 		box = { CANVAS.X + 23, CANVAS.Y + 113, 94, 11 },
@@ -172,9 +170,7 @@ SCREEN.Buttons = {
 	},
 	AddNewProfile = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self)
-			return string.format("%s", "Add new" or Resources.QuickloadScreen.ButtonAddNewProfile)
-		end,
+		getText = function(self) return Resources.QuickloadScreen.ButtonAddNew end,
 		box = { CANVAS.X + 3, CANVAS.Y + 114, 42, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Profiles end,
 		onClick = function(self)
@@ -282,7 +278,6 @@ function QuickloadScreen.initialize()
 	end
 
 	NavigationMenu.refreshButtons()
-	SCREEN.refreshButtons()
 end
 
 function QuickloadScreen.createTabs()
@@ -418,7 +413,7 @@ function QuickloadScreen.buildProfileButtons()
 				else
 					attemptsFormatted = tostring(buttonRow.profile.AttemptsCount)
 				end
-				Drawing.drawText(col2X, y + 11, string.format("%s: %s", "Attempts", attemptsFormatted), textColor, shadowcolor)
+				Drawing.drawText(col2X, y + 11, string.format("%s: %s", Resources.QuickloadScreen.LabelProfileAttempts, attemptsFormatted), textColor, shadowcolor)
 
 				local dateFormatted
 				if (buttonRow.profile.LastUsedDate or 0) == 0 then
@@ -427,7 +422,7 @@ function QuickloadScreen.buildProfileButtons()
 					dateFormatted = os.date("%x", buttonRow.profile.LastUsedDate) -- date, (e.g., 09/16/98)
 				end
 				if type(dateFormatted) == "string" then
-					Drawing.drawText(col2X, y + 21, string.format("%s: %s", "Last played", dateFormatted), textColor - 0x30000000, shadowcolor)
+					Drawing.drawText(col2X, y + 21, string.format("%s: %s", Resources.QuickloadScreen.LabelProfileLastPlayed, dateFormatted), textColor - 0x30000000, shadowcolor)
 				end
 			end,
 		}
@@ -435,7 +430,7 @@ function QuickloadScreen.buildProfileButtons()
 
 		local btnSelectProfile = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			getText = function(self) return string.format(" %s", "Select" or Resources.QuickloadScreen.ButtonUseProfile) end,
+			getText = function(self) return string.format(" %s", Resources.QuickloadScreen.ButtonSelectProfile) end,
 			box = { -1, -1, 37, 11 },
 			textColor = SCREEN.Colors.text,
 			boxColors = { borderColor, SCREEN.Colors.boxFill },
@@ -453,7 +448,7 @@ function QuickloadScreen.buildProfileButtons()
 
 		local btnEditProfile = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			getText = function(self) return string.format(" %s", "Edit" or Resources.QuickloadScreen.ButtonEditProfile) end,
+			getText = function(self) return string.format(" %s", Resources.QuickloadScreen.ButtonEditProfile) end,
 			box = { -1, -1, 27, 11 },
 			textColor = SCREEN.Colors.text,
 			boxColors = { borderColor, SCREEN.Colors.boxFill },
@@ -470,7 +465,7 @@ function QuickloadScreen.buildProfileButtons()
 
 		local btnDeleteProfile = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			getText = function(self) return string.format(" %s", "Delete" or Resources.QuickloadScreen.ButtonDeleteProfile) end,
+			getText = function(self) return string.format(" %s", Resources.QuickloadScreen.ButtonDeleteProfile) end,
 			box = { -1, -1, 37, 11 },
 			textColor = SCREEN.Colors.text,
 			boxColors = { borderColor, SCREEN.Colors.boxFill },
@@ -1125,7 +1120,8 @@ function QuickloadScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.QuickloadScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	local headerText = Utils.toUpperUTF8(Resources.QuickloadScreen.Title)
+	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
