@@ -702,7 +702,7 @@ function Tracker.AutoSave.loadFromFile()
 	-- Fallback to old method of storing TDAT if file isn't there for new method
 	local shouldCreateProfileTDAT = false
 	if not FileManager.fileExists(fileToLoad) then
-		fileToLoad = FileManager.getTdatFolderPath() .. GameSettings.getTrackerAutoSaveName()
+		fileToLoad = (FileManager.getPathOverride("Tracker Data") or FileManager.dir) .. GameSettings.getTrackerAutoSaveName()
 		-- Require updating the TDAT filename to new method if a profile exists for it
 		shouldCreateProfileTDAT = QuickloadScreen.getActiveProfile() ~= nil
 	end

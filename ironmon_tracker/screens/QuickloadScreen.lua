@@ -613,13 +613,6 @@ function QuickloadScreen.deleteProfile(profile)
 	SCREEN.buildProfileButtons()
 end
 
----Builds a full filepath to the TDAT file that will be used by the specified `profile`
----@param profile IProfile
----@return string filepath
-function QuickloadScreen.generateTdatFilePath(profile)
-	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
-end
-
 ---Returns a full filepath to the box art icon used to display this profile information
 ---@param profile? IProfile
 ---@return string filepath
@@ -1055,8 +1048,15 @@ function QuickloadScreen.getGameProfileTdatPath(profile)
 	end
 	-- Otherwise, legacy TDAT file storage Method; TDAT name is the rom game version
 	local filename = GameSettings.getTrackerAutoSaveName()
-	local filepath = FileManager.getTdatFolderPath() .. filename
-	return filepath
+	local folder = FileManager.getPathOverride("Tracker Data") or FileManager.dir
+	return folder .. filename
+end
+
+---Builds a full filepath to the TDAT file that will be used by the specified `profile`
+---@param profile IProfile
+---@return string filepath
+function QuickloadScreen.generateTdatFilePath(profile)
+	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
 end
 
 function QuickloadScreen.refreshButtons()

@@ -67,6 +67,7 @@ function Main.Initialize()
 		Main.hasRunOnce = (Program.hasRunOnce == true)
 	end
 
+	FileManager.setupFolders()
 	FileManager.setupJsonLibrary()
 	for _, luafile in ipairs(FileManager.LuaCode) do
 		if not FileManager.loadLuaFile(luafile.filepath) then

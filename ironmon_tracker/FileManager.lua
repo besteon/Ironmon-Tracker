@@ -7,6 +7,7 @@ FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
 	Custom = "extensions",
 	Quickload = "quickload",
+	TrackerNotes = "tracker_notes", -- gets created in `FileManager.setupFolders()`
 	SavedGames = "saved_games", -- needs to be created first to be used
 	BackupSaves = "backup_saves", -- needs to be created first to be used
 	DataCode = "data",
@@ -167,6 +168,15 @@ FileManager.LuaCode = {
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
+
+function FileManager.setupFolders()
+	if not FileManager.getPathOverride("Tracker Data") then
+		local folder = FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+		if not FileManager.folderExists(folder) then
+			FileManager.createFolder(folder)
+		end
+	end
+end
 
 -- Returns true if a file exists at its absolute file path; false otherwise
 function FileManager.fileExists(filepath)
@@ -503,7 +513,7 @@ function FileManager.getPathOverride(key)
 end
 
 function FileManager.getTdatFolderPath()
-	return FileManager.getPathOverride("Tracker Data") or FileManager.dir
+	return FileManager.getPathOverride("Tracker Data") or FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
 end
 
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
