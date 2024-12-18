@@ -469,6 +469,43 @@ function Main.ExitSafely(crashed)
 	CrashRecoveryScreen.logCrashReport(crashed == true)
 end
 
+---Loads a ROM file into the emulator
+---@param filepath string
+---@return boolean success
+function Main.LoadRom(filepath)
+	if (filepath or "") == "" then
+		return false
+	end
+
+	-- Always save a backup save-state for the current rom, just in case the ROM load was an accident
+	local backupFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.BackupSaves, true)
+	local backupFilename = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
+	local backupFilepath = backupFolder .. backupFilename
+
+	Tracker.resetData()
+
+	if Main.IsOnBizhawk() then
+		savestate.save(backupFilepath .. FileManager.Extensions.BIZHAWK_SAVESTATE, true) -- true: suppresses the on-screen display message
+		GameOverScreen.clearTempSaveStates()
+		TimeMachineScreen.cleanupOldRestorePoints(true)
+		if Main.emulator == Main.EMU.BIZHAWK28 then
+			-- Bizhawk 2.8 requires closing the rom before opening a new one
+			client.closerom()
+		end
+		client.openrom(filepath)
+		return true
+	else
+		---@diagnostic disable-next-line: undefined-global
+		emu:saveStateFile(backupFilepath .. FileManager.Extensions.MGBA_SAVESTATE, C.SAVESTATE.ALL)
+		local success = emu:loadFile(filepath)
+		if success then
+			MGBA.hasPrintedInstructions = false
+			emu:reset()
+		end
+		return success
+	end
+end
+
 function Main.LoadNextRom()
 	Main.loadNextSeed = false
 	Program.GameTimer:reset()
@@ -495,49 +532,21 @@ function Main.LoadNextRom()
 	Main.ExitSafely(false)
 
 	if nextRomInfo ~= nil then
-		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
-		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
-		local backupFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.BackupSaves, true)
-		local backupfilepath = backupFolder .. backUpName
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
-		Tracker.resetData()
+		QuickloadScreen.afterNewRunProfileCheckup(nextRomInfo.filePath, nextRomInfo.attemptsFilePath)
 
-		-- Check if this profile's game version has not yet been set/updated (requires loading a newly created rom to deterine version)
-		local profile = QuickloadScreen.getActiveProfile()
-		if profile then
-			profile.AttemptsCount = Main.currentSeed
-			if Utils.isNilOrEmpty(profile.GameVersion) then
-				profile.GameVersion = QuickloadScreen.FORCE_UPDATE_GAME_VERSION
-			end
-			QuickloadScreen.saveProfiles()
-		end
-
-		if Main.IsOnBizhawk() then
-			savestate.save(backupfilepath .. FileManager.Extensions.BIZHAWK_SAVESTATE, true) -- true: suppresses the on-screen display message
-			GameOverScreen.clearTempSaveStates()
-			TimeMachineScreen.cleanupOldRestorePoints(true)
-			if Main.emulator == Main.EMU.BIZHAWK28 then
-				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
-			end
+		local success = Main.LoadRom(nextRomInfo.filePath)
+		if success then
 			if Options["Use premade ROMs"] then
-				print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
+				print(string.format('> Loading next ROM: %s', nextRomInfo.fileName or "N/A"))
 			end
-			client.openrom(nextRomInfo.filePath)
-		else
-			---@diagnostic disable-next-line: undefined-global
-			emu:saveStateFile(backupfilepath .. FileManager.Extensions.MGBA_SAVESTATE, C.SAVESTATE.ALL)
-			local success = emu:loadFile(nextRomInfo.filePath)
-			if success then
-				if Options["Use premade ROMs"] then
-					print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
-				end
-				MGBA.hasPrintedInstructions = false
-				emu:reset()
+			if not Main.IsOnBizhawk() then
+				-- MGBA is ready to restart, no other code needs to run
 				return
-			else
-				print(string.format('> ERROR: Unable to load next ROM: %s', nextRomInfo.fileName or "N/A"))
 			end
+		else
+			print(string.format('> ERROR: Unable to load next ROM: %s', nextRomInfo.fileName or "N/A"))
 		end
 	elseif Options["Use premade ROMs"] or Options["Generate ROM each time"] then
 		local quickloadVerb = Utils.inlineIf(Options["Use premade ROMs"], "find", "create")
