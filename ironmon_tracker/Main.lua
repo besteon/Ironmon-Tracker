@@ -177,7 +177,7 @@ function Main.Run()
 		event.onconsoleclose(function() Main.ExitSafely(false) end, "SafelyCloseWithoutCrash")
 
 		-- Bizhawk 2.9+ doesn't properly refocus onto the emulator window after Quickload
-		if Options["Refocus emulator after load"] and Main.emulator ~= Main.EMU.BIZHAWK28 and not Drawing.AnimatedPokemon:isVisible() then
+		if Main.hasRunOnce and Options["Refocus emulator after load"] and Main.emulator ~= Main.EMU.BIZHAWK28 and not Drawing.AnimatedPokemon:isVisible() then
 			Program.focusBizhawkWindow()
 		end
 
