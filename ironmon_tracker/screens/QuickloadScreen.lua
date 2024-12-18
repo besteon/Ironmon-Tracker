@@ -1,8 +1,3 @@
---[[
-TODO LIST
-- Run tests for Tracker upgrade with no New Run info set, Roms Folder set, as well as Generate rom set.
-]]
-
 QuickloadScreen = {
 	Colors = {
 		text = "Lower box text",
@@ -585,8 +580,7 @@ end
 
 ---Called after a successful New Run is performed
 ---@param romFilepath? string Filepath to the newly created/loaded game ROM file
----@param attemptsFilepath? string Filepath to the attempts file used/created
-function QuickloadScreen.afterNewRunProfileCheckup(romFilepath, attemptsFilepath)
+function QuickloadScreen.afterNewRunProfileCheckup(romFilepath)
 	local profile = QuickloadScreen.getActiveProfile()
 	if not profile then
 		return
@@ -599,9 +593,6 @@ function QuickloadScreen.afterNewRunProfileCheckup(romFilepath, attemptsFilepath
 	profile.LastUsedDate = os.time()
 	if not Utils.isNilOrEmpty(romFilepath) then
 		profile.Paths.CurrentRom = romFilepath
-	end
-	if not Utils.isNilOrEmpty(attemptsFilepath) then
-		profile.Paths.Attempts = attemptsFilepath
 	end
 
 	QuickloadScreen.saveProfiles()
@@ -664,19 +655,10 @@ function QuickloadScreen.setActiveProfile(profile)
 	-- Since the New Run settings changed, load in the attempts count
 	Main.ReadAttemptsCount(isGenerateMode)
 
-	-- Update the attempts number to match the profile
-	if FileManager.fileExists(profile.Paths.Attempts) then
-		local file = io.open(profile.Paths.Attempts, "r")
-		local attemptsCount
-		if file then
-			attemptsCount = tonumber(file:read("*a") or "")
-			file:close()
-		end
-		if type(attemptsCount) == "number" then
-			profile.AttemptsCount = attemptsCount
-			Main.currentSeed = attemptsCount
-			SCREEN.saveProfiles()
-		end
+	-- Update the attempts number to match
+	if profile.AttemptsCount ~= Main.currentSeed then
+		profile.AttemptsCount = Main.currentSeed
+		SCREEN.saveProfiles()
 	end
 
 	if Program.currentScreen == SCREEN then
@@ -1160,7 +1142,6 @@ QuickloadScreen.IProfile = {
 		RomsFolder = [Premade Mode] path to the folder containing a batch of randomized roms
 		Tdat = path to the associated tracker notes file (.TDAT)
 		CurrentRom = path to most recently created/loaded ROM
-		Attempts = path to the associated attempts file, created when first New Run is made
 		]]
 	},
 }
