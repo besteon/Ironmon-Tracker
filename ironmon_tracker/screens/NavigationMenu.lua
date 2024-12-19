@@ -62,7 +62,7 @@ NavigationMenu.Buttons = {
 		end
 	},
 	Notebook = {
-		getText = function(self) return "Notebook" or Resources.NavigationMenu.ButtonNotebook end,
+		getText = function(self) return Resources.NavigationMenu.ButtonNotebook end,
 		image = Constants.PixelImages.NOTEPAD,
 		index = 5,
 		isVisible = function() return not NavigationMenu.showCredits end,

@@ -184,6 +184,7 @@ ScreenResources{
 		ButtonStreaming = "Streaming",
 		ButtonExtras = "Extras",
 		ButtonQuickload = "New Runs",
+		ButtonNotebook = "Notebook",
 		ButtonLanguage = "Language",
 		ButtonUpdate = "Update",
 		ButtonExtensions = "Extensions",
