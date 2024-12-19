@@ -1,5 +1,5 @@
 Tracker = {}
-Tracker.Data = {}
+Tracker.Data = Tracker.DefaultData:new()
 Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
 
 -- Dual-purpose enum to determine the status of the tracked data loaded on startup and refernece the relevant Resource key
@@ -11,10 +11,11 @@ Tracker.LoadStatusKeys = {
 }
 Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 
+---@class ITrackedData
 Tracker.DefaultData = {
 	-- NOTE: These root attributes cannot be nil, or they won't be loaded from the TDAT file
 	-- The version number of the Ironmon Tracker
-	version = "1.0.0",
+	version = "0.0.0",
 	-- The ROM Hash is used to uniquely identify this game from others
 	romHash = "",
 	-- The player's visible trainerID
@@ -55,8 +56,16 @@ Tracker.DefaultData = {
 	gameStatsRockSmash = 0,
 }
 
+---Returns a new instance of `ITrackedData`
+---@param o? table
+---@return ITrackedData
 function Tracker.DefaultData:new(o)
 	o = o or {}
+	o.allPokemon = o.allPokemon or {}
+	o.encounterTable = o.encounterTable or {}
+	o.safariEncounters = o.safariEncounters or {}
+	o.hiddenPowers = o.hiddenPowers or {}
+	o.initialMoveset = o.initialMoveset or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -518,10 +527,6 @@ function Tracker.resetData()
 	Tracker.Data = Tracker.DefaultData:new({
 		version = Main.TrackerVersion,
 		romHash = GameSettings.getRomHash(),
-		allPokemon = {},
-		encounterTable = {},
-		safariEncounters = {},
-		hiddenPowers = {},
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		centerHeals = Options["PC heals count downward"] and 10 or 0,
 		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES),
@@ -553,7 +558,7 @@ end
 ---@return string loadStatus The `Tracker.LoadStatus` string, respresenting one of `Tracker.LoadStatusKeys`
 function Tracker.loadData(filepath, overwrite)
 	filepath = filepath or QuickloadScreen.getGameProfileTdatPath()
-	overwrite = overwrite ~= true -- Defaults to false
+	overwrite = overwrite == true -- Defaults to false
 
 	-- Loose safety check to ensure a valid data file is loaded
 	local fileExtension = FileManager.extractFileExtensionFromPath(filepath):lower()
@@ -572,7 +577,8 @@ function Tracker.loadData(filepath, overwrite)
 	Tracker.resetData()
 
 	-- If the loaded data's romHash doesn't match this current game exactly, use the empty data; otherwise use the loaded data
-	if not overwrite and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
+	local isDifferentRom = Utils.isNilOrEmpty(fileData.romHash) or fileData.romHash ~= GameSettings.getRomHash()
+	if not overwrite and isDifferentRom then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 		return Tracker.LoadStatus
 	end

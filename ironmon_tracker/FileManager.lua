@@ -4,7 +4,7 @@ FileManager = {}
 FileManager.slash = package.config:sub(1,1) or "\\"
 
 -- File/Folder names cannot use the characters included in this pattern. These include < > : " / \ | ? *
-FileManager.INVALD_FILE_PATTERN = '[%<%>%:%"%/%\\%|%?%*]'
+FileManager.INVALID_FILE_PATTERN = '[%<%>%:%"%/%\\%|%?%*]'
 
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",

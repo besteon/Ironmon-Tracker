@@ -820,7 +820,7 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		if Utils.isNilOrEmpty(name) then
 			return true
 		end
-		if name:find(FileManager.INVALD_FILE_PATTERN) ~= nil then
+		if name:find(FileManager.INVALID_FILE_PATTERN) ~= nil then
 			return false
 		end
 		for _, profileToCheck in pairs(SCREEN.Profiles or {}) do
