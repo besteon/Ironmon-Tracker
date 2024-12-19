@@ -1,6 +1,4 @@
 Tracker = {}
-Tracker.Data = Tracker.DefaultData:new()
-Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
 
 -- Dual-purpose enum to determine the status of the tracked data loaded on startup and refernece the relevant Resource key
 Tracker.LoadStatusKeys = {
@@ -79,6 +77,9 @@ mt.__index = function(_, key)
 		return Battle.isViewingOwn
 	end
 end
+
+Tracker.Data = Tracker.DefaultData:new()
+Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
 
 function Tracker.initialize()
 	Tracker.resetData()
