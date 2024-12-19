@@ -815,6 +815,21 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		end
 		ExternalUI.BizForms.setProperty(form.Controls.buttonSave, ExternalUI.BizForms.Properties.ENABLED, allVerified)
 	end
+	local function _isProfileNameValid()
+		local name = ExternalUI.BizForms.getText(form.Controls.textboxProfileName)
+		if Utils.isNilOrEmpty(name) then
+			return true
+		end
+		if name:find(FileManager.INVALD_FILE_PATTERN) ~= nil then
+			return false
+		end
+		for _, profileToCheck in pairs(SCREEN.Profiles or {}) do
+			if profileToCheck.Name == name then
+				return false
+			end
+		end
+		return true
+	end
 
 	-- MODE
 	form.Controls.labelMode = form:createLabel("Mode (choose one):", X, lineY)
@@ -929,6 +944,13 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 
 	-- SAVE/CANCEL/HELP
 	form.Controls.buttonSave = form:createButton(Resources.AllScreens.Save, X + 95, lineY, function()
+		_autoUpdateProfileName()
+		if not _isProfileNameValid() then
+			ExternalUI.BizForms.setProperty(form.Controls.labelName, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+			return
+		end
+		ExternalUI.BizForms.setProperty(form.Controls.labelName, ExternalUI.BizForms.Properties.FORE_COLOR, "black")
+
 		if ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate) then
 			profile.Mode = SCREEN.Modes.GENERATE
 			profile.Paths.Rom = ExternalUI.BizForms.getText(form.Controls.Generate.textboxROM) or ""
@@ -942,7 +964,6 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 			_autoUpdateBlueTextValues()
 			return
 		end
-		_autoUpdateProfileName()
 		profile.Name = ExternalUI.BizForms.getText(form.Controls.textboxProfileName) or ""
 		SCREEN.addUpdateProfile(profile)
 		form:destroy()

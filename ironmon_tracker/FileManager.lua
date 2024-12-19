@@ -3,6 +3,9 @@ FileManager = {}
 -- Define file separator. Windows is \ and Linux is /
 FileManager.slash = package.config:sub(1,1) or "\\"
 
+-- File/Folder names cannot use the characters included in this pattern. These include < > : " / \ | ? *
+FileManager.INVALD_FILE_PATTERN = '[%<%>%:%"%/%\\%|%?%*]'
+
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
 	Custom = "extensions",
