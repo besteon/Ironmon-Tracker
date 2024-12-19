@@ -630,7 +630,7 @@ end
 ---@param profile IProfile
 ---@return boolean success
 function QuickloadScreen.setActiveProfile(profile)
-	if not profile or not (profile.Mode == SCREEN.Modes.GENERATE or profile.Mode == SCREEN.Modes.PREMADE) then
+	if not profile or Utils.isNilOrEmpty(profile.Mode) then
 		return false
 	end
 
@@ -732,8 +732,6 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 	local X = 15
 	local FILE_BOX_W = 420
 	local lineY = 10
-
-	-- TODO: Language Resources
 
 	local form = ExternalUI.BizForms.createForm("Add/Edit Profile", W, H, 50, 10)
 	form.Controls.Generate = {}
@@ -965,7 +963,9 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 			return
 		end
 		profile.Name = ExternalUI.BizForms.getText(form.Controls.textboxProfileName) or ""
-		SCREEN.addUpdateProfile(profile)
+		-- If no active profile has been selected yet, use this newly added one
+		local useThisAsActive = SCREEN.getActiveProfile() == nil
+		SCREEN.addUpdateProfile(profile, useThisAsActive)
 		form:destroy()
 		Program.redraw(true)
 	end)
