@@ -721,6 +721,7 @@ end
 
 ---@param profile? IProfile If no profile provided, will create/add a new profile; otherwise edits the provided profile
 function QuickloadScreen.addEditProfilePrompt(profile)
+	local isNewProfile = profile == nil
 	profile = profile or QuickloadScreen.IProfile:new({
 		AttemptsCount = 0,
 	})
@@ -822,7 +823,8 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 			return false
 		end
 		for _, profileToCheck in pairs(SCREEN.Profiles or {}) do
-			if profileToCheck.Name == name then
+			-- If a different profile but the same exact name, fail
+			if profileToCheck.Name == name and profileToCheck.GUID ~= profile.GUID then
 				return false
 			end
 		end
@@ -844,6 +846,11 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		end
 		_updateVisibility()
 	end)
+	-- Don't allow changing the mode for existing profiles
+	if not isNewProfile then
+		ExternalUI.BizForms.setProperty(form.Controls.checkboxGenerate, ExternalUI.BizForms.Properties.ENABLED, false)
+		ExternalUI.BizForms.setProperty(form.Controls.checkboxPremade, ExternalUI.BizForms.Properties.ENABLED, false)
+	end
 	lineY = lineY + 30
 
 	-- SOURCE ROM
@@ -962,7 +969,17 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 			_autoUpdateBlueTextValues()
 			return
 		end
+		local oldProfileName = profile.Name
 		profile.Name = ExternalUI.BizForms.getText(form.Controls.textboxProfileName) or ""
+		-- If the name changes, update related files to match
+		if oldProfileName ~= profile.Name then
+			if FileManager.fileExists(profile.Paths.Tdat) then
+				local newTdatFilepath = SCREEN.generateTdatFilePath(profile)
+				FileManager.CopyFile(profile.Paths.Tdat, newTdatFilepath)
+				FileManager.deleteFile(profile.Paths.Tdat)
+				profile.Paths.Tdat = newTdatFilepath
+			end
+		end
 		-- If no active profile has been selected yet, use this newly added one
 		local useThisAsActive = SCREEN.getActiveProfile() == nil
 		SCREEN.addUpdateProfile(profile, useThisAsActive)
