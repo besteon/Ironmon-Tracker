@@ -272,6 +272,8 @@ ExternalUI.IBizhawkForm = {
 	OnCloseFunc = function() end,
 	-- Table of created Bizhawk controls: key=id, val=ControlType
 	CreatedControls = {},
+	-- Table of referenceable Controls: key=name, val=controlid
+	Controls = {},
 
 	-- After the Bizhawk form itself is created, the following attributes cannot be changed
 	Title = "Tracker Form",
@@ -287,12 +289,16 @@ ExternalUI.IBizhawkForm = {
 }
 ---Creates and returns a new IBizhawkForm object; use `createBizhawkForm` to create a form popup instead of calling this directly
 ---@param o? table Optional initial object table
----@return table form An IBizhawkForm object
+---@return IBizhawkForm form An IBizhawkForm object
 function ExternalUI.IBizhawkForm:new(o)
 	o = o or {}
 	for k, v in pairs(ExternalUI.IBizhawkForm) do
 		if o[k] == nil then
-			o[k] = v
+			if type(v) == "table" then
+				o[k] = {}
+			else
+				o[k] = v
+			end
 		end
 	end
 	setmetatable(o, self)

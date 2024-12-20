@@ -50,6 +50,7 @@ Options = {
 	["Use Custom Trainer Names"] = false,
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
+	["Active Profile"] = "",
 
 	-- In rare situations, new options get added that the user should be informed about (true: requires alerting, set to false after)
 	["AlertNewOptionLR"] = true, -- This is for the "Override Button Mode to LR" setting; allowing Tracker to change data in game

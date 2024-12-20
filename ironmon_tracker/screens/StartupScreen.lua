@@ -36,7 +36,7 @@ StartupScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return tostring(Main.currentSeed) or Constants.BLANKLINE end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 33, 11 },
-		isVisible = function() return Main.currentSeed > 1 end,
+		isVisible = function() return Main.currentSeed > 0 end,
 		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end
 	},
 	NotesAreaEdit = {

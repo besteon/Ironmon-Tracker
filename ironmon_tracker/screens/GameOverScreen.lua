@@ -290,40 +290,19 @@ end
 -- Saves the currently loaded ROM, it's log file (if any), and the TDAT file to the Tracker's 'saved_games' folder
 function GameOverScreen.saveCurrentGameFiles()
 	local saveFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.SavedGames, true)
-
-	local romname, rompath, romnameToSave
-	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil then
-		-- First make sure the ROMs Folder ends with a slash
-		if Options.FILES["ROMs Folder"]:sub(-1) ~= FileManager.slash then
-			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
-		end
-
-		romname = GameSettings.getRomName() or ""
-		rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
-		if not FileManager.fileExists(rompath) then
-			-- File doesn't exist, try again with underscores instead of spaces (awkward Bizhawk issue)
-			romname = romname:gsub(" ", "_")
-			rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
-		end
-		romnameToSave = romname
-	elseif Options["Generate ROM each time"] then
-		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
-		local quickloadFiles = Main.GetQuickloadFiles()
-		local settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1] or "")
-
-		romname = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
-		rompath = FileManager.prependDir(romname)
-		romnameToSave = string.format("%s %s", (Main.currentSeed or 1), romname)
-	end
-
-	if romname == nil or rompath == nil or romnameToSave == nil then
-		print("> ERROR: Unable to find the game ROM currently loaded.")
-		return false
-	end
-
 	FileManager.createFolder(saveFolder)
 
+	local romname = QuickloadScreen.getGameProfileRomName()
+	local rompath = QuickloadScreen.getGameProfileRomPath()
+
+	local romnameToSave
+	if Options["Generate ROM each time"] then
+		romnameToSave = string.format("%s %s", (Main.currentSeed or 1), romname)
+	else
+		romnameToSave = romname
+	end
 	local rompathToSave = saveFolder .. romnameToSave .. FileManager.Extensions.GBA_ROM
+
 	-- Don't replace existing save games, instead make a new one based on current time
 	if FileManager.fileExists(rompathToSave) then
 		romnameToSave = string.format("%s %s", os.time(), romname)
@@ -345,18 +324,9 @@ function GameOverScreen.saveCurrentGameFiles()
 		return false
 	end
 
-	if Options["Auto save tracked game data"] then
-		Tracker.saveData()
-		local tdatname = GameSettings.getTrackerAutoSaveName()
-		local tdatpath = (FileManager.getPathOverride("Tracker Data") or FileManager.dir) .. tdatname
-		local tdatnameToSave = romnameToSave .. FileManager.Extensions.TRACKED_DATA
-		local tdatpathToSave = saveFolder .. tdatnameToSave
-		if not FileManager.CopyFile(tdatpath, tdatpathToSave, "overwrite") then
-			print("> ERROR: Unable to save a copy of your game's tracked data file.")
-			print(tdatpath or tdatname or "Unknown TDAT")
-			return false
-		end
-	end
+	local tdatnameToSave = romnameToSave .. FileManager.Extensions.TRACKED_DATA
+	local tdatpathToSave = saveFolder .. tdatnameToSave
+	Tracker.saveData(tdatpathToSave)
 
 	if Main.IsOnBizhawk() then
 		local savestatePath = saveFolder .. romnameToSave .. FileManager.Extensions.BIZHAWK_SAVESTATE

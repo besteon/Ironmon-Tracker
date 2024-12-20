@@ -288,19 +288,24 @@ ScreenResources{
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
-		ButtonCombo = "Buttons", -- NEEDS TRANSLATION
-		ChoiceHeader = "How to load a New Run", -- NEEDS TRANSLATION
+		TabGeneral = "General", -- NEEDS TRANSLATION
+		TabProfiles = "Profiles", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
+		NewRunsDescGenerate = "The Tracker will create a NEW, randomized game ROM file when the button combo is pressed", -- NEEDS TRANSLATION
+		NewRunsDescPremade = "The Tracker will load the next numerical game ROM file when the button combo is pressed", -- NEEDS TRANSLATION
+		LabelActiveProfile = "Active Profile", -- NEEDS TRANSLATION
+		LabelNoActiveProfile = "No active profile", -- NEEDS TRANSLATION
+		LabelClickToAdd = "click to add one", -- NEEDS TRANSLATION
+		LabelProfileAttempts = "Attempts", -- NEEDS TRANSLATION
+		LabelProfileLastPlayed = "Last played", -- NEEDS TRANSLATION
+		ButtonLoadLastGame = "Load last played game", -- NEEDS TRANSLATION
+		ButtonGoNextSeed = "Go next seed", -- NEEDS TRANSLATION
+		ButtonCreateNewGame = "Create new game", -- NEEDS TRANSLATION
+		ButtonAddNew = "Add new", -- NEEDS TRANSLATION
+		ButtonSelectProfile = "Select", -- NEEDS TRANSLATION
+		ButtonEditProfile = "Edit", -- NEEDS TRANSLATION
+		ButtonDeleteProfile = "Delete", -- NEEDS TRANSLATION
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
-		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
-		OptionGenerateRom = "Generate ROM each time", -- NEEDS TRANSLATION
-		OptionRomsFolder = "ROMs Folder", -- NEEDS TRANSLATION
-		OptionRandomizerJar = "Randomizer JAR", -- NEEDS TRANSLATION
-		OptionSourceRom = "Source ROM", -- NEEDS TRANSLATION
-		OptionSettingsFile = "Settings File", -- NEEDS TRANSLATION
-		ButtonSet = "SET", -- NEEDS TRANSLATION
-		ButtonClear = "Clear", -- NEEDS TRANSLATION
-		LabelFolder = "Folder", -- NEEDS TRANSLATION
-		LabelSettings = "Settings", -- NEEDS TRANSLATION
 	},
 	ThemeScreen = {
 		Title = "Theme Library", -- NEEDS TRANSLATION
