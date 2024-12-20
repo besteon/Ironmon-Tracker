@@ -85,7 +85,6 @@ function Main.Initialize()
 
 	-- Get the quickload files just once to be used in several places during start-up, removed later
 	Main.tempQuickloadFiles = Main.GetQuickloadFiles()
-	Main.ReadAttemptsCount()
 	Main.CheckForVersionUpdate()
 
 	return true
@@ -885,13 +884,18 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	end
 
 	-- Otherwise, check if an attempts file exists based on the ROM file name (w/o numbers)
-	-- The case when using Quickload method: premade ROMS
 	local quickloadRomName
-	-- If on Bizhawk, can just get the currently loaded ROM
-	-- mGBA however does NOT return the filename, so need to use the quickload folder files
-	if Main.IsOnBizhawk() then
-		quickloadRomName = GameSettings.getRomName()
-	else
+	local romsFolder = FileManager.tryAppendSlash(Options.FILES["ROMs Folder"])
+
+	-- Bizhawk can shortcut check this by getting the loaded rom name, then checking if a file exists with that name in the Roms Folder
+	if Main.IsOnBizhawk() and not Utils.isNilOrEmpty(romsFolder) then
+		local loadedRomName = GameSettings.getRomName()
+		if FileManager.fileExists(romsFolder .. loadedRomName .. FileManager.Extensions.GBA_ROM) then
+			quickloadRomName = loadedRomName
+		end
+	end
+	-- For all other cases, retrieve the file list from the Roms Folder and use a rom in there to check attempts count
+	if Utils.isNilOrEmpty(quickloadRomName) then
 		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
 		quickloadRomName = quickloadFiles.romList[1] or ""
 	end
@@ -925,9 +929,7 @@ function Main.ReadAttemptsCount(forceUseSettingsFile)
 		if Main.IsOnBizhawk() then -- mostly for Bizhawk
 			local romname = GameSettings.getRomName()
 			local romnumber = string.match(romname, '[0-9]+') or "1"
-			if romnumber ~= "1" then
-				Main.currentSeed = tonumber(romnumber)
-			end
+			Main.currentSeed = tonumber(romnumber)
 		elseif Utils.isNilOrEmpty(Options.FILES["ROMs Folder"]) then -- mostly for mGBA
 			local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
 			if smallestSeedNumber ~= -1 then
