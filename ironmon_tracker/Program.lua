@@ -1381,7 +1381,10 @@ end
 --- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
 --- @return boolean isDefeated
 function Program.hasDefeatedTrainer(trainerId, saveBlock1Addr)
-	if not TrainerData.Trainers[trainerId or false] then return false end
+	-- Don't reveal defeated trainers if player isn't actively playing the game (e.g. title screen w/ old save data)
+	if not TrainerData.Trainers[trainerId or false] or not Program.isValidMapLocation() then
+		return false
+	end
 	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
 	local idAddrOffset = math.floor((Program.Addresses.offsetTrainerFlagStart + trainerId) / 8)
 	local idBit = (Program.Addresses.offsetTrainerFlagStart + trainerId) % 8
