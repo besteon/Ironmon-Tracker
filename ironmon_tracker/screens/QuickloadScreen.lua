@@ -607,6 +607,12 @@ function QuickloadScreen.deleteProfile(profile)
 	-- If being used as the active profile, remove that reference
 	if profile.GUID == Options["Active Profile"] then
 		Options["Active Profile"] = ""
+		Options["Generate ROM each time"] = false
+		Options["Use premade ROMs"] = false
+		Options.FILES["ROMs Folder"] = ""
+		Options.FILES["Randomizer JAR"] = ""
+		Options.FILES["Source ROM"] = ""
+		Options.FILES["Settings File"] = ""
 	end
 	SCREEN.Profiles[profile.GUID] = nil
 	SCREEN.saveProfiles()
