@@ -515,6 +515,21 @@ function FileManager.getPathOverride(key)
 	return FileManager.tryAppendSlash(folderpath)
 end
 
+---Returns the filepath of the currently loaded ROM. Note: Only works for Bizhawk emulator
+---@return string|nil filepath
+function FileManager.getLoadedRomPath()
+	if not Main.IsOnBizhawk() then
+		return nil
+	end
+	local luaconsole = client.gettool("luaconsole")
+	local luaImp = luaconsole and luaconsole.get_LuaImp()
+	local filepath = luaImp and luaImp.PathEntries and luaImp.PathEntries.LastRomPath or ""
+	if filepath ~= "" then
+		return filepath
+	end
+	return nil
+end
+
 function FileManager.getTdatFolderPath()
 	return FileManager.getPathOverride("Tracker Data") or FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
 end
