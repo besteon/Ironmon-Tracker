@@ -23,8 +23,7 @@ function Main.Initialize()
 	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
-	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
-	Main.Version.showReleaseNotes = true
+	Main.Version.showReleaseNotes = false
 
 	Main.MetaSettings = {}
 	Main.CrashReport = {
