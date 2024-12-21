@@ -227,13 +227,15 @@ function GameSettings.initialize()
 	GameSettings.hasInitialized = true
 end
 
+---Gets the ROM name as defined by the emulator, or an empty string if not found
+---@return string
 function GameSettings.getRomName()
 	if Main.IsOnBizhawk() then
 		return gameinfo.getromname() or ""
-	else
-		if emu == nil then return nil end -- I don't think this is needed anymore, but leaving it in for safety
+	elseif emu ~= nil then
 		return emu:getGameTitle() or ""
 	end
+	return ""
 end
 
 function GameSettings.getRomHash()

@@ -157,6 +157,7 @@ Constants.OrderedLists = {
 		"Use Custom Trainer Names",
 		"Open Book Play Mode",
 		"Allow sprites to walk",
+		"Active Profile",
 		"AlertNewOptionLR",
 	},
 	CONTROLS = {

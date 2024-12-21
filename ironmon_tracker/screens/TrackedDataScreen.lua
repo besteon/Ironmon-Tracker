@@ -116,7 +116,7 @@ end
 
 function TrackedDataScreen.openSaveDataPrompt()
 	local form = ExternalUI.BizForms.createForm(Resources.TrackedDataScreen.PromptHeaderSave, 290, 130)
-	local suggestedFileName = GameSettings.getRomName() or ""
+	local suggestedFileName = GameSettings.getRomName()
 	local enterFilename = string.format("%s:", Resources.TrackedDataScreen.PromptEnterFilename)
 	form:createLabel(enterFilename, 18, 10)
 	local nameTextbox = form:createTextBox(suggestedFileName, 20, 30, 200, 30)
@@ -127,7 +127,7 @@ function TrackedDataScreen.openSaveDataPrompt()
 			if formInput:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				formInput = formInput .. FileManager.Extensions.TRACKED_DATA
 			end
-			Tracker.saveData(formInput)
+			Tracker.saveDataAsCopy(formInput)
 		end
 		form:destroy()
 	end)
@@ -137,7 +137,7 @@ function TrackedDataScreen.openSaveDataPrompt()
 end
 
 function TrackedDataScreen.openLoadDataPrompt()
-	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.TRACKED_DATA
+	local suggestedFileName = GameSettings.getRomName() .. FileManager.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
 	local workingDir = FileManager.dir
@@ -152,6 +152,8 @@ function TrackedDataScreen.openLoadDataPrompt()
 		Tracker.Data.playtime = playtime
 		if loadStatus == Tracker.LoadStatusKeys.LOAD_SUCCESS then
 			Tracker.saveData()
+		elseif loadStatus == Tracker.LoadStatusKeys.ERROR then
+			Main.DisplayError("Invalid file selected.\n\nPlease select a valid TDAT file to load tracker data.")
 		end
 
 		local loadStatusMessage = Resources.StartupScreen[loadStatus or -1]
