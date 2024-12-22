@@ -210,10 +210,6 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 		return
 	end
 
-	if Battle.inActiveBattle() then
-		Tracker.trackBattleMoveByPokemonLevel(pokemonID, moveId, level)
-	end
-
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 
 	-- If no move data exist, set this as the first move
@@ -559,6 +555,7 @@ function Tracker.resetData()
 	Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 end
 
+---Resets any recorded information that is temporarily noted for the current battle
 function Tracker.resetBattleNotes()
 	Tracker.BattleNotes = {
 		MovesByPokemonAndLevel = {},
@@ -566,8 +563,12 @@ function Tracker.resetBattleNotes()
 	}
 end
 
-function Tracker.trackBattleMoveByPokemonLevel(pokemonID, moveId, level)
-	if not PokemonData.isValid(pokemonID) or not MoveData.isValid(moveId) or type(level) ~= "number" then
+---Records/saves info about a move used by an [enemy] pokemon in battle, temporarily, for the current battle.
+---@param pokemonID any
+---@param moveId any
+---@param level any
+function Tracker.recordBattleMoveByPokemonLevel(pokemonID, moveId, level)
+	if not PokemonData.isValid(pokemonID) or not MoveData.isValid(moveId) or type(level) ~= "number" or not Battle.inActiveBattle() then
 		return
 	end
 	-- Store known/used moves with a key formed by the id & level pair

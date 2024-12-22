@@ -398,6 +398,7 @@ function Battle.updateTrackedInfo()
 										local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
 										if battlerMon ~= nil then
 											Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+											Tracker.recordBattleMoveByPokemonLevel(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
 										end
 									end
 								end
@@ -412,6 +413,7 @@ function Battle.updateTrackedInfo()
 										local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 										if attackingMon ~= nil then
 											Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+											Tracker.recordBattleMoveByPokemonLevel(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 										end
 									end
 								end
@@ -439,6 +441,7 @@ function Battle.updateTrackedInfo()
 					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 					if attackingMon ~= nil then
 						Tracker.TrackMove(attackingMon.pokemonID, 264, attackingMon.level)
+						Tracker.recordBattleMoveByPokemonLevel(attackingMon.pokemonID, 264, attackingMon.level)
 					end
 				end
 			end
@@ -1073,6 +1076,7 @@ function Battle.trackTransformedMoves()
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
 				Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
+				Tracker.recordBattleMoveByPokemonLevel(copiedMon.pokemonID, move.id, copiedMon.level)
 			end
 		end
 	end
