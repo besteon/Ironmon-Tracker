@@ -480,7 +480,7 @@ function LogOverlay.getLogFileAutodetected(postFix)
 			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
 		end
 
-		romname = GameSettings.getRomName() or ""
+		romname = GameSettings.getRomName()
 		if postFix == FileManager.PostFixes.PREVIOUSATTEMPT then
 			local currentRomPrefix = string.match(romname, '[^0-9]+') or ""
 			local currentRomNumber = string.match(romname, '[0-9]+') or "0"
@@ -513,8 +513,7 @@ function LogOverlay.getLogFileAutodetected(postFix)
 			filename = filename:gsub("%d", "")
 			return filename:lower()
 		end
-		local loadedRomName = GameSettings.getRomName() or "N/A"
-		loadedRomName = plainFormatter(loadedRomName .. FileManager.Extensions.GBA_ROM)
+		local loadedRomName = plainFormatter(GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
 		local autodetectedName = plainFormatter(romname or "")
 		if loadedRomName ~= autodetectedName then
 			return nil
@@ -528,7 +527,7 @@ end
 --- Prompts user to select a log file to parse
 --- @return string?
 function LogOverlay.getLogFileFromPrompt()
-	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE
+	local suggestedFileName = GameSettings.getRomName() .. FileManager.Extensions.RANDOMIZER_LOGFILE
 	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"
 
 	local workingDir = FileManager.dir

@@ -309,10 +309,7 @@ function UpdateScreen.beginAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
-	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
-	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
-		Tracker.saveData()
-	end
+	Tracker.AutoSave.saveToFile()
 
 	local updateStartDelay
 	if Main.IsOnBizhawk() then
