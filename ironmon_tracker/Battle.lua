@@ -761,6 +761,7 @@ function Battle.beginNewBattle()
 	Battle.populateBattlePartyObject()
 	Input.StatHighlighter:resetSelectedStat()
 
+	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
 	-- If the lead encountered enemy Pokemon is a shiny, trigger a pulsing sparkle effect
@@ -836,6 +837,7 @@ function Battle.endCurrentBattle()
 		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
 
+	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
 	Battle.opposingTrainerId = 0

@@ -259,7 +259,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		stars = Utils.calculateMoveStars(viewedPokemon.pokemonID, viewedPokemon.level)
 	end
 
-	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID)
+	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID, viewedPokemon.level)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
 		if data.x.viewingOwn or useOpenBookInfo then
