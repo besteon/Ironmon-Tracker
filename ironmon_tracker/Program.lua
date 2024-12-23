@@ -476,17 +476,6 @@ function Program.update()
 				if Options["Override Button Mode to LR"] then
 					Program.changeGameSettingForLR()
 				end
-
-				if Network.isConnected() then
-					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
-				end
-			end
-
-			if not Program.hasCheckedGameSettings then
-				Program.hasCheckedGameSettings = true
-				if Options["Override Button Mode to LR"] then
-					Program.changeGameSettingForLR()
-				end
 			end
 
 			-- Check if summary screen has being shown

@@ -1,4 +1,10 @@
 BattleEffectsScreen = {
+	Colors = {
+		text = "Default text",
+		highlight = "Intermediate text",
+		border = "Upper box border",
+		boxFill = "Upper box background",
+	},
 	viewingIndividualStatuses = true,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
@@ -6,13 +12,16 @@ BattleEffectsScreen = {
 	currentPage = 1,
 	numPages = 1,
 	pageSize = 6,
-	Colors = {
-		text = "Default text",
-		highlight = "Intermediate text",
-		border = "Upper box border",
-		boxFill = "Upper box background",
-	},
 }
+
+-- Other details recorded in battle
+BattleEffectsScreen.PerSideDetails = {}
+BattleEffectsScreen.PerMonDetails = {}
+
+-- Resources caches
+BattleEffectsScreen.BattleDetails = {}
+BattleEffectsScreen.WeatherNameMap = {}
+BattleEffectsScreen.TerrainNameMap = {}
 
 BattleEffectsScreen.Buttons = {
 	LeftOwn = {

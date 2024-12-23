@@ -147,6 +147,7 @@ FileManager.LuaCode = {
 	{ name = "CatchRatesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CatchRatesScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
 	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
+	{ name = "BattleEffectsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleEffectsScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StatMarkingScoreSheet", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatMarkingScoreSheet.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
