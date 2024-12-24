@@ -320,6 +320,21 @@ TrackerScreen.Buttons = {
 			end
 		end,
 	},
+	AdditionalBattleEffects = {
+		-- Invisible clickable button
+		type = Constants.ButtonTypes.NO_BORDER,
+		textColor = "Header text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
+		boxColors = { "Header text", "Main background" },
+		isVisible = function()
+			return Options["Show additional battle details"] and not Battle.isViewingOwn and not Battle.isWildEncounter
+		end,
+		onClick = function(self)
+			BattleEffectsScreen.loadData()
+			Program.changeScreenView(BattleEffectsScreen)
+		end,
+	},
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
@@ -1326,10 +1341,18 @@ function TrackerScreen.drawMovesArea(data)
 	local headerY = moveOffsetY - moveTableHeaderHeightDiff
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, headerY, data.m.nextmoveheader, headerColor, bgHeaderShadow)
 	-- Check if ball catch rate should be displayed instead of other header labels
-	if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
+	if TrackerScreen.Buttons.CatchRates:isVisible() then
 		local catchText = string.format("~ %.0f%%  %s", data.x.catchrate, Resources.TrackerScreen.ToCatch)
 		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(catchText) - 2
 		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, catchText, headerColor, bgHeaderShadow)
+	-- Check if additional battle details should be displayed instead of other header labels
+	elseif TrackerScreen.Buttons.AdditionalBattleEffects:isVisible() and Battle.turnCount > 0 then
+		-- TODO: for now, only change header info after the first turn, and hard-code some text just so its displayed
+		-- local totalBattleEffects = 12 -- TODO: Debug/test value
+		-- local battleDetailsText = string.format("%s (+%s)", "StatusHere", totalBattleEffects)
+		local battleDetailsText = "(Battle Details)"
+		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(battleDetailsText) - 2
+		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, battleDetailsText, headerColor, bgHeaderShadow)
 	else
 		Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, headerY, Resources.TrackerScreen.HeaderPP, headerColor, bgHeaderShadow)
 		Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, headerColor, bgHeaderShadow)

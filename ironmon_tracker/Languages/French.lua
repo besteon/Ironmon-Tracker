@@ -277,6 +277,7 @@ ScreenResources{
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
+		OptionShowAdditionalBattleDetails = "Show additional battle details", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
@@ -891,6 +892,7 @@ ScreenResources{
 		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
 		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
+		OptionShowAdditionalBattleDetails = "Show additional battle details", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION

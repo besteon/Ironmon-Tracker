@@ -13,147 +13,184 @@ BattleEffectsScreen = {
 	numPages = 1,
 	pageSize = 6,
 }
+local SCREEN = BattleEffectsScreen
 
 -- Other details recorded in battle
-BattleEffectsScreen.PerSideDetails = {}
-BattleEffectsScreen.PerMonDetails = {}
+SCREEN.PerSideDetails = {}
+SCREEN.PerMonDetails = {}
 
 -- Resources caches
-BattleEffectsScreen.BattleDetails = {}
-BattleEffectsScreen.WeatherNameMap = {}
-BattleEffectsScreen.TerrainNameMap = {}
+SCREEN.BattleDetails = {}
+SCREEN.WeatherNameMap = {}
+SCREEN.TerrainNameMap = {}
 
-BattleEffectsScreen.Buttons = {
+SCREEN.Buttons = {
 	LeftOwn = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 36, 13, 13 },
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		isVisible = function() return true end,
 		onClick = function(self)
-			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 0 then return end
-			BattleEffectsScreen.viewingIndividualStatuses = true
-			BattleEffectsScreen.viewingSideStauses = false
-			BattleEffectsScreen.viewedMonIndex = 0
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 0 then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 0
 			Program.redraw(true)
 		end
 	},
 	LeftOther = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 122, Constants.SCREEN.MARGIN + 21, 13, 13 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 1 then return end
-			BattleEffectsScreen.viewingIndividualStatuses = true
-			BattleEffectsScreen.viewingSideStauses = false
-			BattleEffectsScreen.viewedMonIndex = 1
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 1 then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 1
 			Program.redraw(true)
 		end
 	},
 	RightOwn = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 114, Constants.SCREEN.MARGIN + 36, 13, 13 },
 		isVisible = function() return Battle.numBattlers == 4 end,
 		onClick = function(self)
-			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 2 then return end
-			BattleEffectsScreen.viewingIndividualStatuses = true
-			BattleEffectsScreen.viewingSideStauses = false
-			BattleEffectsScreen.viewedMonIndex = 2
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 2 then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 2
 			Program.redraw(true)
 		end
 	},
 	RightOther = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109, Constants.SCREEN.MARGIN + 21, 13, 13 },
 		isVisible = function() return Battle.numBattlers == 4 end,
 		onClick = function(self)
-			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 3 then return end
-			BattleEffectsScreen.viewingIndividualStatuses = true
-			BattleEffectsScreen.viewingSideStauses = false
-			BattleEffectsScreen.viewedMonIndex = 3
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 3 then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 3
 			Program.redraw(true)
 		end
 	},
 	AllyTeam = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129, Constants.SCREEN.MARGIN + 35, 6, 15 },
 		isVisible = function() return true end,
+		updateSelf = function(self)
+			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
+			if Battle.numBattlers == 2 then
+				self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115
+				self.box[3] = 20
+			else
+				self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129
+				self.box[3] = 6
+			end
+		end,
 		onClick = function(self)
-			if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
-			BattleEffectsScreen.viewingIndividualStatuses = false
-			BattleEffectsScreen.viewingSideStauses = true
-			BattleEffectsScreen.viewedSideIndex = 0
+			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 0 then return end
+			SCREEN.viewingIndividualStatuses = false
+			SCREEN.viewingSideStauses = true
+			SCREEN.viewedSideIndex = 0
 			Program.redraw(true)
 		end
 	},
 	EnemyTeam = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 20, 6, 15 },
 		isVisible = function() return true end,
+		updateSelf = function(self)
+			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
+			if Battle.numBattlers == 2 then
+				self.box[3] = 20
+			else
+				self.box[3] = 6
+			end
+		end,
 		onClick = function(self)
-			if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
-			BattleEffectsScreen.viewingIndividualStatuses = false
-			BattleEffectsScreen.viewingSideStauses = true
-			BattleEffectsScreen.viewedSideIndex = 1
+			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 1 then return end
+			SCREEN.viewingIndividualStatuses = false
+			SCREEN.viewingSideStauses = true
+			SCREEN.viewedSideIndex = 1
 			Program.redraw(true)
 		end
 	},
 	BattleView = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 20, 9, 30},
 		isVisible = function() return true end,
 		onClick = function(self)
-			if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then return end
-			BattleEffectsScreen.viewingIndividualStatuses = false
-			BattleEffectsScreen.viewingSideStauses = false
-			BattleEffectsScreen.viewedSideIndex = 0
-			BattleEffectsScreen.viewedMonIndex = 0
+			if not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses then return end
+			SCREEN.viewingIndividualStatuses = false
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedSideIndex = 0
+			SCREEN.viewedMonIndex = 0
 			Program.redraw(true)
 		end
 	},
 	PageLeft = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 48, Constants.SCREEN.MARGIN + 137, 10, 10 },
-		isVisible = function() return BattleEffectsScreen.currentPage > 1 end,
+		isVisible = function() return SCREEN.currentPage > 1 end,
 		onClick = function(self)
-			BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage - 1
+			SCREEN.currentPage = SCREEN.currentPage - 1
 			Program.redraw(true)
 		end
 	},
 	PageRight = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 86, Constants.SCREEN.MARGIN + 137, 10, 10 },
-		isVisible = function() return BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages end,
+		isVisible = function() return SCREEN.currentPage < SCREEN.numPages end,
 		onClick = function(self)
-			BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage + 1
+			SCREEN.currentPage = SCREEN.currentPage + 1
 			Program.redraw(true)
 		end
 	},
 	Back = Drawing.createUIElementBackButton(function()
 		Program.changeScreenView(TrackerScreen)
-		--reset clickable area for team boxes
-		BattleEffectsScreen.Buttons.AllyTeam.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129
-		BattleEffectsScreen.Buttons.AllyTeam.box[3] = 6
-		BattleEffectsScreen.Buttons.EnemyTeam.box[3] = 6
 	end),
 }
 
 function BattleEffectsScreen.initialize()
-	BattleEffectsScreen.BattleDetails = {
+	SCREEN.viewingIndividualStatuses = true
+	SCREEN.viewingSideStauses = false
+	SCREEN.viewedMonIndex = 0
+	SCREEN.viewedSideIndex = 0
+	SCREEN.currentPage = 1
+	SCREEN.numPages = 1
+	SCREEN.testing = false
+
+	SCREEN.PerSideDetails = {
+		[0] = {},
+		[1] = {},
+	}
+	SCREEN.PerMonDetails = {
+		[0] = {},
+		[1] = {},
+		[2] = {},
+		[3] = {},
+	}
+
+	SCREEN.updateResources()
+end
+
+function BattleEffectsScreen.updateResources()
+	SCREEN.BattleDetails = {
 		Weather = Resources.BattleEffectsScreen.WeatherDefault,
 		Terrain = Resources.BattleEffectsScreen.TerrainDefault,
 	}
-
-	BattleEffectsScreen.WeatherNameMap = {
+	SCREEN.WeatherNameMap = {
 		[0] = Resources.BattleEffectsScreen.WeatherRain,
 		[1] = Resources.BattleEffectsScreen.WeatherRain,
 		[2] = Resources.BattleEffectsScreen.WeatherRain,
@@ -164,7 +201,7 @@ function BattleEffectsScreen.initialize()
 		[7] = Resources.BattleEffectsScreen.WeatherHail,
 		["default"] = Resources.BattleEffectsScreen.WeatherDefault,
 	}
-	BattleEffectsScreen.TerrainNameMap = {
+	SCREEN.TerrainNameMap = {
 		[0] = Resources.BattleEffectsScreen.TerrainGrass,
 		[1] = Resources.BattleEffectsScreen.Terrain,
 		[2] = Resources.BattleEffectsScreen.TerrainSand,
@@ -175,43 +212,25 @@ function BattleEffectsScreen.initialize()
 		[7] = Resources.BattleEffectsScreen.TerrainCave,
 		["default"] = Resources.BattleEffectsScreen.TerrainDefault,
 	}
-
-	BattleEffectsScreen.viewingIndividualStatuses = true
-	BattleEffectsScreen.viewingSideStauses = false
-	BattleEffectsScreen.viewedMonIndex = 0
-	BattleEffectsScreen.viewedSideIndex = 0
-	BattleEffectsScreen.currentPage = 1
-	BattleEffectsScreen.numPages = 1
-	BattleEffectsScreen.testing = false
-	BattleEffectsScreen.PerSideDetails = {
-		[0] = {},
-		[1] = {},
-	}
-	BattleEffectsScreen.PerMonDetails = {
-		[0] = {},
-		[1] = {},
-		[2] = {},
-		[3] = {},
-	}
 end
 
 local function resetBattleDetails()
-	BattleEffectsScreen.BattleDetails = {
-		Weather = Resources.BattleEffectsScreen.WeatherDefault,
-		Terrain = Resources.BattleEffectsScreen.TerrainDefault,
-	}
-	BattleEffectsScreen.PerSideDetails = {
+	SCREEN.currentPage = 1
+	SCREEN.numPages = 1
+
+	SCREEN.BattleDetails.Weather = Resources.BattleEffectsScreen.WeatherDefault
+	SCREEN.BattleDetails.Terrain = Resources.BattleEffectsScreen.TerrainDefault
+
+	SCREEN.PerSideDetails = {
 		[0] = {},
 		[1] = {},
 	}
-	BattleEffectsScreen.PerMonDetails = {
+	SCREEN.PerMonDetails = {
 		[0] = {},
 		[1] = {},
 		[2] = {},
 		[3] = {},
 	}
-	BattleEffectsScreen.currentPage = 1
-	BattleEffectsScreen.numPages = 1
 end
 
 local function loadTerrain()
@@ -228,8 +247,8 @@ local function loadTerrain()
 		#define BATTLE_TERRAIN_BUILDING     8
 	]]
 	local battleTerrain = Memory.readbyte(GameSettings.gBattleTerrain)
-	local terrainText = BattleEffectsScreen.TerrainNameMap[battleTerrain]
-	BattleEffectsScreen.BattleDetails.Terrain = terrainText or BattleEffectsScreen.TerrainNameMap["default"]
+	local terrainText = SCREEN.TerrainNameMap[battleTerrain]
+	SCREEN.BattleDetails.Terrain = terrainText or SCREEN.TerrainNameMap["default"]
 end
 
 local function loadWeather()
@@ -248,21 +267,21 @@ local function loadWeather()
 	local weatherTurns = Memory.readbyte(GameSettings.gWishFutureKnock + 0x28)
 
 	if weatherByte == 0 then
-		BattleEffectsScreen.BattleDetails.Weather = BattleEffectsScreen.WeatherNameMap["default"]
-		BattleEffectsScreen.BattleDetails.WeatherTurns = 0
+		SCREEN.BattleDetails.Weather = SCREEN.WeatherNameMap["default"]
+		SCREEN.BattleDetails.WeatherTurns = 0
 	else
 		local weatherBitIndex = 0
 		while weatherByte > 1 do
 			weatherByte = Utils.bit_rshift(weatherByte, 1)
 			weatherBitIndex = weatherBitIndex + 1
 		end
-		local weatherText = BattleEffectsScreen.WeatherNameMap[weatherBitIndex]
-		BattleEffectsScreen.BattleDetails.Weather = weatherText or BattleEffectsScreen.WeatherNameMap["default"]
+		local weatherText = SCREEN.WeatherNameMap[weatherBitIndex]
+		SCREEN.BattleDetails.Weather = weatherText or SCREEN.WeatherNameMap["default"]
 		--Weather Turns are not reset to 0 when temporary weather becomes permanent
 		if weatherBitIndex == 0 or weatherBitIndex == 3 or weatherBitIndex == 5 or weatherBitIndex == 7 then
-			BattleEffectsScreen.BattleDetails.WeatherTurns = weatherTurns
+			SCREEN.BattleDetails.WeatherTurns = weatherTurns
 		else
-			BattleEffectsScreen.BattleDetails.WeatherTurns = 0
+			SCREEN.BattleDetails.WeatherTurns = 0
 		end
 	end
 end
@@ -271,7 +290,7 @@ local function loadFieldEffects()
 	loadWeather()
 	local gPaydayMoney = Memory.readword(GameSettings.gPaydayMoney)
 	if gPaydayMoney ~= 0 then
-		BattleEffectsScreen.BattleDetails.PayDay = {
+		SCREEN.BattleDetails.PayDay = {
 			label = Resources.BattleEffectsScreen.EffectPayDay,
 			amount = gPaydayMoney
 		}
@@ -322,33 +341,33 @@ local function loadStatus2(index)
 	local status2Map = Utils.generateBitwiseMap(status2Data, 32)
 	if status2Map[0] or status2Map[1] or status2Map[2] then
 		local turnsText = string.format("1- 4 %ss", Resources.BattleEffectsScreen.TextTurn)
-		BattleEffectsScreen.PerMonDetails[index].Confused = {
+		SCREEN.PerMonDetails[index].Confused = {
 			label = Resources.BattleEffectsScreen.EffectConfused,
 			totalTurns = turnsText
 		}
 	end
 	if status2Map[4] or status2Map[5] or status2Map[6] then
 		--253 = Uproar
-		BattleEffectsScreen.PerMonDetails[index].Uproar = {
+		SCREEN.PerMonDetails[index].Uproar = {
 			label = Resources.Game.MoveNames[253]
 		}
 	end
 	if status2Map[8] or status2Map[9] then
 		remainingTurnsBide = (Utils.inlineIf(status2Map[8],1,0) + Utils.inlineIf(status2Map[9],2,0))
 		--117 = Bide
-		BattleEffectsScreen.PerMonDetails[index].Bide = {
+		SCREEN.PerMonDetails[index].Bide = {
 			label = Resources.Game.MoveNames[117],
 			remainingTurns=remainingTurnsBide
 		}
 	end
 	if status2Map[12] and remainingTurnsBide == nil then
-		BattleEffectsScreen.PerMonDetails[index].MustAttack = {
+		SCREEN.PerMonDetails[index].MustAttack = {
 			label = Resources.BattleEffectsScreen.EffectMustAttack
 		}
 	end
 	if status2Map[13] or status2Map[14] or status2Map[15] then
 		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
-		BattleEffectsScreen.PerMonDetails[index].Trapped = {
+		SCREEN.PerMonDetails[index].Trapped = {
 			label = Resources.BattleEffectsScreen.EffectTrapped,
 			source = sourceBattlerIndex
 		}
@@ -356,78 +375,78 @@ local function loadStatus2(index)
 	if status2Map[16] or status2Map[17] or status2Map[18] or status2Map[19] then
 		local infatuationTarget = Utils.inlineIf(status2Map[16],0,nil) or Utils.inlineIf(status2Map[17],1,nil) or Utils.inlineIf(status2Map[18],2,nil) or Utils.inlineIf(status2Map[19],3,0)
 		--213 = Attract
-		BattleEffectsScreen.PerMonDetails[index].Attract = {
+		SCREEN.PerMonDetails[index].Attract = {
 			label = Resources.Game.MoveNames[213],
 			source=infatuationTarget
 		}
 	end
 	if status2Map[20] then
 		--116 = Focus Energy
-		BattleEffectsScreen.PerMonDetails[index].FocusEnergy = {
+		SCREEN.PerMonDetails[index].FocusEnergy = {
 			label = Resources.Game.MoveNames[116]
 		}
 	end
 	if status2Map[21] then
 		--144 = Transform
-		BattleEffectsScreen.PerMonDetails[index].Transform = {
+		SCREEN.PerMonDetails[index].Transform = {
 			label = Resources.Game.MoveNames[144]
 		}
 	end
 	if status2Map[22] then
-		BattleEffectsScreen.PerMonDetails[index].CannotAct = {
+		SCREEN.PerMonDetails[index].CannotAct = {
 			label = Resources.BattleEffectsScreen.EffectCannotAct
 		}
 	end
 	if status2Map[23] then
 		--99 = Rage
-		BattleEffectsScreen.PerMonDetails[index].Rage = {
+		SCREEN.PerMonDetails[index].Rage = {
 			label = Resources.Game.MoveNames[99]
 		}
 	end
 	--[[
 		--leaving here since it is technically a battle status, but the player can physically see the substitute in the battle
 		if status2Map[24] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSubstitute] = {active=true}
+		SCREEN.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSubstitute] = {active=true}
 	end
 	]]--
 	if status2Map[25] then
 		--194 = Destiny Bond
-		BattleEffectsScreen.PerMonDetails[index].DestinyBond = {
+		SCREEN.PerMonDetails[index].DestinyBond = {
 			label = Resources.Game.MoveNames[194]
 		}
 	end
 	if status2Map[26] then
-		BattleEffectsScreen.PerMonDetails[index].CannotEscape = {
+		SCREEN.PerMonDetails[index].CannotEscape = {
 			label = Resources.BattleEffectsScreen.EffectCannotEscape
 		}
 	end
 	if status2Map[27] then
 		--171 = Nightmare
-		BattleEffectsScreen.PerMonDetails[index].Nightmare = {
+		SCREEN.PerMonDetails[index].Nightmare = {
 			label = Resources.Game.MoveNames[171]
 		}
 	end
 	if status2Map[28] then
 		--174 = Curse
-		BattleEffectsScreen.PerMonDetails[index].Curse = {
+		SCREEN.PerMonDetails[index].Curse = {
 			label = Resources.Game.MoveNames[174]
 		}
 	end
 	if status2Map[29] then
 		--193 = Foresight
-		BattleEffectsScreen.PerMonDetails[index].Foresight = {
+		SCREEN.PerMonDetails[index].Foresight = {
 			label = Resources.Game.MoveNames[193]
 		}
 	end
 	if status2Map[30] then
 		--111 = Defense Curl
-		BattleEffectsScreen.PerMonDetails[index].DefenseCurl = {
+		SCREEN.PerMonDetails[index].DefenseCurl = {
 			label = Resources.Game.MoveNames[111]
 		}
 	end
 	if status2Map[31] then
 		--259 = Torment
-		BattleEffectsScreen.PerMonDetails[index].Torment = {
+		SCREEN.PerMonDetails[index].Torment = {
 			label = Resources.Game.MoveNames[259]
 		}
 	end
@@ -464,76 +483,76 @@ local function loadStatus3(index)
 	if status3Map[2] then
 		local leechSeedSource = (Utils.inlineIf(status3Map[0],1,0) + Utils.inlineIf(status3Map[1],2,0))
 		--73 = Leech Seed
-		BattleEffectsScreen.PerMonDetails[index].LeechSeed = {
+		SCREEN.PerMonDetails[index].LeechSeed = {
 			label = Resources.Game.MoveNames[73],
 			source=leechSeedSource
 		}
 	end
 	if status3Map[3] or status3Map[4] then
 		--199 = Lock On
-		BattleEffectsScreen.PerMonDetails[index].LockOn = {
+		SCREEN.PerMonDetails[index].LockOn = {
 			label = Resources.Game.MoveNames[199]
 		}
 	end
 	if status3Map[5] then
-		BattleEffectsScreen.PerMonDetails[index].PerishCount = {
+		SCREEN.PerMonDetails[index].PerishCount = {
 			label = Resources.BattleEffectsScreen.EffectPerishCount
 		}
 	end
 	if status3Map[6] or status3Map[7] or status3Map[18] then
 		local invulnerableType = Utils.inlineIf(status3Map[6],Resources.BattleEffectsScreen.EffectAirborne,nil) or Utils.inlineIf(status3Map[7],Resources.BattleEffectsScreen.EffectUnderground,nil) or Utils.inlineIf(status3Map[18],Resources.BattleEffectsScreen.EffectUnderwater,"")
-		BattleEffectsScreen.PerMonDetails[index].Invulnerable = {
+		SCREEN.PerMonDetails[index].Invulnerable = {
 			label = invulnerableType
 		}
 	end
 	if status3Map[8] then
 		--107 = Minimize
-		BattleEffectsScreen.PerMonDetails[index].Minimize = {
+		SCREEN.PerMonDetails[index].Minimize = {
 			label = Resources.Game.MoveNames[107]
 		}
 	end
 	if status3Map[9] then
 		--268 = Charge
-		BattleEffectsScreen.PerMonDetails[index].Charge = {
+		SCREEN.PerMonDetails[index].Charge = {
 			label = Resources.Game.MoveNames[268]
 		}
 	end
 	if status3Map[10] then
 		--275 = Ingrain
-		BattleEffectsScreen.PerMonDetails[index].Ingrain = {
+		SCREEN.PerMonDetails[index].Ingrain = {
 			label = Resources.Game.MoveNames[275]
 		}
 	end
 	if status3Map[11] or status3Map[12] then
-		BattleEffectsScreen.PerMonDetails[index].Yawn = {
+		SCREEN.PerMonDetails[index].Yawn = {
 			label = Resources.BattleEffectsScreen.EffectDrowsy
 		}
 	end
 	if status3Map[13] then
 		--286 = Imprison
-		BattleEffectsScreen.PerMonDetails[index].Imprison = {
+		SCREEN.PerMonDetails[index].Imprison = {
 			label = Resources.Game.MoveNames[286]
 		}
 	end
 	if status3Map[14] then
 		--288 = Grudge
-		BattleEffectsScreen.PerMonDetails[index].Grudge = {
+		SCREEN.PerMonDetails[index].Grudge = {
 			label = Resources.Game.MoveNames[288]
 		}
 	end
 	if status3Map[16] then
 		--300 = Mud Sport
-		BattleEffectsScreen.BattleDetails.MudSport = BattleEffectsScreen.BattleDetails.MudSport or {}
-		BattleEffectsScreen.BattleDetails.MudSport.sources = BattleEffectsScreen.BattleDetails.MudSport.sources or {}
-		BattleEffectsScreen.BattleDetails.MudSport.label = Resources.Game.MoveNames[300]
-		BattleEffectsScreen.BattleDetails.MudSport.sources[index] = true
+		SCREEN.BattleDetails.MudSport = SCREEN.BattleDetails.MudSport or {}
+		SCREEN.BattleDetails.MudSport.sources = SCREEN.BattleDetails.MudSport.sources or {}
+		SCREEN.BattleDetails.MudSport.label = Resources.Game.MoveNames[300]
+		SCREEN.BattleDetails.MudSport.sources[index] = true
 	end
 	if status3Map[17] then
 		--346 = Water Sport
-		BattleEffectsScreen.BattleDetails.WaterSport = BattleEffectsScreen.BattleDetails.WaterSport or {}
-		BattleEffectsScreen.BattleDetails.WaterSport.sources = BattleEffectsScreen.BattleDetails.WaterSport.sources or {}
-		BattleEffectsScreen.BattleDetails.WaterSport.label = Resources.Game.MoveNames[346]
-		BattleEffectsScreen.BattleDetails.WaterSport.sources[index] = true
+		SCREEN.BattleDetails.WaterSport = SCREEN.BattleDetails.WaterSport or {}
+		SCREEN.BattleDetails.WaterSport.sources = SCREEN.BattleDetails.WaterSport.sources or {}
+		SCREEN.BattleDetails.WaterSport.label = Resources.Game.MoveNames[346]
+		SCREEN.BattleDetails.WaterSport.sources[index] = true
 	end
 end
 
@@ -570,7 +589,7 @@ local function loadSideStatuses(index)
 	if index == nil or index < 0 or index > 1 then
 		index = 0
 	end
-	BattleEffectsScreen.PerSideDetails[index] = BattleEffectsScreen.PerSideDetails[index] or {}
+	SCREEN.PerSideDetails[index] = SCREEN.PerSideDetails[index] or {}
 	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
 	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
 	local sideStatusMap = Utils.generateBitwiseMap(sideStatuses, 9)
@@ -578,7 +597,7 @@ local function loadSideStatuses(index)
 	if sideStatusMap[0] then
 		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
 		--115 = Reflect
-		BattleEffectsScreen.PerSideDetails[index].Reflect = {
+		SCREEN.PerSideDetails[index].Reflect = {
 			label = Resources.Game.MoveNames[115],
 			remainingTurns = turnsLeftReflect
 		}
@@ -586,7 +605,7 @@ local function loadSideStatuses(index)
 	if sideStatusMap[1] then
 		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + 0x02)
 		--113 = Light Screen
-		BattleEffectsScreen.PerSideDetails[index].LightScreen = {
+		SCREEN.PerSideDetails[index].LightScreen = {
 			label = Resources.Game.MoveNames[113],
 			remainingTurns = turnsLeftLightScreen
 		}
@@ -594,7 +613,7 @@ local function loadSideStatuses(index)
 	if sideStatusMap[4] then
 		local amountSpikes = Memory.readbyte(sideTimersBase + 0x0A)
 		--191 = Spikes
-		BattleEffectsScreen.PerSideDetails[index].Spikes = {
+		SCREEN.PerSideDetails[index].Spikes = {
 			label = Resources.Game.MoveNames[191],
 			count = amountSpikes
 		}
@@ -602,7 +621,7 @@ local function loadSideStatuses(index)
 	if sideStatusMap[5] then
 		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + 0x06)
 		--219 = Safeguard
-		BattleEffectsScreen.PerSideDetails[index].Safeguard = {
+		SCREEN.PerSideDetails[index].Safeguard = {
 			label = Resources.Game.MoveNames[219],
 			remainingTurns = turnsLeftSafeguard
 		}
@@ -610,7 +629,7 @@ local function loadSideStatuses(index)
 	if sideStatusMap[8] then
 		local turnsLeftMist = Memory.readbyte(sideTimersBase + 0x04)
 		--54 = Mist
-		BattleEffectsScreen.PerSideDetails[index].Mist = {
+		SCREEN.PerSideDetails[index].Mist = {
 			label = Resources.Game.MoveNames[54],
 			remainingTurns = turnsLeftMist
 		}
@@ -660,41 +679,41 @@ local function loadDisableStruct(index)
 	local disabledMove = Memory.readword(disableStructBase + 0x04)
 	if disabledMove ~= 0 then
 		--50 = Disable
-		BattleEffectsScreen.PerMonDetails[index].Disable = {
+		SCREEN.PerMonDetails[index].Disable = {
 			label = Resources.Game.MoveNames[50],
 			move = disabledMove
 		}
 	end
 	local encoredMove = Memory.readword(disableStructBase + 0x06)
 	if encoredMove ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index].Encore = {
+		SCREEN.PerMonDetails[index].Encore = {
 			label = Resources.Game.MoveNames[227],
 			move = encoredMove
 		}
 	end
 	local protectUses = Memory.readbyte(disableStructBase + 0x08)
 	if protectUses ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index].Protection = {
+		SCREEN.PerMonDetails[index].Protection = {
 			label = Resources.BattleEffectsScreen.EffectProtectUses,
 			count = protectUses}
 	end
 	local stockpileCount = Memory.readbyte(disableStructBase + 0x09)
 	if stockpileCount ~= 0 then
 		--254 = Stockpile
-		BattleEffectsScreen.PerMonDetails[index].Stockpile = {
+		SCREEN.PerMonDetails[index].Stockpile = {
 			label = Resources.Game.MoveNames[254],
 			count = stockpileCount
 		}
 	end
 
-	if BattleEffectsScreen.PerMonDetails[index].PerishCount then
+	if SCREEN.PerMonDetails[index].PerishCount then
 		local perishSongCount = Utils.getbits(Memory.readword(disableStructBase + 0x0F),0,4)
-		BattleEffectsScreen.PerMonDetails[index].PerishCount.count = perishSongCount + 1
+		SCREEN.PerMonDetails[index].PerishCount.count = perishSongCount + 1
 	end
 	local furyCutterCount = Memory.readbyte(disableStructBase + 0x10)
 	if furyCutterCount ~= 0 then
 		--210 = Fury Cutter
-		BattleEffectsScreen.PerMonDetails[index].FuryCutter = {
+		SCREEN.PerMonDetails[index].FuryCutter = {
 			label = Resources.Game.MoveNames[210],
 			count = furyCutterCount}
 	end
@@ -702,35 +721,35 @@ local function loadDisableStruct(index)
 	if rolloutCount ~= 0 then
 		local lockedMoves = Memory.readword (GameSettings.gLockedMoves + (index * 0x02))
 		local moveName = Resources.Game.MoveNames[lockedMoves] or ""
-		BattleEffectsScreen.PerMonDetails[index].Rollout = {
+		SCREEN.PerMonDetails[index].Rollout = {
 			label = moveName,
 			remainingTurns = rolloutCount
 		}
 	end
 	local tauntTimer = Utils.getbits(Memory.readword(disableStructBase + 0x13),0,4)
 	if tauntTimer ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index].Taunt = {
+		SCREEN.PerMonDetails[index].Taunt = {
 			label = Resources.BattleEffectsScreen.EffectTaunt,
 			remainingTurns = tauntTimer
 		}
 	end
 	local cannotEscapeSource = Memory.readbyte(disableStructBase + 0x14)
-	if BattleEffectsScreen.PerMonDetails[index].Trapped then
-		BattleEffectsScreen.PerMonDetails[index].Trapped.source = cannotEscapeSource
+	if SCREEN.PerMonDetails[index].Trapped then
+		SCREEN.PerMonDetails[index].Trapped.source = cannotEscapeSource
 	end
 	local lockOnSource = Memory.readbyte(disableStructBase + 0x15)
-	if BattleEffectsScreen.PerMonDetails[index].LockOn then
+	if SCREEN.PerMonDetails[index].LockOn then
 		--199 = Lock-On
-		BattleEffectsScreen.PerMonDetails[index].LockOn.source = lockOnSource
+		SCREEN.PerMonDetails[index].LockOn.source = lockOnSource
 	end
 	--[[
 		local truantCheck = Memory.readbyte(disableStructBase + 0x18)
 		--Leaving the logic in, but opting to not include Truant turn info since it could reveal the mon had truant before it was tracked
 		if truantCheck == 1 then
-		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant] then
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant].active = true
+		if SCREEN.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant] then
+			SCREEN.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant].active = true
 		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant] = {active = true}
+			SCREEN.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant] = {active = true}
 		end
 	end
 	]]--
@@ -759,7 +778,7 @@ local function loadWishStruct(index)
 	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
 	if futureSightCounter ~= 0 then
 		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
-		BattleEffectsScreen.PerMonDetails[index].FutureAttack = {
+		SCREEN.PerMonDetails[index].FutureAttack = {
 			label = Resources.BattleEffectsScreen.EffectFutureSight,
 			source = futureSightSource,
 			remainingTurns = futureSightCounter}
@@ -768,7 +787,7 @@ local function loadWishStruct(index)
 	if wishCounter ~= 0 then
 		local wishSource = Memory.readbyte(wishStructBase + 0x24 + (index * 0x1))
 		--273 = Wish
-		BattleEffectsScreen.PerMonDetails[index].Wish = {
+		SCREEN.PerMonDetails[index].Wish = {
 			label = Resources.Game.MoveNames[273],
 			source = wishSource,
 			remainingTurns = wishCounter}
@@ -776,7 +795,7 @@ local function loadWishStruct(index)
 	local knockOffCheck = Memory.readbyte(wishStructBase + 0x29 + (index * 0x1) + Utils.inlineIf(index<2,0,1))
 	if knockOffCheck ~= 0 then
 		--282 = Knock Off
-		BattleEffectsScreen.PerMonDetails[index].KnockOff = {label = Resources.Game.MoveNames[282]}
+		SCREEN.PerMonDetails[index].KnockOff = {label = Resources.Game.MoveNames[282]}
 	end
 end
 
@@ -788,8 +807,8 @@ local function loadOther(index)
 	if MoveData.isValid(lastMoveID) then
 		moveText = MoveData.Moves[lastMoveID].name
 	end
-	BattleEffectsScreen.PerMonDetails[index] = BattleEffectsScreen.PerMonDetails[index] or {}
-	BattleEffectsScreen.PerMonDetails[index].LastMove = {
+	SCREEN.PerMonDetails[index] = SCREEN.PerMonDetails[index] or {}
+	SCREEN.PerMonDetails[index].LastMove = {
 			label = Resources.BattleEffectsScreen.TextLastMove,
 			value = moveText
 		}
@@ -804,22 +823,19 @@ function BattleEffectsScreen.loadData()
 		loadSideStatuses(i)
 		loadDisableStruct(i)
 		loadWishStruct(i)
-		loadOther(i)
+		-- loadOther(i) -- info not currently recorded
 	end
+	SCREEN.resetIndex()
 end
 
-function BattleEffectsScreen.refreshIndex()
-	BattleEffectsScreen.viewingIndividualStatuses = true
-	BattleEffectsScreen.viewingSideStauses = false
-	BattleEffectsScreen.viewedMonIndex = 0
-	BattleEffectsScreen.viewedSideIndex = 0
+function BattleEffectsScreen.resetIndex()
+	SCREEN.viewingIndividualStatuses = true
+	SCREEN.viewingSideStauses = false
+	SCREEN.viewedMonIndex = 0
+	SCREEN.viewedSideIndex = 0
 
-	if Battle.numBattlers == 2 then
-		--increase clickable area for team boxes in single battles to include the unused pokeballs
-		BattleEffectsScreen.Buttons.AllyTeam.box[1] = BattleEffectsScreen.Buttons.AllyTeam.box[1] - 14
-		BattleEffectsScreen.Buttons.AllyTeam.box[3] = BattleEffectsScreen.Buttons.AllyTeam.box[3] + 14
-		BattleEffectsScreen.Buttons.EnemyTeam.box[3] = BattleEffectsScreen.Buttons.EnemyTeam.box[3] + 14
-	end
+	SCREEN.Buttons.AllyTeam:updateSelf()
+	SCREEN.Buttons.EnemyTeam:updateSelf()
 end
 
 local function parseInput(value)
@@ -869,16 +885,16 @@ local function drawTitle()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local offsetY = Constants.SCREEN.MARGIN - 1
 	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-	local highlightColor = Theme.COLORS[BattleEffectsScreen.Colors.highlight]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+	local textColor = Theme.COLORS[SCREEN.Colors.text]
+	local highlightColor = Theme.COLORS[SCREEN.Colors.highlight]
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
 
 	local screenTitle = Utils.toUpperUTF8(Resources.BattleEffectsScreen.Title)
 
 	--Background
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+	gui.defaultTextBackground(Theme.COLORS[SCREEN.Colors.boxFill])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
 
 	--Header
 	Drawing.drawHeader(offsetX, offsetY, screenTitle, textColor, boxInfoTopShadow)
@@ -886,24 +902,24 @@ local function drawTitle()
 	offsetX = offsetX + 2
 
 	--Battle scope details
-	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, boxInfoTopShadow)
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. SCREEN.BattleDetails.Terrain, textColor, boxInfoTopShadow)
 	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. BattleEffectsScreen.BattleDetails.Weather, textColor, boxInfoTopShadow)
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. SCREEN.BattleDetails.Weather, textColor, boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTurn .. ": " .. (Battle.turnCount or 0 ) + 1, textColor, boxInfoTopShadow)
 	offsetY = Constants.SCREEN.MARGIN + 50
 
 	local prefix = Resources.BattleEffectsScreen.TextAllied
 	local suffix = Resources.BattleEffectsScreen.TextTeam
-	if BattleEffectsScreen.viewingIndividualStatuses then
-		if BattleEffectsScreen.viewedMonIndex % 2 == 1 then
+	if SCREEN.viewingIndividualStatuses then
+		if SCREEN.viewedMonIndex % 2 == 1 then
 			prefix = Resources.BattleEffectsScreen.TextEnemy
 		end
 		suffix = Resources.BattleEffectsScreen.TextMon
-	elseif not BattleEffectsScreen.viewingSideStauses then
+	elseif not SCREEN.viewingSideStauses then
 	 	prefix = Resources.BattleEffectsScreen.TextField
 		suffix = ""
-	elseif BattleEffectsScreen.viewedSideIndex % 2 == 1 then
+	elseif SCREEN.viewedSideIndex % 2 == 1 then
 		prefix = Resources.BattleEffectsScreen.TextEnemy
 	end
 	Drawing.drawText(offsetX,offsetY, prefix .. " " .. suffix, highlightColor, boxInfoTopShadow,nil, nil, "underline")--, 10, Constants.Font.FAMILY, "bold")
@@ -913,13 +929,13 @@ local function drawBattleDetailsUI()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
 	local offsetY = Constants.SCREEN.MARGIN + 62
 	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+	local textColor = Theme.COLORS[SCREEN.Colors.text]
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
 
 	local linesOnPage = 0
 
 	local size = 0
-	local allBattleStatuses = BattleEffectsScreen.BattleDetails
+	local allBattleStatuses = SCREEN.BattleDetails
 	local weatherText
 	if allBattleStatuses.WeatherTurns > 0 then
 		size = size + 1
@@ -931,54 +947,54 @@ local function drawBattleDetailsUI()
 
 	for key, value in pairs(allBattleStatuses) do
 		size = size + 1
-		if linesOnPage < BattleEffectsScreen.pageSize and key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" then
+		if linesOnPage < SCREEN.pageSize and key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" then
 			local text = parseInput(value)
 			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
 		end
 	end
-	BattleEffectsScreen.numPages  = math.ceil(size/7)
+	SCREEN.numPages  = math.ceil(size/7)
 end
 
 local function drawPerSideUI()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
 	local offsetY = Constants.SCREEN.MARGIN + 62
 	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+	local textColor = Theme.COLORS[SCREEN.Colors.text]
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
 
 	local linesOnPage = 0
 
-	local allSideStatuses = BattleEffectsScreen.PerSideDetails[BattleEffectsScreen.viewedSideIndex]
+	local allSideStatuses = SCREEN.PerSideDetails[SCREEN.viewedSideIndex]
 
 	local size = 0
 	for key, value in pairs(allSideStatuses) do
 		size = size + 1
-		if linesOnPage < BattleEffectsScreen.pageSize then
+		if linesOnPage < SCREEN.pageSize then
 			local text = parseInput(value)
 			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
 		end
 	end
-	BattleEffectsScreen.numPages  = math.ceil(size/7)
+	SCREEN.numPages  = math.ceil(size/7)
 end
 
 local function drawPerMonUI()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
 	local offsetY = Constants.SCREEN.MARGIN + 62
 	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+	local textColor = Theme.COLORS[SCREEN.Colors.text]
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
 
 	local size = 0
 
-	local allMonStatuses = BattleEffectsScreen.PerMonDetails[BattleEffectsScreen.viewedMonIndex]
+	local allMonStatuses = SCREEN.PerMonDetails[SCREEN.viewedMonIndex]
 
 	if allMonStatuses.LastMove then
 		size = size + 1
-		if size > (BattleEffectsScreen.currentPage - 1) * BattleEffectsScreen.pageSize and size <= (BattleEffectsScreen.currentPage) * BattleEffectsScreen.pageSize then
+		if size > (SCREEN.currentPage - 1) * SCREEN.pageSize and size <= (SCREEN.currentPage) * SCREEN.pageSize then
 			local firstLine = "- ".. allMonStatuses.LastMove.label .. ": " .. allMonStatuses.LastMove.value
 			Drawing.drawText(offsetX,offsetY, firstLine, textColor, boxInfoTopShadow)
 			offsetY = offsetY + linespacing + 1
@@ -987,7 +1003,7 @@ local function drawPerMonUI()
 	for key, value in pairs(allMonStatuses) do
 		if key ~= "LastMove" then
 			size = size + 1
-			if size > (BattleEffectsScreen.currentPage - 1) * BattleEffectsScreen.pageSize and size <= (BattleEffectsScreen.currentPage) * BattleEffectsScreen.pageSize then
+			if size > (SCREEN.currentPage - 1) * SCREEN.pageSize and size <= (SCREEN.currentPage) * SCREEN.pageSize then
 				local text = parseInput(value)
 
 				Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
@@ -995,15 +1011,15 @@ local function drawPerMonUI()
 			end
 		end
 	end
-	BattleEffectsScreen.numPages  = math.ceil(size/7)
+	SCREEN.numPages  = math.ceil(size/7)
 
 end
 
 local function drawBattleDiagram()
 	local ballColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }
 	local inactiveBallColorList = { 0xFF000000, 0xFFb3b3b3, 0xFFFFFFFF, }
-	local defaultArrowColorList = {Theme.COLORS[BattleEffectsScreen.Colors.text]}
-	local selectedArrowColorList = {Theme.COLORS[BattleEffectsScreen.Colors.highlight]}
+	local defaultArrowColorList = {Theme.COLORS[SCREEN.Colors.text]}
+	local selectedArrowColorList = {Theme.COLORS[SCREEN.Colors.highlight]}
 	local BattleBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91,y=Constants.SCREEN.MARGIN + 20,height=30,width=45}
 	local EnemyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 20,height=15,width=36}
 	local AllyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 35,height=15,width=36}
@@ -1016,78 +1032,77 @@ local function drawBattleDiagram()
 	local MonBoxes = {[0] = LeftAllyBall, [1] = LeftEnemyBall, [2] = RightAllyBall, [3] = RightEnemyBall}
 
 	--Draw battle box first so team box is highlighted properly
-	if BattleEffectsScreen.viewingSideStauses or BattleEffectsScreen.viewingIndividualStatuses then
-		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+	if SCREEN.viewingSideStauses or SCREEN.viewingIndividualStatuses then
+		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
 		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, defaultArrowColorList)
 	end
 	--Draw Team Boxes
-	if BattleEffectsScreen.viewingSideStauses then
-		gui.drawRectangle(TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		gui.drawRectangle(TeamBoxes[BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[BattleEffectsScreen.viewedSideIndex].height, Theme.COLORS[BattleEffectsScreen.Colors.highlight], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==0,selectedArrowColorList,defaultArrowColorList), nil)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==1,selectedArrowColorList,defaultArrowColorList), nil)
+	if SCREEN.viewingSideStauses then
+		gui.drawRectangle(TeamBoxes[1-SCREEN.viewedSideIndex].x, TeamBoxes[1-SCREEN.viewedSideIndex].y, TeamBoxes[1-SCREEN.viewedSideIndex].width, TeamBoxes[1-SCREEN.viewedSideIndex].height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
+		gui.drawRectangle(TeamBoxes[SCREEN.viewedSideIndex].x, TeamBoxes[SCREEN.viewedSideIndex].y, TeamBoxes[SCREEN.viewedSideIndex].width, TeamBoxes[SCREEN.viewedSideIndex].height, Theme.COLORS[SCREEN.Colors.highlight], Theme.COLORS[SCREEN.Colors.boxFill])
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, Utils.inlineIf(SCREEN.viewedSideIndex==0,selectedArrowColorList,defaultArrowColorList), nil)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, Utils.inlineIf(SCREEN.viewedSideIndex==1,selectedArrowColorList,defaultArrowColorList), nil)
 	else
-		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
+		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
 		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, defaultArrowColorList)
 		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, defaultArrowColorList)
 	end
 
 	--Draw Mon Boxes
-	if BattleEffectsScreen.viewingIndividualStatuses then
+	if SCREEN.viewingIndividualStatuses then
 		Drawing.drawSelectionIndicators(
-			MonBoxes[BattleEffectsScreen.viewedMonIndex].x,
-			MonBoxes[BattleEffectsScreen.viewedMonIndex].y,
-			MonBoxes[BattleEffectsScreen.viewedMonIndex].width,
-			MonBoxes[BattleEffectsScreen.viewedMonIndex].height, Theme.COLORS[BattleEffectsScreen.Colors.highlight], 1, 3, 0)
+			MonBoxes[SCREEN.viewedMonIndex].x,
+			MonBoxes[SCREEN.viewedMonIndex].y,
+			MonBoxes[SCREEN.viewedMonIndex].width,
+			MonBoxes[SCREEN.viewedMonIndex].height, Theme.COLORS[SCREEN.Colors.highlight], 1, 3, 0)
 	end
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[0].x, MonBoxes[0].y, ballColorList)
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[1].x, MonBoxes[1].y, ballColorList)
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[2].x, MonBoxes[2].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList))
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[3].x, MonBoxes[3].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList))
 
-	if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then
-		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[BattleEffectsScreen.Colors.highlight])
+	if not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses then
+		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[SCREEN.Colors.highlight])
 		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, selectedArrowColorList)
 	end
 end
 
 local function drawPaging()
-	if BattleEffectsScreen.numPages > 1 then
-		local offsetX = BattleEffectsScreen.Buttons.PageLeft.box[1]
-		local offsetY = BattleEffectsScreen.Buttons.PageLeft.box[2]
+	if SCREEN.numPages > 1 then
+		local offsetX = SCREEN.Buttons.PageLeft.box[1]
+		local offsetY = SCREEN.Buttons.PageLeft.box[2]
 		local linespacing = Constants.SCREEN.LINESPACING - 1
-		local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-		local shadowColor = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		if BattleEffectsScreen.currentPage > 1 then
-			Drawing.drawButton(BattleEffectsScreen.Buttons.PageLeft, shadowColor)
+		local textColor = Theme.COLORS[SCREEN.Colors.text]
+		local shadowColor = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
+		if SCREEN.currentPage > 1 then
+			Drawing.drawButton(SCREEN.Buttons.PageLeft, shadowColor)
 		end
-		Drawing.drawText(offsetX + 14, offsetY - 3, BattleEffectsScreen.currentPage .. "/" .. BattleEffectsScreen.numPages, textColor, shadowColor)
-		if BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages then
-			Drawing.drawButton(BattleEffectsScreen.Buttons.PageRight, shadowColor)
+		Drawing.drawText(offsetX + 14, offsetY - 3, SCREEN.currentPage .. "/" .. SCREEN.numPages, textColor, shadowColor)
+		if SCREEN.currentPage < SCREEN.numPages then
+			Drawing.drawButton(SCREEN.Buttons.PageRight, shadowColor)
 		end
 	end
 end
 
 function BattleEffectsScreen.drawScreen()
 	if not Battle.inActiveBattle() then
-		BattleEffectsScreen.Buttons.Back.onClick()
+		SCREEN.Buttons.Back.onClick()
 		return
 	end
-	--BattleEffectsScreen.loadData()
 	drawTitle()
 	drawBattleDiagram()
-	if BattleEffectsScreen.viewingIndividualStatuses then
+	if SCREEN.viewingIndividualStatuses then
 		drawPerMonUI()
-	elseif BattleEffectsScreen.viewingSideStauses then
+	elseif SCREEN.viewingSideStauses then
 		drawPerSideUI()
 	else
 		drawBattleDetailsUI()
 	end
 	drawPaging()
-	Drawing.drawButton(BattleEffectsScreen.Buttons.Back)
+	Drawing.drawButton(SCREEN.Buttons.Back)
 end
 
 function BattleEffectsScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, BattleEffectsScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
 end
