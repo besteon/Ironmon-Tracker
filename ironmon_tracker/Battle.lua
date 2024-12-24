@@ -403,6 +403,7 @@ function Battle.updateTrackedInfo()
 										local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
 										if battlerMon ~= nil then
 											Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+											Tracker.recordBattleMoveByPokemonLevel(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
 										end
 									end
 								end
@@ -417,6 +418,7 @@ function Battle.updateTrackedInfo()
 										local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 										if attackingMon ~= nil then
 											Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+											Tracker.recordBattleMoveByPokemonLevel(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 										end
 									end
 								end
@@ -446,6 +448,7 @@ function Battle.updateTrackedInfo()
 					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 					if attackingMon ~= nil then
 						Tracker.TrackMove(attackingMon.pokemonID, 264, attackingMon.level)
+						Tracker.recordBattleMoveByPokemonLevel(attackingMon.pokemonID, 264, attackingMon.level)
 					end
 				end
 			end
@@ -768,6 +771,7 @@ function Battle.beginNewBattle()
 	Battle.populateBattlePartyObject()
 	Input.StatHighlighter:resetSelectedStat()
 
+	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
 	-- If the lead encountered enemy Pokemon is a shiny, trigger a pulsing sparkle effect
@@ -844,6 +848,7 @@ function Battle.endCurrentBattle()
 		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
 
+	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
 	Battle.opposingTrainerId = 0
@@ -1079,6 +1084,7 @@ function Battle.trackTransformedMoves()
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
 				Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
+				Tracker.recordBattleMoveByPokemonLevel(copiedMon.pokemonID, move.id, copiedMon.level)
 			end
 		end
 	end

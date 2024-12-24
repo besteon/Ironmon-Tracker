@@ -9,6 +9,16 @@ Tracker.LoadStatusKeys = {
 }
 Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 
+-- Holds temporary notes for the current battle only
+Tracker.BattleNotes = {
+	MovesByPokemonAndLevel = {
+		-- [number: an id & level pair] = { [number:moveId1] = {}, [number:moveId2] = {}, ... }
+	},
+	FourMovesIfAllKnown = {
+		-- [number: an id & level pair] = {list of all four known moves}
+	},
+}
+
 ---@class ITrackedData
 Tracker.DefaultData = {
 	-- NOTE: These root attributes cannot be nil, or they won't be loaded from the TDAT file
@@ -83,6 +93,7 @@ Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked
 
 function Tracker.initialize()
 	Tracker.resetData()
+	Tracker.resetBattleNotes()
 	Tracker.AutoSave.reset()
 end
 
@@ -370,8 +381,16 @@ end
 
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1
 --- @param pokemonID number
+--- @param level? number Optional, if level is provided and ALL 4 moves of an enemy Pokémon were used in battle, return those moves
 --- @return table moves A table of moves for the Pokémon; each has an id, level, and pp value
-function Tracker.getMoves(pokemonID)
+function Tracker.getMoves(pokemonID, level)
+	-- Show all four known moves if they were all used in the current battle, instead of the loose tracked list of moves that are out of order
+	if level and Battle.inActiveBattle() and not Battle.isViewingOwn then
+		local monLvIndex = pokemonID * 1000 + level
+		if Tracker.BattleNotes.FourMovesIfAllKnown[monLvIndex] then
+			return Tracker.BattleNotes.FourMovesIfAllKnown[monLvIndex]
+		end
+	end
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.moves or {}
 end
@@ -534,6 +553,45 @@ function Tracker.resetData()
 		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH),
 	})
 	Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
+end
+
+---Resets any recorded information that is temporarily noted for the current battle
+function Tracker.resetBattleNotes()
+	Tracker.BattleNotes = {
+		MovesByPokemonAndLevel = {},
+		FourMovesIfAllKnown = {},
+	}
+end
+
+---Records/saves info about a move used by an [enemy] pokemon in battle, temporarily, for the current battle.
+---@param pokemonID any
+---@param moveId any
+---@param level any
+function Tracker.recordBattleMoveByPokemonLevel(pokemonID, moveId, level)
+	if not PokemonData.isValid(pokemonID) or not MoveData.isValid(moveId) or type(level) ~= "number" or not Battle.inActiveBattle() then
+		return
+	end
+	-- Store known/used moves with a key formed by the id & level pair
+	local monLvIndex = pokemonID * 1000 + level
+	local _moves = Tracker.BattleNotes.MovesByPokemonAndLevel
+	if not _moves[monLvIndex] then
+		_moves[monLvIndex] = {}
+	end
+	-- Check if already noted
+	if _moves[monLvIndex][moveId] or Tracker.BattleNotes.FourMovesIfAllKnown[monLvIndex] then
+		return
+	end
+
+	-- Record the known move in the notes
+	_moves[monLvIndex][moveId] = { id = moveId, level = level, minLv = level, maxLv = level, }
+
+	local knownMoves = {}
+	for _, move in pairs(_moves[monLvIndex]) do
+		table.insert(knownMoves, move)
+	end
+	if #knownMoves == 4 then
+		Tracker.BattleNotes.FourMovesIfAllKnown[monLvIndex] = knownMoves
+	end
 end
 
 ---Saves the Tracker Data (TDAT) to a file

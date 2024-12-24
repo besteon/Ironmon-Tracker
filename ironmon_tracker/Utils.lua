@@ -520,7 +520,7 @@ function Utils.calculateMoveStars(pokemonID, level)
 	end
 
 	-- If nothing has been tracked thus far for this Pokemon, return no stars
-	local trackedMoves = Tracker.getMoves(pokemonID)
+	local trackedMoves = Tracker.getMoves(pokemonID, level)
 	if type(trackedMoves[1]) ~= "table" or not MoveData.isValid(trackedMoves[1].id) then
 		return stars
 	end

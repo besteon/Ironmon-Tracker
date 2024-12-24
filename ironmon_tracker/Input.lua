@@ -367,7 +367,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 
 	local pokemonMoves
 	if not Battle.isViewingOwn and not Options["Open Book Play Mode"] then
-		pokemonMoves = Tracker.getMoves(pokemon.pokemonID) -- tracked moves only
+		pokemonMoves = Tracker.getMoves(pokemon.pokemonID, pokemon.level) -- tracked moves only
 	elseif Tracker.Data.hasCheckedSummary then
 		pokemonMoves = pokemon.moves
 	end
