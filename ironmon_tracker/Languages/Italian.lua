@@ -597,7 +597,7 @@ ScreenResources{
 		Resistances = "Resistances", -- NEEDS TRANSLATION
 		Weaknesses = "Weaknesses", -- NEEDS TRANSLATION
 	},
-	BattleEffectsScreen = {
+	BattleDetailsScreen = {
 		Title = "Battle Effects", -- NEEDS TRANSLATION
 		TextTurn = "Turn", -- NEEDS TRANSLATION
 		TextTerrain = "Terrain", -- NEEDS TRANSLATION

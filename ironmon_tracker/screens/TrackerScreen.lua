@@ -331,8 +331,8 @@ TrackerScreen.Buttons = {
 			return Options["Show additional battle details"] and not Battle.isViewingOwn and not Battle.isWildEncounter
 		end,
 		onClick = function(self)
-			BattleEffectsScreen.loadData()
-			Program.changeScreenView(BattleEffectsScreen)
+			BattleDetailsScreen.loadData()
+			Program.changeScreenView(BattleDetailsScreen)
 		end,
 	},
 	NotepadTracking = {
