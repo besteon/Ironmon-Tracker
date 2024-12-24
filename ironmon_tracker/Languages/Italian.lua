@@ -277,6 +277,7 @@ ScreenResources{
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
+		OptionShowAdditionalBattleDetails = "Show additional battle details", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
@@ -596,6 +597,50 @@ ScreenResources{
 		Resistances = "Resistances", -- NEEDS TRANSLATION
 		Weaknesses = "Weaknesses", -- NEEDS TRANSLATION
 	},
+	BattleDetailsScreen = {
+		Title = "Battle Effects", -- NEEDS TRANSLATION
+		TextTurn = "Turn", -- NEEDS TRANSLATION
+		TextTerrain = "Terrain", -- NEEDS TRANSLATION
+		TextWeather = "Weather", -- NEEDS TRANSLATION
+		TextWeatherTurns = "Weather turns", -- NEEDS TRANSLATION
+		TextAllied = "Allied", -- NEEDS TRANSLATION
+		TextEnemy = "Enemy", -- NEEDS TRANSLATION
+		TextTeam = "Team", -- NEEDS TRANSLATION
+		TextMon = "Mon", -- NEEDS TRANSLATION
+		TextField = "Field", -- NEEDS TRANSLATION
+		TextTurnsRemaining = "Left", -- NEEDS TRANSLATION
+		TextLastMove = "Last Move", -- NEEDS TRANSLATION
+		TextNotAvailable ="N/A", -- NEEDS TRANSLATION
+
+		WeatherDefault = "None", -- NEEDS TRANSLATION
+		WeatherRain = "Rain", -- NEEDS TRANSLATION
+		WeatherSandstorm = "Sandstorm", -- NEEDS TRANSLATION
+		WeatherSunlight =  "Sunlight", -- NEEDS TRANSLATION
+		WeatherHail =  "Hail", -- NEEDS TRANSLATION
+		TerrainDefault = "Building", -- NEEDS TRANSLATION
+		TerrainGrass = "Grass", -- NEEDS TRANSLATION
+		TerrainLongGrass = "Long Grass", -- NEEDS TRANSLATION
+		TerrainSand = "Sand", -- NEEDS TRANSLATION
+		TerrainUnderwater = "Underwater", -- NEEDS TRANSLATION
+		TerrainWater = "Water", -- NEEDS TRANSLATION
+		TerrainPond = "Pond", -- NEEDS TRANSLATION
+		TerrainMountain = "Mountain", -- NEEDS TRANSLATION
+		TerrainCave = "Cave", -- NEEDS TRANSLATION
+
+		EffectConfused = "Confused", -- NEEDS TRANSLATION
+		EffectMustAttack = "Must Attack", -- NEEDS TRANSLATION
+		EffectTrapped = "Trapped", -- NEEDS TRANSLATION
+		EffectCannotAct = "Recharging", -- NEEDS TRANSLATION
+		EffectAirborne = "Airborne", -- NEEDS TRANSLATION
+		EffectUnderground = "Underground", -- NEEDS TRANSLATION
+		EffectUnderwater = "Underwater", -- NEEDS TRANSLATION
+		EffectDrowsy = "Drowsy", -- NEEDS TRANSLATION
+		EffectProtectUses = "Protection Uses", -- NEEDS TRANSLATION
+		EffectPerishCount = "Perish Count", -- NEEDS TRANSLATION
+		EffectCannotEscape = "Can't Escape", -- NEEDS TRANSLATION
+		EffectTruant = "Loafing", -- NEEDS TRANSLATION
+		EffectFutureSight = "Future Attack", -- NEEDS TRANSLATION
+	},
 	LogOverlay = { -- Log Viewer
 		HeaderTabPokemon = "Pokémon", -- NEEDS TRANSLATION
 		HeaderTabTrainers = "Trainers", -- NEEDS TRANSLATION
@@ -847,6 +892,7 @@ ScreenResources{
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
 		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
+		OptionShowAdditionalBattleDetails = "Show additional battle details", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION
