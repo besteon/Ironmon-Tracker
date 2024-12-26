@@ -338,7 +338,7 @@ local function loadStatus2(index)
 	else
 		battleStructAddress = 0x02000000 -- gSharedMem
 	end
-	local status2Data = Memory.readdword(GameSettings.gBattleMons + (index * 0x58) +0x50)
+	local status2Data = Memory.readdword(GameSettings.gBattleMons + (index * Program.Addresses.sizeofBattlePokemon) + Program.Addresses.offsetBattlePokemonStatus2)
 	local status2Map = Utils.generateBitwiseMap(status2Data, 32)
 	if status2Map[0] or status2Map[1] or status2Map[2] then
 		local turnsText = string.format("1- 4 %ss", Resources[SCREEN.Key].TextTurn)
@@ -367,7 +367,7 @@ local function loadStatus2(index)
 		}
 	end
 	if status2Map[13] or status2Map[14] or status2Map[15] then
-		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
+		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + Program.Addresses.offsetBattleStructWrappedBy + index)
 		SCREEN.PerMonDetails[index].Trapped = {
 			label = Resources[SCREEN.Key].EffectTrapped,
 			source = sourceBattlerIndex
