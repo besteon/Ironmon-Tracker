@@ -328,10 +328,11 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
 		boxColors = { "Header text", "Main background" },
 		isVisible = function()
-			return Options["Show additional battle details"] and not Battle.isViewingOwn and not Battle.isWildEncounter
+			return Options["Show additional battle details"] and not Battle.isViewingOwn and not Battle.isWildEncounter and BattleDetailsScreen.hasDetails()
 		end,
 		onClick = function(self)
-			BattleDetailsScreen.loadData()
+			BattleDetailsScreen.resetToViewFirstMon()
+			BattleDetailsScreen.updateData(true)
 			Program.changeScreenView(BattleDetailsScreen)
 		end,
 	},
@@ -1347,10 +1348,7 @@ function TrackerScreen.drawMovesArea(data)
 		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, catchText, headerColor, bgHeaderShadow)
 	-- Check if additional battle details should be displayed instead of other header labels
 	elseif TrackerScreen.Buttons.AdditionalBattleEffects:isVisible() and Battle.turnCount > 0 then
-		-- TODO: for now, only change header info after the first turn, and hard-code some text just so its displayed
-		-- local totalBattleEffects = 12 -- TODO: Debug/test value
-		-- local battleDetailsText = string.format("%s (+%s)", "StatusHere", totalBattleEffects)
-		local battleDetailsText = "(Battle Details)"
+		local battleDetailsText = BattleDetailsScreen.Data.DetailsSummary
 		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(battleDetailsText) - 2
 		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, battleDetailsText, headerColor, bgHeaderShadow)
 	else

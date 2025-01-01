@@ -899,10 +899,15 @@ function Battle.wonFinalBattle(lastBattleStatus, lastTrainerId)
 end
 
 function Battle.handleNewTurn()
-	--Reset counters
-	Battle.AbilityChangeData.prevAction = 4
-	Battle.AbilityChangeData.recordNextMove= false
+	if not Battle.isNewTurn then
+		return
+	end
 	Battle.isNewTurn = false
+	BattleDetailsScreen.updateData()
+
+	-- Reset counters
+	Battle.AbilityChangeData.prevAction = 4
+	Battle.AbilityChangeData.recordNextMove = false
 end
 
 function Battle.changeOpposingPokemonView(isLeft)

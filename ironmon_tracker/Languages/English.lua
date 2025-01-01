@@ -23,6 +23,7 @@ ScreenResources{
 		"Hey! What's it doing? Down it goes!",
 	},
 	AllScreens = {
+		Pokemon = "Pokémon",
 		Back = "Back",
 		Yes = "Yes",
 		No = "No",
@@ -598,7 +599,7 @@ ScreenResources{
 		Weaknesses = "Weaknesses",
 	},
 	BattleDetailsScreen = {
-		Title = "Battle Effects",
+		Title = "Battle Details",
 		TextTurn = "Turn",
 		TextTerrain = "Terrain",
 		TextWeather = "Weather",
@@ -606,8 +607,7 @@ ScreenResources{
 		TextAllied = "Allied",
 		TextEnemy = "Enemy",
 		TextTeam = "Team",
-		TextMon = "Mon",
-		TextField = "Field",
+		TextField = "Field Effects",
 		TextTurnsRemaining = "Left",
 		TextLastMove = "Last Move",
 		TextNotAvailable ="N/A",
@@ -639,7 +639,7 @@ ScreenResources{
 		EffectPerishCount = "Perish Count",
 		EffectCannotEscape = "Can't Escape",
 		EffectTruant = "Loafing",
-		EffectFutureSight = "Future Attack",
+		EffectFutureSight = "Future",
 	},
 	LogOverlay = { -- Log Viewer
 		HeaderTabPokemon = "Pokémon",

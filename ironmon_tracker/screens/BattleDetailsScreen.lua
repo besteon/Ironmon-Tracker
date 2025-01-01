@@ -6,6 +6,17 @@ BattleDetailsScreen = {
 		border = "Upper box border",
 		boxFill = "Upper box background",
 	},
+	Data = {
+		DetailsSummary = "",
+		TerrainKey = "",
+		WeatherKey = "",
+		FieldDetails = {},
+		PerSideDetails = {},
+		PerMonDetails = {},
+	},
+	Addresses = {
+		offsetBattleMonsStatus2 = 0x50, -- gBattleMons
+	},
 	viewingIndividualStatuses = true,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
@@ -15,97 +26,186 @@ BattleDetailsScreen = {
 	pageSize = 6,
 }
 local SCREEN = BattleDetailsScreen
+local CANVAS = {
+	X = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+	Y = Constants.SCREEN.MARGIN,
+	W = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+	H = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2),
+}
 
--- Other details recorded in battle
-SCREEN.PerSideDetails = {}
-SCREEN.PerMonDetails = {}
+-- Holds functions that read in battle details from game data
+SCREEN.GameFuncs = {}
 
--- Resources caches
-SCREEN.BattleDetails = {}
-SCREEN.WeatherNameMap = {}
-SCREEN.TerrainNameMap = {}
+-- Map number values from game data to names (Resource keys)
+SCREEN.Maps = {
+	WeatherToNameKey = {
+		[0] = "WeatherRain", -- Temporary
+		[1] = "WeatherRain", -- Downpour
+		[2] = "WeatherRain", -- Permanent
+		[3] = "WeatherSandstorm", -- Temporary
+		[4] = "WeatherSandstorm", -- Permanent
+		[5] = "WeatherSunlight", -- Temporary
+		[6] = "WeatherSunlight", -- Permanent
+		[7] = "WeatherHail", -- Temporary
+		["default"] = "WeatherDefault",
+	},
+	TerrainToNameKey = {
+		[0] = "TerrainGrass",
+		[1] = "TerrainKey", -- Long Grass
+		[2] = "TerrainSand",
+		[3] = "TerrainUnderwater",
+		[4] = "TerrainWater",
+		[5] = "TerrainPond",
+		[6] = "TerrainMountain",
+		[7] = "TerrainCave",
+		["default"] = "TerrainDefault",
+	},
+}
+
+SCREEN.Pager = {
+	Buttons = {},
+	currentPage = 0,
+	totalPages = 0,
+	defaultSort = function(a, b) return a.index < b.index end, -- Order by appearance
+	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
+		table.sort(self.Buttons, self.defaultSort)
+		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+		local cutoffY = Constants.SCREEN.HEIGHT - 20
+		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
+		self.currentPage = 1
+		self.totalPages = totalPages or 1
+	end,
+	getPageText = function(self)
+		if self.totalPages <= 1 then return Resources.AllScreens.Page end
+		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
+		return buffer .. string.format("%s/%s", self.currentPage, self.totalPages)
+	end,
+	prevPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+		Program.redraw(true)
+	end,
+	nextPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = (self.currentPage % self.totalPages) + 1
+		Program.redraw(true)
+	end,
+}
 
 SCREEN.Buttons = {
+	LabelTerrain = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function()
+			local value = SCREEN.Data.isReady and Resources[SCREEN.Key][SCREEN.Data.TerrainKey] or Constants.BLANKLINE
+			return string.format("%s: %s", Resources[SCREEN.Key].TextTerrain, value)
+		end,
+		box = {	CANVAS.X + 2, CANVAS.Y + 15, 60, 11 },
+	},
+	LabelWeather = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function()
+			local value = SCREEN.Data.isReady and Resources[SCREEN.Key][SCREEN.Data.WeatherKey] or Constants.BLANKLINE
+			return string.format("%s: %s", Resources[SCREEN.Key].TextWeather, value)
+		end,
+		box = {	CANVAS.X + 2, CANVAS.Y + 26, 60, 11 },
+	},
+	LabelTurnCount = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function()
+			local value = SCREEN.Data.isReady and ((Battle.turnCount or 0) + 1) or Constants.BLANKLINE
+			return string.format("%s: %s", Resources[SCREEN.Key].TextTurn, value)
+		end,
+		box = {	CANVAS.X + 2, CANVAS.Y + 37, 60, 11 },
+	},
 	LeftOwn = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 36, 13, 13 },
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		isVisible = function() return true end,
+		box = { CANVAS.X + 101, CANVAS.Y + 36, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 0 then return end
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 0 then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = true
 			SCREEN.viewingSideStauses = false
 			SCREEN.viewedMonIndex = 0
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
 	LeftOther = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 122, Constants.SCREEN.MARGIN + 21, 13, 13 },
-		isVisible = function() return true end,
+		box = { CANVAS.X + 122, CANVAS.Y + 21, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 1 then return end
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 1 then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = true
 			SCREEN.viewingSideStauses = false
 			SCREEN.viewedMonIndex = 1
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
 	RightOwn = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 114, Constants.SCREEN.MARGIN + 36, 13, 13 },
-		isVisible = function() return Battle.numBattlers == 4 end,
+		box = { CANVAS.X + 114, CANVAS.Y + 36, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady and Battle.numBattlers == 4 end,
 		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 2 then return end
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 2 then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = true
 			SCREEN.viewingSideStauses = false
 			SCREEN.viewedMonIndex = 2
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
 	RightOther = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109, Constants.SCREEN.MARGIN + 21, 13, 13 },
-		isVisible = function() return Battle.numBattlers == 4 end,
+		box = { CANVAS.X + 109, CANVAS.Y + 21, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady and Battle.numBattlers == 4 end,
 		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 3 then return end
+			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 3 then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = true
 			SCREEN.viewingSideStauses = false
 			SCREEN.viewedMonIndex = 3
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
 	AllyTeam = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129, Constants.SCREEN.MARGIN + 35, 6, 15 },
-		isVisible = function() return true end,
+		box = { CANVAS.X + 129, CANVAS.Y + 35, 6, 15 },
+		isVisible = function() return SCREEN.Data.isReady end,
 		updateSelf = function(self)
 			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
 			if Battle.numBattlers == 2 then
-				self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115
+				self.box[1] = CANVAS.X + 115
 				self.box[3] = 20
 			else
-				self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129
+				self.box[1] = CANVAS.X + 129
 				self.box[3] = 6
 			end
 		end,
 		onClick = function(self)
-			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 0 then return end
+			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 0 then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = false
 			SCREEN.viewingSideStauses = true
 			SCREEN.viewedSideIndex = 0
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
 	EnemyTeam = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 20, 6, 15 },
-		isVisible = function() return true end,
+		box = { CANVAS.X + 101, CANVAS.Y + 20, 6, 15 },
+		isVisible = function() return SCREEN.Data.isReady end,
 		updateSelf = function(self)
 			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
 			if Battle.numBattlers == 2 then
@@ -115,907 +215,275 @@ SCREEN.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 1 then return end
+			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 1 then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = false
 			SCREEN.viewingSideStauses = true
 			SCREEN.viewedSideIndex = 1
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
-	BattleView = {
+	FieldView = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 20, 9, 30},
-		isVisible = function() return true end,
+		box = { CANVAS.X + 91, CANVAS.Y + 20, 9, 30},
+		isVisible = function() return SCREEN.Data.isReady end,
 		onClick = function(self)
-			if not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses then return end
+			if not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses then
+				return
+			end
 			SCREEN.viewingIndividualStatuses = false
 			SCREEN.viewingSideStauses = false
 			SCREEN.viewedSideIndex = 0
 			SCREEN.viewedMonIndex = 0
+			SCREEN.buildPagedButtons()
 			Program.redraw(true)
 		end
 	},
-	PageLeft = {
+	ViewedDetailsHeader = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function()
+			if SCREEN.viewingIndividualStatuses then
+				if SCREEN.viewedMonIndex % 2 == 0 then
+					return string.format("%s %s", Resources[SCREEN.Key].TextAllied, Resources.AllScreens.Pokemon)
+				else
+					return string.format("%s %s", Resources[SCREEN.Key].TextEnemy, Resources.AllScreens.Pokemon)
+				end
+			elseif SCREEN.viewingSideStauses then
+				if SCREEN.viewedSideIndex % 2 == 0 then
+					return string.format("%s %s", Resources[SCREEN.Key].TextAllied, Resources[SCREEN.Key].TextTeam)
+				else
+					return string.format("%s %s", Resources[SCREEN.Key].TextEnemy, Resources[SCREEN.Key].TextTeam)
+				end
+			else
+				return Resources[SCREEN.Key].TextField
+			end
+		end,
+		textColor = SCREEN.Colors.highlight,
+		box = {	CANVAS.X + 2, CANVAS.Y + 52, 60, 11 },
+		isVisible = function(self) return SCREEN.Data.isReady end,
+		updateSelf = function(self)
+			-- Update width as text changes
+			self.box[3] = 4 + Utils.calcWordPixelLength(self:getText())
+		end,
+		draw = function(self, shadowcolor)
+			Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+		end,
+	},
+	CurrentPage = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return SCREEN.Pager:getPageText() end,
+		box = { CANVAS.X + 56, CANVAS.Y + 135, 50, 10, },
+		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
+	},
+	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 48, Constants.SCREEN.MARGIN + 137, 10, 10 },
-		isVisible = function() return SCREEN.currentPage > 1 end,
+		box = { CANVAS.X + 46, CANVAS.Y + 136, 10, 10, },
+		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
 		onClick = function(self)
-			SCREEN.currentPage = SCREEN.currentPage - 1
-			Program.redraw(true)
+			SCREEN.Pager:prevPage()
 		end
 	},
-	PageRight = {
+	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 86, Constants.SCREEN.MARGIN + 137, 10, 10 },
-		isVisible = function() return SCREEN.currentPage < SCREEN.numPages end,
+		box = { CANVAS.X + 86, CANVAS.Y + 136, 10, 10, },
+		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
 		onClick = function(self)
-			SCREEN.currentPage = SCREEN.currentPage + 1
-			Program.redraw(true)
+			SCREEN.Pager:nextPage()
 		end
 	},
 	Back = Drawing.createUIElementBackButton(function()
-		Program.changeScreenView(TrackerScreen)
+		Program.changeScreenView(SCREEN.previousScreen or TrackerScreen)
+		SCREEN.previousScreen = nil
+		SCREEN.resetToViewFirstMon()
 	end),
 }
 
-function BattleDetailsScreen.initialize()
-	SCREEN.viewingIndividualStatuses = true
-	SCREEN.viewingSideStauses = false
-	SCREEN.viewedMonIndex = 0
-	SCREEN.viewedSideIndex = 0
-	SCREEN.currentPage = 1
-	SCREEN.numPages = 1
-	SCREEN.testing = false
-
-	SCREEN.PerSideDetails = {
-		[0] = {},
-		[1] = {},
-	}
-	SCREEN.PerMonDetails = {
-		[0] = {},
-		[1] = {},
-		[2] = {},
-		[3] = {},
-	}
-
-	SCREEN.updateResources()
-end
-
-function BattleDetailsScreen.updateResources()
-	SCREEN.BattleDetails = {
-		Weather = Resources[SCREEN.Key].WeatherDefault,
-		Terrain = Resources[SCREEN.Key].TerrainDefault,
-	}
-	SCREEN.WeatherNameMap = {
-		[0] = Resources[SCREEN.Key].WeatherRain,
-		[1] = Resources[SCREEN.Key].WeatherRain,
-		[2] = Resources[SCREEN.Key].WeatherRain,
-		[3] = Resources[SCREEN.Key].WeatherSandstorm,
-		[4] = Resources[SCREEN.Key].WeatherSandstorm,
-		[5] = Resources[SCREEN.Key].WeatherSunlight,
-		[6] = Resources[SCREEN.Key].WeatherSunlight,
-		[7] = Resources[SCREEN.Key].WeatherHail,
-		["default"] = Resources[SCREEN.Key].WeatherDefault,
-	}
-	SCREEN.TerrainNameMap = {
-		[0] = Resources[SCREEN.Key].TerrainGrass,
-		[1] = Resources[SCREEN.Key].Terrain,
-		[2] = Resources[SCREEN.Key].TerrainSand,
-		[3] = Resources[SCREEN.Key].TerrainUnderwater,
-		[4] = Resources[SCREEN.Key].TerrainWater,
-		[5] = Resources[SCREEN.Key].TerrainPond,
-		[6] = Resources[SCREEN.Key].TerrainMountain,
-		[7] = Resources[SCREEN.Key].TerrainCave,
-		["default"] = Resources[SCREEN.Key].TerrainDefault,
-	}
-end
-
-local function resetBattleDetails()
-	SCREEN.currentPage = 1
-	SCREEN.numPages = 1
-
-	SCREEN.BattleDetails.Weather = Resources[SCREEN.Key].WeatherDefault
-	SCREEN.BattleDetails.Terrain = Resources[SCREEN.Key].TerrainDefault
-
-	SCREEN.PerSideDetails = {
-		[0] = {},
-		[1] = {},
-	}
-	SCREEN.PerMonDetails = {
-		[0] = {},
-		[1] = {},
-		[2] = {},
-		[3] = {},
-	}
-end
-
-local function loadTerrain()
-	--[[
-		gBattleTerrain
-		#define BATTLE_TERRAIN_GRASS        0
-		#define BATTLE_TERRAIN_LONG_GRASS   1
-		#define BATTLE_TERRAIN_SAND         2
-		#define BATTLE_TERRAIN_UNDERWATER   3
-		#define BATTLE_TERRAIN_WATER        4
-		#define BATTLE_TERRAIN_POND         5
-		#define BATTLE_TERRAIN_MOUNTAIN     6
-		#define BATTLE_TERRAIN_CAVE         7
-		#define BATTLE_TERRAIN_BUILDING     8
-	]]
-	local battleTerrain = Memory.readbyte(GameSettings.gBattleTerrain)
-	local terrainText = SCREEN.TerrainNameMap[battleTerrain]
-	SCREEN.BattleDetails.Terrain = terrainText or SCREEN.TerrainNameMap["default"]
-end
-
-local function loadWeather()
-	--[[
-		gBattleWeather
-		#define B_WEATHER_RAIN_TEMPORARY      (1 << 0)
-		#define B_WEATHER_RAIN_DOWNPOUR       (1 << 1)
-		#define B_WEATHER_RAIN_PERMANENT      (1 << 2)
-		#define B_WEATHER_SANDSTORM_TEMPORARY (1 << 3)
-		#define B_WEATHER_SANDSTORM_PERMANENT (1 << 4)
-		#define B_WEATHER_SUN_TEMPORARY       (1 << 5)
-		#define B_WEATHER_SUN_PERMANENT       (1 << 6)
-		#define B_WEATHER_HAIL_TEMPORARY      (1 << 7)
-	]]
-	local weatherByte = Memory.readbyte(GameSettings.gBattleWeather)
-	local weatherTurns = Memory.readbyte(GameSettings.gWishFutureKnock + 0x28)
-
-	if weatherByte == 0 then
-		SCREEN.BattleDetails.Weather = SCREEN.WeatherNameMap["default"]
-		SCREEN.BattleDetails.WeatherTurns = 0
-	else
-		local weatherBitIndex = 0
-		while weatherByte > 1 do
-			weatherByte = Utils.bit_rshift(weatherByte, 1)
-			weatherBitIndex = weatherBitIndex + 1
+function SCREEN.initialize()
+	for _, button in pairs(SCREEN.Buttons) do
+		if button.textColor == nil then
+			button.textColor = SCREEN.Colors.text
 		end
-		local weatherText = SCREEN.WeatherNameMap[weatherBitIndex]
-		SCREEN.BattleDetails.Weather = weatherText or SCREEN.WeatherNameMap["default"]
-		--Weather Turns are not reset to 0 when temporary weather becomes permanent
-		if weatherBitIndex == 0 or weatherBitIndex == 3 or weatherBitIndex == 5 or weatherBitIndex == 7 then
-			SCREEN.BattleDetails.WeatherTurns = weatherTurns
-		else
-			SCREEN.BattleDetails.WeatherTurns = 0
+		if button.boxColors == nil then
+			button.boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill }
 		end
 	end
-end
-local function loadFieldEffects()
-	loadTerrain()
-	loadWeather()
-	local gPaydayMoney = Memory.readword(GameSettings.gPaydayMoney)
-	if gPaydayMoney ~= 0 then
-		SCREEN.BattleDetails.PayDay = {
-			label = Resources[SCREEN.Key].EffectPayDay,
-			amount = gPaydayMoney
-		}
-	end
+	SCREEN.clearBuiltData()
 end
 
----@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
-local function loadStatus2(index)
-	--[[
-		GameSettings.gBattleMons + 0x50
-		#define STATUS2_CONFUSION             (1 << 0 | 1 << 1 | 1 << 2)
-		#define STATUS2_FLINCHED              (1 << 3)
-		#define STATUS2_UPROAR                (1 << 4 | 1 << 5 | 1 << 6)
-		#define STATUS2_UNUSED                (1 << 7)
-		#define STATUS2_BIDE                  (1 << 8 | 1 << 9)
-		#define STATUS2_LOCK_CONFUSE          (1 << 10 | 1 << 11) // e.g. Thrash
-		#define STATUS2_MULTIPLETURNS         (1 << 12)
-		#define STATUS2_WRAPPED               (1 << 13 | 1 << 14 | 1 << 15)
-		#define STATUS2_INFATUATION           (1 << 16 | 1 << 17 | 1 << 18 | 1 << 19)  // 4 bits, one for every battler
-		#define STATUS2_FOCUS_ENERGY          (1 << 20)
-		#define STATUS2_TRANSFORMED           (1 << 21)
-		#define STATUS2_RECHARGE              (1 << 22)
-		#define STATUS2_RAGE                  (1 << 23)
-		#define STATUS2_SUBSTITUTE            (1 << 24)
-		#define STATUS2_DESTINY_BOND          (1 << 25)
-		#define STATUS2_ESCAPE_PREVENTION     (1 << 26)
-		#define STATUS2_NIGHTMARE             (1 << 27)
-		#define STATUS2_CURSED                (1 << 28)
-		#define STATUS2_FORESIGHT             (1 << 29)
-		#define STATUS2_DEFENSE_CURL          (1 << 30)
-		#define STATUS2_TORMENT               (1 << 31)
-
-
-	-----------------------------------------------------------------------------------------------------------
-
-	]]--
-	local remainingTurnsBide
-	if index == nil or index < 0 or index > 3 then
-		index = 0
-	end
-	local battleStructAddress
-	if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
-		battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
-	else
-		battleStructAddress = 0x02000000 -- gSharedMem
-	end
-	local status2Data = Memory.readdword(GameSettings.gBattleMons + (index * 0x58) +0x50)
-	local status2Map = Utils.generateBitwiseMap(status2Data, 32)
-	if status2Map[0] or status2Map[1] or status2Map[2] then
-		local turnsText = string.format("1- 4 %ss", Resources[SCREEN.Key].TextTurn)
-		SCREEN.PerMonDetails[index].Confused = {
-			label = Resources[SCREEN.Key].EffectConfused,
-			totalTurns = turnsText
-		}
-	end
-	if status2Map[4] or status2Map[5] or status2Map[6] then
-		--253 = Uproar
-		SCREEN.PerMonDetails[index].Uproar = {
-			label = Resources.Game.MoveNames[253]
-		}
-	end
-	if status2Map[8] or status2Map[9] then
-		remainingTurnsBide = (Utils.inlineIf(status2Map[8],1,0) + Utils.inlineIf(status2Map[9],2,0))
-		--117 = Bide
-		SCREEN.PerMonDetails[index].Bide = {
-			label = Resources.Game.MoveNames[117],
-			remainingTurns=remainingTurnsBide
-		}
-	end
-	if status2Map[12] and remainingTurnsBide == nil then
-		SCREEN.PerMonDetails[index].MustAttack = {
-			label = Resources[SCREEN.Key].EffectMustAttack
-		}
-	end
-	if status2Map[13] or status2Map[14] or status2Map[15] then
-		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
-		SCREEN.PerMonDetails[index].Trapped = {
-			label = Resources[SCREEN.Key].EffectTrapped,
-			source = sourceBattlerIndex
-		}
-	end
-	if status2Map[16] or status2Map[17] or status2Map[18] or status2Map[19] then
-		local infatuationTarget = Utils.inlineIf(status2Map[16],0,nil) or Utils.inlineIf(status2Map[17],1,nil) or Utils.inlineIf(status2Map[18],2,nil) or Utils.inlineIf(status2Map[19],3,0)
-		--213 = Attract
-		SCREEN.PerMonDetails[index].Attract = {
-			label = Resources.Game.MoveNames[213],
-			source=infatuationTarget
-		}
-	end
-	if status2Map[20] then
-		--116 = Focus Energy
-		SCREEN.PerMonDetails[index].FocusEnergy = {
-			label = Resources.Game.MoveNames[116]
-		}
-	end
-	if status2Map[21] then
-		--144 = Transform
-		SCREEN.PerMonDetails[index].Transform = {
-			label = Resources.Game.MoveNames[144]
-		}
-	end
-	if status2Map[22] then
-		SCREEN.PerMonDetails[index].CannotAct = {
-			label = Resources[SCREEN.Key].EffectCannotAct
-		}
-	end
-	if status2Map[23] then
-		--99 = Rage
-		SCREEN.PerMonDetails[index].Rage = {
-			label = Resources.Game.MoveNames[99]
-		}
-	end
-	--[[
-		--leaving here since it is technically a battle status, but the player can physically see the substitute in the battle
-		if status2Map[24] then
-		SCREEN.PerMonDetails[index][Resources[SCREEN.Key].EffectSubstitute] = {active=true}
-	end
-	]]--
-	if status2Map[25] then
-		--194 = Destiny Bond
-		SCREEN.PerMonDetails[index].DestinyBond = {
-			label = Resources.Game.MoveNames[194]
-		}
-	end
-	if status2Map[26] then
-		SCREEN.PerMonDetails[index].CannotEscape = {
-			label = Resources[SCREEN.Key].EffectCannotEscape
-		}
-	end
-	if status2Map[27] then
-		--171 = Nightmare
-		SCREEN.PerMonDetails[index].Nightmare = {
-			label = Resources.Game.MoveNames[171]
-		}
-	end
-	if status2Map[28] then
-		--174 = Curse
-		SCREEN.PerMonDetails[index].Curse = {
-			label = Resources.Game.MoveNames[174]
-		}
-	end
-	if status2Map[29] then
-		--193 = Foresight
-		SCREEN.PerMonDetails[index].Foresight = {
-			label = Resources.Game.MoveNames[193]
-		}
-	end
-	if status2Map[30] then
-		--111 = Defense Curl
-		SCREEN.PerMonDetails[index].DefenseCurl = {
-			label = Resources.Game.MoveNames[111]
-		}
-	end
-	if status2Map[31] then
-		--259 = Torment
-		SCREEN.PerMonDetails[index].Torment = {
-			label = Resources.Game.MoveNames[259]
-		}
-	end
+function SCREEN.hasDetails()
+	return not Utils.isNilOrEmpty(SCREEN.Data.DetailsSummary)
 end
 
----@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
-local function loadStatus3(index)
-	--[[
-		gStatuses3
-		#define STATUS3_LEECHSEED_BATTLER       (1 << 0 | 1 << 1) // The battler to receive HP from Leech Seed
-		#define STATUS3_LEECHSEED               (1 << 2)
-		#define STATUS3_ALWAYS_HITS             (1 << 3 | 1 << 4)
-		#define STATUS3_PERISH_SONG             (1 << 5)
-		#define STATUS3_ON_AIR                  (1 << 6)
-		#define STATUS3_UNDERGROUND             (1 << 7)
-		#define STATUS3_MINIMIZED               (1 << 8)
-		#define STATUS3_CHARGED_UP              (1 << 9)
-		#define STATUS3_ROOTED                  (1 << 10)
-		#define STATUS3_YAWN                    (1 << 11 | 1 << 12) // Number of turns to sleep
-		#define STATUS3_YAWN_TURN(num)          (((num) << 11) & STATUS3_YAWN)
-		#define STATUS3_IMPRISONED_OTHERS       (1 << 13)
-		#define STATUS3_GRUDGE                  (1 << 14)
-		#define STATUS3_CANT_SCORE_A_CRIT       (1 << 15)
-		#define STATUS3_MUDSPORT                (1 << 16)
-		#define STATUS3_WATERSPORT              (1 << 17)
-		#define STATUS3_UNDERWATER              (1 << 18)
-		#define STATUS3_TRACE                   (1 << 20)
-	]]--
-	if index == nil or index < 0 or index > 3 then
-		index = 0
-	end
-	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * (0x04))
-	local status3Map = Utils.generateBitwiseMap(status3Data, 21)
-	if status3Map[2] then
-		local leechSeedSource = (Utils.inlineIf(status3Map[0],1,0) + Utils.inlineIf(status3Map[1],2,0))
-		--73 = Leech Seed
-		SCREEN.PerMonDetails[index].LeechSeed = {
-			label = Resources.Game.MoveNames[73],
-			source=leechSeedSource
-		}
-	end
-	if status3Map[3] or status3Map[4] then
-		--199 = Lock On
-		SCREEN.PerMonDetails[index].LockOn = {
-			label = Resources.Game.MoveNames[199]
-		}
-	end
-	if status3Map[5] then
-		SCREEN.PerMonDetails[index].PerishCount = {
-			label = Resources[SCREEN.Key].EffectPerishCount
-		}
-	end
-	if status3Map[6] or status3Map[7] or status3Map[18] then
-		local invulnerableType = Utils.inlineIf(status3Map[6],Resources[SCREEN.Key].EffectAirborne,nil) or Utils.inlineIf(status3Map[7],Resources[SCREEN.Key].EffectUnderground,nil) or Utils.inlineIf(status3Map[18],Resources[SCREEN.Key].EffectUnderwater,"")
-		SCREEN.PerMonDetails[index].Invulnerable = {
-			label = invulnerableType
-		}
-	end
-	if status3Map[8] then
-		--107 = Minimize
-		SCREEN.PerMonDetails[index].Minimize = {
-			label = Resources.Game.MoveNames[107]
-		}
-	end
-	if status3Map[9] then
-		--268 = Charge
-		SCREEN.PerMonDetails[index].Charge = {
-			label = Resources.Game.MoveNames[268]
-		}
-	end
-	if status3Map[10] then
-		--275 = Ingrain
-		SCREEN.PerMonDetails[index].Ingrain = {
-			label = Resources.Game.MoveNames[275]
-		}
-	end
-	if status3Map[11] or status3Map[12] then
-		SCREEN.PerMonDetails[index].Yawn = {
-			label = Resources[SCREEN.Key].EffectDrowsy
-		}
-	end
-	if status3Map[13] then
-		--286 = Imprison
-		SCREEN.PerMonDetails[index].Imprison = {
-			label = Resources.Game.MoveNames[286]
-		}
-	end
-	if status3Map[14] then
-		--288 = Grudge
-		SCREEN.PerMonDetails[index].Grudge = {
-			label = Resources.Game.MoveNames[288]
-		}
-	end
-	if status3Map[16] then
-		--300 = Mud Sport
-		SCREEN.BattleDetails.MudSport = SCREEN.BattleDetails.MudSport or {}
-		SCREEN.BattleDetails.MudSport.sources = SCREEN.BattleDetails.MudSport.sources or {}
-		SCREEN.BattleDetails.MudSport.label = Resources.Game.MoveNames[300]
-		SCREEN.BattleDetails.MudSport.sources[index] = true
-	end
-	if status3Map[17] then
-		--346 = Water Sport
-		SCREEN.BattleDetails.WaterSport = SCREEN.BattleDetails.WaterSport or {}
-		SCREEN.BattleDetails.WaterSport.sources = SCREEN.BattleDetails.WaterSport.sources or {}
-		SCREEN.BattleDetails.WaterSport.label = Resources.Game.MoveNames[346]
-		SCREEN.BattleDetails.WaterSport.sources[index] = true
-	end
-end
-
----@param index number Must be [0-1], inclusively; represent either the allied or enemy team
-local function loadSideStatuses(index)
-	--[[
-	gSideStatuses[2] (0x02)
-
-	#define SIDE_STATUS_REFLECT          (1 << 0)
-	#define SIDE_STATUS_LIGHTSCREEN      (1 << 1)
-	#define SIDE_STATUS_X4               (1 << 2)
-	#define SIDE_STATUS_SPIKES           (1 << 4)
-	#define SIDE_STATUS_SAFEGUARD        (1 << 5)
-	#define SIDE_STATUS_FUTUREATTACK     (1 << 6)
-	#define SIDE_STATUS_MIST             (1 << 8)
-	#define SIDE_STATUS_SPIKES_DAMAGED   (1 << 9)
-
-	gSideTimers[2] (0x0B)
-	{
-		/*0x00*/ u8 reflectTimer;
-		/*0x01*/ u8 reflectBattlerId;
-		/*0x02*/ u8 lightscreenTimer;
-		/*0x03*/ u8 lightscreenBattlerId;
-		/*0x04*/ u8 mistTimer;
-		/*0x05*/ u8 mistBattlerId;
-		/*0x06*/ u8 safeguardTimer;
-		/*0x07*/ u8 safeguardBattlerId;
-		/*0x08*/ u8 followmeTimer;
-		/*0x09*/ u8 followmeTarget;
-		/*0x0A*/ u8 spikesAmount;
-		/*0x0B*/ u8 fieldB;
-	};
-	]]--
-	if index == nil or index < 0 or index > 1 then
-		index = 0
-	end
-	SCREEN.PerSideDetails[index] = SCREEN.PerSideDetails[index] or {}
-	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
-	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
-	local sideStatusMap = Utils.generateBitwiseMap(sideStatuses, 9)
-
-	if sideStatusMap[0] then
-		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
-		--115 = Reflect
-		SCREEN.PerSideDetails[index].Reflect = {
-			label = Resources.Game.MoveNames[115],
-			remainingTurns = turnsLeftReflect
-		}
-	end
-	if sideStatusMap[1] then
-		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + 0x02)
-		--113 = Light Screen
-		SCREEN.PerSideDetails[index].LightScreen = {
-			label = Resources.Game.MoveNames[113],
-			remainingTurns = turnsLeftLightScreen
-		}
-	end
-	if sideStatusMap[4] then
-		local amountSpikes = Memory.readbyte(sideTimersBase + 0x0A)
-		--191 = Spikes
-		SCREEN.PerSideDetails[index].Spikes = {
-			label = Resources.Game.MoveNames[191],
-			count = amountSpikes
-		}
-	end
-	if sideStatusMap[5] then
-		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + 0x06)
-		--219 = Safeguard
-		SCREEN.PerSideDetails[index].Safeguard = {
-			label = Resources.Game.MoveNames[219],
-			remainingTurns = turnsLeftSafeguard
-		}
-	end
-	if sideStatusMap[8] then
-		local turnsLeftMist = Memory.readbyte(sideTimersBase + 0x04)
-		--54 = Mist
-		SCREEN.PerSideDetails[index].Mist = {
-			label = Resources.Game.MoveNames[54],
-			remainingTurns = turnsLeftMist
-		}
-	end
-end
-
----@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
-local function loadDisableStruct(index)
-	--[[
-		gDisableStructs
-		/*0x00*/ u32 transformedMonPersonality;
-		/*0x04*/ u16 disabledMove;
-		/*0x06*/ u16 encoredMove;
-		/*0x08*/ u8 protectUses;
-		/*0x09*/ u8 stockpileCounter;
-		/*0x0A*/ u8 substituteHP;
-		/*0x0B*/ u8 disableTimer : 4;
-		/*0x0B*/ u8 disableTimerStartValue : 4;
-		/*0x0C*/ u8 encoredMovePos;
-		/*0x0D*/ u8 unkD;
-		/*0x0E*/ u8 encoreTimer : 4;
-		/*0x0E*/ u8 encoreTimerStartValue : 4;
-		/*0x0F*/ u8 perishSongTimer : 4;
-		/*0x0F*/ u8 perishSongTimerStartValue : 4;
-		/*0x10*/ u8 furyCutterCounter;
-		/*0x11*/ u8 rolloutTimer : 4;
-		/*0x11*/ u8 rolloutTimerStartValue : 4;
-		/*0x12*/ u8 chargeTimer : 4;
-		/*0x12*/ u8 chargeTimerStartValue : 4;
-		/*0x13*/ u8 tauntTimer:4;
-		/*0x13*/ u8 tauntTimer2:4;
-		/*0x14*/ u8 battlerPreventingEscape;
-		/*0x15*/ u8 battlerWithSureHit;
-		/*0x16*/ u8 isFirstTurn;
-		/*0x17*/ u8 unk17;
-		/*0x18*/ u8 truantCounter : 1;
-		/*0x18*/ u8 truantSwitchInHack : 1; // Unused here, but used in pokeemerald
-		/*0x18*/ u8 unk18_a_2 : 2;
-		/*0x18*/ u8 mimickedMoves : 4;
-		/*0x19*/ u8 rechargeTimer;
-		/*0x1A*/ u8 unk1A[2];
-	]]
-	if index == nil or index < 0 or index > 3 then
+function SCREEN.updateData(buildPagedButtons)
+	if not Battle.inActiveBattle() then
 		return
 	end
-	local disableStructBase = GameSettings.gDisableStructs + (index * 0x1C)
-	local disabledMove = Memory.readword(disableStructBase + 0x04)
-	if disabledMove ~= 0 then
-		--50 = Disable
-		SCREEN.PerMonDetails[index].Disable = {
-			label = Resources.Game.MoveNames[50],
-			move = disabledMove
-		}
-	end
-	local encoredMove = Memory.readword(disableStructBase + 0x06)
-	if encoredMove ~= 0 then
-		SCREEN.PerMonDetails[index].Encore = {
-			label = Resources.Game.MoveNames[227],
-			move = encoredMove
-		}
-	end
-	local protectUses = Memory.readbyte(disableStructBase + 0x08)
-	if protectUses ~= 0 then
-		SCREEN.PerMonDetails[index].Protection = {
-			label = Resources[SCREEN.Key].EffectProtectUses,
-			count = protectUses}
-	end
-	local stockpileCount = Memory.readbyte(disableStructBase + 0x09)
-	if stockpileCount ~= 0 then
-		--254 = Stockpile
-		SCREEN.PerMonDetails[index].Stockpile = {
-			label = Resources.Game.MoveNames[254],
-			count = stockpileCount
-		}
+
+	SCREEN.clearBuiltData()
+
+	-- Read in battle details data from the game
+	SCREEN.GameFuncs.readFieldEffects()
+	for i = 0, Battle.numBattlers - 1, 1 do
+		-- SCREEN.GameFuncs.readOther(i) -- info not currently recorded
+		SCREEN.GameFuncs.readStatus2(i)
+		SCREEN.GameFuncs.readStatus3(i)
+		SCREEN.GameFuncs.readSideStatuses(i)
+		SCREEN.GameFuncs.readDisableStruct(i)
+		SCREEN.GameFuncs.readWishStruct(i)
 	end
 
-	if SCREEN.PerMonDetails[index].PerishCount then
-		local perishSongCount = Utils.getbits(Memory.readword(disableStructBase + 0x0F),0,4)
-		SCREEN.PerMonDetails[index].PerishCount.count = perishSongCount + 1
-	end
-	local furyCutterCount = Memory.readbyte(disableStructBase + 0x10)
-	if furyCutterCount ~= 0 then
-		--210 = Fury Cutter
-		SCREEN.PerMonDetails[index].FuryCutter = {
-			label = Resources.Game.MoveNames[210],
-			count = furyCutterCount}
-	end
-	local rolloutCount = Utils.getbits(Memory.readword(disableStructBase + 0x11),0,4)
-	if rolloutCount ~= 0 then
-		local lockedMoves = Memory.readword (GameSettings.gLockedMoves + (index * 0x02))
-		local moveName = Resources.Game.MoveNames[lockedMoves] or ""
-		SCREEN.PerMonDetails[index].Rollout = {
-			label = moveName,
-			remainingTurns = rolloutCount
-		}
-	end
-	local tauntTimer = Utils.getbits(Memory.readword(disableStructBase + 0x13),0,4)
-	if tauntTimer ~= 0 then
-		SCREEN.PerMonDetails[index].Taunt = {
-			label = Resources[SCREEN.Key].EffectTaunt,
-			remainingTurns = tauntTimer
-		}
-	end
-	local cannotEscapeSource = Memory.readbyte(disableStructBase + 0x14)
-	if SCREEN.PerMonDetails[index].Trapped then
-		SCREEN.PerMonDetails[index].Trapped.source = cannotEscapeSource
-	end
-	local lockOnSource = Memory.readbyte(disableStructBase + 0x15)
-	if SCREEN.PerMonDetails[index].LockOn then
-		--199 = Lock-On
-		SCREEN.PerMonDetails[index].LockOn.source = lockOnSource
-	end
-	--[[
-		local truantCheck = Memory.readbyte(disableStructBase + 0x18)
-		--Leaving the logic in, but opting to not include Truant turn info since it could reveal the mon had truant before it was tracked
-		if truantCheck == 1 then
-		if SCREEN.PerMonDetails[index][Resources[SCREEN.Key].EffectTruant] then
-			SCREEN.PerMonDetails[index][Resources[SCREEN.Key].EffectTruant].active = true
-		else
-			SCREEN.PerMonDetails[index][Resources[SCREEN.Key].EffectTruant] = {active = true}
+	-- Calc/summarize battle details
+	local firstOwnMonDetail = SCREEN.Data.PerMonDetails[0][1] -- 0: first own mon
+	local firstOwnSideDetail = SCREEN.Data.PerSideDetails[0][1] -- 0: first own side
+	local firstFieldDetail = SCREEN.Data.FieldDetails[1]
+	local firstDetail = firstOwnMonDetail or firstOwnSideDetail or firstFieldDetail
+	if firstDetail and type(firstDetail.getText) == "function" then
+		-- Get text and remove any parenthesis
+		local firstDetailText = Utils.replaceText(firstDetail:getText(), "%(.*%)", "")
+		-- Trim whitespace
+		firstDetailText = firstDetailText:match("^%s*(.-)%s*$") or ""
+		if not Utils.isNilOrEmpty(firstDetailText) then
+			-- Then shorten and put inside parens
+			SCREEN.Data.DetailsSummary = string.format("(%s)", Utils.shortenText(firstDetailText, 50, true))
 		end
+	else
+		SCREEN.Data.DetailsSummary = ""
 	end
-	]]--
+
+	SCREEN.Data.isReady = true
+
+	-- If viewing this screen, build pager buttons to display known battle details
+	if buildPagedButtons or Program.currentScreen == SCREEN then
+		SCREEN.buildPagedButtons()
+	end
 end
 
----@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
-local function loadWishStruct(index)
-	--[[
-		gWishFutureKnock
-		struct WishFutureKnock
-		{
-			u8 futureSightCounter[MAX_BATTLERS_COUNT];
-			u8 futureSightAttacker[MAX_BATTLERS_COUNT];
-			s32 futureSightDmg[MAX_BATTLERS_COUNT];
-			u16 futureSightMove[MAX_BATTLERS_COUNT];
-			u8 wishCounter[MAX_BATTLERS_COUNT];
-			u8 wishMonId[MAX_BATTLERS_COUNT];
-			u8 weatherDuration;
-			u8 knockedOffMons[2];
-		};
-	]]
-	if index == nil or index < 0 or index > 3 then
+function SCREEN.buildPagedButtons()
+	if not SCREEN.Data.isReady then
 		return
 	end
-	local wishStructBase = GameSettings.gWishFutureKnock
-	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
-	if futureSightCounter ~= 0 then
-		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
-		SCREEN.PerMonDetails[index].FutureAttack = {
-			label = Resources[SCREEN.Key].EffectFutureSight,
-			source = futureSightSource,
-			remainingTurns = futureSightCounter}
-	end
-	local wishCounter = Memory.readbyte(wishStructBase + 0x20 + (index * 0x1))
-	if wishCounter ~= 0 then
-		local wishSource = Memory.readbyte(wishStructBase + 0x24 + (index * 0x1))
-		--273 = Wish
-		SCREEN.PerMonDetails[index].Wish = {
-			label = Resources.Game.MoveNames[273],
-			source = wishSource,
-			remainingTurns = wishCounter}
-	end
-	local knockOffCheck = Memory.readbyte(wishStructBase + 0x29 + (index * 0x1) + Utils.inlineIf(index<2,0,1))
-	if knockOffCheck ~= 0 then
-		--282 = Knock Off
-		SCREEN.PerMonDetails[index].KnockOff = {label = Resources.Game.MoveNames[282]}
-	end
-end
 
----@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
-local function loadOther(index)
-	local lastMoveID = Battle.LastMoves[index] or 0
-	--local lastMoveID = Battle.lastEnemyMoveId
-	local moveText = Resources[SCREEN.Key].TextNotAvailable
-	if MoveData.isValid(lastMoveID) then
-		moveText = MoveData.Moves[lastMoveID].name
-	end
-	SCREEN.PerMonDetails[index] = SCREEN.PerMonDetails[index] or {}
-	SCREEN.PerMonDetails[index].LastMove = {
-			label = Resources[SCREEN.Key].TextLastMove,
-			value = moveText
-		}
-end
-
-function BattleDetailsScreen.loadData()
-	resetBattleDetails()
-	loadFieldEffects()
-	for i=0,Battle.numBattlers-1,1 do
-		loadStatus2(i)
-		loadStatus3(i)
-		loadSideStatuses(i)
-		loadDisableStruct(i)
-		loadWishStruct(i)
-		-- loadOther(i) -- info not currently recorded
-	end
-	SCREEN.resetIndex()
-end
-
-function BattleDetailsScreen.resetIndex()
-	SCREEN.viewingIndividualStatuses = true
-	SCREEN.viewingSideStauses = false
-	SCREEN.viewedMonIndex = 0
-	SCREEN.viewedSideIndex = 0
-
-	SCREEN.Buttons.AllyTeam:updateSelf()
-	SCREEN.Buttons.EnemyTeam:updateSelf()
-end
-
-local function parseInput(value)
-	local text = ""
-	text = "- " .. value.label
-
-	if value.type then
-		text = text .. " (" .. value.type .. ")"
-	elseif value.move and MoveData.isValid(value.move) then
-		text = text .. " (" .. MoveData.Moves[value.move].name .. ")"
-	elseif value.count then
-		text = text .. ": " .. value.count
-	elseif value.remainingTurns then
-		text = text .. ": " .. value.remainingTurns .. " " .. Resources[SCREEN.Key].TextTurn
-		if value.remainingTurns > 1 or value.remainingTurns == 0 then
-			text = text .. "s"
-		end
-		text = text .. " " .. Resources[SCREEN.Key].TextTurnsRemaining
-	elseif value.totalTurns then
-		text = text .. " (" .. value.totalTurns .. ")"
-	elseif value.source then
-		local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or 0
-		local sourceMonId = Tracker.getPokemon(sourceMonIndex,value.source%2==0).pokemonID
-		local sourceMonName = PokemonData.Pokemon[sourceMonId].name
-		text = text .. " (" .. sourceMonName .. ")"
-	elseif value.sources then
-		text = text .. " ("
-		local i = 0
-		for sourceKey, sourceValue in pairs(value.sources) do
-			if i > 0 then
-				text = text .. ", "
-			end
-			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or 0
-			local sourceMonId = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0).pokemonID
-			local sourceMonName = PokemonData.Pokemon[sourceMonId].name
-			text = text .. sourceMonName
-			i = i + 1
-		end
-		text = text .. ")"
-	end
-	return text
-end
-
-local function drawTitle()
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local offsetY = Constants.SCREEN.MARGIN - 1
-	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[SCREEN.Colors.text]
-	local highlightColor = Theme.COLORS[SCREEN.Colors.highlight]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
-
-	local screenTitle = Utils.toUpperUTF8(Resources[SCREEN.Key].Title)
-
-	--Background
-	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[SCREEN.Colors.boxFill])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
-
-	--Header
-	Drawing.drawHeader(offsetX, offsetY, screenTitle, textColor, boxInfoTopShadow)
-	offsetY = offsetY + 16
-	offsetX = offsetX + 2
-
-	--Battle scope details
-	Drawing.drawText(offsetX,offsetY, Resources[SCREEN.Key].TextTerrain .. ": " .. SCREEN.BattleDetails.Terrain, textColor, boxInfoTopShadow)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX,offsetY, Resources[SCREEN.Key].TextWeather .. ": " .. SCREEN.BattleDetails.Weather, textColor, boxInfoTopShadow)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX,offsetY, Resources[SCREEN.Key].TextTurn .. ": " .. (Battle.turnCount or 0 ) + 1, textColor, boxInfoTopShadow)
-	offsetY = Constants.SCREEN.MARGIN + 50
-
-	local prefix = Resources[SCREEN.Key].TextAllied
-	local suffix = Resources[SCREEN.Key].TextTeam
+	local detailsToUse = {}
 	if SCREEN.viewingIndividualStatuses then
-		if SCREEN.viewedMonIndex % 2 == 1 then
-			prefix = Resources[SCREEN.Key].TextEnemy
+		for _, v in ipairs(SCREEN.Data.PerMonDetails[SCREEN.viewedMonIndex] or {}) do
+			table.insert(detailsToUse, v)
 		end
-		suffix = Resources[SCREEN.Key].TextMon
-	elseif not SCREEN.viewingSideStauses then
-	 	prefix = Resources[SCREEN.Key].TextField
-		suffix = ""
-	elseif SCREEN.viewedSideIndex % 2 == 1 then
-		prefix = Resources[SCREEN.Key].TextEnemy
 	end
-	Drawing.drawText(offsetX,offsetY, prefix .. " " .. suffix, highlightColor, boxInfoTopShadow,nil, nil, "underline")--, 10, Constants.Font.FAMILY, "bold")
+	if SCREEN.viewingSideStauses then
+		for _, v in ipairs(SCREEN.Data.PerSideDetails[SCREEN.viewedSideIndex] or {}) do
+			table.insert(detailsToUse, v)
+		end
+	end
+	for _, v in ipairs(SCREEN.Data.FieldDetails or {}) do
+		table.insert(detailsToUse, v)
+	end
+
+	SCREEN.Pager.Buttons = {}
+	for i, detail in ipairs(detailsToUse) do
+		local button = {
+			index = i,
+			detail = detail,
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return string.format("- %s", detail:getText()) end,
+			textColor = SCREEN.Colors.text,
+			dimensions = { width = 70, height = 11 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			isVisible = function(self) return self.pageVisible == SCREEN.Pager.currentPage end,
+			-- updateSelf = function(self)
+			-- end,
+			onClick = function(self)
+				-- TODO: consider checking left/right halves of the button for multiple clickable ids
+				if MoveData.isValid(detail.MoveId) then
+					InfoScreen.previousScreenFinal = SCREEN
+					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, detail.MoveId)
+				elseif PokemonData.isValid(detail.PokemonId) then
+					InfoScreen.previousScreenFinal = SCREEN
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, detail.PokemonId)
+				elseif AbilityData.isValid(detail.AbilityId) then
+					InfoScreen.previousScreenFinal = SCREEN
+					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, detail.AbilityId)
+				end
+			end,
+			-- draw = function(self, shadowcolor)
+			-- 	local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			-- end,
+		}
+		table.insert(SCREEN.Pager.Buttons, button)
+	end
+
+	local detailsHeaderBtn = SCREEN.Buttons.ViewedDetailsHeader
+	local X = CANVAS.X + 1
+	local Y = detailsHeaderBtn.box[2] + detailsHeaderBtn.box[4] + 1
+	SCREEN.Pager:realignButtonsToGrid(X, Y, 20, 0)
+
+	SCREEN.refreshButtons()
 end
 
-local function drawBattleDetailsUI()
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
-	local offsetY = Constants.SCREEN.MARGIN + 62
-	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[SCREEN.Colors.text]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
+function SCREEN.clearBuiltData(clearViewIndex)
+	SCREEN.Data = {
+		isReady = false,
+		DetailsSummary = "",
+		TerrainKey = SCREEN.Maps.TerrainToNameKey["default"],
+		WeatherKey = SCREEN.Maps.WeatherToNameKey["default"],
 
-	local linesOnPage = 0
+		-- List of IBattleDetail; details about the battle field itself (i.e. Pay Day, Mud Sport)
+		FieldDetails = {},
 
-	local size = 0
-	local allBattleStatuses = SCREEN.BattleDetails
-	local weatherText
-	if allBattleStatuses.WeatherTurns > 0 then
-		size = size + 1
-		weatherText =  Resources[SCREEN.Key].TextWeatherTurns .. " " .. Resources[SCREEN.Key].TextTurnsRemaining .. ":  " .. allBattleStatuses.WeatherTurns
-		Drawing.drawText(offsetX,offsetY, weatherText, textColor, boxInfoTopShadow)
-		offsetY = offsetY + linespacing + 1
-		linesOnPage = linesOnPage + 1
+		-- List of IBattleDetail; details per each side (ally / enemy)
+		PerSideDetails = {
+			[0] = {},
+			[1] = {},
+		},
+
+		-- List of IBattleDetail; details per individual Pokémon (of the 4 total in battle)
+		PerMonDetails = {
+			[0] = {},
+			[1] = {},
+			[2] = {},
+			[3] = {},
+		},
+	}
+
+	SCREEN.Pager.Buttons = {}
+	SCREEN.Pager.currentPage = 1
+	SCREEN.Pager.totalPages = 1
+
+	-- Only reset viewing index if not viewing this screen already
+	if clearViewIndex or Program.currentScreen ~= SCREEN then
+		SCREEN.resetToViewFirstMon()
 	end
-
-	for key, value in pairs(allBattleStatuses) do
-		size = size + 1
-		if linesOnPage < SCREEN.pageSize and key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" then
-			local text = parseInput(value)
-			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
-			offsetY = offsetY + linespacing + 1
-			linesOnPage = linesOnPage + 1
-		end
-	end
-	SCREEN.numPages  = math.ceil(size/7)
 end
 
-local function drawPerSideUI()
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
-	local offsetY = Constants.SCREEN.MARGIN + 62
-	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[SCREEN.Colors.text]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
-
-	local linesOnPage = 0
-
-	local allSideStatuses = SCREEN.PerSideDetails[SCREEN.viewedSideIndex]
-
-	local size = 0
-	for key, value in pairs(allSideStatuses) do
-		size = size + 1
-		if linesOnPage < SCREEN.pageSize then
-			local text = parseInput(value)
-			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
-			offsetY = offsetY + linespacing + 1
-			linesOnPage = linesOnPage + 1
-		end
-	end
-	SCREEN.numPages  = math.ceil(size/7)
+function SCREEN.resetToViewFirstMon()
+	SCREEN.viewingIndividualStatuses = true
+	SCREEN.viewingSideStauses = false
+	SCREEN.viewedMonIndex = 0
+	SCREEN.viewedSideIndex = 0
 end
 
-local function drawPerMonUI()
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
-	local offsetY = Constants.SCREEN.MARGIN + 62
-	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local textColor = Theme.COLORS[SCREEN.Colors.text]
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
-
-	local size = 0
-
-	local allMonStatuses = SCREEN.PerMonDetails[SCREEN.viewedMonIndex]
-
-	if allMonStatuses.LastMove then
-		size = size + 1
-		if size > (SCREEN.currentPage - 1) * SCREEN.pageSize and size <= (SCREEN.currentPage) * SCREEN.pageSize then
-			local firstLine = "- ".. allMonStatuses.LastMove.label .. ": " .. allMonStatuses.LastMove.value
-			Drawing.drawText(offsetX,offsetY, firstLine, textColor, boxInfoTopShadow)
-			offsetY = offsetY + linespacing + 1
+function SCREEN.refreshButtons()
+	for _, button in pairs(SCREEN.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
 		end
 	end
-	for key, value in pairs(allMonStatuses) do
-		if key ~= "LastMove" then
-			size = size + 1
-			if size > (SCREEN.currentPage - 1) * SCREEN.pageSize and size <= (SCREEN.currentPage) * SCREEN.pageSize then
-				local text = parseInput(value)
-
-				Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
-				offsetY = offsetY + linespacing + 1
-			end
+	for _, button in pairs(SCREEN.Pager.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
 		end
 	end
-	SCREEN.numPages  = math.ceil(size/7)
-
 end
 
+function SCREEN.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Pager.Buttons)
+end
+
+-- TODO: clean this up, let the buttons themselves draw the boxes
 local function drawBattleDiagram()
 	local ballColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }
 	local inactiveBallColorList = { 0xFF000000, 0xFFb3b3b3, 0xFFFFFFFF, }
@@ -1069,41 +537,1065 @@ local function drawBattleDiagram()
 	end
 end
 
-local function drawPaging()
-	if SCREEN.numPages > 1 then
-		local offsetX = SCREEN.Buttons.PageLeft.box[1]
-		local offsetY = SCREEN.Buttons.PageLeft.box[2]
-		local linespacing = Constants.SCREEN.LINESPACING - 1
-		local textColor = Theme.COLORS[SCREEN.Colors.text]
-		local shadowColor = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
-		if SCREEN.currentPage > 1 then
-			Drawing.drawButton(SCREEN.Buttons.PageLeft, shadowColor)
-		end
-		Drawing.drawText(offsetX + 14, offsetY - 3, SCREEN.currentPage .. "/" .. SCREEN.numPages, textColor, shadowColor)
-		if SCREEN.currentPage < SCREEN.numPages then
-			Drawing.drawButton(SCREEN.Buttons.PageRight, shadowColor)
-		end
+function SCREEN.drawScreen()
+	Drawing.drawBackgroundAndMargins()
+
+	local canvas = {
+		x = CANVAS.X,
+		y = CANVAS.Y,
+		width = CANVAS.W,
+		height = CANVAS.H,
+		text = Theme.COLORS[SCREEN.Colors.text],
+		border = Theme.COLORS[SCREEN.Colors.border],
+		fill = Theme.COLORS[SCREEN.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
+	}
+
+	-- Draw top border box
+	gui.defaultTextBackground(canvas.fill)
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
+
+	-- Draw header text
+	-- local headerText = Utils.toUpperUTF8(Resources[SCREEN.Key].Title)
+	-- local headerColor = Theme.COLORS["Header text"]
+	-- local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	-- Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)
+
+	-- TODO: remove this eventually
+	drawBattleDiagram()
+
+	-- Draw all buttons
+	for _, button in pairs(SCREEN.Buttons) do
+		Drawing.drawButton(button, canvas.shadow)
+	end
+	for _, button in pairs(SCREEN.Pager.Buttons) do
+		Drawing.drawButton(button, canvas.shadow)
 	end
 end
 
-function BattleDetailsScreen.drawScreen()
-	if not Battle.inActiveBattle() then
-		SCREEN.Buttons.Back.onClick()
+-- Object Prototypes
+---@class IBattleDetail
+SCREEN.IBattleDetail = {
+	-- The associated Resources key for this battle effect
+	ResourceKey = "",
+	-- The value to store for this battle effect (if any)
+	Value = "NO_VALUE",
+	-- Optional id of the move, if any is associated with this battle detail
+	MoveId = 0,
+	-- Optional id of the Pokémon, if any is associated with this battle detail
+	PokemonId = 0,
+	-- Optional id of the ability, if any is associated with this battle detail
+	AbilityId = 0,
+
+	-- Returns this effect's value (if any)
+	getValue = function(self)
+		if not self.Value or self.Value == "NO_VALUE" then
+			return nil
+		end
+		return self.Value
+	end,
+	-- Returns this effect's text as it's expected to be formatted
+	getText = function(self)
+		if self:getValue() then
+			return string.format("%s: %s", Resources[SCREEN.Key][self.ResourceKey or ""] or "", self:getValue())
+		else
+			return Resources[SCREEN.Key][self.ResourceKey or ""] or ""
+		end
+	end,
+}
+---Creates and returns a new IBattleDetail object
+---@param o? table Optional initial object table
+---@return IBattleDetail battleeffect An IBattleDetail object
+function SCREEN.IBattleDetail:new(o)
+	o = o or {}
+	o.ResourceKey = o.ResourceKey or ""
+	o.Value = o.Value or -99999
+	o.MoveId = o.MoveId or 0
+	o.PokemonId = o.PokemonId or 0
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+
+-- Functions to read in game data
+function SCREEN.GameFuncs.readTerrain()
+	--[[
+		gBattleTerrain
+		#define BATTLE_TERRAIN_GRASS        0
+		#define BATTLE_TERRAIN_LONG_GRASS   1
+		#define BATTLE_TERRAIN_SAND         2
+		#define BATTLE_TERRAIN_UNDERWATER   3
+		#define BATTLE_TERRAIN_WATER        4
+		#define BATTLE_TERRAIN_POND         5
+		#define BATTLE_TERRAIN_MOUNTAIN     6
+		#define BATTLE_TERRAIN_CAVE         7
+		#define BATTLE_TERRAIN_BUILDING     8
+	]]
+	local battleTerrain = Memory.readbyte(GameSettings.gBattleTerrain)
+	SCREEN.Data.TerrainKey = SCREEN.Maps.TerrainToNameKey[battleTerrain] or SCREEN.Maps.TerrainToNameKey["default"]
+end
+
+function SCREEN.GameFuncs.readWeather()
+	--[[
+		gBattleWeather
+		#define B_WEATHER_RAIN_TEMPORARY      (1 << 0)
+		#define B_WEATHER_RAIN_DOWNPOUR       (1 << 1)
+		#define B_WEATHER_RAIN_PERMANENT      (1 << 2)
+		#define B_WEATHER_SANDSTORM_TEMPORARY (1 << 3)
+		#define B_WEATHER_SANDSTORM_PERMANENT (1 << 4)
+		#define B_WEATHER_SUN_TEMPORARY       (1 << 5)
+		#define B_WEATHER_SUN_PERMANENT       (1 << 6)
+		#define B_WEATHER_HAIL_TEMPORARY      (1 << 7)
+	]]
+	local weatherByte = Memory.readbyte(GameSettings.gBattleWeather)
+	local weatherTurns = Memory.readbyte(GameSettings.gWishFutureKnock + 0x28)
+
+	-- Check if no weather
+	if weatherByte == 0 then
+		SCREEN.Data.WeatherKey = SCREEN.Maps.WeatherToNameKey["default"]
+		SCREEN.Data.WeatherTurns = 0
 		return
 	end
-	drawTitle()
-	drawBattleDiagram()
-	if SCREEN.viewingIndividualStatuses then
-		drawPerMonUI()
-	elseif SCREEN.viewingSideStauses then
-		drawPerSideUI()
-	else
-		drawBattleDetailsUI()
+
+	local weatherBitIndex = 0
+	while weatherByte > 1 do
+		weatherByte = Utils.bit_rshift(weatherByte, 1)
+		weatherBitIndex = weatherBitIndex + 1
 	end
-	drawPaging()
-	Drawing.drawButton(SCREEN.Buttons.Back)
+	SCREEN.Data.WeatherKey = SCREEN.Maps.WeatherToNameKey[weatherBitIndex] or SCREEN.Maps.WeatherToNameKey["default"]
+
+	-- Weather Turns are not reset to 0 when temporary weather becomes permanent
+	if weatherBitIndex == 0 or weatherBitIndex == 3 or weatherBitIndex == 5 or weatherBitIndex == 7 then
+		SCREEN.Data.WeatherTurns = weatherTurns
+		table.insert(SCREEN.Data.FieldDetails, SCREEN.IBattleDetail:new({
+			Value = weatherTurns,
+			getText = function(self)
+				return string.format("%s %s: %s",
+					Resources[SCREEN.Key].TextWeatherTurns,
+					Resources[SCREEN.Key].TextTurnsRemaining,
+					self.Value
+				)
+			end,
+		}))
+	else
+		SCREEN.Data.WeatherTurns = 0
+	end
 end
 
-function BattleDetailsScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
+function SCREEN.GameFuncs.readFieldEffects()
+	SCREEN.GameFuncs.readTerrain()
+	SCREEN.GameFuncs.readWeather()
+
+	-- Pay Day
+	local paydayMoney = Memory.readword(GameSettings.gPaydayMoney)
+	if paydayMoney ~= 0 then
+		table.insert(SCREEN.Data.FieldDetails, SCREEN.IBattleDetail:new({
+			Value = paydayMoney,
+			MoveId = MoveData.Values.PayDayId or 6,
+			getText = function(self)
+				return string.format("%s (%s)",
+					Resources.Game.MoveNames[MoveData.Values.PayDayId or 6] or Constants.BLANKLINE,
+					self.Value
+				)
+			end,
+		}))
+	end
+end
+
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
+function SCREEN.GameFuncs.readStatus2(index)
+	if not index or index < 0 or index > 3 then
+		return
+	end
+	--[[
+		GameSettings.gBattleMons + 0x50
+		#define STATUS2_CONFUSION             (1 << 0 | 1 << 1 | 1 << 2)
+		#define STATUS2_FLINCHED              (1 << 3)
+		#define STATUS2_UPROAR                (1 << 4 | 1 << 5 | 1 << 6)
+		#define STATUS2_UNUSED                (1 << 7)
+		#define STATUS2_BIDE                  (1 << 8 | 1 << 9)
+		#define STATUS2_LOCK_CONFUSE          (1 << 10 | 1 << 11) // e.g. Thrash
+		#define STATUS2_MULTIPLETURNS         (1 << 12)
+		#define STATUS2_WRAPPED               (1 << 13 | 1 << 14 | 1 << 15)
+		#define STATUS2_INFATUATION           (1 << 16 | 1 << 17 | 1 << 18 | 1 << 19)  // 4 bits, one for every battler
+		#define STATUS2_FOCUS_ENERGY          (1 << 20)
+		#define STATUS2_TRANSFORMED           (1 << 21)
+		#define STATUS2_RECHARGE              (1 << 22)
+		#define STATUS2_RAGE                  (1 << 23)
+		#define STATUS2_SUBSTITUTE            (1 << 24)
+		#define STATUS2_DESTINY_BOND          (1 << 25)
+		#define STATUS2_ESCAPE_PREVENTION     (1 << 26)
+		#define STATUS2_NIGHTMARE             (1 << 27)
+		#define STATUS2_CURSED                (1 << 28)
+		#define STATUS2_FORESIGHT             (1 << 29)
+		#define STATUS2_DEFENSE_CURL          (1 << 30)
+		#define STATUS2_TORMENT               (1 << 31)
+	]]--
+
+	local MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	if not MON_DETAILS then
+		SCREEN.Data.PerMonDetails[index] = {}
+		MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	end
+
+	local function _getSourceMon(sourceIndex)
+		local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceIndex] or -1] or -1
+		local sourcePokemon = Tracker.getPokemon(sourceMonIndex, sourceIndex % 2 == 0) or {}
+		if not PokemonData.isValid(sourcePokemon.pokemonID) then
+			return nil
+		end
+		return sourcePokemon
+	end
+
+	local battleStructAddress
+	if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
+		battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
+	else
+		battleStructAddress = 0x02000000 -- gSharedMem
+	end
+
+	local monIndexOffset = index * Program.Addresses.sizeofBattlePokemon
+	local status2Data = Memory.readdword(GameSettings.gBattleMons + monIndexOffset + SCREEN.Addresses.offsetBattleMonsStatus2)
+	local status2Map = Utils.generateBitwiseMap(status2Data, 32)
+
+	-- CONFUSED
+	if status2Map[0] or status2Map[1] or status2Map[2] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			getText = function(self)
+				return string.format("%s (1- 4 %ss)", Resources[SCREEN.Key].EffectConfused, Resources[SCREEN.Key].TextTurn)
+			end,
+		}))
+	end
+	-- UPROAR
+	if status2Map[4] or status2Map[5] or status2Map[6] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.UproarId or 253,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.UproarId or 253] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	--BIDE
+	if status2Map[8] or status2Map[9] then
+		local turns = 0
+		if status2Map[8] then
+			turns = turns + 1
+		end
+		if status2Map[9] then
+			turns = turns + 2
+		end
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = turns,
+			MoveId = MoveData.Values.BideId or 117,
+			getText = function(self)
+				return string.format("%s: %s %s%s",
+					Resources.Game.MoveNames[MoveData.Values.BideId or 117] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s")
+				)
+			end,
+		}))
+	end
+	-- MUST ATTACK
+	if status2Map[12] and not (status2Map[8] or status2Map[9]) then -- ignore if bide is active
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			getText = function(self)
+				return Resources[SCREEN.Key].EffectMustAttack
+			end,
+		}))
+	end
+	-- TRAPPED
+	if status2Map[13] or status2Map[14] or status2Map[15] then
+		-- TODO: Addresses 0x14
+		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
+		local sourcePokemon = _getSourceMon(sourceBattlerIndex)
+		if sourcePokemon then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				Value = sourcePokemon.pokemonID,
+				PokemonId = sourcePokemon.pokemonID,
+				getText = function(self)
+					return string.format("%s (%s)",
+						Resources[SCREEN.Key].EffectTrapped,
+						PokemonData.Pokemon[self.Value].name
+					)
+				end,
+			}))
+		end
+	end
+	-- ATTRACT
+	if status2Map[16] or status2Map[17] or status2Map[18] or status2Map[19] then
+		local infatuationTarget = (status2Map[16] and 0) or (status2Map[17] and 1) or (status2Map[18] and 2) or (status2Map[19] and 3) or 0
+		local sourcePokemon = _getSourceMon(infatuationTarget)
+		if sourcePokemon then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				Value = sourcePokemon.pokemonID,
+				PokemonId = sourcePokemon.pokemonID,
+				getText = function(self)
+					return string.format("%s (%s)",
+					Resources.Game.MoveNames[MoveData.Values.AttactId or 213] or Constants.BLANKLINE,
+						PokemonData.Pokemon[self.Value].name
+					)
+				end,
+			}))
+		end
+	end
+	-- FOCUS ENERGY
+	if status2Map[20] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.FocusEnergyId or 116,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.FocusEnergyId or 116] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- TRANSFORM
+	if status2Map[21] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.TransformId or 144,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.TransformId or 144] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- CANNOT ACT
+	if status2Map[22] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			getText = function(self)
+				return Resources[SCREEN.Key].EffectCannotAct
+			end,
+		}))
+	end
+	-- RAGE
+	if status2Map[23] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.RageId or 99,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.RageId or 99] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- SUBSTITUTE: Leaving here since it is technically a battle status even though the player can physically see the substitute in the battle
+	if status2Map[24] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.SubstituteId or 164,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.SubstituteId or 164] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- DESTINY BOND
+	if status2Map[25] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.DestinyBondId or 194,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.DestinyBondId or 194] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- CANNOT ESCAPE
+	if status2Map[26] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			getText = function(self)
+				return Resources[SCREEN.Key].EffectCannotEscape
+			end,
+		}))
+	end
+	-- NIGHTMARE
+	if status2Map[27] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.NightmareId or 171,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.NightmareId or 171] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- CURSE (Ghost version)
+	if status2Map[28] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.CurseId or 174,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.CurseId or 174] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- FORESIGHT
+	if status2Map[29] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.ForesightId or 193,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.ForesightId or 193] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- DEFENSE CURL
+	if status2Map[30] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.DefenseCurlId or 111,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.DefenseCurlId or 111] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- TORMENT
+	if status2Map[31] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.TormentId or 259,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.TormentId or 259] or Constants.BLANKLINE
+			end,
+		}))
+	end
+end
+
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
+function SCREEN.GameFuncs.readStatus3(index)
+	if not index or index < 0 or index > 3 then
+		return
+	end
+	--[[
+		gStatuses3
+		#define STATUS3_LEECHSEED_BATTLER       (1 << 0 | 1 << 1) // The battler to receive HP from Leech Seed
+		#define STATUS3_LEECHSEED               (1 << 2)
+		#define STATUS3_ALWAYS_HITS             (1 << 3 | 1 << 4)
+		#define STATUS3_PERISH_SONG             (1 << 5)
+		#define STATUS3_ON_AIR                  (1 << 6)
+		#define STATUS3_UNDERGROUND             (1 << 7)
+		#define STATUS3_MINIMIZED               (1 << 8)
+		#define STATUS3_CHARGED_UP              (1 << 9)
+		#define STATUS3_ROOTED                  (1 << 10)
+		#define STATUS3_YAWN                    (1 << 11 | 1 << 12) // Number of turns to sleep
+		#define STATUS3_YAWN_TURN(num)          (((num) << 11) & STATUS3_YAWN)
+		#define STATUS3_IMPRISONED_OTHERS       (1 << 13)
+		#define STATUS3_GRUDGE                  (1 << 14)
+		#define STATUS3_CANT_SCORE_A_CRIT       (1 << 15)
+		#define STATUS3_MUDSPORT                (1 << 16)
+		#define STATUS3_WATERSPORT              (1 << 17)
+		#define STATUS3_UNDERWATER              (1 << 18)
+		#define STATUS3_TRACE                   (1 << 20)
+	]]--
+
+	local MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	if not MON_DETAILS then
+		SCREEN.Data.PerMonDetails[index] = {}
+		MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	end
+
+	local function _getSourceMon(sourceIndex)
+		local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceIndex] or -1] or -1
+		local sourcePokemon = Tracker.getPokemon(sourceMonIndex, sourceIndex % 2 == 0) or {}
+		if not PokemonData.isValid(sourcePokemon.pokemonID) then
+			return nil
+		end
+		return sourcePokemon
+	end
+
+	-- TODO: What is 0x04
+	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * (0x04))
+	local status3Map = Utils.generateBitwiseMap(status3Data, 21)
+
+	-- LEECH SEED
+	if status3Map[2] then
+		local leechSeedSource = 0
+		if status3Map[0] then
+			leechSeedSource = leechSeedSource + 1
+		end
+		if status3Map[1] then
+			leechSeedSource = leechSeedSource + 2
+		end
+		local sourcePokemon = _getSourceMon(leechSeedSource)
+		if sourcePokemon then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				Value = sourcePokemon.pokemonID,
+				MoveId = MoveData.Values.LeechSeedId or 73,
+				PokemonId = sourcePokemon.pokemonID,
+				getText = function(self)
+					return string.format("%s (%s)",
+					Resources.Game.MoveNames[MoveData.Values.LeechSeedId or 73] or Constants.BLANKLINE,
+						PokemonData.Pokemon[self.Value].name
+					)
+				end,
+			}))
+		end
+	end
+	-- LOCK-ON (processed in a below function)
+	if status3Map[3] or status3Map[4] then
+		SCREEN.Data.LockOnInEffect = true
+	end
+	-- PERISH SONG COUNT (processed in a below function)
+	if status3Map[5] then
+		SCREEN.Data.PerishSongInEffect = true
+	end
+	-- INVULNERABLE STATE (Fly, Dig, Dive)
+	local invulnerableTypeKey = (status3Map[6] and "EffectAirborne") or (status3Map[7] and "EffectUnderground") or (status3Map[18] and "EffectUnderwater") or nil
+	if invulnerableTypeKey then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			getText = function(self)
+				return Resources[SCREEN.Key][invulnerableTypeKey or "EffectAirborne"] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- MINIMIZE
+	if status3Map[8] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.MinimizeId or 107,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.MinimizeId or 107] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- CHARGE
+	if status3Map[9] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.ChargeId or 268,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.ChargeId or 268] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- INGRAIN
+	if status3Map[10] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.IngrainId or 275,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.IngrainId or 275] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- DROWSY (Yawn)
+	if status3Map[11] or status3Map[12] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.YawnId or 281,
+			getText = function(self)
+				return Resources[SCREEN.Key].EffectDrowsy
+			end,
+		}))
+	end
+	-- IMPRISON
+	if status3Map[13] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.ImprisonId or 286,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.ImprisonId or 286] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- GRUDGE
+	if status3Map[14] then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.GrudgeId or 288,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.GrudgeId or 288] or Constants.BLANKLINE
+			end,
+		}))
+	end
+	-- MUD SPORT
+	if status3Map[16] then
+		local sourcePokemon = _getSourceMon(index)
+		if sourcePokemon then
+			table.insert(SCREEN.Data.FieldDetails, SCREEN.IBattleDetail:new({
+				Value = sourcePokemon.pokemonID,
+				MoveId = MoveData.Values.MudSportId or 300,
+				PokemonId = sourcePokemon.pokemonID,
+				getText = function(self)
+					return string.format("%s (%s)",
+						Resources.Game.MoveNames[MoveData.Values.MudSportId or 300] or Constants.BLANKLINE,
+						PokemonData.Pokemon[self.Value].name
+					)
+				end,
+			}))
+		end
+	end
+	-- WATER SPORT
+	if status3Map[17] then
+		local sourcePokemon = _getSourceMon(index)
+		if sourcePokemon then
+			table.insert(SCREEN.Data.FieldDetails, SCREEN.IBattleDetail:new({
+				Value = sourcePokemon.pokemonID,
+				MoveId = MoveData.Values.WaterSportId or 346,
+				PokemonId = sourcePokemon.pokemonID,
+				getText = function(self)
+					return string.format("%s (%s)",
+						Resources.Game.MoveNames[MoveData.Values.WaterSportId or 346] or Constants.BLANKLINE,
+						PokemonData.Pokemon[self.Value].name
+					)
+				end,
+			}))
+		end
+	end
+end
+
+---@param index number Must be [0-1], inclusively; represent either the allied or enemy team
+function SCREEN.GameFuncs.readSideStatuses(index)
+	if not index or index < 0 or index > 1 then
+		return
+	end
+	--[[
+	gSideStatuses[2] (0x02)
+
+	#define SIDE_STATUS_REFLECT          (1 << 0)
+	#define SIDE_STATUS_LIGHTSCREEN      (1 << 1)
+	#define SIDE_STATUS_X4               (1 << 2)
+	#define SIDE_STATUS_SPIKES           (1 << 4)
+	#define SIDE_STATUS_SAFEGUARD        (1 << 5)
+	#define SIDE_STATUS_FUTUREATTACK     (1 << 6)
+	#define SIDE_STATUS_MIST             (1 << 8)
+	#define SIDE_STATUS_SPIKES_DAMAGED   (1 << 9)
+
+	gSideTimers[2] (0x0B)
+	{
+		/*0x00*/ u8 reflectTimer;
+		/*0x01*/ u8 reflectBattlerId;
+		/*0x02*/ u8 lightscreenTimer;
+		/*0x03*/ u8 lightscreenBattlerId;
+		/*0x04*/ u8 mistTimer;
+		/*0x05*/ u8 mistBattlerId;
+		/*0x06*/ u8 safeguardTimer;
+		/*0x07*/ u8 safeguardBattlerId;
+		/*0x08*/ u8 followmeTimer;
+		/*0x09*/ u8 followmeTarget;
+		/*0x0A*/ u8 spikesAmount;
+		/*0x0B*/ u8 fieldB;
+	};
+	]]--
+
+	local SIDE_DETAILS = SCREEN.Data.PerSideDetails[index]
+	if not SIDE_DETAILS then
+		SCREEN.Data.PerSideDetails[index] = {}
+		SIDE_DETAILS = SCREEN.Data.PerSideDetails[index]
+	end
+
+	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
+	-- TODO: What is 0x0C
+	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
+	local sideStatusMap = Utils.generateBitwiseMap(sideStatuses, 9)
+
+	-- REFLECT
+	if sideStatusMap[0] then
+		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
+		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
+			Value = turnsLeftReflect,
+			MoveId = MoveData.Values.ReflectId or 115,
+			getText = function(self)
+				return string.format("%s: %s %s%s %s",
+					Resources.Game.MoveNames[MoveData.Values.ReflectId or 115] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s"),
+					Resources[SCREEN.Key].TextTurnsRemaining
+				)
+			end,
+		}))
+	end
+	-- LIGHT SCREEN
+	if sideStatusMap[1] then
+		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + 0x02)
+		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
+			Value = turnsLeftLightScreen,
+			MoveId = MoveData.Values.LightScreenId or 113,
+			getText = function(self)
+				return string.format("%s: %s %s%s %s",
+					Resources.Game.MoveNames[MoveData.Values.LightScreenId or 113] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s"),
+					Resources[SCREEN.Key].TextTurnsRemaining
+				)
+			end,
+		}))
+	end
+	-- SPIKES
+	if sideStatusMap[4] then
+		local amountSpikes = Memory.readbyte(sideTimersBase + 0x0A)
+		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
+			Value = amountSpikes,
+			MoveId = MoveData.Values.SpikesId or 191,
+			getText = function(self)
+				return string.format("%s: %s",
+					Resources.Game.MoveNames[MoveData.Values.SpikesId or 191] or Constants.BLANKLINE,
+					self.Value
+				)
+			end,
+		}))
+	end
+	-- SAFEGUARD
+	if sideStatusMap[5] then
+		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + 0x06)
+		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
+			Value = turnsLeftSafeguard,
+			MoveId = MoveData.Values.SafeguardId or 219,
+			getText = function(self)
+				return string.format("%s: %s %s%s %s",
+					Resources.Game.MoveNames[MoveData.Values.SafeguardId or 219] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s"),
+					Resources[SCREEN.Key].TextTurnsRemaining
+				)
+			end,
+		}))
+	end
+	-- MIST
+	if sideStatusMap[8] then
+		local turnsLeftMist = Memory.readbyte(sideTimersBase + 0x04)
+		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
+			Value = turnsLeftMist,
+			MoveId = MoveData.Values.MistId or 54,
+			getText = function(self)
+				return string.format("%s: %s %s%s %s",
+					Resources.Game.MoveNames[MoveData.Values.MistId or 54] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s"),
+					Resources[SCREEN.Key].TextTurnsRemaining
+				)
+			end,
+		}))
+	end
+end
+
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
+function SCREEN.GameFuncs.readDisableStruct(index)
+	if not index or index < 0 or index > 3 then
+		return
+	end
+	--[[
+		gDisableStructs
+		/*0x00*/ u32 transformedMonPersonality;
+		/*0x04*/ u16 disabledMove;
+		/*0x06*/ u16 encoredMove;
+		/*0x08*/ u8 protectUses;
+		/*0x09*/ u8 stockpileCounter;
+		/*0x0A*/ u8 substituteHP;
+		/*0x0B*/ u8 disableTimer : 4;
+		/*0x0B*/ u8 disableTimerStartValue : 4;
+		/*0x0C*/ u8 encoredMovePos;
+		/*0x0D*/ u8 unkD;
+		/*0x0E*/ u8 encoreTimer : 4;
+		/*0x0E*/ u8 encoreTimerStartValue : 4;
+		/*0x0F*/ u8 perishSongTimer : 4;
+		/*0x0F*/ u8 perishSongTimerStartValue : 4;
+		/*0x10*/ u8 furyCutterCounter;
+		/*0x11*/ u8 rolloutTimer : 4;
+		/*0x11*/ u8 rolloutTimerStartValue : 4;
+		/*0x12*/ u8 chargeTimer : 4;
+		/*0x12*/ u8 chargeTimerStartValue : 4;
+		/*0x13*/ u8 tauntTimer:4;
+		/*0x13*/ u8 tauntTimer2:4;
+		/*0x14*/ u8 battlerPreventingEscape;
+		/*0x15*/ u8 battlerWithSureHit;
+		/*0x16*/ u8 isFirstTurn;
+		/*0x17*/ u8 unk17;
+		/*0x18*/ u8 truantCounter : 1;
+		/*0x18*/ u8 truantSwitchInHack : 1; // Unused here, but used in pokeemerald
+		/*0x18*/ u8 unk18_a_2 : 2;
+		/*0x18*/ u8 mimickedMoves : 4;
+		/*0x19*/ u8 rechargeTimer;
+		/*0x1A*/ u8 unk1A[2];
+	]]
+
+	local MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	if not MON_DETAILS then
+		SCREEN.Data.PerMonDetails[index] = {}
+		MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	end
+
+	local function _getSourceMon(sourceIndex)
+		local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceIndex] or -1] or -1
+		local sourcePokemon = Tracker.getPokemon(sourceMonIndex, sourceIndex % 2 == 0) or {}
+		if not PokemonData.isValid(sourcePokemon.pokemonID) then
+			return nil
+		end
+		return sourcePokemon
+	end
+
+	-- TODO: What is 0x1C
+	local disableStructBase = GameSettings.gDisableStructs + (index * 0x1C)
+
+	-- DISABLE
+	local disabledMove = Memory.readword(disableStructBase + 0x04)
+	if disabledMove ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = disabledMove,
+			MoveId = MoveData.Values.DisableId or 50,
+			getText = function(self)
+				return string.format("%s (%s)",
+					Resources.Game.MoveNames[MoveData.Values.DisableId or 50] or Constants.BLANKLINE,
+					Resources.Game.MoveNames[self.Value] or Constants.BLANKLINE
+			)
+			end,
+		}))
+	end
+	-- ENCORE
+	local encoredMove = Memory.readword(disableStructBase + 0x06)
+	if encoredMove ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = encoredMove,
+			MoveId = MoveData.Values.EncoreId or 227,
+			getText = function(self)
+				return string.format("%s (%s)",
+					Resources.Game.MoveNames[MoveData.Values.EncoreId or 227] or Constants.BLANKLINE,
+					Resources.Game.MoveNames[self.Value] or Constants.BLANKLINE
+			)
+			end,
+		}))
+	end
+	-- PROTECT (or detect)
+	local protectUses = Memory.readbyte(disableStructBase + 0x08)
+	if protectUses ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = protectUses,
+			MoveId = MoveData.Values.ProtectId or 227,
+			getText = function(self)
+				return string.format("%s: %s",
+					Resources[SCREEN.Key].EffectProtectUses,
+					self.Value
+				)
+			end,
+		}))
+	end
+	-- STOCKPILE COUNT
+	local stockpileCount = Memory.readbyte(disableStructBase + 0x09)
+	if stockpileCount ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = stockpileCount,
+			MoveId = MoveData.Values.StockpileId or 254,
+			getText = function(self)
+				return string.format("%s: %s",
+					Resources.Game.MoveNames[MoveData.Values.StockpileId or 254] or Constants.BLANKLINE,
+					self.Value
+				)
+			end,
+		}))
+	end
+	-- PERISH SONG
+	if SCREEN.Data.PerishSongInEffect then
+		local perishSongCount = 1 + Utils.getbits(Memory.readword(disableStructBase + 0x0F), 0, 4)
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = perishSongCount,
+			MoveId = MoveData.Values.PerishSongId or 195,
+			getText = function(self)
+				return string.format("%s: %s",
+					Resources[SCREEN.Key].EffectPerishCount,
+					self.Value
+				)
+			end,
+		}))
+	end
+	-- FURY CUTTER
+	local furyCutterCount = Memory.readbyte(disableStructBase + 0x10)
+	if furyCutterCount ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = stockpileCount,
+			MoveId = MoveData.Values.FuryCutterId or 210,
+			getText = function(self)
+				return string.format("%s: %s",
+					Resources.Game.MoveNames[MoveData.Values.FuryCutterId or 210] or Constants.BLANKLINE,
+					self.Value
+				)
+			end,
+		}))
+	end
+	-- ROLLOUT
+	local rolloutCount = Utils.getbits(Memory.readword(disableStructBase + 0x11), 0, 4)
+	if rolloutCount ~= 0 then
+		local lockedMove = Memory.readword(GameSettings.gLockedMoves + (index * 0x02))
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = rolloutCount,
+			MoveId = MoveData.Values.RolloutId or 205,
+			getText = function(self)
+				return string.format("%s: %s %s%s %s",
+					Resources.Game.MoveNames[lockedMove] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s"),
+					Resources[SCREEN.Key].TextTurnsRemaining
+				)
+			end,
+		}))
+	end
+	-- TAUNT
+	local tauntTimer = Utils.getbits(Memory.readword(disableStructBase + 0x13), 0, 4)
+	if tauntTimer ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			Value = tauntTimer,
+			MoveId = MoveData.Values.TauntId or 269,
+			getText = function(self)
+				return string.format("%s: %s %s%s %s",
+					Resources.Game.MoveNames[MoveData.Values.TauntId or 269] or Constants.BLANKLINE,
+					self.Value,
+					Resources[SCREEN.Key].TextTurn,
+					(self.Value == 1 and "" or "s"),
+					Resources[SCREEN.Key].TextTurnsRemaining
+				)
+			end,
+		}))
+	end
+	-- TRAPPED (REDUNDANT)
+	-- local cannotEscapeSource = Memory.readbyte(disableStructBase + 0x14)
+	-- if SCREEN.PerMonDetails[index].Trapped then
+	-- 	SCREEN.PerMonDetails[index].Trapped.source = cannotEscapeSource
+	-- end
+	-- LOCKON
+	if SCREEN.Data.LockOnInEffect then
+		local lockOnSource = Memory.readbyte(disableStructBase + 0x15)
+		local sourcePokemon = _getSourceMon(lockOnSource)
+		if sourcePokemon then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				Value = sourcePokemon.pokemonID,
+				MoveId = MoveData.Values.LockOnId or 199,
+				PokemonId = sourcePokemon.pokemonID,
+				getText = function(self)
+					return string.format("%s (%s)",
+						Resources.Game.MoveNames[MoveData.Values.LockOnId or 199] or Constants.BLANKLINE,
+						PokemonData.Pokemon[self.Value].name
+					)
+				end,
+			}))
+		end
+	end
+	local truantCheck = Memory.readbyte(disableStructBase + 0x18)
+	if truantCheck == 1 then -- "1" means truant turn is active
+		local sourcePokemon = _getSourceMon(index) or {}
+		local abilities = Tracker.getAbilities(sourcePokemon.pokemonID)
+		local isTruantTracked = (abilities[1].id == AbilityData.Values.TruantId) or (abilities[2].id == AbilityData.Values.TruantId)
+		-- Only display that the mon is loafing if the ability is already being tracked
+		if isTruantTracked then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				AbilityId = AbilityData.Values.TruantId or 54,
+				getText = function(self)
+					return Resources[SCREEN.Key].EffectTruant
+				end,
+			}))
+		end
+	end
+end
+
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
+function SCREEN.GameFuncs.readWishStruct(index)
+	if not index or index < 0 or index > 3 then
+		return
+	end
+	--[[
+		gWishFutureKnock
+		struct WishFutureKnock
+		{
+			u8 futureSightCounter[MAX_BATTLERS_COUNT];
+			u8 futureSightAttacker[MAX_BATTLERS_COUNT];
+			s32 futureSightDmg[MAX_BATTLERS_COUNT];
+			u16 futureSightMove[MAX_BATTLERS_COUNT];
+			u8 wishCounter[MAX_BATTLERS_COUNT];
+			u8 wishMonId[MAX_BATTLERS_COUNT];
+			u8 weatherDuration;
+			u8 knockedOffMons[2];
+		};
+	]]
+
+	local MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	if not MON_DETAILS then
+		SCREEN.Data.PerMonDetails[index] = {}
+		MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	end
+
+	local function _getSourceMon(sourceIndex)
+		local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceIndex] or -1] or -1
+		local sourcePokemon = Tracker.getPokemon(sourceMonIndex, sourceIndex % 2 == 0) or {}
+		if not PokemonData.isValid(sourcePokemon.pokemonID) then
+			return nil
+		end
+		return sourcePokemon
+	end
+
+	local wishStructBase = GameSettings.gWishFutureKnock
+
+	-- FUTURE SIGHT
+	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
+	if futureSightCounter ~= 0 then
+		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
+		local sourcePokemon = _getSourceMon(futureSightSource)
+		if sourcePokemon then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				Value = {
+					futureSightCounter,
+					sourcePokemon.pokemonID,
+				},
+				PokemonId = sourcePokemon.pokemonID,
+				-- TODO: Doubt this all fits
+				getText = function(self)
+					return string.format("%s: %s %s%s %s (%s)",
+						Resources[SCREEN.Key].EffectFutureSight,
+						self.Value[1],
+						Resources[SCREEN.Key].TextTurn,
+						(self.Value[1] == 1 and "" or "s"),
+						Resources[SCREEN.Key].TextTurnsRemaining,
+						PokemonData.Pokemon[self.Value[2]].name
+					)
+				end,
+			}))
+		end
+	end
+	-- WISH
+	local wishCounter = Memory.readbyte(wishStructBase + 0x20 + (index * 0x1))
+	if wishCounter ~= 0 then
+		local wishSource = Memory.readbyte(wishStructBase + 0x24 + (index * 0x1))
+		local sourcePokemon = _getSourceMon(wishSource)
+		if sourcePokemon then
+			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+				Value = {
+					futureSightCounter,
+					sourcePokemon.pokemonID,
+				},
+				MoveId = MoveData.Values.WishId or 273,
+				PokemonId = sourcePokemon.pokemonID,
+				-- TODO: Doubt this all fits
+				getText = function(self)
+					return string.format("%s: %s %s%s %s (%s)",
+						Resources.Game.MoveNames[MoveData.Values.WishId or 273] or Constants.BLANKLINE,
+						self.Value[1],
+						Resources[SCREEN.Key].TextTurn,
+						(self.Value[1] == 1 and "" or "s"),
+						Resources[SCREEN.Key].TextTurnsRemaining,
+						PokemonData.Pokemon[self.Value[2]].name
+					)
+				end,
+			}))
+		end
+	end
+	-- KNOCK OFF
+	local indexOffset = (index < 2 and 0) or 1
+	local knockOffCheck = Memory.readbyte(wishStructBase + 0x29 + (index * 0x1) + indexOffset)
+	if knockOffCheck ~= 0 then
+		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+			MoveId = MoveData.Values.KnockOffId or 282,
+			getText = function(self)
+				return Resources.Game.MoveNames[MoveData.Values.KnockOffId or 282] or Constants.BLANKLINE
+			end,
+		}))
+	end
+end
+
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
+function SCREEN.GameFuncs.readOther(index)
+	if not index or index < 0 or index > 3 then
+		return
+	end
+	local MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	if not MON_DETAILS then
+		SCREEN.Data.PerMonDetails[index] = {}
+		MON_DETAILS = SCREEN.Data.PerMonDetails[index]
+	end
+
+	local lastMoveID = -1
+	--local lastMoveID = Battle.LastMoves[index] or 0 -- not actually implemented
+	--local lastMoveID = Battle.lastEnemyMoveId -- only set if the move dealt damage
+	table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
+		Value = lastMoveID,
+		MoveId = lastMoveID,
+		getText = function(self)
+			return string.format("%s: %s",
+				Resources[SCREEN.Key].TextLastMove,
+				(MoveData.isValid(self.Value) and Resources.Game.MoveNames[self.Value]) or Constants.BLANKLINE
+			)
+		end,
+	}))
 end

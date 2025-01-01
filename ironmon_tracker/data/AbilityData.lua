@@ -3,6 +3,7 @@ AbilityData = {}
 AbilityData.Values = {
 	HugePowerId = 37,
 	ThickFatId = 47,
+	TruantId = 54,
 	HustleId = 55,
 	PurePowerId = 74,
 	CacophonyId = 76,
