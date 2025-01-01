@@ -111,7 +111,8 @@ SCREEN.Buttons = {
 				Drawing.drawText(col2X, y + 15, Resources.QuickloadScreen.LabelClickToAdd, textColor - 0x20000000, shadowcolor)
 				return
 			end
-			Drawing.drawText(col2X, y + 1, string.format("%s", profile.Name), highlightColor, shadowcolor)
+			local name = Utils.shortenText(profile.Name or "", 96, true)
+			Drawing.drawText(col2X, y + 1, string.format("%s", name), highlightColor, shadowcolor)
 
 			local attemptsFormatted
 			if (profile.AttemptsCount or 0) == 0 then
