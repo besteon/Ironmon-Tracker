@@ -40,6 +40,17 @@ function Utils.getbits(value, startIndex, numBits)
 	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
 end
 
+function Utils.generateBitwiseMap(value, size)
+	local map = {}
+	for i=0,size-1, 1 do
+		map[i] = value % 2 == 1
+		if value > 0 then
+			value = Utils.bit_rshift(value, 1)
+		end
+	end
+	return map
+end
+
 function Utils.addhalves(value)
 	local b = Utils.getbits(value, 0, 16)
 	local c = Utils.getbits(value, 16, 16)
@@ -509,7 +520,7 @@ function Utils.calculateMoveStars(pokemonID, level)
 	end
 
 	-- If nothing has been tracked thus far for this Pokemon, return no stars
-	local trackedMoves = Tracker.getMoves(pokemonID)
+	local trackedMoves = Tracker.getMoves(pokemonID, level)
 	if type(trackedMoves[1]) ~= "table" or not MoveData.isValid(trackedMoves[1].id) then
 		return stars
 	end

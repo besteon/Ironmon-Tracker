@@ -54,6 +54,7 @@ Battle = {
 		[0] = {},
 		[1] = {},
 	},
+	-- LastMoves = {},
 }
 
 -- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
@@ -283,15 +284,19 @@ function Battle.updateViewSlots()
 	--Track if ally pokemon changes, to reset transform and ability changes
 	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn and Battle.BattleParties[0][prevOwnPokemonLeft] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
+		-- Battle.LastMoves[0] = 0
 	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn and Battle.BattleParties[0][prevOwnPokemonRight] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
+		-- Battle.LastMoves[2] = 0
 	end
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleParties[1][prevEnemyPokemonLeft] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
+		-- Battle.LastMoves[1] = 0
 		Battle.changeOpposingPokemonView(true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleParties[1][prevEnemyPokemonRight] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
+		-- Battle.LastMoves[3] = 0
 		Battle.changeOpposingPokemonView(false)
 	end
 end
@@ -398,6 +403,7 @@ function Battle.updateTrackedInfo()
 										local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
 										if battlerMon ~= nil then
 											Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+											Tracker.recordBattleMoveByPokemonLevel(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
 										end
 									end
 								end
@@ -412,6 +418,7 @@ function Battle.updateTrackedInfo()
 										local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 										if attackingMon ~= nil then
 											Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+											Tracker.recordBattleMoveByPokemonLevel(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 										end
 									end
 								end
@@ -426,6 +433,8 @@ function Battle.updateTrackedInfo()
 						--only get one chance to record
 						Battle.AbilityChangeData.recordNextMove = false
 					end
+				else
+					-- Battle.LastMoves[Battle.attacker] = 0
 				end
 			end
 		else
@@ -439,6 +448,7 @@ function Battle.updateTrackedInfo()
 					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 					if attackingMon ~= nil then
 						Tracker.TrackMove(attackingMon.pokemonID, 264, attackingMon.level)
+						Tracker.recordBattleMoveByPokemonLevel(attackingMon.pokemonID, 264, attackingMon.level)
 					end
 				end
 			end
@@ -761,6 +771,7 @@ function Battle.beginNewBattle()
 	Battle.populateBattlePartyObject()
 	Input.StatHighlighter:resetSelectedStat()
 
+	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
 	-- If the lead encountered enemy Pokemon is a shiny, trigger a pulsing sparkle effect
@@ -827,6 +838,7 @@ function Battle.endCurrentBattle()
 		[0] = {},
 		[1] = {},
 	}
+	-- Battle.LastMoves = {}
 
 	Program.recalcLeadPokemonHealingInfo()
 
@@ -836,6 +848,7 @@ function Battle.endCurrentBattle()
 		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
 
+	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
 	Battle.opposingTrainerId = 0
@@ -886,10 +899,15 @@ function Battle.wonFinalBattle(lastBattleStatus, lastTrainerId)
 end
 
 function Battle.handleNewTurn()
-	--Reset counters
-	Battle.AbilityChangeData.prevAction = 4
-	Battle.AbilityChangeData.recordNextMove= false
+	if not Battle.isNewTurn then
+		return
+	end
 	Battle.isNewTurn = false
+	BattleDetailsScreen.updateData()
+
+	-- Reset counters
+	Battle.AbilityChangeData.prevAction = 4
+	Battle.AbilityChangeData.recordNextMove = false
 end
 
 function Battle.changeOpposingPokemonView(isLeft)
@@ -1071,6 +1089,7 @@ function Battle.trackTransformedMoves()
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
 				Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
+				Tracker.recordBattleMoveByPokemonLevel(copiedMon.pokemonID, move.id, copiedMon.level)
 			end
 		end
 	end
