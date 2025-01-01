@@ -355,7 +355,7 @@ function SCREEN.updateData(buildPagedButtons)
 		-- Trim whitespace
 		firstDetailText = firstDetailText:match("^%s*(.-)%s*$") or ""
 		-- Shorten to fit on screen
-		firstDetailText = Utils.shortenText(firstDetailText, 50, true)
+		firstDetailText = Utils.shortenText(firstDetailText, 57, true)
 	end
 	if not Utils.isNilOrEmpty(firstDetailText) then
 		SCREEN.Data.DetailsSummary = string.format("(%s)", firstDetailText)
@@ -399,7 +399,7 @@ function SCREEN.buildPagedButtons()
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return string.format("- %s", detail:getText()) end,
 			textColor = SCREEN.Colors.text,
-			dimensions = { width = 70, height = 11 },
+			dimensions = { width = 100, height = 11 },
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return self.pageVisible == SCREEN.Pager.currentPage end,
 			-- updateSelf = function(self)
@@ -667,13 +667,16 @@ function SCREEN.GameFuncs.readWeather()
 	end
 
 	local weatherBitIndex = 0
-	while weatherByte > 1 do
+	for i = 1, 99999, 1 do -- Max iterations, just in case
 		weatherByte = Utils.bit_rshift(weatherByte, 1)
 		weatherBitIndex = weatherBitIndex + 1
+		if weatherByte <= 1 then
+			break
+		end
 	end
 	SCREEN.Data.WeatherKey = SCREEN.Maps.WeatherToNameKey[weatherBitIndex] or SCREEN.Maps.WeatherToNameKey["default"]
 
-	-- Weather Turns are not reset to 0 when temporary weather becomes permanent
+	-- For temporary weather: Weather Turns are not reset to 0 when temporary weather becomes permanent
 	if weatherBitIndex == 0 or weatherBitIndex == 3 or weatherBitIndex == 5 or weatherBitIndex == 7 then
 		SCREEN.Data.WeatherTurns = weatherTurns
 		table.insert(SCREEN.Data.FieldDetails, SCREEN.IBattleDetail:new({
@@ -686,8 +689,17 @@ function SCREEN.GameFuncs.readWeather()
 				)
 			end,
 		}))
+	-- For permanent/other weather:
 	else
 		SCREEN.Data.WeatherTurns = 0
+		table.insert(SCREEN.Data.FieldDetails, SCREEN.IBattleDetail:new({
+			getText = function(self)
+				return string.format("%s: %s",
+					Resources[SCREEN.Key].TextWeather,
+					Resources[SCREEN.Key][SCREEN.Data.WeatherKey] or Constants.BLANKLINE
+				)
+			end,
+		}))
 	end
 end
 
