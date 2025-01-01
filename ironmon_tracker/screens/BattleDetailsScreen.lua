@@ -7,7 +7,9 @@ BattleDetailsScreen = {
 		boxFill = "Upper box background",
 	},
 	Data = {
+		-- A short one/two word summary of top-most battle detail
 		DetailsSummary = "",
+
 		TerrainKey = "",
 		WeatherKey = "",
 		FieldDetails = {},
@@ -21,9 +23,6 @@ BattleDetailsScreen = {
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
 	viewedSideIndex = 0,
-	currentPage = 1,
-	numPages = 1,
-	pageSize = 6,
 }
 local SCREEN = BattleDetailsScreen
 local CANVAS = {
@@ -336,20 +335,30 @@ function SCREEN.updateData(buildPagedButtons)
 		SCREEN.GameFuncs.readWishStruct(i)
 	end
 
-	-- Calc/summarize battle details
-	local firstOwnMonDetail = SCREEN.Data.PerMonDetails[0][1] -- 0: first own mon
-	local firstOwnSideDetail = SCREEN.Data.PerSideDetails[0][1] -- 0: first own side
-	local firstFieldDetail = SCREEN.Data.FieldDetails[1]
-	local firstDetail = firstOwnMonDetail or firstOwnSideDetail or firstFieldDetail
+	-- Summarize battle details by getting the first relevant item
+	local function _getFirstDetail(detailsTableList)
+		for _, detailsList in ipairs(detailsTableList or {}) do
+			-- Return the first
+			if detailsList[1] then
+				return detailsList[1]
+			end
+		end
+	end
+	local firstDetail = _getFirstDetail(SCREEN.Data.PerMonDetails)
+		or _getFirstDetail(SCREEN.Data.PerSideDetails)
+		or _getFirstDetail({SCREEN.Data.FieldDetails}) -- embed in its own list for looping convenience
+
+	local firstDetailText
 	if firstDetail and type(firstDetail.getText) == "function" then
 		-- Get text and remove any parenthesis
-		local firstDetailText = Utils.replaceText(firstDetail:getText(), "%(.*%)", "")
+		firstDetailText = Utils.replaceText(firstDetail:getText(), "%(.*%)", "")
 		-- Trim whitespace
 		firstDetailText = firstDetailText:match("^%s*(.-)%s*$") or ""
-		if not Utils.isNilOrEmpty(firstDetailText) then
-			-- Then shorten and put inside parens
-			SCREEN.Data.DetailsSummary = string.format("(%s)", Utils.shortenText(firstDetailText, 50, true))
-		end
+		-- Shorten to fit on screen
+		firstDetailText = Utils.shortenText(firstDetailText, 50, true)
+	end
+	if not Utils.isNilOrEmpty(firstDetailText) then
+		SCREEN.Data.DetailsSummary = string.format("(%s)", firstDetailText)
 	else
 		SCREEN.Data.DetailsSummary = ""
 	end
