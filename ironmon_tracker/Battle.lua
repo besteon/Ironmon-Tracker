@@ -237,6 +237,21 @@ function Battle.togglePokemonViewed()
 	Program.redraw(true)
 end
 
+---Returns a value between 0-3 inclusive that represents the Pokémon being viewed
+---@return number index 0: LeftAlly, 1: LeftEnemy, 2: RightAlly, 3: RightEnemy
+function Battle.getViewedIndex()
+	local viewIndex = 0
+	-- If viewing enemy: index must be a 1 or a 3
+	if not Battle.isViewingOwn then
+		viewIndex = viewIndex + 1
+	end
+	-- If viewing right-size: index must be a 2 or a 3
+	if not Battle.isViewingLeft then
+		viewIndex = viewIndex + 2
+	end
+	return viewIndex
+end
+
 -- isOwn: true if it belongs to the player; false otherwise
 function Battle.getViewedPokemon(isOwn)
 	local mustViewOwn = isOwn or not Battle.inActiveBattle()
@@ -879,6 +894,7 @@ function Battle.trySwapScreenBackToMain()
 		[TypeDefensesScreen] = true,
 		[CoverageCalcScreen] = true,
 		[HealsInBagScreen] = true,
+		[BattleDetailsScreen] = true,
 	}
 	if Program.currentScreen == InfoScreen then
 		InfoScreen.clearScreenData()
