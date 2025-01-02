@@ -117,7 +117,7 @@ SCREEN.Buttons = {
 			local value = SCREEN.Data.isReady and Resources[SCREEN.Key][SCREEN.Data.TerrainKey] or Constants.BLANKLINE
 			return string.format("%s: %s", Resources[SCREEN.Key].TextTerrain, value)
 		end,
-		box = {	CANVAS.X + 2, CANVAS.Y + 15, 60, 11 },
+		box = {	CANVAS.X + 1, CANVAS.Y + 18, 60, 11 },
 	},
 	LabelWeather = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -125,7 +125,7 @@ SCREEN.Buttons = {
 			local value = SCREEN.Data.isReady and Resources[SCREEN.Key][SCREEN.Data.WeatherKey] or Constants.BLANKLINE
 			return string.format("%s: %s", Resources[SCREEN.Key].TextWeather, value)
 		end,
-		box = {	CANVAS.X + 2, CANVAS.Y + 26, 60, 11 },
+		box = {	CANVAS.X + 1, CANVAS.Y + 29, 60, 11 },
 	},
 	LabelTurnCount = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -133,131 +133,7 @@ SCREEN.Buttons = {
 			local value = SCREEN.Data.isReady and ((Battle.turnCount or 0) + 1) or Constants.BLANKLINE
 			return string.format("%s: %s", Resources[SCREEN.Key].TextTurn, value)
 		end,
-		box = {	CANVAS.X + 2, CANVAS.Y + 37, 60, 11 },
-	},
-	LeftOwn = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 101, CANVAS.Y + 36, 13, 13 },
-		isVisible = function() return SCREEN.Data.isReady end,
-		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 0 then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = true
-			SCREEN.viewingSideStauses = false
-			SCREEN.viewedMonIndex = 0
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	LeftOther = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 122, CANVAS.Y + 21, 13, 13 },
-		isVisible = function() return SCREEN.Data.isReady end,
-		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 1 then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = true
-			SCREEN.viewingSideStauses = false
-			SCREEN.viewedMonIndex = 1
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	RightOwn = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 114, CANVAS.Y + 36, 13, 13 },
-		isVisible = function() return SCREEN.Data.isReady and Battle.numBattlers == 4 end,
-		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 2 then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = true
-			SCREEN.viewingSideStauses = false
-			SCREEN.viewedMonIndex = 2
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	RightOther = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 109, CANVAS.Y + 21, 13, 13 },
-		isVisible = function() return SCREEN.Data.isReady and Battle.numBattlers == 4 end,
-		onClick = function(self)
-			if SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 3 then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = true
-			SCREEN.viewingSideStauses = false
-			SCREEN.viewedMonIndex = 3
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	AllyTeam = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 129, CANVAS.Y + 35, 6, 15 },
-		isVisible = function() return SCREEN.Data.isReady end,
-		updateSelf = function(self)
-			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
-			if Battle.numBattlers == 2 then
-				self.box[1] = CANVAS.X + 115
-				self.box[3] = 20
-			else
-				self.box[1] = CANVAS.X + 129
-				self.box[3] = 6
-			end
-		end,
-		onClick = function(self)
-			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 0 then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = false
-			SCREEN.viewingSideStauses = true
-			SCREEN.viewedSideIndex = 0
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	EnemyTeam = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 101, CANVAS.Y + 20, 6, 15 },
-		isVisible = function() return SCREEN.Data.isReady end,
-		updateSelf = function(self)
-			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
-			if Battle.numBattlers == 2 then
-				self.box[3] = 20
-			else
-				self.box[3] = 6
-			end
-		end,
-		onClick = function(self)
-			if SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 1 then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = false
-			SCREEN.viewingSideStauses = true
-			SCREEN.viewedSideIndex = 1
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	FieldView = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { CANVAS.X + 91, CANVAS.Y + 20, 9, 30},
-		isVisible = function() return SCREEN.Data.isReady end,
-		onClick = function(self)
-			if not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses then
-				return
-			end
-			SCREEN.viewingIndividualStatuses = false
-			SCREEN.viewingSideStauses = false
-			SCREEN.viewedSideIndex = 0
-			SCREEN.viewedMonIndex = 0
-			SCREEN.buildPagedButtons()
-			Program.redraw(true)
-		end
+		box = {	CANVAS.X + 1, CANVAS.Y + 40, 60, 11 },
 	},
 	ViewedDetailsHeader = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -279,7 +155,7 @@ SCREEN.Buttons = {
 			end
 		end,
 		textColor = SCREEN.Colors.highlight,
-		box = {	CANVAS.X + 2, CANVAS.Y + 52, 60, 11 },
+		box = {	CANVAS.X + 2, CANVAS.Y + 53, 60, 11 },
 		isVisible = function(self) return SCREEN.Data.isReady end,
 		updateSelf = function(self)
 			-- Update width as text changes
@@ -319,8 +195,251 @@ SCREEN.Buttons = {
 	end),
 }
 
+SCREEN.TeamBallBox = {
+	FieldView = {
+		index = 1,
+		type = Constants.ButtonTypes.NO_BORDER,
+		image = Constants.PixelImages.RIGHT_TRIANGLE,
+		clickableArea = { CANVAS.X + 91, CANVAS.Y + 19, 9, 30 },
+		box = { CANVAS.X + 91, CANVAS.Y + 19, 44, 30},
+		isVisible = function() return SCREEN.Data.isReady end,
+		isSelected = function() return not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses end,
+		updateSelf = function(self)
+			if self:isSelected() then
+				self.index = 999
+				self.textColor = SCREEN.Colors.highlight
+				self.boxColors[1] = SCREEN.Colors.highlight
+			else
+				self.index = 1
+				self.textColor = SCREEN.Colors.text
+				self.boxColors[1] = SCREEN.Colors.border
+			end
+		end,
+		onClick = function(self)
+			if self:isSelected() then return end
+			SCREEN.viewingIndividualStatuses = false
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedSideIndex = 0
+			SCREEN.viewedMonIndex = 0
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local iconColor = Theme.COLORS[self.textColor]
+			local borderColor = Theme.COLORS[self.boxColors[1]]
+			-- Draw right/bottom shadows
+			gui.drawLine(x + 1, y + h + 1, x + w + 1, y + h + 1, shadowcolor)
+			gui.drawLine(x + w + 1, y + 1, x + w + 1, y + h + 1, shadowcolor)
+			-- Draw full border rectangle
+			gui.drawRectangle(x, y, w, h, borderColor)
+			Drawing.drawImageAsPixels(self.image, x + 2, y + 11, iconColor, shadowcolor)
+		end,
+	},
+	EnemyTeam = {
+		index = 2,
+		type = Constants.ButtonTypes.NO_BORDER,
+		image = Constants.PixelImages.RIGHT_TRIANGLE,
+		clickableArea = { CANVAS.X + 100, CANVAS.Y + 19, 6, 15 },
+		box = { CANVAS.X + 100, CANVAS.Y + 19, 35, 15 },
+		isVisible = function() return SCREEN.Data.isReady end,
+		updateSelf = function(self)
+			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
+			local clickBox = self.clickableArea
+			if Battle.numBattlers == 2 then
+				clickBox[3] = 20
+			else
+				clickBox[3] = 6
+			end
+			if self:isSelected() then
+				self.index = 999
+				self.textColor = SCREEN.Colors.highlight
+				self.boxColors[1] = SCREEN.Colors.highlight
+			else
+				self.index = 2
+				self.textColor = SCREEN.Colors.text
+				self.boxColors[1] = SCREEN.Colors.border
+			end
+		end,
+		isSelected = function() return SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 1 end,
+		onClick = function(self)
+			if self:isSelected() then return end
+			SCREEN.viewingIndividualStatuses = false
+			SCREEN.viewingSideStauses = true
+			SCREEN.viewedSideIndex = 1
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local iconColor = Theme.COLORS[self.textColor]
+			local borderColor = Theme.COLORS[self.boxColors[1]]
+			gui.drawRectangle(x, y, w, h, borderColor)
+			Drawing.drawImageAsPixels(self.image, x + 2, y + 3, iconColor, shadowcolor)
+		end,
+	},
+	AllyTeam = {
+		index = 3,
+		type = Constants.ButtonTypes.NO_BORDER,
+		image = Constants.PixelImages.LEFT_TRIANGLE,
+		clickableArea = { CANVAS.X + 114, CANVAS.Y + 34, 20, 15 },
+		box = { CANVAS.X + 100, CANVAS.Y + 34, 35, 15 },
+		isVisible = function() return SCREEN.Data.isReady end,
+		updateSelf = function(self)
+			-- Increase clickable area for team boxes in single battles to include the unused pokeballs
+			local clickBox = self.clickableArea
+			if Battle.numBattlers == 2 then
+				clickBox[1] = CANVAS.X + 114
+				clickBox[3] = 20
+			else
+				clickBox[1] = CANVAS.X + 129
+				clickBox[3] = 6
+			end
+			if self:isSelected() then
+				self.index = 999
+				self.textColor = SCREEN.Colors.highlight
+				self.boxColors[1] = SCREEN.Colors.highlight
+			else
+				self.index = 3
+				self.textColor = SCREEN.Colors.text
+				self.boxColors[1] = SCREEN.Colors.border
+			end
+		end,
+		isSelected = function() return SCREEN.viewingSideStauses and SCREEN.viewedSideIndex == 0 end,
+		onClick = function(self)
+			if self:isSelected() then return end
+			SCREEN.viewingIndividualStatuses = false
+			SCREEN.viewingSideStauses = true
+			SCREEN.viewedSideIndex = 0
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local iconColor = Theme.COLORS[self.textColor]
+			local borderColor = Theme.COLORS[self.boxColors[1]]
+			gui.drawRectangle(x, y, w, h, borderColor)
+			Drawing.drawImageAsPixels(self.image, x + 29, y + 3, iconColor, shadowcolor)
+		end,
+	},
+	LeftOther = {
+		index = 4,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = TrackerScreen.PokeBalls.ColorList,
+		box = { CANVAS.X + 122, CANVAS.Y + 21, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady end,
+		isSelected = function() return SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 1 end,
+		onClick = function(self)
+			if self:isSelected() then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 1
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			if not self:isSelected() then return end
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			Drawing.drawSelectionIndicators(x, y, w - 2, h - 2, highlight, 1, 3, 0)
+		end,
+	},
+	RightOther = {
+		index = 5,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = TrackerScreen.PokeBalls.ColorList,
+		box = { CANVAS.X + 109, CANVAS.Y + 21, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady end,
+		updateSelf = function(self)
+			if Battle.numBattlers == 4 then
+				self.iconColors = TrackerScreen.PokeBalls.ColorList
+			else
+				self.iconColors = { 0xFF000000, 0xFFB3B3B3, 0xFFFFFFFF, }
+			end
+		end,
+		isSelected = function() return SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 3 end,
+		onClick = function(self)
+			if self:isSelected() or Battle.numBattlers < 4 then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 3
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			if not self:isSelected() then return end
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			Drawing.drawSelectionIndicators(x, y, w - 2, h - 2, highlight, 1, 3, 0)
+		end,
+	},
+	LeftOwn = {
+		index = 6,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = TrackerScreen.PokeBalls.ColorList,
+		box = { CANVAS.X + 102, CANVAS.Y + 36, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady end,
+		isSelected = function() return SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 0 end,
+		onClick = function(self)
+			if self:isSelected() then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 0
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			if not self:isSelected() then return end
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			Drawing.drawSelectionIndicators(x, y, w - 2, h - 2, highlight, 1, 3, 0)
+		end,
+	},
+	RightOwn = {
+		index = 7,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = TrackerScreen.PokeBalls.ColorList,
+		box = { CANVAS.X + 115, CANVAS.Y + 36, 13, 13 },
+		isVisible = function() return SCREEN.Data.isReady end,
+		updateSelf = function(self)
+			if Battle.numBattlers == 4 then
+				self.iconColors = TrackerScreen.PokeBalls.ColorList
+			else
+				self.iconColors = { 0xFF000000, 0xFFB3B3B3, 0xFFFFFFFF, }
+			end
+		end,
+		isSelected = function() return SCREEN.viewingIndividualStatuses and SCREEN.viewedMonIndex == 2 end,
+		onClick = function(self)
+			if self:isSelected() or Battle.numBattlers < 4 then return end
+			SCREEN.viewingIndividualStatuses = true
+			SCREEN.viewingSideStauses = false
+			SCREEN.viewedMonIndex = 2
+			SCREEN.buildPagedButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			if not self:isSelected() then return end
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			Drawing.drawSelectionIndicators(x, y, w - 2, h - 2, highlight, 1, 3, 0)
+		end,
+	},
+}
+
 function SCREEN.initialize()
 	for _, button in pairs(SCREEN.Buttons) do
+		if button.textColor == nil then
+			button.textColor = SCREEN.Colors.text
+		end
+		if button.boxColors == nil then
+			button.boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill }
+		end
+	end
+	for _, button in pairs(SCREEN.TeamBallBox) do
 		if button.textColor == nil then
 			button.textColor = SCREEN.Colors.text
 		end
@@ -384,9 +503,6 @@ function SCREEN.summarizeDetails(index)
 		or SCREEN.Data.FieldDetails[1]
 
 	if firstDetail and type(firstDetail.getText) == "function" then
-		-- Get text and remove any parenthesis
-		-- local summaryText = Utils.replaceText(firstDetail:getText(), "%(.*%)", "")
-		-- TODO: mention ally/enemy source
 		local summaryText = firstDetail:getText()
 		-- Trim whitespace
 		summaryText = summaryText:match("^%s*(.-)%s*$") or ""
@@ -452,7 +568,7 @@ function SCREEN.buildPagedButtons()
 	end
 
 	local detailsHeaderBtn = SCREEN.Buttons.ViewedDetailsHeader
-	local X = CANVAS.X + 1
+	local X = CANVAS.X
 	local Y = detailsHeaderBtn.box[2] + detailsHeaderBtn.box[4] + 1
 	SCREEN.Pager:realignButtonsToGrid(X, Y, 20, 0)
 
@@ -518,65 +634,17 @@ function SCREEN.refreshButtons()
 			button:updateSelf()
 		end
 	end
+	for _, button in pairs(SCREEN.TeamBallBox) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
 end
 
 function SCREEN.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Pager.Buttons)
-end
-
--- TODO: clean this up, let the buttons themselves draw the boxes
-local function drawBattleDiagram()
-	local ballColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }
-	local inactiveBallColorList = { 0xFF000000, 0xFFb3b3b3, 0xFFFFFFFF, }
-	local defaultArrowColorList = {Theme.COLORS[SCREEN.Colors.text]}
-	local selectedArrowColorList = {Theme.COLORS[SCREEN.Colors.highlight]}
-	local BattleBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91,y=Constants.SCREEN.MARGIN + 20,height=30,width=45}
-	local EnemyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 20,height=15,width=36}
-	local AllyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 35,height=15,width=36}
-	local LeftAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
-	local RightAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 116,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
-	local RightEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
-	local LeftEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
-
-	local TeamBoxes = {[0] = AllyTeamBox, [1] = EnemyTeamBox}
-	local MonBoxes = {[0] = LeftAllyBall, [1] = LeftEnemyBall, [2] = RightAllyBall, [3] = RightEnemyBall}
-
-	--Draw battle box first so team box is highlighted properly
-	if SCREEN.viewingSideStauses or SCREEN.viewingIndividualStatuses then
-		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, defaultArrowColorList)
-	end
-	--Draw Team Boxes
-	if SCREEN.viewingSideStauses then
-		gui.drawRectangle(TeamBoxes[1-SCREEN.viewedSideIndex].x, TeamBoxes[1-SCREEN.viewedSideIndex].y, TeamBoxes[1-SCREEN.viewedSideIndex].width, TeamBoxes[1-SCREEN.viewedSideIndex].height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
-		gui.drawRectangle(TeamBoxes[SCREEN.viewedSideIndex].x, TeamBoxes[SCREEN.viewedSideIndex].y, TeamBoxes[SCREEN.viewedSideIndex].width, TeamBoxes[SCREEN.viewedSideIndex].height, Theme.COLORS[SCREEN.Colors.highlight], Theme.COLORS[SCREEN.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, Utils.inlineIf(SCREEN.viewedSideIndex==0,selectedArrowColorList,defaultArrowColorList), nil)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, Utils.inlineIf(SCREEN.viewedSideIndex==1,selectedArrowColorList,defaultArrowColorList), nil)
-	else
-		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
-		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, Theme.COLORS[SCREEN.Colors.border], Theme.COLORS[SCREEN.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, defaultArrowColorList)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, defaultArrowColorList)
-	end
-
-	--Draw Mon Boxes
-	if SCREEN.viewingIndividualStatuses then
-		Drawing.drawSelectionIndicators(
-			MonBoxes[SCREEN.viewedMonIndex].x,
-			MonBoxes[SCREEN.viewedMonIndex].y,
-			MonBoxes[SCREEN.viewedMonIndex].width,
-			MonBoxes[SCREEN.viewedMonIndex].height, Theme.COLORS[SCREEN.Colors.highlight], 1, 3, 0)
-	end
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[0].x, MonBoxes[0].y, ballColorList)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[1].x, MonBoxes[1].y, ballColorList)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[2].x, MonBoxes[2].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList))
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[3].x, MonBoxes[3].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList))
-
-	if not SCREEN.viewingSideStauses and not SCREEN.viewingIndividualStatuses then
-		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[SCREEN.Colors.highlight])
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, selectedArrowColorList)
-	end
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.TeamBallBox)
 end
 
 function SCREEN.drawScreen()
@@ -598,19 +666,23 @@ function SCREEN.drawScreen()
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	-- Draw header text
-	-- local headerText = Utils.toUpperUTF8(Resources[SCREEN.Key].Title)
+	local headerText = Utils.toUpperUTF8(Resources[SCREEN.Key].Title)
 	-- local headerColor = Theme.COLORS["Header text"]
 	-- local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	-- Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, headerColor, headerShadow)
-
-	-- TODO: remove this eventually
-	drawBattleDiagram()
+	if Theme.DRAW_TEXT_SHADOWS then
+		Drawing.drawText(canvas.x + 1, canvas.y + 1, headerText, canvas.shadow, nil, Constants.Font.HEADERSIZE)
+	end
+	Drawing.drawText(canvas.x, canvas.y, headerText, canvas.text, canvas.shadow, Constants.Font.HEADERSIZE)
 
 	-- Draw all buttons
 	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
 	for _, button in pairs(SCREEN.Pager.Buttons) do
+		Drawing.drawButton(button, canvas.shadow)
+	end
+	local sortedButtons = Utils.getSortedList(SCREEN.TeamBallBox)
+	for _, button in pairs(sortedButtons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end
 end
