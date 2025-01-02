@@ -275,11 +275,19 @@ end
 
 ---Checks if the rom loaded is a supported rom hack, and if so loads additional code for it
 function CustomCode.checkForRomHacks()
+	local GS = GameSettings
 	-- For NatDex v1.1.3 and lower, it did not have these addresses for the new Trainers lookup feature
 	if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
-		GameSettings.gLevelUpLearnsets = GameSettings.gLevelUpLearnsets_NatDex_113
-		GameSettings.gTrainers = GameSettings.gTrainers_NatDex_113
-		GameSettings.gTrainerClassNames = GameSettings.gTrainerClassNames_NatDex_113
+		GS.gLevelUpLearnsets = GS.gLevelUpLearnsets_NatDex_113 or GS.gLevelUpLearnsets
+		GS.gTrainers = GS.gTrainers_NatDex_113 or GS.gTrainers
+		GS.gTrainerClassNames = GS.gTrainerClassNames_NatDex_113 or GS.gTrainerClassNames
+		GS.gLockedMoves = GS.gLockedMoves_NatDex_113 or GS.gLockedMoves
+		GS.gSideStatuses = GS.gSideStatuses_NatDex_113 or GS.gSideStatuses
+		GS.gSideTimers = GS.gSideTimers_NatDex_113 or GS.gSideTimers
+		GS.gStatuses3 = GS.gStatuses3_NatDex_113 or GS.gStatuses3
+		GS.gDisableStructs = GS.gDisableStructs_NatDex_113 or GS.gDisableStructs
+		GS.gPaydayMoney = GS.gPaydayMoney_NatDex_113 or GS.gPaydayMoney
+		GS.gWishFutureKnock = GS.gWishFutureKnock_NatDex_113 or GS.gWishFutureKnock
 	end
 end
 

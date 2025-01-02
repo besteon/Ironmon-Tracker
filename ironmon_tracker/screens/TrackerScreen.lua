@@ -320,22 +320,6 @@ TrackerScreen.Buttons = {
 			end
 		end,
 	},
-	AdditionalBattleEffects = {
-		-- Invisible clickable button
-		type = Constants.ButtonTypes.NO_BORDER,
-		textColor = "Header text",
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
-		boxColors = { "Header text", "Main background" },
-		isVisible = function()
-			return Options["Show additional battle details"] and not Battle.isViewingOwn and not Battle.isWildEncounter and BattleDetailsScreen.hasDetails()
-		end,
-		onClick = function(self)
-			BattleDetailsScreen.resetToViewFirstMon()
-			BattleDetailsScreen.updateData(true)
-			Program.changeScreenView(BattleDetailsScreen)
-		end,
-	},
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
@@ -364,6 +348,20 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			-- Eventually clicking this will show a Move History screen
 		end
+	},
+	BattleDetailsSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.SPARKLES,
+		getText = function(self) return self.updatedText or "" end,
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 12, 12 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.BATTLE_DETAILS end,
+		onClick = function(self)
+			BattleDetailsScreen.resetToViewFirstMon()
+			BattleDetailsScreen.updateData(true)
+			Program.changeScreenView(BattleDetailsScreen)
+		end,
 	},
 	RouteSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -469,7 +467,8 @@ TrackerScreen.CarouselTypes = {
 	LAST_ATTACK = 3, -- During battle, only between turns
 	ROUTE_INFO = 4, -- During battle, only if encounter is a wild pokemon
 	NOTES = 5, -- During battle
-	PEDOMETER = 6, -- Outside of battle
+	BATTLE_DETAILS = 6, -- During battle
+	PEDOMETER = 7, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -685,6 +684,26 @@ function TrackerScreen.buildCarousel()
 				return { TrackerScreen.Buttons.LastAttackSummary }
 			else
 				return lastAttackMsg or ""
+			end
+		end,
+	}
+
+	-- BATTLE DETAILS
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BATTLE_DETAILS] = {
+		type = TrackerScreen.CarouselTypes.BATTLE_DETAILS,
+		framesToShow = 180,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselBattleDetails.toggleState then
+				return false
+			end
+			return BattleDetailsScreen.hasDetails()
+		end,
+		getContentList = function(self)
+			TrackerScreen.Buttons.BattleDetailsSummary.updatedText = BattleDetailsScreen.Data.DetailsSummary
+			if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.BattleDetailsSummary }
+			else
+				return BattleDetailsScreen.Data.DetailsSummary or ""
 			end
 		end,
 	}
@@ -1346,11 +1365,6 @@ function TrackerScreen.drawMovesArea(data)
 		local catchText = string.format("~ %.0f%%  %s", data.x.catchrate, Resources.TrackerScreen.ToCatch)
 		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(catchText) - 2
 		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, catchText, headerColor, bgHeaderShadow)
-	-- Check if additional battle details should be displayed instead of other header labels
-	elseif TrackerScreen.Buttons.AdditionalBattleEffects:isVisible() and Battle.turnCount > 0 then
-		local battleDetailsText = BattleDetailsScreen.Data.DetailsSummary
-		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(battleDetailsText) - 2
-		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, battleDetailsText, headerColor, bgHeaderShadow)
 	else
 		Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, headerY, Resources.TrackerScreen.HeaderPP, headerColor, bgHeaderShadow)
 		Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, headerColor, bgHeaderShadow)

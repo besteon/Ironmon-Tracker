@@ -116,7 +116,6 @@ Constants.OrderedLists = {
 		"Show random ball picker",
 		"Show heals as whole number",
 		"Show Poke Ball catch rate",
-		"Show additional battle details",
 		"Show starter ball info",
 		"Hide stats until summary shown",
 		"Right justified numbers",
@@ -159,6 +158,7 @@ Constants.OrderedLists = {
 		"Open Book Play Mode",
 		"Allow sprites to walk",
 		"Active Profile",
+		"Has checked carousel battle details",
 		"AlertNewOptionLR",
 	},
 	CONTROLS = {

@@ -505,13 +505,21 @@ function GameSettings.setEwramAddresses()
 		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + jpOffset }, },
 		-- RS: gAbilitiesPerBank
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
-		gStatuses3 = { 0x02024c98, 0x020242ac, { 0x02023dfc, 0x02023dfc + jpOffset }, },
+		gLockedMoves = { 0x02024c54, 0x02024268, { 0x02023db8, 0x02023db8 + jpOffset }, },
 		gSideStatuses = { 0x02024c7a, 0x0202428e, { 0x02023dde, 0x02023dde + jpOffset }, },
 		gSideTimers = { 0x02024c80, 0x02024294, { 0x02023de4, 0x02023de4 + jpOffset }, },
+		gStatuses3 = { 0x02024c98, 0x020242ac, { 0x02023dfc, 0x02023dfc + jpOffset }, },
 		gDisableStructs = { 0x02024ca8, 0x020242bc, { 0x02023e0c, 0x02023e0c + jpOffset }, },
-		gLockedMoves = { 0x02024c54, 0x02024268, { 0x02023db8, 0x02023db8 + jpOffset }, },
-		gWishFutureKnock = { 0x02024dbc, 0x020243d0, { 0x02023f20, 0x02023f20 + jpOffset }, },
 		gPaydayMoney = { 0x02024d1a, 0x020243d0, { 0x02023e7e, 0x02023e7e + jpOffset }, },
+		gWishFutureKnock = { 0x02024dbc, 0x020243d0, { 0x02023f20, 0x02023f20 + jpOffset }, },
+		-- NatDex (Emerald only; FRLG is already correct)
+		gLockedMoves_NatDex_113 = { 0x02024264, 0x02024264, nil, },
+		gSideStatuses_NatDex_113 = { 0x0202428a, 0x0202428a, nil, },
+		gSideTimers_NatDex_113 = { 0x02024290, 0x02024290, nil, },
+		gStatuses3_NatDex_113 = { 0x020242a8, 0x020242a8, nil, },
+		gDisableStructs_NatDex_113 = { 0x020242b8, 0x020242b8, nil, },
+		gPaydayMoney_NatDex_113 = { 0x0202432a, 0x0202432a, nil, },
+		gWishFutureKnock_NatDex_113 = { 0x020243cc, 0x020243cc, nil, },
 
 		-- RS uses saveblock directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
