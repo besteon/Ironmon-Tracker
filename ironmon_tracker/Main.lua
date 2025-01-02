@@ -36,6 +36,7 @@ function Main.Initialize()
 	Main.loadNextSeed = false -- When enabled, exits the game loop to safely load a new game rom
 	Main.updateRequested = false -- When enabled, exits the game loop to safely shut down and self-update the Tracker
 	Main.forceRestart = false -- When enabled, exits the game loop to refresh and reload all Tracker scripts
+	Main.loadDifferentRom = nil -- Holds a filepath to a different rom to load up; loaded immediately on the next frame
 
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
@@ -185,7 +186,7 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
-		while not (Main.loadNextSeed or Main.updateRequested or Main.forceRestart) do
+		while not (Main.loadNextSeed or Main.updateRequested or Main.forceRestart or Main.loadDifferentRom) do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
@@ -196,6 +197,10 @@ function Main.Run()
 			UpdateScreen.performUpdate()
 		elseif Main.forceRestart then
 			Main.ExitSafely(false)
+			IronmonTracker.startTracker()
+		elseif Main.loadDifferentRom then
+			Main.ExitSafely(false)
+			Main.LoadRom(Main.loadDifferentRom)
 			IronmonTracker.startTracker()
 		end
 	else
