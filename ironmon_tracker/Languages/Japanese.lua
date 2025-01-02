@@ -219,6 +219,7 @@ ScreenResources{
 		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION
 		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
+		CarouselBattleDetails = "Additional battle details", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
@@ -280,7 +281,6 @@ ScreenResources{
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
-		OptionShowAdditionalBattleDetails = "Show additional battle details", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
@@ -894,7 +894,6 @@ ScreenResources{
 		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
 		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
-		OptionShowAdditionalBattleDetails = "Show additional battle details", -- NEEDS TRANSLATION
 		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION

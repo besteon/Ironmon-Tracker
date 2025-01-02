@@ -18,6 +18,21 @@ BattleDetailsScreen = {
 	},
 	Addresses = {
 		offsetBattleMonsStatus2 = 0x50, -- gBattleMons
+		offsetBattleStructWrappedBy = 0x14,
+		sizeofStatus3 = 0x4,
+		sizeofSideStatuses = 0x2,
+		sizeofSideTimers = 0xC,
+		sizeofDisableStruct = 0x1C,
+		offsetTimerReflect = 0x0,
+		offsetTimerLightScreen = 0x2,
+		offsetTimerSpikes = 0xA,
+		offsetTimerSafeguard = 0x6,
+		offsetTimerMist = 0x4,
+		offsetWishStructFutureCounter = 0x0,
+		offsetWishStructFutureSource = 0x4,
+		offsetWishStructWishCounter = 0x20,
+		offsetWishStructWishSource = 0x24,
+		offsetWishStructKnockOff = 0x29,
 	},
 	viewingIndividualStatuses = true,
 	viewingSideStauses = false,
@@ -322,6 +337,11 @@ function SCREEN.updateData(buildPagedButtons)
 		return
 	end
 
+	-- TEMPORARY TODO: Don't calc data for some Rom Hacks, as they're missing game addresses
+	if CustomCode.RomHacks.isPlayingMoveExpansion() then
+		return
+	end
+
 	SCREEN.clearBuiltData()
 
 	-- Read in battle details data from the game
@@ -335,6 +355,18 @@ function SCREEN.updateData(buildPagedButtons)
 		SCREEN.GameFuncs.readWishStruct(i)
 	end
 
+	SCREEN.summarizeDetails()
+
+	SCREEN.Data.isReady = true
+
+	-- If viewing this screen, build pager buttons to display known battle details
+	if buildPagedButtons or Program.currentScreen == SCREEN then
+		SCREEN.buildPagedButtons()
+	end
+end
+
+
+function SCREEN.summarizeDetails()
 	-- Summarize battle details by getting the first relevant item
 	local function _getFirstDetail(detailsTableList)
 		for _, detailsList in ipairs(detailsTableList or {}) do
@@ -348,26 +380,18 @@ function SCREEN.updateData(buildPagedButtons)
 		or _getFirstDetail(SCREEN.Data.PerSideDetails)
 		or _getFirstDetail({SCREEN.Data.FieldDetails}) -- embed in its own list for looping convenience
 
-	local firstDetailText
 	if firstDetail and type(firstDetail.getText) == "function" then
 		-- Get text and remove any parenthesis
-		firstDetailText = Utils.replaceText(firstDetail:getText(), "%(.*%)", "")
+		-- local summaryText = Utils.replaceText(firstDetail:getText(), "%(.*%)", "")
+		-- TODO: mention ally/enemy source
+		local summaryText = firstDetail:getText()
 		-- Trim whitespace
-		firstDetailText = firstDetailText:match("^%s*(.-)%s*$") or ""
+		summaryText = summaryText:match("^%s*(.-)%s*$") or ""
 		-- Shorten to fit on screen
-		firstDetailText = Utils.shortenText(firstDetailText, 57, true)
-	end
-	if not Utils.isNilOrEmpty(firstDetailText) then
-		SCREEN.Data.DetailsSummary = string.format("(%s)", firstDetailText)
+		summaryText = Utils.shortenText(summaryText, 123, true)
+		SCREEN.Data.DetailsSummary = summaryText
 	else
 		SCREEN.Data.DetailsSummary = ""
-	end
-
-	SCREEN.Data.isReady = true
-
-	-- If viewing this screen, build pager buttons to display known battle details
-	if buildPagedButtons or Program.currentScreen == SCREEN then
-		SCREEN.buildPagedButtons()
 	end
 end
 
@@ -828,8 +852,7 @@ function SCREEN.GameFuncs.readStatus2(index)
 	end
 	-- TRAPPED
 	if status2Map[13] or status2Map[14] or status2Map[15] then
-		-- TODO: Addresses 0x14
-		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
+		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + SCREEN.Addresses.offsetBattleStructWrappedBy + index)
 		local sourcePokemon = _getSourceMon(sourceBattlerIndex)
 		if sourcePokemon then
 			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
@@ -1011,8 +1034,7 @@ function SCREEN.GameFuncs.readStatus3(index)
 		return sourcePokemon
 	end
 
-	-- TODO: What is 0x04
-	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * (0x04))
+	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * SCREEN.Addresses.sizeofStatus3)
 	local status3Map = Utils.generateBitwiseMap(status3Data, 21)
 
 	-- LEECH SEED
@@ -1186,14 +1208,13 @@ function SCREEN.GameFuncs.readSideStatuses(index)
 		SIDE_DETAILS = SCREEN.Data.PerSideDetails[index]
 	end
 
-	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
-	-- TODO: What is 0x0C
-	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
+	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * SCREEN.Addresses.sizeofSideStatuses))
+	local sideTimersBase = GameSettings.gSideTimers + (index * SCREEN.Addresses.sizeofSideTimers)
 	local sideStatusMap = Utils.generateBitwiseMap(sideStatuses, 9)
 
 	-- REFLECT
 	if sideStatusMap[0] then
-		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
+		local turnsLeftReflect = Memory.readbyte(sideTimersBase + SCREEN.Addresses.offsetTimerReflect)
 		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
 			Value = turnsLeftReflect,
 			MoveId = MoveData.Values.ReflectId or 115,
@@ -1210,7 +1231,7 @@ function SCREEN.GameFuncs.readSideStatuses(index)
 	end
 	-- LIGHT SCREEN
 	if sideStatusMap[1] then
-		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + 0x02)
+		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + SCREEN.Addresses.offsetTimerLightScreen)
 		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
 			Value = turnsLeftLightScreen,
 			MoveId = MoveData.Values.LightScreenId or 113,
@@ -1227,7 +1248,7 @@ function SCREEN.GameFuncs.readSideStatuses(index)
 	end
 	-- SPIKES
 	if sideStatusMap[4] then
-		local amountSpikes = Memory.readbyte(sideTimersBase + 0x0A)
+		local amountSpikes = Memory.readbyte(sideTimersBase + SCREEN.Addresses.offsetTimerSpikes)
 		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
 			Value = amountSpikes,
 			MoveId = MoveData.Values.SpikesId or 191,
@@ -1241,7 +1262,7 @@ function SCREEN.GameFuncs.readSideStatuses(index)
 	end
 	-- SAFEGUARD
 	if sideStatusMap[5] then
-		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + 0x06)
+		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + SCREEN.Addresses.offsetTimerSafeguard)
 		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
 			Value = turnsLeftSafeguard,
 			MoveId = MoveData.Values.SafeguardId or 219,
@@ -1258,7 +1279,7 @@ function SCREEN.GameFuncs.readSideStatuses(index)
 	end
 	-- MIST
 	if sideStatusMap[8] then
-		local turnsLeftMist = Memory.readbyte(sideTimersBase + 0x04)
+		local turnsLeftMist = Memory.readbyte(sideTimersBase + SCREEN.Addresses.offsetTimerMist)
 		table.insert(SIDE_DETAILS, SCREEN.IBattleDetail:new({
 			Value = turnsLeftMist,
 			MoveId = MoveData.Values.MistId or 54,
@@ -1330,8 +1351,7 @@ function SCREEN.GameFuncs.readDisableStruct(index)
 		return sourcePokemon
 	end
 
-	-- TODO: What is 0x1C
-	local disableStructBase = GameSettings.gDisableStructs + (index * 0x1C)
+	local disableStructBase = GameSettings.gDisableStructs + (index * SCREEN.Addresses.sizeofDisableStruct)
 
 	-- DISABLE
 	local disabledMove = Memory.readword(disableStructBase + 0x04)
@@ -1361,7 +1381,7 @@ function SCREEN.GameFuncs.readDisableStruct(index)
 			end,
 		}))
 	end
-	-- PROTECT (or detect)
+	-- PROTECT (or detect I guess)
 	local protectUses = Memory.readbyte(disableStructBase + 0x08)
 	if protectUses ~= 0 then
 		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
@@ -1530,9 +1550,9 @@ function SCREEN.GameFuncs.readWishStruct(index)
 	local wishStructBase = GameSettings.gWishFutureKnock
 
 	-- FUTURE SIGHT
-	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
+	local futureSightCounter = Memory.readbyte(wishStructBase + SCREEN.Addresses.offsetWishStructFutureCounter + index)
 	if futureSightCounter ~= 0 then
-		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
+		local futureSightSource = Memory.readbyte(wishStructBase + SCREEN.Addresses.offsetWishStructFutureSource + index)
 		local sourcePokemon = _getSourceMon(futureSightSource)
 		if sourcePokemon then
 			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
@@ -1556,9 +1576,9 @@ function SCREEN.GameFuncs.readWishStruct(index)
 		end
 	end
 	-- WISH
-	local wishCounter = Memory.readbyte(wishStructBase + 0x20 + (index * 0x1))
+	local wishCounter = Memory.readbyte(wishStructBase + SCREEN.Addresses.offsetWishStructWishCounter + index)
 	if wishCounter ~= 0 then
-		local wishSource = Memory.readbyte(wishStructBase + 0x24 + (index * 0x1))
+		local wishSource = Memory.readbyte(wishStructBase + SCREEN.Addresses.offsetWishStructWishSource + index)
 		local sourcePokemon = _getSourceMon(wishSource)
 		if sourcePokemon then
 			table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
@@ -1584,7 +1604,7 @@ function SCREEN.GameFuncs.readWishStruct(index)
 	end
 	-- KNOCK OFF
 	local indexOffset = (index < 2 and 0) or 1
-	local knockOffCheck = Memory.readbyte(wishStructBase + 0x29 + (index * 0x1) + indexOffset)
+	local knockOffCheck = Memory.readbyte(wishStructBase + SCREEN.Addresses.offsetWishStructKnockOff + index + indexOffset)
 	if knockOffCheck ~= 0 then
 		table.insert(MON_DETAILS, SCREEN.IBattleDetail:new({
 			MoveId = MoveData.Values.KnockOffId or 282,

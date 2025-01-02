@@ -120,7 +120,6 @@ function GameOptionsScreen.createButtons()
 		{ "Show move effectiveness", "OptionShowMoveEffectiveness", },
 		{ "Calculate variable damage", "OptionCalculateVariableDamage", },
 		{ "Show Poke Ball catch rate", "OptionShowBallCatchRate", },
-		{ "Show additional battle details", "OptionShowAdditionalBattleDetails", },
 		{ "Count enemy PP usage", "OptionCountEnemyPP", },
 		{ "Show last damage calcs", "OptionShowLastDamage", },
 		{ "Reveal info if randomized", "OptionRevealRandomizedInfo", },

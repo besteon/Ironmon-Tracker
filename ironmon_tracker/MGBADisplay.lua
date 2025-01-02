@@ -954,18 +954,12 @@ MGBADisplay.Utils = {
 				local badgeText = string.format("[%s]", Utils.inlineIf(badgeButton.badgeState ~= 0, badgeNumber, " "))
 				carouselText = carouselText .. badgeText
 			end
-		elseif carousel.type == TrackerScreen.CarouselTypes.LAST_ATTACK then
-			carouselText = carouselContent
-		elseif carousel.type == TrackerScreen.CarouselTypes.ROUTE_INFO then
-			carouselText = carouselContent
 		elseif carousel.type == TrackerScreen.CarouselTypes.NOTES then
 			carouselText = Resources.MGBAScreens.PokemonInfoNote .. ": " .. carouselContent
-		elseif carousel.type == TrackerScreen.CarouselTypes.PEDOMETER then
-			carouselText = carouselContent
-		elseif carousel.type == TrackerScreen.CarouselTypes.TRAINERS then
+		else
 			carouselText = carouselContent
 		end
 
-		return carouselText
+		return carouselText or ""
 	end,
 }
