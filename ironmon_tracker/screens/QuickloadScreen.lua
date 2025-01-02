@@ -688,8 +688,9 @@ function QuickloadScreen.loadCurrentGamePrompt()
 
 	-- YES/NO
 	form.Controls.buttonYes = form:createButton(Resources.AllScreens.Yes, X + 50, lineY, function()
+		-- This will force the Tracker to load this rom on the next available frame
+		Main.loadDifferentRom = profile.Paths.CurrentRom
 		form:destroy()
-		Main.LoadRom(profile.Paths.CurrentRom)
 	end)
 	form.Controls.buttonNo = form:createButton(Resources.AllScreens.No, X + 140, lineY, function()
 		form:destroy()
@@ -987,8 +988,9 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 				profile.Paths.Tdat = newTdatFilepath
 			end
 		end
-		-- If no active profile has been selected yet, use this newly added one
-		local useThisAsActive = SCREEN.getActiveProfile() == nil
+		-- If no active profile has been selected yet, use this newly added one; or update active profile if this is the same one
+		local activeProfile = SCREEN.getActiveProfile()
+		local useThisAsActive = activeProfile == nil or activeProfile.GUID == profile.GUID
 		SCREEN.addUpdateProfile(profile, useThisAsActive)
 		form:destroy()
 		Program.redraw(true)
