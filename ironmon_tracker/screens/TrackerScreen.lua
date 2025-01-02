@@ -696,7 +696,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselBattleDetails.toggleState then
 				return false
 			end
-			return BattleDetailsScreen.hasDetails()
+			return Battle.inActiveBattle() and BattleDetailsScreen.hasDetails()
 		end,
 		getContentList = function(self)
 			TrackerScreen.Buttons.BattleDetailsSummary.updatedText = BattleDetailsScreen.Data.DetailsSummary

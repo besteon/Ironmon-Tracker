@@ -850,6 +850,7 @@ function Battle.endCurrentBattle()
 
 	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
+	BattleDetailsScreen.clearBuiltData()
 
 	Battle.opposingTrainerId = 0
 
