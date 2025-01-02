@@ -334,6 +334,9 @@ end
 
 function SCREEN.updateData(buildPagedButtons)
 	if not Battle.inActiveBattle() then
+		if SCREEN.hasDetails() then
+			SCREEN.clearBuiltData()
+		end
 		return
 	end
 
