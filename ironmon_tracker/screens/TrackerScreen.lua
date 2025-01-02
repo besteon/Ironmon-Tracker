@@ -358,7 +358,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 12, 12 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.BATTLE_DETAILS end,
 		onClick = function(self)
-			BattleDetailsScreen.resetToViewFirstMon()
 			BattleDetailsScreen.updateData(true)
 			Program.changeScreenView(BattleDetailsScreen)
 		end,
@@ -699,11 +698,13 @@ function TrackerScreen.buildCarousel()
 			return Battle.inActiveBattle() and BattleDetailsScreen.hasDetails()
 		end,
 		getContentList = function(self)
-			TrackerScreen.Buttons.BattleDetailsSummary.updatedText = BattleDetailsScreen.Data.DetailsSummary
+			local viewIndex = Battle.getViewedIndex()
+			local summaryText = BattleDetailsScreen.Data.DetailsSummary[viewIndex] or ""
+			TrackerScreen.Buttons.BattleDetailsSummary.updatedText = summaryText
 			if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.BattleDetailsSummary }
 			else
-				return BattleDetailsScreen.Data.DetailsSummary or ""
+				return summaryText
 			end
 		end,
 	}

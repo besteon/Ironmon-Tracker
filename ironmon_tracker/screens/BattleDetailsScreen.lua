@@ -7,13 +7,17 @@ BattleDetailsScreen = {
 		boxFill = "Upper box background",
 	},
 	Data = {
-		-- A short one/two word summary of top-most battle detail
-		DetailsSummary = "",
-
+		-- The Resource key representing the current terrain used for the battle
 		TerrainKey = "",
+		-- The Resource key representing the current active weather in the battle (if any)
 		WeatherKey = "",
+		-- A short one/two word summary of top-most battle detail for each battler (index: 0-3)
+		DetailsSummary = {},
+		-- All known battle details affecting the entire battle field
 		FieldDetails = {},
+		-- All known battle details affecting each side, for ally or enemy (index: 0-1)
 		PerSideDetails = {},
+		-- All known battle details for each battler (index: 0-3)
 		PerMonDetails = {},
 	},
 	Addresses = {
@@ -312,7 +316,6 @@ SCREEN.Buttons = {
 	Back = Drawing.createUIElementBackButton(function()
 		Program.changeScreenView(SCREEN.previousScreen or TrackerScreen)
 		SCREEN.previousScreen = nil
-		SCREEN.resetToViewFirstMon()
 	end),
 }
 
@@ -329,12 +332,13 @@ function SCREEN.initialize()
 end
 
 function SCREEN.hasDetails()
-	return not Utils.isNilOrEmpty(SCREEN.Data.DetailsSummary)
+	local viewIndex = Battle.getViewedIndex() or 0
+	return not Utils.isNilOrEmpty(SCREEN.Data.DetailsSummary[viewIndex])
 end
 
 function SCREEN.updateData(buildPagedButtons)
 	if not Battle.inActiveBattle() then
-		if SCREEN.hasDetails() then
+		if SCREEN.Data.isReady then
 			SCREEN.clearBuiltData()
 		end
 		return
@@ -356,9 +360,8 @@ function SCREEN.updateData(buildPagedButtons)
 		SCREEN.GameFuncs.readSideStatuses(i)
 		SCREEN.GameFuncs.readDisableStruct(i)
 		SCREEN.GameFuncs.readWishStruct(i)
+		SCREEN.summarizeDetails(i)
 	end
-
-	SCREEN.summarizeDetails()
 
 	SCREEN.Data.isReady = true
 
@@ -368,20 +371,17 @@ function SCREEN.updateData(buildPagedButtons)
 	end
 end
 
-
-function SCREEN.summarizeDetails()
-	-- Summarize battle details by getting the first relevant item
-	local function _getFirstDetail(detailsTableList)
-		for _, detailsList in ipairs(detailsTableList or {}) do
-			-- Return the first
-			if detailsList[1] then
-				return detailsList[1]
-			end
-		end
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
+function SCREEN.summarizeDetails(index)
+	if not index or index < 0 or index > 3 then
+		return
 	end
-	local firstDetail = _getFirstDetail(SCREEN.Data.PerMonDetails)
-		or _getFirstDetail(SCREEN.Data.PerSideDetails)
-		or _getFirstDetail({SCREEN.Data.FieldDetails}) -- embed in its own list for looping convenience
+	local sideIndex = index % 2
+
+	-- Summarize battle details by getting the first relevant item
+	local firstDetail = SCREEN.Data.PerMonDetails[index][1]
+		or SCREEN.Data.PerSideDetails[sideIndex][1]
+		or SCREEN.Data.FieldDetails[1]
 
 	if firstDetail and type(firstDetail.getText) == "function" then
 		-- Get text and remove any parenthesis
@@ -392,9 +392,9 @@ function SCREEN.summarizeDetails()
 		summaryText = summaryText:match("^%s*(.-)%s*$") or ""
 		-- Shorten to fit on screen
 		summaryText = Utils.shortenText(summaryText, 123, true)
-		SCREEN.Data.DetailsSummary = summaryText
+		SCREEN.Data.DetailsSummary[index] = summaryText
 	else
-		SCREEN.Data.DetailsSummary = ""
+		SCREEN.Data.DetailsSummary[index] = ""
 	end
 end
 
@@ -462,9 +462,15 @@ end
 function SCREEN.clearBuiltData(clearViewIndex)
 	SCREEN.Data = {
 		isReady = false,
-		DetailsSummary = "",
 		TerrainKey = SCREEN.Maps.TerrainToNameKey["default"],
 		WeatherKey = SCREEN.Maps.WeatherToNameKey["default"],
+
+		DetailsSummary = {
+			[0] = "",
+			[1] = "",
+			[2] = "",
+			[3] = "",
+		},
 
 		-- List of IBattleDetail; details about the battle field itself (i.e. Pay Day, Mud Sport)
 		FieldDetails = {},
@@ -490,15 +496,15 @@ function SCREEN.clearBuiltData(clearViewIndex)
 
 	-- Only reset viewing index if not viewing this screen already
 	if clearViewIndex or Program.currentScreen ~= SCREEN then
-		SCREEN.resetToViewFirstMon()
+		SCREEN.resetViewIndex()
 	end
 end
 
-function SCREEN.resetToViewFirstMon()
+function SCREEN.resetViewIndex()
 	SCREEN.viewingIndividualStatuses = true
 	SCREEN.viewingSideStauses = false
-	SCREEN.viewedMonIndex = 0
-	SCREEN.viewedSideIndex = 0
+	SCREEN.viewedMonIndex = Battle.getViewedIndex() -- [Index: 0-3]
+	SCREEN.viewedSideIndex = SCREEN.viewedMonIndex % 2 -- 0: Ally, 1: Enemy
 end
 
 function SCREEN.refreshButtons()
@@ -1185,7 +1191,7 @@ function SCREEN.GameFuncs.readSideStatuses(index)
 	#define SIDE_STATUS_SPIKES           (1 << 4)
 	#define SIDE_STATUS_SAFEGUARD        (1 << 5)
 	#define SIDE_STATUS_FUTUREATTACK     (1 << 6)
-	#define SIDE_STATUS_MIST             (1 << 8)
+	#define SIDE_STATUS_MIST             (1 << 8) -- Includes Guard Spec.
 	#define SIDE_STATUS_SPIKES_DAMAGED   (1 << 9)
 
 	gSideTimers[2] (0x0B)
