@@ -141,7 +141,8 @@ function LogTabTMs.buildGymTMButtons()
 		local trainerLog = RandomizerLog.Data.Trainers[tmButton.trainerId or -1] or {}
 
 		if tmButton.group == "Gym TMs" then
-			local badgeName = GameSettings.badgePrefix .. "_badge" .. tmButton.gymNumber
+			local badgePrefix = Constants.Badges[GameSettings.game].Prefix
+			local badgeName = badgePrefix .. "_badge" .. tmButton.gymNumber
 			local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
 			local gymLabel = string.format("%s %s", Resources.LogOverlay.FilterGym, tmButton.gymNumber or 0)
 

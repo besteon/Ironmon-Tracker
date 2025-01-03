@@ -257,7 +257,8 @@ function LogTabTrainerDetails.drawTab()
 
 	-- GYM LEADER BADGE
 	if data.x.gymNumber ~= nil then
-		local badgeName = GameSettings.badgePrefix .. "_badge" .. data.x.gymNumber
+		local badgePrefix = Constants.Badges[GameSettings.game].Prefix
+		local badgeName = badgePrefix .. "_badge" .. data.x.gymNumber
 		local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
 		Drawing.drawImage(badgeImage, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y + 2)
 	end

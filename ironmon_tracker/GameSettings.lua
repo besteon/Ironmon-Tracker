@@ -257,8 +257,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 1,
 			VERSION_COLOR = "Ruby",
 			LANGUAGE = "English",
-			BADGE_PREFIX = "RSE",
-			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
 		},
 		[0x41585045] = {
 			GAME_NUMBER = 1,
@@ -266,8 +264,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 1,
 			VERSION_COLOR = "Sapphire",
 			LANGUAGE = "English",
-			BADGE_PREFIX = "RSE",
-			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
 		},
 		[0x42504545] = {
 			GAME_NUMBER = 2,
@@ -275,8 +271,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 1,
 			VERSION_COLOR = "Emerald",
 			LANGUAGE = "English",
-			BADGE_PREFIX = "RSE",
-			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
 		},
 		[0x42505245] = {
 			GAME_NUMBER = 3,
@@ -284,8 +278,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			LANGUAGE = "English",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 		[0x42505253] = {
 			GAME_NUMBER = 3,
@@ -293,8 +285,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			LANGUAGE = "Spanish",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 		[0x42505249] = {
 			GAME_NUMBER = 3,
@@ -302,8 +292,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			LANGUAGE = "Italian",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 		[0x42505246] = {
 			GAME_NUMBER = 3,
@@ -311,8 +299,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			LANGUAGE = "French",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 		[0x42505244] = {
 			GAME_NUMBER = 3,
@@ -320,8 +306,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			LANGUAGE = "German",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 		[0x4250524A] = {
 			GAME_NUMBER = 3,
@@ -329,8 +313,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			LANGUAGE = "Japanese",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 		[0x42504745] = {
 			GAME_NUMBER = 3,
@@ -338,8 +320,6 @@ function GameSettings.setGameInfo(gamecode)
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "LeafGreen",
 			LANGUAGE = "English",
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
 	}
 
@@ -351,8 +331,6 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.versiongroup = game.VERSION_GROUP -- 1:Ruby/Sapphire/Emerald, 2:FireRed/LeafGreen
 		GameSettings.versioncolor = game.VERSION_COLOR
 		GameSettings.language = game.LANGUAGE
-		GameSettings.badgePrefix = game.BADGE_PREFIX
-		GameSettings.badgeXOffsets = game.BADGE_XOFFSETS
 	else
 		GameSettings.gamename = "Unsupported Game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
