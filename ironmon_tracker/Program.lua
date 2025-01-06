@@ -331,6 +331,7 @@ end
 
 function Program.delayedStartup()
 	Options.alertImportantChanges()
+	GameSettings.exportToJson()
 end
 
 function Program.mainLoop()

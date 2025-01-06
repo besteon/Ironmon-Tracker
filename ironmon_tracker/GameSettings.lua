@@ -1,3 +1,4 @@
+-- Holds relevant game addresses for game currently being played. On Tracker startup, this will load those addresses from a JSON file in ~\ironmon_tracker\GameAddresses\
 GameSettings = {}
 
 GameSettings.RomHackSupport = {
@@ -198,22 +199,78 @@ GameSettings.GameCharMap = {
 	[0xFF] = '$',
 }
 
-function GameSettings.initialize()
-	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+GameSettings.Export = {}
+GameSettings.ExportOverrides = {}
 
-	-- Don't load game address again if it's the same game
-	if GameSettings.hasInitialized and GameSettings.gamecode == gamecode then
-		return
+--[[
+JSON File Format: Individual Game Version:
+{
+	"GameInfo":{
+		"GameCode":number,
+		"VersionColor":string,
+		"Language":string,
+		"VersionName":string,
+		"VersionGroup":number,
+		"GameName":string,
+		"GameNumber:number,
+	},
+	"Addresses":{
+		"NameKey":string(hexcode),
+		...
+	},
+	"AbilityAddresses":{
+		"AbilityTriggerNameKey":{
+			"sourceTrigger":string,
+			"abilityIds":array(number),
+			"address":string(hexcode),
+			"scope":string,
+		},
+		...
+	},
+}
+JSON File Format: Various Tracker Address/Value Overrides:
+{
+	"FileNameKey":{
+		"Addresses":{
+			"NameKey":string(hexcode),
+			...
+		},
+		"Values":{
+			"NameKey":number,
+			"NameKey":string(hexcode),
+			...
+		},
+	},
+	...
+}
+]]
+
+local function _valueToString(value)
+	if type(value) == "number" then
+		return string.format("%x", value):upper()
+	else
+		return value
 	end
+end
+
+function GameSettings.initialize()
+	-- TODO: The two things needed to load a game json file is:
+	-- 1. gamecode
+	-- 2. gameversion
+	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
+
+	GameSettings.Export = {
+		GameInfo = {},
+		Addresses = {},
+		AbilityAddresses = {},
+	}
+	GameSettings.ExportOverrides = {}
 
 	GameSettings.setGameInfo(gamecode)
 
-	-- Skip rest of setup if game not supported
-	if GameSettings.gamename == "Unsupported Game" then
-		return
-	end
+	-- TODO: gameIndex / versionIndex no longer needed; loading entire json file
 
-	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
 	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
 	-- 0x02...
@@ -224,7 +281,55 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
-	GameSettings.hasInitialized = true
+end
+
+local function _buildOverridesExport()
+	GameSettings.ExportOverrides = {}
+
+	-- list of screens that have `Addresses` and/or `Values` overrides that need to be exported
+	local screens = {
+		{ key = "Program", object = Program, },
+		{ key = "BattleDetailsScreen", object = BattleDetailsScreen, },
+		{ key = "PokemonData", object = PokemonData, },
+		{ key = "MoveData", object = MoveData, },
+		{ key = "AbilityData", object = AbilityData, },
+	}
+	local screenAttributeKeys = { "Addresses", "Values", }
+
+	local GSEO = GameSettings.ExportOverrides
+	for _, screenPair in ipairs(screens) do
+		GSEO[screenPair.key] = {} -- ExportOverrides.Program = {}
+		local exportScreenTable = GSEO[screenPair.key]
+
+		for _, attributeKey in ipairs(screenAttributeKeys) do
+			local tableData = screenPair.object[attributeKey]
+			if type(tableData) == "table" then
+				exportScreenTable[attributeKey] = {}  -- ExportOverrides.Program.Addresses = {}
+
+				for k, v in pairs(tableData or {}) do
+					if attributeKey == "Addresses" and type(v) == "number" then
+						exportScreenTable[attributeKey][k] = _valueToString(v)
+					else
+						exportScreenTable[attributeKey][k] = v
+					end
+				end
+				-- exportScreenTable[attributeKey] = screenPair.object[attributeKey]
+			end
+		end
+	end
+end
+
+function GameSettings.exportToJson()
+	-- TODO: DEBUG, remove this later (And its references)
+	local jsonFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses, true)
+	local jsonFilename = Utils.replaceText(GameSettings.fullVersionName, "é", "e") .. ".json"
+	local success = FileManager.encodeToJsonFile(jsonFolder .. jsonFilename, GameSettings.Export)
+	Utils.printDebug("%s -> %s", jsonFolder .. jsonFilename, tostring(success))
+
+	_buildOverridesExport()
+	local overridesFilename = "TrackerOverrides.json"
+	success = FileManager.encodeToJsonFile(jsonFolder .. overridesFilename, GameSettings.ExportOverrides)
+	Utils.printDebug("%s -> %s", jsonFolder .. overridesFilename, tostring(success))
 end
 
 ---Gets the ROM name as defined by the emulator, or an empty string if not found
@@ -331,6 +436,14 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.versiongroup = game.VERSION_GROUP -- 1:Ruby/Sapphire/Emerald, 2:FireRed/LeafGreen
 		GameSettings.versioncolor = game.VERSION_COLOR
 		GameSettings.language = game.LANGUAGE
+
+		-- DEBUG
+		GameSettings.Export.GameInfo.GameCode = GameSettings.gamecode
+		GameSettings.Export.GameInfo.GameName = GameSettings.gamename
+		GameSettings.Export.GameInfo.GameNumber = GameSettings.game
+		GameSettings.Export.GameInfo.VersionGroup = GameSettings.versiongroup
+		GameSettings.Export.GameInfo.VersionColor = GameSettings.versioncolor
+		GameSettings.Export.GameInfo.Language = GameSettings.language
 	else
 		GameSettings.gamename = "Unsupported Game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
@@ -425,6 +538,9 @@ function GameSettings.setGameVersion(gameversion)
 
 	local gameInfo = games[GameSettings.versioncolor]
 	GameSettings.fullVersionName = gameInfo[gameversion].versionName
+
+	-- DEBUG
+	GameSettings.Export.GameInfo.VersionName = GameSettings.fullVersionName
 
 	return gameInfo.gameIndex, gameInfo[gameversion].versionIndex
 end
@@ -544,6 +660,7 @@ function GameSettings.setEwramAddresses()
 		end
 		if value ~= nil then
 			GameSettings[key] = value
+			GameSettings.Export.Addresses[key] = _valueToString(value)
 		end
 	end
 end
@@ -591,6 +708,7 @@ function GameSettings.setIwramAddresses()
 			local languageValue = gameValue[languageIndex]
 			if languageValue ~= nil then
 				GameSettings[key] = languageValue
+				GameSettings.Export.Addresses[key] = _valueToString(languageValue)
 			end
 		end
 	end
@@ -864,6 +982,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			local versionValue = gameValue[versionIndex]
 			if versionValue ~= nil then
 				GameSettings[key] = versionValue
+				GameSettings.Export.Addresses[key] = _valueToString(versionValue)
 			end
 		end
 	end
@@ -1222,120 +1341,231 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 
 	-- Map the BattleScript addresses to the relevant abilityID's for ability tracking
 	GameSettings.ABILITIES = {
-		BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
-			[abilityScripts.DrizzleActivates[gameIndex][versionIndex]] = {[2] = true}, -- Drizzle
-			[abilityScripts.SpeedBoostActivates[gameIndex][versionIndex]] = {[3] = true}, -- Speed Boost
-			[abilityScripts.IntimidateAbilityFail[gameIndex][versionIndex]] = {[22] = true}, -- Intimidate Fail
-			[abilityScripts.IntimidateActivationAnimLoop[gameIndex][versionIndex]] = {[22] = true}, -- Intimidate Succeed
-			[abilityScripts.TraceActivates[gameIndex][versionIndex]] = {[36] = true}, -- Trace
-			[abilityScripts.PerishSongNotAffected[gameIndex][versionIndex]] = {[43] = true}, -- Soundproof (Perish Song)
-			[abilityScripts.SandstreamActivates[gameIndex][versionIndex]] = {[45] = true}, -- Sand Stream
-			[abilityScripts.ShedSkinActivates[gameIndex][versionIndex]] = {[61] = true}, -- Shed Skin
-			[abilityScripts.DroughtActivates[gameIndex][versionIndex]] = {[70] = true}, -- Drought
-			[abilityScripts.AbilityNoStatLoss[gameIndex][versionIndex]] = {
-				[29] = true, -- Clear Body
-				[73] = true, -- White Smoke
-			},
-			[abilityScripts.AbilityNoSpecificStatLoss[gameIndex][versionIndex]] = {
-				[51] = true, -- Keen Eye
-				[52] = true, -- Hyper Cutter
-			},
+		DrizzleActivates = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.DrizzleActivates[gameIndex][versionIndex],
+			abilityIds = { 2 },
+		}, -- Drizzle
+		SpeedBoostActivates = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.SpeedBoostActivates[gameIndex][versionIndex],
+			abilityIds = { 3 },
+		}, -- Speed Boost
+		IntimidateFail = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.IntimidateAbilityFail[gameIndex][versionIndex],
+			abilityIds = { 22 },
+		}, -- Intimidate Fail
+		IntimidateActivationAnimLoop = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.IntimidateActivationAnimLoop[gameIndex][versionIndex],
+			abilityIds = { 22 },
+		}, -- Intimidate Succeed
+		TraceActivates = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.TraceActivates[gameIndex][versionIndex],
+			abilityIds = { 36 },
+		}, -- Trace
+		PerishSongNotAffected = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.PerishSongNotAffected[gameIndex][versionIndex],
+			abilityIds = { 43 },
+		}, -- Soundproof (Perish Song)
+		SandstreamActivates = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.SandstreamActivates[gameIndex][versionIndex],
+			abilityIds = { 45 },
+		}, -- Sand Stream
+		ShedSkinActivates = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.ShedSkinActivates[gameIndex][versionIndex],
+			abilityIds = { 61 },
+		}, -- Shed Skin
+		DroughtActivates = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.DroughtActivates[gameIndex][versionIndex],
+			abilityIds = { 70 },
+		}, -- Drought
+		AbilityNoStatLoss = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.AbilityNoStatLoss[gameIndex][versionIndex],
+			abilityIds = { 29, 73 },
 		},
-		REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
-			[abilityScripts.IntimidateAbilityFail[gameIndex][versionIndex]] = { -- Intimidate Fail
-				[29] = true, -- Clear Body
-				[52] = true, -- Hyper Cutter
-				[73] = true, -- White Smoke
-			},
+		AbilityNoSpecificStatLoss = {
+			sourceTrigger = "BATTLER",
+			address = abilityScripts.AbilityNoSpecificStatLoss[gameIndex][versionIndex],
+			abilityIds = { 51, 52 },
 		},
-		ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
-			[abilityScripts.SturdyPreventsOHKO[gameIndex][versionIndex]] = {[5] = true}, -- Sturdy
-			[abilityScripts.ObliviousPreventsAttraction[gameIndex][versionIndex]] = {[12] = true}, -- Oblivious
-			[abilityScripts.ColorChangeActivates[gameIndex][versionIndex]] = {[16] = true}, -- Color Change
-			[abilityScripts.FlashFireBoost[gameIndex][versionIndex]] = {[18] = true}, -- Flash Fire
-			[abilityScripts.OwnTempoPrevents[gameIndex][versionIndex]] = {[20] = true}, -- Own Tempo
-			[abilityScripts.AbilityPreventsPhasingOut[gameIndex][versionIndex]] = {[21] = true}, -- Suction Cups
-			[abilityScripts.RoughSkinActivates[gameIndex][versionIndex]] = {[24] = true}, -- Rough Skin
-			[abilityScripts.CuteCharmActivates[gameIndex][versionIndex]] = {[56] = true}, -- Cute Charm
-			[abilityScripts.StickyHoldActivates[gameIndex][versionIndex]] = {[60] = true}, -- Sticky Hold
-			[abilityScripts.AbsorbUpdateHp[gameIndex][versionIndex]] = {[64] = true}, -- Liquid Ooze (Drain Moves)
-			[abilityScripts.TookAttack[gameIndex][versionIndex]] = {[31] = true}, -- LightningRod
-			[abilityScripts.MoveHPDrain[gameIndex][versionIndex]] = { -- Ability heals HP
-				[10] = true, -- Volt Absorb
-				[11] = true, -- Water Absorb
-			},
-			[abilityScripts.MonMadeMoveUseless[gameIndex][versionIndex]] = { -- Ability nullifies move
-				[10] = true, -- Volt Absorb
-				[11] = true, -- Water Absorb
-			},
-			[abilityScripts.PRLZPrevention[gameIndex][versionIndex]] = { -- Ability prevents paralysis
-				[7] = true, -- Limber
-				[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
-			},
-			[abilityScripts.PSNPrevention[gameIndex][versionIndex]] = { -- Ability prevents poison
-				[17] = true, -- Immunity
-				[28] = true, -- Synchronize (is unable to inflict poison on other mon)
-			},
-			[abilityScripts.BRNPrevention[gameIndex][versionIndex]] = { -- Ability prevents burn
-				[28] = true, -- Synchronize (is unable to inflict burn on other mon)
-				[41] = true, -- Water Veil
-			},
-			[abilityScripts.CantMakeAsleep[gameIndex][versionIndex]] = { -- Ability prevents sleep
-				[15] = true, -- Insomnia
-				[72] = true, -- Vital Spirit
-			},
-			[abilityScripts.PrintAbilityMadeIneffective[gameIndex][versionIndex]] = { -- Ability prevents sleep (Yawn)
-				[15] = true, -- Insomnia
-				[72] = true, -- Vital Spirit
-			},
-			[abilityScripts.FlinchPrevention[gameIndex][versionIndex]] = { -- Ability prevents flinching
-				[39] = true, -- Inner Focus
-			},
+		IntimidateFailReverse = { -- Intimidate Fail
+			sourceTrigger = "REVERSE_BATTLER",
+			address = abilityScripts.IntimidateAbilityFail[gameIndex][versionIndex],
+			abilityIds = { 29, 52, 73 },
 		},
-		REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
-			[abilityScripts.RainDishActivates[gameIndex][versionIndex]] = {[44] = true}, -- Rain Dish
-			[abilityScripts.MoveUsedLoafingAround[gameIndex][versionIndex]] = {[54] = true}, -- Truant
-			[abilityScripts.RestCantSleep[gameIndex][versionIndex]] = { -- Ability prevents sleep (Rest)
-				[15] = true, -- Insomnia
-				[72] = true, -- Vital Spirit
-			},
+		SturdyPreventsOHKO = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.SturdyPreventsOHKO[gameIndex][versionIndex],
+			abilityIds = { 5 },
+		}, -- Sturdy
+		ObliviousPreventsAttraction = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.ObliviousPreventsAttraction[gameIndex][versionIndex],
+			abilityIds = { 12 },
+		}, -- Oblivious
+		ColorChangeActivates = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.ColorChangeActivates[gameIndex][versionIndex],
+			abilityIds = { 16 },
+		}, -- Color Change
+		FlashFireBoost = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.FlashFireBoost[gameIndex][versionIndex],
+			abilityIds = { 18 },
+		}, -- Flash Fire
+		OwnTempoPrevents = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.OwnTempoPrevents[gameIndex][versionIndex],
+			abilityIds = { 20 },
+		}, -- Own Tempo
+		AbilityPreventsPhasingOut = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.AbilityPreventsPhasingOut[gameIndex][versionIndex],
+			abilityIds = { 21 },
+		}, -- Suction Cups
+		RoughSkinActivates = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.RoughSkinActivates[gameIndex][versionIndex],
+			abilityIds = { 24 },
+		}, -- Rough Skin
+		CuteCharmActivates = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.CuteCharmActivates[gameIndex][versionIndex],
+			abilityIds = { 56 },
+		}, -- Cute Charm
+		StickyHoldActivates = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.StickyHoldActivates[gameIndex][versionIndex],
+			abilityIds = { 60 },
+		}, -- Sticky Hold
+		AbsorbUpdateHp = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.AbsorbUpdateHp[gameIndex][versionIndex],
+			abilityIds = { 64 },
+		}, -- Liquid Ooze (Drain Moves)
+		TookAttack = {
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.TookAttack[gameIndex][versionIndex],
+			abilityIds = { 31 },
+		}, -- LightningRod
+		MoveHPDrain = { -- Ability heals HP
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.MoveHPDrain[gameIndex][versionIndex],
+			abilityIds = { 10, 11 },
 		},
-		STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
-			[abilityScripts.MoveEffectSleep[gameIndex][versionIndex]] = {[27] = true}, -- Effect Spore (Sleep)
-			[abilityScripts.MoveEffectParalysis[gameIndex][versionIndex]] = { -- Ability inflicts paralysis
-				[9] = true, -- Static
-				[27] = true, -- Effect Spore
-				[28] = true, -- Synchronize
-			},
-			[abilityScripts.MoveEffectPoison[gameIndex][versionIndex]] = { -- Abulity inflicts poison
-				[27] = true, -- Effect Spore
-				[28] = true, -- Synchronize
-				[38] = true, -- Poison Point
-			},
-			[abilityScripts.MoveEffectBurn[gameIndex][versionIndex]] = { -- Ability inflicts burn
-				[28] = true, -- Synchronize
-				[49] = true, -- Flame Body
-			},
+		MonMadeMoveUseless = { -- Ability nullifies move
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.MonMadeMoveUseless[gameIndex][versionIndex],
+			abilityIds = { 10, 11 },
 		},
-		BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
-			[abilityScripts.DampStopsExplosion[gameIndex][versionIndex]] = { -- Damp
-				[6] = true, -- Damp
-				scope = "both",
-			},
-			[abilityScripts.SoundproofProtected[gameIndex][versionIndex]] = { -- Soundproof (General)
-				[43] = true, -- Soundproof
-				scope = "self",
-			},
-			[abilityScripts.EffectHealBell[gameIndex][versionIndex]] = { -- Soundproof (Enemy uses Heal Bell)
-				[43] = true, -- Soundproof
-				scope = "self",
-			},
-			[abilityScripts.LeechSeedTurnPrintAndUpdateHp[gameIndex][versionIndex]] = { -- Liquid Ooze (Leech Seed)
-				[64] = true, -- Liquid Ooze
-				scope = "other",
-			},
+		PRLZPrevention = { -- Ability prevents paralysis
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.PRLZPrevention[gameIndex][versionIndex],
+			abilityIds = { 7, 28 },
+		},
+		PSNPrevention = { -- Ability prevents poison
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.PSNPrevention[gameIndex][versionIndex],
+			abilityIds = { 17, 28 },
+		},
+		BRNPrevention = { -- Ability prevents burn
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.BRNPrevention[gameIndex][versionIndex],
+			abilityIds = { 28, 41 },
+		},
+		CantMakeAsleep = { -- Ability prevents sleep
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.CantMakeAsleep[gameIndex][versionIndex],
+			abilityIds = { 15, 72 },
+		},
+		PrintAbilityMadeIneffective = { -- Ability prevents sleep (Yawn)
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.PrintAbilityMadeIneffective[gameIndex][versionIndex],
+			abilityIds = { 15, 72 },
+		},
+		FlinchPrevention = { -- Ability prevents flinching
+			sourceTrigger = "ATTACKER",
+			address = abilityScripts.FlinchPrevention[gameIndex][versionIndex],
+			abilityIds = { 39 },
+		},
+		RainDishActivates = {
+			sourceTrigger = "REVERSE_ATTACKER",
+			address = abilityScripts.RainDishActivates[gameIndex][versionIndex],
+			abilityIds = { 44 },
+		}, -- Rain Dish
+		MoveUsedLoafingAround = {
+			sourceTrigger = "REVERSE_ATTACKER",
+			address = abilityScripts.MoveUsedLoafingAround[gameIndex][versionIndex],
+			abilityIds = { 54 },
+		}, -- Truant
+		RestCantSleep = { -- Ability prevents sleep (Rest)
+			sourceTrigger = "REVERSE_ATTACKER",
+			address = abilityScripts.RestCantSleep[gameIndex][versionIndex],
+			abilityIds = { 15, 72 },
+		},
+		MoveEffectSleep = {
+			sourceTrigger = "STATUS_INFLICT",
+			address = abilityScripts.MoveEffectSleep[gameIndex][versionIndex],
+			abilityIds = { 27 },
+		}, -- Effect Spore (Sleep)
+		MoveEffectParalysis = { -- Ability inflicts paralysis
+			sourceTrigger = "STATUS_INFLICT",
+			address = abilityScripts.MoveEffectParalysis[gameIndex][versionIndex],
+			abilityIds = { 9, 27, 28 },
+		},
+		MoveEffectPoison = { -- Abulity inflicts poison
+			sourceTrigger = "STATUS_INFLICT",
+			address = abilityScripts.MoveEffectPoison[gameIndex][versionIndex],
+			abilityIds = { 27, 28, 38 },
+		},
+		MoveEffectBurn = { -- Ability inflicts burn
+			sourceTrigger = "STATUS_INFLICT",
+			address = abilityScripts.MoveEffectBurn[gameIndex][versionIndex],
+			abilityIds = { 28, 49 },
+		},
+		DampStopsExplosion = { -- Damp
+			sourceTrigger = "BATTLE_TARGET",
+			address = abilityScripts.DampStopsExplosion[gameIndex][versionIndex],
+			abilityIds = { 6 },
+			scope = "both",
+		},
+		SoundproofProtected = { -- Soundproof (General)
+			sourceTrigger = "BATTLE_TARGET",
+			address = abilityScripts.SoundproofProtected[gameIndex][versionIndex],
+			abilityIds = { 43 },
+			scope = "self",
+		},
+		EffectHealBell = { -- Soundproof (Enemy uses Heal Bell)
+			sourceTrigger = "BATTLE_TARGET",
+			address = abilityScripts.EffectHealBell[gameIndex][versionIndex],
+			abilityIds = { 43 },
+			scope = "self",
+		},
+		LeechSeedTurnPrintAndUpdateHp = { -- Liquid Ooze (Leech Seed)
+			sourceTrigger = "BATTLE_TARGET",
+			address = abilityScripts.LeechSeedTurnPrintAndUpdateHp[gameIndex][versionIndex],
+			abilityIds = { 64 },
+			scope = "other",
 		},
 	}
+
+	-- DEBUG
+	for triggerKey, abilityData in pairs(GameSettings.ABILITIES or {}) do
+		GameSettings.Export.AbilityAddresses[triggerKey] = {
+			sourceTrigger = abilityData.sourceTrigger,
+			address = _valueToString(abilityData.address),
+			abilityIds = abilityData.abilityIds,
+			scope = abilityData.scope,
+		}
+	end
 end
 
 function GameSettings.getTrackerAutoSaveName()

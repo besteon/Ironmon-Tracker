@@ -18,6 +18,7 @@ FileManager.Folders = {
 	ScreensCode = "screens",
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
+	GameAddresses = "GameAddresses",
 	Images = "images",
 	Trainers = "trainers",
 	TrainersPortraits = "trainerPortraits",
