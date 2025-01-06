@@ -711,7 +711,7 @@ function Battle.checkAbilitiesToTrack()
 
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + Program.Addresses.offsetBattleCommLevitate)
 	for i = 0, Battle.numBattlers - 1, 1 do
-		if levitateCheck == 4 and Battle.attacker ~= i and Battle.attacker ~= Battle.battlerTarget then
+		if levitateCheck == 4 and Battle.battlerTarget == i and battleTargetAbility == 26 then -- 26 = Levitate
 			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon
 		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then
