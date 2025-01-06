@@ -642,8 +642,8 @@ function Battle.checkAbilitiesToTrack()
 		abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
 		if abilityMsg ~= nil and abilityMsg[battlerAbility] then
 			-- Track a Traced pokemon's ability; need to grab the target from the buffers for doubles
-			if battlerAbility == 36 then
-				Battle.trackAbilityChanges(nil,36)
+			if battlerAbility == AbilityData.Values.TraceId then
+				Battle.trackAbilityChanges(nil, AbilityData.Values.TraceId)
 				local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
 				combatantIndexesToTrack[target] = target
 			else
@@ -711,7 +711,7 @@ function Battle.checkAbilitiesToTrack()
 
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + Program.Addresses.offsetBattleCommLevitate)
 	for i = 0, Battle.numBattlers - 1, 1 do
-		if levitateCheck == 4 and Battle.attacker ~= i and Battle.attacker ~= Battle.battlerTarget then
+		if levitateCheck == 4 and Battle.battlerTarget == i and battleTargetAbility == AbilityData.Values.LevitateId then
 			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon
 		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then
@@ -1003,7 +1003,7 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 
 	--check if ability changing move is being used. If so, make appropriate swaps in the table based on attacker/target
 	if moveUsed ~= nil and moveUsed ~=0 then
-		if moveUsed == 285 then
+		if moveUsed == MoveData.Values.SkillSwapId then
 			--Skill Swap; swap abilities and sources of target and attacker
 			local attackerTeamIndex =  Battle.attacker % 2
 			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
@@ -1020,14 +1020,14 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			Battle.BattleParties[targetTeamIndex][targetSlot].abilityOwner.isOwn = tempOwnerIsOwn
 			Battle.BattleParties[targetTeamIndex][targetSlot].abilityOwner.slot = tempOwnerSlot
 			Battle.BattleParties[targetTeamIndex][targetSlot].ability = tempAbility
-		elseif moveUsed == 272 or moveUsed == 144 then
+		elseif moveUsed == MoveData.Values.RolePlayId or moveUsed == MoveData.Values.TransformId then
 			--Role Play/Transform; copy abilities and sources of target and attacker, and turn on/off transform tracking
 			local attackerTeamIndex =  Battle.attacker % 2
 			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 			local targetTeamIndex =  Battle.battlerTarget % 2
 			local targetSlot = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
 
-			if moveUsed == 272 then
+			if moveUsed == MoveData.Values.RolePlayId then
 				local abilityOwner = Tracker.getPokemon(Battle.BattleParties[targetTeamIndex][targetSlot].abilityOwner.slot,Battle.BattleParties[targetTeamIndex][targetSlot].abilityOwner.isOwn)
 				if abilityOwner ~= nil then
 					Tracker.TrackAbility(abilityOwner.pokemonID, Battle.BattleParties[targetTeamIndex][targetSlot].ability)
@@ -1039,14 +1039,14 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			Battle.BattleParties[attackerTeamIndex][attackerSlot].ability = Battle.BattleParties[targetTeamIndex][targetSlot].ability
 
 			--Track Transform changes
-			if moveUsed == 144 then
+			if moveUsed == MoveData.Values.TransformId then
 				Battle.BattleParties[attackerTeamIndex][attackerSlot].transformData.isOwn = Battle.BattleParties[targetTeamIndex][targetSlot].transformData.isOwn
 				Battle.BattleParties[attackerTeamIndex][attackerSlot].transformData.slot = Battle.BattleParties[targetTeamIndex][targetSlot].transformData.slot
 			end
 
 		end
 	elseif ability ~= nil and ability ~=0 then
-		if ability == 36 then --Trace
+		if ability == AbilityData.Values.TraceId then --Trace
 			-- In double battles, Trace picks a random target, so we need to grab the battle index from the text variable, gBattleTextBuff1[2]
 			local tracerTeamIndex = Battle.battler % 2
 			local tracerTeamSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
