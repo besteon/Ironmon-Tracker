@@ -1,6 +1,8 @@
 AbilityData = {}
 
 AbilityData.Values = {
+	LevitateId = 26,
+	TraceId = 36,
 	HugePowerId = 37,
 	ThickFatId = 47,
 	TruantId = 54,
