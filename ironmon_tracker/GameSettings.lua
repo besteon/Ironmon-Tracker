@@ -66,6 +66,7 @@ General Notes:
 --[[ JSON File Formats
 - NOTE: any "string(hexcode)" will be converted (base 16) and used as a number;
 - any "number" value is treated as the regular numerical value (base 10)
+- Use https://beautifier.io/ for human readable formatting
 
 Individual Game Version: (i.e. "Pokemon FireRed v1.1.json")
 {
