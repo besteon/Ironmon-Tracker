@@ -379,6 +379,20 @@ function TrackerAPI.setLanguage(language)
 	end
 end
 
+---Imports all necessary ROM addresses and values from the a JSON file for the loaded game
+---@param filepath string A custom JSON file, usually for rom hacks; refer to GameSettings.lua for json file formatting
+---@return boolean success
+function TrackerAPI.loadGameSettingsFromJson(filepath)
+	return GameSettings.importAddressesFromJson(filepath)
+end
+
+---Imports all necessary Tracker Overrides (various hard-coded values) from the a JSON file for the loaded game
+---@param filepath string A custom JSON file, usually for rom hacks; refer to GameSettings.lua for json file formatting
+---@return boolean success
+function TrackerAPI.loadTrackerOverridesFromJson(filepath)
+	return GameSettings.importTrackerOverridesFromJson(filepath)
+end
+
 -----------------------------------
 ---  V. EXTENSIONS  ---------------
 -----------------------------------
