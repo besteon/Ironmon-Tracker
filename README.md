@@ -62,8 +62,7 @@ Trackers for other games:
 
 ## Latest Changes
 
-### Trainer Info and New Tracker Controls
-
+### New Run Profiles
 ![The New Runs setup screen, showing the Profiles tab with two profiles listed, one for Emerald Kaizo and the other for FireRed Subpar Kaizo.](https://github.com/user-attachments/assets/acee631e-f2b6-448f-8806-3c391e7d338e)
 
 ### Call Rates for All Ball Types
