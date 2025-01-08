@@ -4241,7 +4241,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[47] = {
 		name = "Route 131",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 171, 385, 166, 457, 167, 465, 686 },
+		trainers = { 171, 385, 166, 457, 167, 456, 686 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
 			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
@@ -4793,7 +4793,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.CaveEntrance,
 		area = RouteData.CombinedAreas.SeafloorCavern,
 		dungeon = true,
-		trainers = isGameEmerald and { 6, 7, 8, 567, 33, 34 } -- All caverns combined here
+		trainers = isGameEmerald and { 6, 7, 8, 14, 567, 33, 34 } -- All caverns combined here
 			or { 6, 7, 8, 33, 34 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, minLv = 28, maxLv = 35, },

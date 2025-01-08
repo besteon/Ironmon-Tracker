@@ -261,7 +261,7 @@ function QuickloadScreen.initialize()
 	SCREEN.currentTab = SCREEN.Tabs.General
 	SCREEN.createTabs()
 	SCREEN.loadProfiles()
-	SCREEN.checkForceUpdateGameVersion()
+	SCREEN.checkForActiveProfileChanges()
 	SCREEN.buildProfileButtons()
 
 	for _, button in pairs(SCREEN.Buttons) do
@@ -332,13 +332,25 @@ function QuickloadScreen.changeTabWithDelay(tab, framesToDelay)
 	end, 1)
 end
 
--- Checks if the active profile still needs it's game version update.
--- This can only be performed after a successful New Run is completed, as it requires a game ROM from that profile to be created to know it's game version
-function QuickloadScreen.checkForceUpdateGameVersion()
+function QuickloadScreen.checkForActiveProfileChanges()
 	local profile = SCREEN.getActiveProfile() or {}
+	local saveProfiles, saveSettings = false, false
+	-- Checks if the active profile still needs it's game version update.
+	-- This can only be performed after a successful New Run is completed, as it requires a game ROM from that profile to be created to know it's game version
 	if profile.GameVersion == QuickloadScreen.FORCE_UPDATE_GAME_VERSION and GameSettings.versioncolor then
 		profile.GameVersion = Utils.toLowerUTF8(GameSettings.versioncolor)
+		saveProfiles = true
+	end
+	-- Update the game over condition if it's different due to profile
+	if Options["Game Over condition"] ~= profile.GameOverCondition and not Utils.isNilOrEmpty(profile.GameOverCondition) then
+		Options["Game Over condition"] = profile.GameOverCondition
+		saveSettings = true
+	end
+	if saveProfiles then
 		SCREEN.saveProfiles()
+	end
+	if saveSettings then
+		Main.SaveSettings(true)
 	end
 end
 
@@ -520,6 +532,7 @@ end
 function QuickloadScreen.createInitialProfile()
 	-- Leave GameVersion blank to auto-set when its first New Run occurs
 	local profile = QuickloadScreen.IProfile:new({
+		GameOverCondition = Options["Game Over condition"],
 		AttemptsCount = Main.currentSeed or 0,
 		LastUsedDate = os.time(),
 	})
@@ -562,6 +575,9 @@ function QuickloadScreen.addUpdateProfile(profile, setAsActive)
 	if Utils.isNilOrEmpty(profile.Name) then
 		profile.Name = string.format("Unknown Profile %s", profile.GUID:sub(1, 4))
 	end
+	if Utils.isNilOrEmpty(profile.GameOverCondition) then
+		profile.GameOverCondition = Options["Game Over condition"]
+	end
 	if type(profile.Paths) ~= "table" then
 		profile.Paths = {}
 	end
@@ -596,7 +612,7 @@ function QuickloadScreen.afterNewRunProfileCheckup(romFilepath)
 		profile.Paths.CurrentRom = romFilepath
 	end
 
-	QuickloadScreen.saveProfiles()
+	SCREEN.saveProfiles()
 end
 
 ---Removes an existing profile from the `QuickloadScreen.Profiles` list
@@ -642,8 +658,11 @@ function QuickloadScreen.setActiveProfile(profile)
 	end
 
 	-- Apply profile's New Run settings to Tracker Options
-	local isGenerateMode = profile.Mode == SCREEN.Modes.GENERATE
 	Options["Active Profile"] = profile.GUID
+	if not Utils.isNilOrEmpty(profile.GameOverCondition) then
+		Options["Game Over condition"] = profile.GameOverCondition
+	end
+	local isGenerateMode = profile.Mode == SCREEN.Modes.GENERATE
 	Options["Generate ROM each time"] = isGenerateMode
 	Options["Use premade ROMs"] = not isGenerateMode
 	Options.FILES["ROMs Folder"] = not isGenerateMode and profile.Paths.RomsFolder or ""
@@ -737,7 +756,7 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		profile.Paths = {}
 	end
 
-	local W, H = 500, 370
+	local W, H = 500, 400
 	local X = 15
 	local FILE_BOX_W = 420
 	local lineY = 10
@@ -745,6 +764,12 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 	local form = ExternalUI.BizForms.createForm("Add/Edit Profile", W, H, 50, 10)
 	form.Controls.Generate = {}
 	form.Controls.Premade = {}
+
+	local dropdownOptionsGameOver = {
+		Resources.GameOptionsScreen.OptionLeadPokemonFaints,
+		Resources.GameOptionsScreen.OptionHighestLevelFaints,
+		Resources.GameOptionsScreen.OptionEntirePartyFaints,
+	}
 
 	local function _updateVisibility()
 		local isGenerate = ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate)
@@ -838,6 +863,31 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		end
 		return true
 	end
+	local function _autoUpdateGameOverDropdown()
+		local extractedName
+		if ExternalUI.BizForms.isChecked(form.Controls.checkboxGenerate) then
+			local path = ExternalUI.BizForms.getText(form.Controls.Generate.textboxRNQS)
+			extractedName = FileManager.extractFileNameFromPath(path)
+		elseif ExternalUI.BizForms.isChecked(form.Controls.checkboxPremade) then
+			local path = ExternalUI.BizForms.getText(form.Controls.Premade.textboxFOLDER)
+			extractedName = FileManager.extractFolderNameFromPath(path)
+		end
+		local text, selectedOption
+		if Utils.containsText(extractedName, "Standard", true) or Utils.containsText(extractedName, "Ultimate", true) then
+			selectedOption = "EntirePartyFaints"
+			text = dropdownOptionsGameOver[3]
+		else -- Kaizo, Survival, etc.
+			selectedOption = "LeadPokemonFaints"
+			text = dropdownOptionsGameOver[1]
+		end
+		if form.Controls.dropdownGameOver then
+			ExternalUI.BizForms.setText(form.Controls.dropdownGameOver, text)
+			if form.Controls.labelGameOverChanged then
+				ExternalUI.BizForms.setProperty(form.Controls.labelGameOverChanged, ExternalUI.BizForms.Properties.VISIBLE, true)
+			end
+		end
+		return selectedOption
+	end
 
 	-- MODE
 	form.Controls.labelMode = form:createLabel("Mode (choose one):", X, lineY)
@@ -898,6 +948,7 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		end
 		_verifyFilesAndUpdateButtons()
 		_autoUpdateBlueTextValues()
+		_autoUpdateGameOverDropdown()
 	end, 35, 25)
 	lineY = lineY + 32
 
@@ -941,6 +992,7 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		end
 		_verifyFilesAndUpdateButtons()
 		_autoUpdateBlueTextValues()
+		_autoUpdateGameOverDropdown()
 	end, 35, 25)
 	lineY = lineY + 30
 	form.Controls.Generate.labelCreatedRomName = form:createLabel("Tracker will create this ROM file:", X, lineY)
@@ -952,7 +1004,26 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 
 	-- NAME
 	form.Controls.labelName = form:createLabel("Profile Name:", X, lineY)
-	form.Controls.textboxProfileName = form:createTextBox(profile.Name or "", X + 144, lineY - 1, 275, 20)
+	form.Controls.textboxProfileName = form:createTextBox(profile.Name or "", X + 181, lineY - 2, 240, 20)
+	lineY = lineY + 25
+
+	-- GAME OVER SETTING
+	local selectedGameOverOption
+	if not Utils.isNilOrEmpty(profile.GameOverCondition) then
+		local gameoverKey = profile.GameOverCondition
+		local resourceKey = string.format("Option%s", gameoverKey)
+		selectedGameOverOption = Resources.GameOptionsScreen[resourceKey]
+	else
+		local gameoverKey = _autoUpdateGameOverDropdown()
+		local resourceKey = string.format("Option%s", gameoverKey)
+		selectedGameOverOption = Resources.GameOptionsScreen[resourceKey] or dropdownOptionsGameOver[1]
+	end
+	local gameoverLabelText = string.format("%s:", Resources.GameOptionsScreen.LabelGameOverCondition)
+	form.Controls.labelGameOver = form:createLabel(gameoverLabelText, X, lineY)
+	form.Controls.dropdownGameOver = form:createDropdown(dropdownOptionsGameOver, X + 181, lineY - 2, 240, 20, selectedGameOverOption, false)
+	form.Controls.labelGameOverChanged = form:createLabel("*", X + 423, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.labelGameOverChanged, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+	ExternalUI.BizForms.setProperty(form.Controls.labelGameOverChanged, ExternalUI.BizForms.Properties.VISIBLE, false)
 	lineY = lineY + 30
 
 	-- SAVE/CANCEL/HELP
@@ -987,6 +1058,17 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 				FileManager.deleteFile(profile.Paths.Tdat)
 				profile.Paths.Tdat = newTdatFilepath
 			end
+		end
+		-- Set the GameOver condition
+		local selectedGameOverDropdown = ExternalUI.BizForms.getText(form.Controls.dropdownGameOver) or ""
+		if selectedGameOverDropdown == dropdownOptionsGameOver[1] then
+			profile.GameOverCondition = "LeadPokemonFaints"
+		elseif selectedGameOverDropdown == dropdownOptionsGameOver[2] then
+			profile.GameOverCondition = "HighestLevelFaints"
+		elseif selectedGameOverDropdown == dropdownOptionsGameOver[3] then
+			profile.GameOverCondition = "EntirePartyFaints"
+		else
+			profile.GameOverCondition = Options["Game Over condition"]
 		end
 		-- If no active profile has been selected yet, use this newly added one; or update active profile if this is the same one
 		local activeProfile = SCREEN.getActiveProfile()
@@ -1176,6 +1258,8 @@ QuickloadScreen.IProfile = {
 	Mode = "",
 	-- Game Version color, all lowercase
 	GameVersion = "",
+	-- The condition used to determine the game over for this profile's ruleset
+	GameOverCondition = "",
 	-- Attempts Count for this profile
 	AttemptsCount = 0,
 	-- Date the profile was last used for New Run
@@ -1201,6 +1285,7 @@ function QuickloadScreen.IProfile:new(o)
 	o.Name = o.Name or ""
 	o.Mode = o.Mode or ""
 	o.GameVersion = o.GameVersion or ""
+	o.GameOverCondition = o.GameOverCondition or ""
 	o.AttemptsCount = o.AttemptsCount or 0
 	o.LastUsedDate = o.LastUsedDate or 0
 	o.Paths = o.Paths or {}

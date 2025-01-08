@@ -1,15 +1,17 @@
 MoveData = {}
 
 MoveData.Values = {
-	HiddenPowerId = 237,
-	WeatherBallId = 311,
 	LowKickId = 67,
 	FlailId = 175,
 	ReversalId = 179,
-	EruptionId = 284,
-	WaterSpoutId = 323,
 	ReturnId = 216,
 	FrustrationId = 218,
+	HiddenPowerId = 237,
+	RolePlayId = 272,
+	EruptionId = 284,
+	SkillSwapId = 285,
+	WeatherBallId = 311,
+	WaterSpoutId = 323,
 
 	-- The below are used by the BattleDetailsScreen
 	PayDayId = 6,
