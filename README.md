@@ -64,7 +64,10 @@ Trackers for other games:
 
 ### Trainer Info and New Tracker Controls
 
-![The Trainer card info screen. The trainer's name, location, team, IVs, and AI script are displayed.](https://github.com/user-attachments/assets/9f22d936-f20a-4a52-bfe9-be25dcb3c713)
+![The New Runs setup screen, showing the Profiles tab with two profiles listed, one for Emerald Kaizo and the other for FireRed Subpar Kaizo.](https://github.com/user-attachments/assets/acee631e-f2b6-448f-8806-3c391e7d338e)
+
+### Call Rates for All Ball Types
+![The Ball Catch Rates screen showing different catch rates for various types of Poké Balls](https://github.com/user-attachments/assets/9c81283b-e103-4608-bebb-202967fe6d37)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
