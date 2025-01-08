@@ -42,6 +42,25 @@ Constants.STAT_STATES = {
 	[3] = { text = "=", textColor = "Default text" },
 }
 
+-- Holds information about looking up badge icon files and kerning offsets to draw onto screen
+Constants.Badges = {
+	-- Ruby/Sapphire
+	[1] = {
+		Prefix = "RSE",
+		IconOffsets = { 1, 1, 0, 0, 1, 1, 1, 1 },
+	},
+	-- Emerald
+	[2] = {
+		Prefix = "RSE",
+		IconOffsets = { 1, 1, 0, 0, 1, 1, 1, 1 },
+	},
+	-- FireRed/LeafGreen
+	[3] = {
+		Prefix = "FRLG",
+		IconOffsets = { 0, -2, -2, 0, 1, 1, 0, 1 },
+	},
+}
+
 Constants.MoveTypeColors = {
 	normal = 0xFFA8A878,
 	fighting = 0xFFC03028,
@@ -116,6 +135,7 @@ Constants.OrderedLists = {
 		"Show random ball picker",
 		"Show heals as whole number",
 		"Show Poke Ball catch rate",
+		"Show starter ball info",
 		"Hide stats until summary shown",
 		"Right justified numbers",
 		"Show nicknames",
@@ -156,6 +176,8 @@ Constants.OrderedLists = {
 		"Use Custom Trainer Names",
 		"Open Book Play Mode",
 		"Allow sprites to walk",
+		"Active Profile",
+		"Has checked carousel battle details",
 		"AlertNewOptionLR",
 	},
 	CONTROLS = {
@@ -737,6 +759,28 @@ Constants.PixelImages = {
 		{5,5,5,1,1,1,1,2,2,1,1,1,5,5,5,5},
 		{5,5,5,5,5,5,1,1,1,1,5,5,5,5,5,5},
 		{0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0},
+	},
+	LEFT_TRIANGLE = { -- 5x9
+		{0,0,0,0,1},
+		{0,0,0,1,1},
+		{0,0,1,1,1},
+		{0,1,1,1,1},
+		{1,1,1,1,1},
+		{0,1,1,1,1},
+		{0,0,1,1,1},
+		{0,0,0,1,1},
+		{0,0,0,0,1},
+	},
+	RIGHT_TRIANGLE = { -- 5x9
+		{1,0,0,0,0},
+		{1,1,0,0,0},
+		{1,1,1,0,0},
+		{1,1,1,1,0},
+		{1,1,1,1,1},
+		{1,1,1,1,0},
+		{1,1,1,0,0},
+		{1,1,0,0,0},
+		{1,0,0,0,0},
 	},
 }
 

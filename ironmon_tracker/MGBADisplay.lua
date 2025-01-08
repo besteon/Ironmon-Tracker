@@ -299,7 +299,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
-		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 10, 1 do
+		for i = MGBADisplay.OptionValues.GAMEPLAY, MGBADisplay.OptionValues.GAMEPLAY + 11, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
@@ -954,18 +954,12 @@ MGBADisplay.Utils = {
 				local badgeText = string.format("[%s]", Utils.inlineIf(badgeButton.badgeState ~= 0, badgeNumber, " "))
 				carouselText = carouselText .. badgeText
 			end
-		elseif carousel.type == TrackerScreen.CarouselTypes.LAST_ATTACK then
-			carouselText = carouselContent
-		elseif carousel.type == TrackerScreen.CarouselTypes.ROUTE_INFO then
-			carouselText = carouselContent
 		elseif carousel.type == TrackerScreen.CarouselTypes.NOTES then
 			carouselText = Resources.MGBAScreens.PokemonInfoNote .. ": " .. carouselContent
-		elseif carousel.type == TrackerScreen.CarouselTypes.PEDOMETER then
-			carouselText = carouselContent
-		elseif carousel.type == TrackerScreen.CarouselTypes.TRAINERS then
+		else
 			carouselText = carouselContent
 		end
 
-		return carouselText
+		return carouselText or ""
 	end,
 }

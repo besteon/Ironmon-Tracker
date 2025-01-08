@@ -3,12 +3,13 @@ Options = {
 	["Language"] = Resources and Resources.Default.Language.Key or "ENGLISH",
 	["Autodetect language from game"] = true,
 	["Allow carousel rotation"] = true,
-	["CarouselItems"] = "Badges,Notes,RouteInfo,LastAttack,Pedometer,Trainers",
+	["CarouselItems"] = "Badges,Notes,RouteInfo,Trainers,LastAttack,BattleDetails,Pedometer",
 	["CarouselSpeed"] = "1",
 	["Auto swap to enemy"] = true,
 	["Show random ball picker"] = true,
 	["Show heals as whole number"] = false,
-	["Show Poke Ball catch rate"] = false,
+	["Show Poke Ball catch rate"] = true,
+	["Show starter ball info"] = false,
 	["Hide stats until summary shown"] = false,
 	["Right justified numbers"] = false,
 	["Show physical special icons"] = true,
@@ -49,6 +50,10 @@ Options = {
 	["Use Custom Trainer Names"] = false,
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
+	["Active Profile"] = "",
+
+	-- Internal Tracker settings
+	["Has checked carousel battle details"] = false,
 
 	-- In rare situations, new options get added that the user should be informed about (true: requires alerting, set to false after)
 	["AlertNewOptionLR"] = true, -- This is for the "Override Button Mode to LR" setting; allowing Tracker to change data in game

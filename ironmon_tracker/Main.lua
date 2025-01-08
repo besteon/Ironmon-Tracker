@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "9", patch = "0" }
+Main.Version = { major = "9", minor = "0", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -23,8 +23,7 @@ function Main.Initialize()
 	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
-	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
-	Main.Version.showReleaseNotes = true
+	Main.Version.showReleaseNotes = false
 
 	Main.MetaSettings = {}
 	Main.CrashReport = {
@@ -37,6 +36,7 @@ function Main.Initialize()
 	Main.loadNextSeed = false -- When enabled, exits the game loop to safely load a new game rom
 	Main.updateRequested = false -- When enabled, exits the game loop to safely shut down and self-update the Tracker
 	Main.forceRestart = false -- When enabled, exits the game loop to refresh and reload all Tracker scripts
+	Main.loadDifferentRom = nil -- Holds a filepath to a different rom to load up; loaded immediately on the next frame
 
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
@@ -77,6 +77,7 @@ function Main.Initialize()
 		return false
 	end
 
+	FileManager.setupFolders()
 	Main.LoadSettings()
 	Resources.initialize()
 
@@ -84,7 +85,6 @@ function Main.Initialize()
 
 	-- Get the quickload files just once to be used in several places during start-up, removed later
 	Main.tempQuickloadFiles = Main.GetQuickloadFiles()
-	Main.ReadAttemptsCount()
 	Main.CheckForVersionUpdate()
 
 	return true
@@ -94,12 +94,12 @@ end
 function Main.Run()
 	if Main.IsOnBizhawk() then
 		-- mGBA hates infinite loops. This "wait for startup" is handled differently
-		if GameSettings.getRomName() == nil or GameSettings.getRomName() == "Null" then
+		if GameSettings.getRomName() == "" or GameSettings.getRomName() == "Null" then
 			print("> Waiting for a game ROM to be loaded... (File -> Open ROM)")
 		end
 		local romLoaded = false
 		while not romLoaded do
-			if GameSettings.getRomName() ~= nil and GameSettings.getRomName() ~= "Null" then
+			if GameSettings.getRomName() ~= "" and GameSettings.getRomName() ~= "Null" then
 				romLoaded = true
 			end
 			Main.frameAdvance()
@@ -162,6 +162,7 @@ function Main.Run()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
 	FileManager.executeEachFile("initialize") -- initialize all tracker files
 	CustomCode.startup()
+	CustomCode.checkForRomHacks()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 
 	-- Final garbage collection prior to game loops beginning
@@ -185,7 +186,7 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
-		while not (Main.loadNextSeed or Main.updateRequested or Main.forceRestart) do
+		while not (Main.loadNextSeed or Main.updateRequested or Main.forceRestart or Main.loadDifferentRom) do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
@@ -196,6 +197,10 @@ function Main.Run()
 			UpdateScreen.performUpdate()
 		elseif Main.forceRestart then
 			Main.ExitSafely(false)
+			IronmonTracker.startTracker()
+		elseif Main.loadDifferentRom then
+			Main.ExitSafely(false)
+			Main.LoadRom(Main.loadDifferentRom)
 			IronmonTracker.startTracker()
 		end
 	else
@@ -468,6 +473,43 @@ function Main.ExitSafely(crashed)
 	CrashRecoveryScreen.logCrashReport(crashed == true)
 end
 
+---Loads a ROM file into the emulator
+---@param filepath string
+---@return boolean success
+function Main.LoadRom(filepath)
+	if (filepath or "") == "" then
+		return false
+	end
+
+	-- Always save a backup save-state for the current rom, just in case the ROM load was an accident
+	local backupFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.BackupSaves, true)
+	local backupFilename = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
+	local backupFilepath = backupFolder .. backupFilename
+
+	Tracker.resetData()
+
+	if Main.IsOnBizhawk() then
+		savestate.save(backupFilepath .. FileManager.Extensions.BIZHAWK_SAVESTATE, true) -- true: suppresses the on-screen display message
+		GameOverScreen.clearTempSaveStates()
+		TimeMachineScreen.cleanupOldRestorePoints(true)
+		if Main.emulator == Main.EMU.BIZHAWK28 then
+			-- Bizhawk 2.8 requires closing the rom before opening a new one
+			client.closerom()
+		end
+		client.openrom(filepath)
+		return true
+	else
+		---@diagnostic disable-next-line: undefined-global
+		emu:saveStateFile(backupFilepath .. FileManager.Extensions.MGBA_SAVESTATE, C.SAVESTATE.ALL)
+		local success = emu:loadFile(filepath)
+		if success then
+			MGBA.hasPrintedInstructions = false
+			emu:reset()
+		end
+		return success
+	end
+end
+
 function Main.LoadNextRom()
 	Main.loadNextSeed = false
 	Program.GameTimer:reset()
@@ -494,39 +536,21 @@ function Main.LoadNextRom()
 	Main.ExitSafely(false)
 
 	if nextRomInfo ~= nil then
-		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
-		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
-		local backupFolder = FileManager.getPathOverride("Backup Saves") or FileManager.prependDir(FileManager.Folders.BackupSaves, true)
-		local backupfilepath = backupFolder .. backUpName
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
-		Tracker.resetData()
+		QuickloadScreen.afterNewRunProfileCheckup(nextRomInfo.filePath)
 
-		if Main.IsOnBizhawk() then
-			savestate.save(backupfilepath .. FileManager.Extensions.BIZHAWK_SAVESTATE, true) -- true: suppresses the on-screen display message
-			GameOverScreen.clearTempSaveStates()
-			TimeMachineScreen.cleanupOldRestorePoints(true)
-			if Main.emulator == Main.EMU.BIZHAWK28 then
-				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
-			end
+		local success = Main.LoadRom(nextRomInfo.filePath)
+		if success then
 			if Options["Use premade ROMs"] then
-				print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
+				print(string.format('> Loading next ROM: %s', nextRomInfo.fileName or "N/A"))
 			end
-			client.openrom(nextRomInfo.filePath)
-		else
-			---@diagnostic disable-next-line: undefined-global
-			emu:saveStateFile(backupfilepath .. FileManager.Extensions.MGBA_SAVESTATE, C.SAVESTATE.ALL)
-			local success = emu:loadFile(nextRomInfo.filePath)
-			if success then
-				if Options["Use premade ROMs"] then
-					print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
-				end
-				MGBA.hasPrintedInstructions = false
-				emu:reset()
+			if not Main.IsOnBizhawk() then
+				-- MGBA is ready to restart, no other code needs to run
 				return
-			else
-				print(string.format('> ERROR: Unable to load next ROM: %s', nextRomInfo.fileName or "N/A"))
 			end
+		else
+			print(string.format('> ERROR: Unable to load next ROM: %s', nextRomInfo.fileName or "N/A"))
 		end
 	elseif Options["Use premade ROMs"] or Options["Generate ROM each time"] then
 		local quickloadVerb = Utils.inlineIf(Options["Use premade ROMs"], "find", "create")
@@ -575,7 +599,7 @@ function Main.GetNextRomFromFolder()
 	end
 
 	if nextRomName == nil or not FileManager.fileExists(nextRomPath) then
-		nextRomName = nextRomName or (GameSettings.getRomName() or "UNNAMED") .. FileManager.Extensions.GBA_ROM
+		nextRomName = nextRomName or GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM
 		print(string.format("> ERROR: Unable to find next ROM to load: %s", nextRomName))
 		Main.DisplayError(string.format("Unable to find next ROM to load: %s", nextRomName) .. "\n\nMake sure your ROMs are numbered sequentially and the ROMs folder is correct.")
 		return nil
@@ -762,7 +786,7 @@ function Main.GetNextBizhawkRomInfoLegacy()
 	end
 
 	-- Split the ROM name into its prefix and numerical values
-	local currentRomName = GameSettings.getRomName() or ""
+	local currentRomName = GameSettings.getRomName()
 	local currentRomPrefix = string.match(currentRomName, '[^0-9]+') or ""
 	local currentRomNumber = string.match(currentRomName, '[0-9]+') or "0"
 
@@ -864,13 +888,18 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	end
 
 	-- Otherwise, check if an attempts file exists based on the ROM file name (w/o numbers)
-	-- The case when using Quickload method: premade ROMS
 	local quickloadRomName
-	-- If on Bizhawk, can just get the currently loaded ROM
-	-- mGBA however does NOT return the filename, so need to use the quickload folder files
-	if Main.IsOnBizhawk() then
-		quickloadRomName = GameSettings.getRomName() or ""
-	else
+	local romsFolder = FileManager.tryAppendSlash(Options.FILES["ROMs Folder"])
+
+	-- Bizhawk can shortcut check this by getting the loaded rom name, then checking if a file exists with that name in the Roms Folder
+	if Main.IsOnBizhawk() and not Utils.isNilOrEmpty(romsFolder) then
+		local loadedRomName = GameSettings.getRomName()
+		if FileManager.fileExists(romsFolder .. loadedRomName .. FileManager.Extensions.GBA_ROM) then
+			quickloadRomName = loadedRomName
+		end
+	end
+	-- For all other cases, retrieve the file list from the Roms Folder and use a rom in there to check attempts count
+	if Utils.isNilOrEmpty(quickloadRomName) then
 		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
 		quickloadRomName = quickloadFiles.romList[1] or ""
 	end
@@ -902,11 +931,9 @@ function Main.ReadAttemptsCount(forceUseSettingsFile)
 		end
 	elseif Options["Use premade ROMs"] then
 		if Main.IsOnBizhawk() then -- mostly for Bizhawk
-			local romname = GameSettings.getRomName() or ""
+			local romname = GameSettings.getRomName()
 			local romnumber = string.match(romname, '[0-9]+') or "1"
-			if romnumber ~= "1" then
-				Main.currentSeed = tonumber(romnumber)
-			end
+			Main.currentSeed = tonumber(romnumber)
 		elseif Utils.isNilOrEmpty(Options.FILES["ROMs Folder"]) then -- mostly for mGBA
 			local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
 			if smallestSeedNumber ~= -1 then

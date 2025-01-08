@@ -23,17 +23,39 @@ Other useful internal Tracker data and functions can be found in:
 -----------------------------------
 
 ---Returns a `Program.DefaultPokemon` table of Pokemon data from the game
----@param partySlotNum? number Optional, the party slot number of the Pokemon on the player's team; default: 1
+---@param partySlotNum? number Optional, the party slot number of the Pokemon on the player's team; default: first active pokemon
 ---@return table|nil pokemon
 function TrackerAPI.getPlayerPokemon(partySlotNum)
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = Battle.Combatants.LeftOwn
+	end
 	return Tracker.getPokemon(partySlotNum or 1, true)
 end
 
 ---Returns a `Program.DefaultPokemon` table of Pokemon data from the game
----@param partySlotNum? number Optional, the party slot number of the Pokemon on the enemy team; default: 1
+---@param partySlotNum? number Optional, the party slot number of the Pokemon on the enemy team; default: first active pokemon
 ---@return table|nil pokemon
 function TrackerAPI.getEnemyPokemon(partySlotNum)
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = Battle.Combatants.LeftOther
+	end
 	return Tracker.getPokemon(partySlotNum or 1, false)
+end
+
+---Returns a `Program.DefaultPokemon` list of Pokemon data from the game, of the 2-4 pokemon active in the current battle
+---@return table battlers [1] = LeftOwn, [2] = LeftOther, [3] = RightOwn, [4] = RightOther
+function TrackerAPI.getActiveBattlePokemon()
+	local battlers = {}
+	if not Battle.inActiveBattle() then
+		return battlers
+	end
+	battlers[1] = TrackerAPI.getPlayerPokemon(Battle.Combatants.LeftOwn)
+	battlers[2] = TrackerAPI.getEnemyPokemon(Battle.Combatants.LeftOther)
+	if Battle.numBattlers > 2 then
+		battlers[3] = TrackerAPI.getPlayerPokemon(Battle.Combatants.RightOwn)
+		battlers[4] = TrackerAPI.getEnemyPokemon(Battle.Combatants.RightOther)
+	end
+	return battlers
 end
 
 ---For a given Pokemon object, returns its abilityId (alternatively, use `PokemonData.getAbilityId(p, n)`)
@@ -57,20 +79,26 @@ function TrackerAPI.getPokemonTypes(isPlayersMon, isOnLeft)
 end
 
 ---Returns true if the Pokémon in slot # is shiny (for the player's team or the enemy)
----@param partySlotNum? number Default = 1st
----@param isEnemy? boolean Default = true
+---@param partySlotNum? number Default = 1st active pokemon
+---@param isEnemy? boolean Default = false
 ---@return boolean
 function TrackerAPI.isShiny(partySlotNum, isEnemy)
-	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= false) or {}
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = isEnemy ~= true and Battle.Combatants.LeftOwn or Battle.Combatants.LeftOther
+	end
+	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= true) or {}
 	return (pokemon.isShiny == true)
 end
 
 ---Returns true if the Pokémon in slot # has PokéRus (for the player's team or the enemy)
----@param partySlotNum? number Default = 1st
----@param isEnemy? boolean Default = true
+---@param partySlotNum? number Default = 1st active pokemon
+---@param isEnemy? boolean Default = false
 ---@return boolean
 function TrackerAPI.hasPokerus(partySlotNum, isEnemy)
-	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= false) or {}
+	if not partySlotNum and Battle.inActiveBattle() then
+		partySlotNum = isEnemy ~= true and Battle.Combatants.LeftOwn or Battle.Combatants.LeftOther
+	end
+	local pokemon = Tracker.getPokemon(partySlotNum or 1, isEnemy ~= true) or {}
 	return (pokemon.hasPokerus == true)
 end
 
@@ -349,6 +377,20 @@ function TrackerAPI.setLanguage(language)
 	elseif type(language) == "table" then
 		Resources.changeLanguageSetting(language, true)
 	end
+end
+
+---Imports all necessary ROM addresses and values from the a JSON file for the loaded game
+---@param filepath string A custom JSON file, usually for rom hacks; refer to GameSettings.lua for json file formatting
+---@return boolean success
+function TrackerAPI.loadGameSettingsFromJson(filepath)
+	return GameSettings.importAddressesFromJson(filepath)
+end
+
+---Imports all necessary Tracker Overrides (various hard-coded values) from the a JSON file for the loaded game
+---@param filepath string A custom JSON file, usually for rom hacks; refer to GameSettings.lua for json file formatting
+---@return boolean success
+function TrackerAPI.loadTrackerOverridesFromJson(filepath)
+	return GameSettings.importTrackerOverridesFromJson(filepath)
 end
 
 -----------------------------------

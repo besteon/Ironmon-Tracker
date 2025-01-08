@@ -23,6 +23,7 @@ ScreenResources{
 		"Hey! What's it doing? Down it goes!", -- NEEDS TRANSLATION
 	},
 	AllScreens = {
+		Pokemon = "Pokémon",
 		Back = "Back", -- NEEDS TRANSLATION
 		Yes = "Yes", -- NEEDS TRANSLATION
 		No = "No", -- NEEDS TRANSLATION
@@ -184,6 +185,7 @@ ScreenResources{
 		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION
 		ButtonExtras = "Extras", -- NEEDS TRANSLATION
 		ButtonQuickload = "New Runs", -- NEEDS TRANSLATION
+		ButtonNotebook = "Notebook", -- NEEDS TRANSLATION
 		ButtonLanguage = "Language", -- NEEDS TRANSLATION
 		ButtonUpdate = "Update", -- NEEDS TRANSLATION
 		ButtonExtensions = "Extensions", -- NEEDS TRANSLATION
@@ -215,6 +217,7 @@ ScreenResources{
 		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION
 		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
+		CarouselBattleDetails = "Additional battle details", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
@@ -266,6 +269,7 @@ ScreenResources{
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
 		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
@@ -286,19 +290,24 @@ ScreenResources{
 	},
 	QuickloadScreen = {
 		Title = "New Runs Setup", -- NEEDS TRANSLATION
-		ButtonCombo = "Buttons", -- NEEDS TRANSLATION
-		ChoiceHeader = "How to load a New Run", -- NEEDS TRANSLATION
+		TabGeneral = "General", -- NEEDS TRANSLATION
+		TabProfiles = "Profiles", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
+		NewRunsDescGenerate = "The Tracker will create a NEW, randomized game ROM file when the button combo is pressed", -- NEEDS TRANSLATION
+		NewRunsDescPremade = "The Tracker will load the next numerical game ROM file when the button combo is pressed", -- NEEDS TRANSLATION
+		LabelActiveProfile = "Active Profile", -- NEEDS TRANSLATION
+		LabelNoActiveProfile = "No active profile", -- NEEDS TRANSLATION
+		LabelClickToAdd = "click to add one", -- NEEDS TRANSLATION
+		LabelProfileAttempts = "Attempts", -- NEEDS TRANSLATION
+		LabelProfileLastPlayed = "Last played", -- NEEDS TRANSLATION
+		ButtonLoadLastGame = "Load last played game", -- NEEDS TRANSLATION
+		ButtonGoNextSeed = "Go next seed", -- NEEDS TRANSLATION
+		ButtonCreateNewGame = "Create new game", -- NEEDS TRANSLATION
+		ButtonAddNew = "Add new", -- NEEDS TRANSLATION
+		ButtonSelectProfile = "Select", -- NEEDS TRANSLATION
+		ButtonEditProfile = "Edit", -- NEEDS TRANSLATION
+		ButtonDeleteProfile = "Delete", -- NEEDS TRANSLATION
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
-		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
-		OptionGenerateRom = "Generate ROM each time", -- NEEDS TRANSLATION
-		OptionRomsFolder = "ROMs Folder", -- NEEDS TRANSLATION
-		OptionRandomizerJar = "Randomizer JAR", -- NEEDS TRANSLATION
-		OptionSourceRom = "Source ROM", -- NEEDS TRANSLATION
-		OptionSettingsFile = "Settings File", -- NEEDS TRANSLATION
-		ButtonSet = "SET", -- NEEDS TRANSLATION
-		ButtonClear = "Clear", -- NEEDS TRANSLATION
-		LabelFolder = "Folder", -- NEEDS TRANSLATION
-		LabelSettings = "Settings", -- NEEDS TRANSLATION
 	},
 	ThemeScreen = {
 		Title = "Theme Library", -- NEEDS TRANSLATION
@@ -576,10 +585,61 @@ ScreenResources{
 		PromptPokemonTitle = "Pokédex Look up", -- NEEDS TRANSLATION
 		PromptPokemonDesc = "Choose a Pokémon to look up", -- NEEDS TRANSLATION
 	},
+	CatchRatesScreen = {
+		Title = "Ball Catch Rates", -- NEEDS TRANSLATION
+		PokemonsHPPercent = "Estimated HP", -- NEEDS TRANSLATION
+		PokemonsStatus = "Status", -- NEEDS TRANSLATION
+		HeaderBall = "Ball", -- NEEDS TRANSLATION
+		HeaderBag = "Bag", -- NEEDS TRANSLATION
+		HeaderRate = "Rate", -- NEEDS TRANSLATION
+	},
 	TypeDefensesScreen = {
 		Immunities = "Immunities", -- NEEDS TRANSLATION
 		Resistances = "Resistances", -- NEEDS TRANSLATION
 		Weaknesses = "Weaknesses", -- NEEDS TRANSLATION
+	},
+	BattleDetailsScreen = {
+		Title = "Battle Details", -- NEEDS TRANSLATION
+		TextTurn = "Turn", -- NEEDS TRANSLATION
+		TextTerrain = "Terrain", -- NEEDS TRANSLATION
+		TextWeather = "Weather", -- NEEDS TRANSLATION
+		TextWeatherTurns = "Weather turns", -- NEEDS TRANSLATION
+		TextAllied = "Allied", -- NEEDS TRANSLATION
+		TextEnemy = "Enemy", -- NEEDS TRANSLATION
+		TextTeam = "Team", -- NEEDS TRANSLATION
+		TextField = "Field Effects", -- NEEDS TRANSLATION
+		TextTurnsRemaining = "Left", -- NEEDS TRANSLATION
+		TextLastMove = "Last Move", -- NEEDS TRANSLATION
+		TextNotAvailable ="N/A", -- NEEDS TRANSLATION
+
+		WeatherDefault = "None", -- NEEDS TRANSLATION
+		WeatherRain = "Rain", -- NEEDS TRANSLATION
+		WeatherSandstorm = "Sandstorm", -- NEEDS TRANSLATION
+		WeatherSunlight =  "Sunlight", -- NEEDS TRANSLATION
+		WeatherHail =  "Hail", -- NEEDS TRANSLATION
+		TerrainDefault = "Building", -- NEEDS TRANSLATION
+		TerrainGrass = "Grass", -- NEEDS TRANSLATION
+		TerrainLongGrass = "Long Grass", -- NEEDS TRANSLATION
+		TerrainSand = "Sand", -- NEEDS TRANSLATION
+		TerrainUnderwater = "Underwater", -- NEEDS TRANSLATION
+		TerrainWater = "Water", -- NEEDS TRANSLATION
+		TerrainPond = "Pond", -- NEEDS TRANSLATION
+		TerrainMountain = "Mountain", -- NEEDS TRANSLATION
+		TerrainCave = "Cave", -- NEEDS TRANSLATION
+
+		EffectConfused = "Confused", -- NEEDS TRANSLATION
+		EffectMustAttack = "Must Attack", -- NEEDS TRANSLATION
+		EffectTrapped = "Trapped", -- NEEDS TRANSLATION
+		EffectCannotAct = "Recharging", -- NEEDS TRANSLATION
+		EffectAirborne = "Airborne", -- NEEDS TRANSLATION
+		EffectUnderground = "Underground", -- NEEDS TRANSLATION
+		EffectUnderwater = "Underwater", -- NEEDS TRANSLATION
+		EffectDrowsy = "Drowsy", -- NEEDS TRANSLATION
+		EffectProtectUses = "Protection Uses", -- NEEDS TRANSLATION
+		EffectPerishCount = "Perish Count", -- NEEDS TRANSLATION
+		EffectCannotEscape = "Can't Escape", -- NEEDS TRANSLATION
+		EffectTruant = "Loafing", -- NEEDS TRANSLATION
+		EffectFutureSight = "Future", -- NEEDS TRANSLATION
 	},
 	LogOverlay = { -- Log Viewer
 		HeaderTabPokemon = "Pokémon", -- NEEDS TRANSLATION
@@ -821,6 +881,7 @@ ScreenResources{
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
 		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
 		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
 		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
 		OptionPhysicalSpecialIcons = "Physical/Special icons", -- NEEDS TRANSLATION

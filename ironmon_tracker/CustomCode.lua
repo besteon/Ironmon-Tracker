@@ -273,6 +273,26 @@ function CustomCode.logError(err)
 	end
 end
 
+---Checks if the rom loaded is a supported rom hack, and if so loads additional code for it
+function CustomCode.checkForRomHacks()
+	local GS = GameSettings
+	-- For NatDex v1.1.3 and lower, it did not have these addresses for the new Trainers lookup feature
+	if CustomCode.RomHacks.isNatDexVersionOrLower("1.1.3") then
+		GS.gLevelUpLearnsets = GS.gLevelUpLearnsets_NatDex_113 or GS.gLevelUpLearnsets
+		GS.gTrainers = GS.gTrainers_NatDex_113 or GS.gTrainers
+		GS.gTrainerClassNames = GS.gTrainerClassNames_NatDex_113 or GS.gTrainerClassNames
+		GS.gLockedMoves = GS.gLockedMoves_NatDex_113 or GS.gLockedMoves
+		GS.gSideStatuses = GS.gSideStatuses_NatDex_113 or GS.gSideStatuses
+		GS.gSideTimers = GS.gSideTimers_NatDex_113 or GS.gSideTimers
+		GS.gStatuses3 = GS.gStatuses3_NatDex_113 or GS.gStatuses3
+		GS.gDisableStructs = GS.gDisableStructs_NatDex_113 or GS.gDisableStructs
+		GS.gPaydayMoney = GS.gPaydayMoney_NatDex_113 or GS.gPaydayMoney
+		GS.gWishFutureKnock = GS.gWishFutureKnock_NatDex_113 or GS.gWishFutureKnock
+	end
+end
+
+---Returns true if the rom loaded is NatDex modified, and the extension is enabled and running
+---@return boolean
 function CustomCode.RomHacks.isPlayingNatDex()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
@@ -283,6 +303,20 @@ function CustomCode.RomHacks.isPlayingNatDex()
 	return type(extension.checkIfNatDexROM) == "function" and extension:checkIfNatDexROM()
 end
 
+---Returns true if the NatDex rom and extension are of a specific version or lower (for checking compatibility)
+---@param version string Example: 1.1.3
+---@return boolean
+function CustomCode.RomHacks.isNatDexVersionOrLower(version)
+	if not CustomCode.RomHacks.isPlayingNatDex() then
+		return false
+	end
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
+	local extension = TrackerAPI.getExtensionSelf(EXT_KEY) or {}
+	return not Utils.isNewerVersion(extension.version or "0.0.0", version)
+end
+
+---Returns true if the rom loaded is MoveExpansion modified, and the extension is enabled and running
+---@return boolean
 function CustomCode.RomHacks.isPlayingMoveExpansion()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MoveExpansion
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then

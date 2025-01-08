@@ -118,7 +118,7 @@ SCREEN.Buttons = {
 		getText = function()
 			return string.format("%s:", Resources.TrainerInfoScreen.LabelAvgIvs)
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 41, 90, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 40, 90, 11 },
 		draw = function(self, shadowcolor)
 			if not hasData() then return end
 			local x, y = self.box[1], self.box[2]
@@ -131,7 +131,7 @@ SCREEN.Buttons = {
 		getText = function()
 			return string.format("%s:", Resources.TrainerInfoScreen.LabelAIScript)
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 52, 90, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 50, 90, 11 },
 		draw = function(self, shadowcolor)
 			if not hasData() then return end
 			local x, y = self.box[1], self.box[2]
@@ -144,14 +144,14 @@ SCREEN.Buttons = {
 		getText = function()
 			return string.format("%s:", Resources.TrainerInfoScreen.LabelUsableItems)
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 63, 90, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 60, 90, 11 },
 		isVisible = function(self) return hasData() and SCREEN.Data.trainerGame.itemList end,
 		draw = function(self, shadowcolor)
 			if not hasData() then return end
 			local x, y = self.box[1], self.box[2]
 			local textColor = Theme.COLORS[SCREEN.Colors.goodValue]
 			local itemList = SCREEN.Data.trainerGame.itemList or Constants.BLANKLINE
-			Drawing.drawText(x + 7, y + 11, itemList, textColor, shadowcolor)
+			Drawing.drawText(x + 7, y + 10, itemList, textColor, shadowcolor)
 		end,
 	},
 	Back = Drawing.createUIElementBackButton(function()
@@ -315,58 +315,72 @@ function TrainerInfoScreen.buildScreen(trainerId)
 	SCREEN.TemporaryButtons = {}
 
 	for i, pokemon in ipairs(trainerGame.party) do
-		local defaultColorList = TrackerScreen.PokeBalls.ColorList
 		local button = {
-			type = Constants.ButtonTypes.FULL_BORDER,
+			type = Constants.ButtonTypes.POKEMON_ICON,
+			-- Only display pokemon icon if trainer is defeated or mon is defeated
+			getIconId = function(self)
+				if trainerGame.defeated or Options["Open Book Play Mode"] then
+					return pokemon.pokemonID
+				end
+				if trainerId == trainerIdCurrentBattle then
+					local enemyMon = Tracker.getPokemon(i, false)
+					if enemyMon and enemyMon.curHP <= 0 then
+						return pokemon.pokemonID
+					end
+				end
+				return nil
+			end,
 			image = Constants.PixelImages.POKEBALL,
+			iconColors = TrackerScreen.PokeBalls.ColorList,
 			getCustomText = function(self)
 				return string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, pokemon.level)
 			end,
-			dimensions = { width = 32, height = 26, },
+			dimensions = { width = 32, height = 32, },
 			ordinal = i,
+			onClick = function(self)
+				if self:getIconId() ~= nil and NotebookPokemonNoteView.buildScreen(pokemon.pokemonID) then
+					NotebookPokemonNoteView.previousScreen = SCREEN
+					Program.changeScreenView(NotebookPokemonNoteView)
+				end
+			end,
 			draw = function(self, shadowcolor)
 				local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+				y = y + 4 -- offset for icon
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
+				local borderColor = Theme.COLORS[SCREEN.Colors.border]
+				local bgColor = Theme.COLORS[SCREEN.Colors.boxFill]
 				local text = self:getCustomText()
 				local centerX = Utils.getCenteredTextX(text, w) - 1
-				-- Draw a pokeball and the mon's level
-				Drawing.drawImageAsPixels(self.image, x + w/2 - 5, y + 3, self.iconColors, shadowcolor)
-				Drawing.drawText(x + centerX, y + h - 12, text, textColor, shadowcolor)
-				-- Draw a little held item icon if the pokemon is holding one (don't reveal actual item)
+				-- Draw border box for the Pokémon
+				gui.drawRectangle(x - 0, y - 0, w + 0, h + 0, borderColor)
+				-- If the Pokémon is not known, draw the pokeball icon
+				if self:getIconId() == nil then
+					Drawing.drawImageAsPixels(self.image, x + w/2 - 5, y + 7, self.iconColors, shadowcolor)
+				end
+				-- Draw the Pokémon's level
+				Drawing.drawTransparentTextbox(x + centerX, y + h - 10, text, textColor, bgColor, shadowcolor)
+				-- Draw a little held item icon if the Pokémon is holding one (don't reveal actual item)
 				if pokemon.heldItem ~= 0 then
 					Drawing.drawImageAsPixels(Constants.PixelImages.HELD_ITEM, x + w - 6, y + 1)
 				end
 			end,
 		}
 
-		-- Viewing Giovanni
+		-- Show Master Balls if viewing Giovanni
 		if TrainerData.isGiovanni(trainerId) then
 			button.image = Constants.PixelImages.MASTERBALL
-			defaultColorList = TrackerScreen.PokeBalls.ColorListMasterBall
+			button.iconColors = TrackerScreen.PokeBalls.ColorListMasterBall
 		end
 
-		button.iconColors = defaultColorList
-
-		-- Check if viewing the trainer being battled, and show fainted Pokémon
-		if trainerGame.defeated or trainerId == trainerIdCurrentBattle then
-			button.updateSelf = function(self)
-				local enemyMon = Tracker.getPokemon(i, false)
-				if trainerGame.defeated or (enemyMon and enemyMon.curHP <= 0) then
-					self.iconColors = TrackerScreen.PokeBalls.ColorListFainted
-				else
-					self.iconColors = defaultColorList
-				end
-			end
-		end
 		SCREEN.TemporaryButtons[i] = button
 	end
 
 	-- Align the team party balls in a grid
 	table.sort(SCREEN.TemporaryButtons, function(a, b) return a.ordinal < b.ordinal end)
 	local gridStartX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22
-	local gridStartY = Constants.SCREEN.MARGIN + 90
+	local gridStartY = Constants.SCREEN.MARGIN + 79
 	local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 20
-	local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 5
+	local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 2
 	Utils.gridAlign(SCREEN.TemporaryButtons, gridStartX, gridStartY, 0, 0, false, cutoffX, cutoffY)
 
 	return true

@@ -329,6 +329,8 @@ function SetupScreen.initialize()
 	SCREEN.previousScreen = nil
 	SCREEN.currentTab = SCREEN.Tabs.General
 	SCREEN.currentButtonToBind = nil
+
+	SCREEN.checkForNewCarouselSettings()
 	SCREEN.createTabs()
 	SCREEN.createButtons()
 
@@ -348,6 +350,23 @@ function SetupScreen.initialize()
 	if not FileManager.fileExists(abraGif) and animatedBtnOption ~= nil then
 		animatedBtnOption.disabled = true
 	end
+end
+
+-- Loads carousel settings that may not have existed in a legacy Tracker version
+function SetupScreen.checkForNewCarouselSettings()
+	if Options["Has checked carousel battle details"] then
+		return
+	end
+
+	-- Add in the new carousel setting for Battle Details
+	if Utils.isNilOrEmpty(Options["CarouselItems"]) then
+		Options["CarouselItems"] = "BattleDetails"
+	elseif not Utils.containsText(Options["CarouselItems"], "BattleDetails") then
+		Options["CarouselItems"] = Options["CarouselItems"] .. ",BattleDetails"
+	end
+
+	Options["Has checked carousel battle details"] = true
+	Main.SaveSettings(true)
 end
 
 function SetupScreen.refreshButtons()
@@ -515,6 +534,7 @@ function SetupScreen.createButtons()
 		{ "RouteInfo", "CarouselRouteInfo", },
 		{ "Trainers", "CarouselTrainers", },
 		{ "LastAttack", "CarouselLastAttack", },
+		{ "BattleDetails", "CarouselBattleDetails", },
 		{ "Pedometer", "CarouselPedometer", },
 	}
 

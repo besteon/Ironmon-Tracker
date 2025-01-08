@@ -283,9 +283,9 @@ TrackerScreen.Buttons = {
 	MovesHistory = {
 		-- Invisible clickable button
 		type = Constants.ButtonTypes.NO_BORDER,
-		textColor = "Intermediate text", -- set later after highlight color is calculated
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 77, 10 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 69, 81, 10, 10 },
+		textColor = "Header text", -- set later after highlight color is calculated
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 75, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 75, 10 },
 		boxColors = { "Header text", "Main background" },
 		isVisible = function()
 			local pokemon = Tracker.getViewedPokemon() or {}
@@ -300,7 +300,25 @@ TrackerScreen.Buttons = {
 			if hasMoves then
 				Program.changeScreenView(MoveHistoryScreen)
 			end
-		end
+		end,
+	},
+	CatchRates = {
+		-- Invisible clickable button
+		type = Constants.ButtonTypes.NO_BORDER,
+		textColor = "Header text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, 81, 50, 10 },
+		boxColors = { "Header text", "Main background" },
+		isVisible = function()
+			return Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter
+		end,
+		onClick = function(self)
+			local pokemon = TrackerAPI.getEnemyPokemon()
+			if CatchRatesScreen.buildScreen(pokemon) then
+				CatchRatesScreen.previousScreen = TrackerScreen
+				Program.changeScreenView(CatchRatesScreen)
+			end
+		end,
 	},
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -330,6 +348,19 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			-- Eventually clicking this will show a Move History screen
 		end
+	},
+	BattleDetailsSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.SPARKLES,
+		getText = function(self) return self.updatedText or "" end,
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 12, 12 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.BATTLE_DETAILS end,
+		onClick = function(self)
+			BattleDetailsScreen.updateData(true)
+			Program.changeScreenView(BattleDetailsScreen)
+		end,
 	},
 	RouteSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -435,7 +466,8 @@ TrackerScreen.CarouselTypes = {
 	LAST_ATTACK = 3, -- During battle, only between turns
 	ROUTE_INFO = 4, -- During battle, only if encounter is a wild pokemon
 	NOTES = 5, -- During battle
-	PEDOMETER = 6, -- Outside of battle
+	BATTLE_DETAILS = 6, -- During battle
+	PEDOMETER = 7, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -503,13 +535,16 @@ function TrackerScreen.initialize()
 
 	-- Buttons for each badge
 	local badgeWidth = 16
+	local badgeInfoTable = Constants.Badges[GameSettings.game] or {}
+	local badgePrefix = badgeInfoTable.Prefix or "FRLG" -- just picked a default
+	local kerningOffsets = badgeInfoTable.IconOffsets or {}
 	for index = 1, 8, 1 do
 		local badgeName = "badge" .. index
-		local xOffset = Constants.SCREEN.WIDTH + 7 + ((index-1) * (badgeWidth + 1)) + GameSettings.badgeXOffsets[index]
+		local xOffset = Constants.SCREEN.WIDTH + 7 + ((index-1) * (badgeWidth + 1)) + (kerningOffsets[index] or 0)
 
 		TrackerScreen.Buttons[badgeName] = {
 			type = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath(FileManager.Folders.Badges, GameSettings.badgePrefix .. "_" .. badgeName .. "_OFF", FileManager.Extensions.BADGE),
+			image = FileManager.buildImagePath(FileManager.Folders.Badges, badgePrefix .. "_" .. badgeName .. "_OFF", FileManager.Extensions.BADGE),
 			box = { xOffset, 138, badgeWidth, badgeWidth },
 			badgeIndex = index,
 			badgeState = 0,
@@ -519,7 +554,7 @@ function TrackerScreen.initialize()
 				if self.badgeState ~= state then
 					self.badgeState = state
 					local badgeOff = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
-					local name = GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOff
+					local name = badgePrefix .. "_badge" .. self.badgeIndex .. badgeOff
 					self.image = FileManager.buildImagePath(FileManager.Folders.Badges, name, FileManager.Extensions.BADGE)
 				end
 			end
@@ -651,6 +686,28 @@ function TrackerScreen.buildCarousel()
 				return { TrackerScreen.Buttons.LastAttackSummary }
 			else
 				return lastAttackMsg or ""
+			end
+		end,
+	}
+
+	-- BATTLE DETAILS
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BATTLE_DETAILS] = {
+		type = TrackerScreen.CarouselTypes.BATTLE_DETAILS,
+		framesToShow = 180,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselBattleDetails.toggleState then
+				return false
+			end
+			return Battle.inActiveBattle() and BattleDetailsScreen.hasDetails()
+		end,
+		getContentList = function(self)
+			local viewIndex = Battle.getViewedIndex()
+			local summaryText = BattleDetailsScreen.Data.DetailsSummary[viewIndex] or ""
+			TrackerScreen.Buttons.BattleDetailsSummary.updatedText = summaryText
+			if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.BattleDetailsSummary }
+			else
+				return summaryText
 			end
 		end,
 	}
@@ -1308,7 +1365,7 @@ function TrackerScreen.drawMovesArea(data)
 	local headerY = moveOffsetY - moveTableHeaderHeightDiff
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, headerY, data.m.nextmoveheader, headerColor, bgHeaderShadow)
 	-- Check if ball catch rate should be displayed instead of other header labels
-	if Options["Show Poke Ball catch rate"] and not Battle.isViewingOwn and Battle.isWildEncounter then
+	if TrackerScreen.Buttons.CatchRates:isVisible() then
 		local catchText = string.format("~ %.0f%%  %s", data.x.catchrate, Resources.TrackerScreen.ToCatch)
 		local rightOffset = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - Utils.calcWordPixelLength(catchText) - 2
 		Drawing.drawText(Constants.SCREEN.WIDTH + rightOffset, headerY, catchText, headerColor, bgHeaderShadow)

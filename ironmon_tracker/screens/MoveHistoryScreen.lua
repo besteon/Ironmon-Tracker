@@ -8,7 +8,7 @@ MoveHistoryScreen = {
 	pokemonID = nil,
 }
 
-MoveHistoryScreen.Pagination = {
+MoveHistoryScreen.Pager = {
 	currentPage = 0,
 	totalPages = 0,
 	itemsPerPage = 7,
@@ -39,26 +39,26 @@ MoveHistoryScreen.Buttons = {
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return MoveHistoryScreen.Pagination:getPageText() end,
+		getText = function(self) return MoveHistoryScreen.Pager:getPageText() end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 50, 10, },
-		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
+		isVisible = function() return MoveHistoryScreen.Pager.totalPages > 1 end,
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 32, Constants.SCREEN.MARGIN + 136, 10, 10, },
-		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
+		isVisible = function() return MoveHistoryScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
-			MoveHistoryScreen.Pagination:prevPage()
+			MoveHistoryScreen.Pager:prevPage()
 		end
 	},
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 136, 10, 10, },
-		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
+		isVisible = function() return MoveHistoryScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
-			MoveHistoryScreen.Pagination:nextPage()
+			MoveHistoryScreen.Pager:nextPage()
 		end
 	},
 	Back = Drawing.createUIElementBackButton(function()
@@ -107,7 +107,7 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 				getText = function(self) return MoveData.Moves[moveId].name end,
 				textColor = MoveHistoryScreen.Colors.text,
 				trackedMove = move,
-				isVisible = function(self) return self.pageVisible == MoveHistoryScreen.Pagination.currentPage end,
+				isVisible = function(self) return self.pageVisible == MoveHistoryScreen.Pager.currentPage end,
 				draw = function(self, shadowcolor)
 					-- Implied move text is drawn, then the levels off to the right-side
 					local minLvTxt = self.trackedMove.minLv or self.trackedMove.level
@@ -142,13 +142,13 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 	local linespacing = Constants.SCREEN.LINESPACING + 0
 
 	for index, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
-		local pageItemIndex = ((index - 1) % MoveHistoryScreen.Pagination.itemsPerPage) + 1
+		local pageItemIndex = ((index - 1) % MoveHistoryScreen.Pager.itemsPerPage) + 1
 		button.box = { startX, startY + (pageItemIndex - 1) * linespacing, 80, 10 }
-		button.pageVisible = math.ceil(index / MoveHistoryScreen.Pagination.itemsPerPage)
+		button.pageVisible = math.ceil(index / MoveHistoryScreen.Pager.itemsPerPage)
 	end
 
-	MoveHistoryScreen.Pagination.currentPage = 1
-	MoveHistoryScreen.Pagination.totalPages = math.ceil(#MoveHistoryScreen.TemporaryButtons / MoveHistoryScreen.Pagination.itemsPerPage)
+	MoveHistoryScreen.Pager.currentPage = 1
+	MoveHistoryScreen.Pager.totalPages = math.ceil(#MoveHistoryScreen.TemporaryButtons / MoveHistoryScreen.Pager.itemsPerPage)
 
 	return true
 end

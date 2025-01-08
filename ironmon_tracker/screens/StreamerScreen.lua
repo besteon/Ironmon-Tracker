@@ -1,15 +1,13 @@
 StreamerScreen = {
 	Colors = {
-		upperText = "Default text",
-		upperBorder = "Upper box border",
-		upperBoxFill = "Upper box background",
-		lowerText = "Lower box text",
-		lowerBorder = "Lower box border",
-		lowerBoxFill = "Lower box background",
+		text = "Lower box text",
+		border = "Lower box border",
+		boxFill = "Lower box background",
 	},
 }
+local SCREEN = StreamerScreen
 
-StreamerScreen.Buttons = {
+SCREEN.Buttons = {
 	AttemptsCountEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.StreamerScreen.ButtonEdit end,
@@ -20,7 +18,7 @@ StreamerScreen.Buttons = {
 			local y = self.box[2]
 			Drawing.drawText(x, y, Resources.StreamerScreen.LabelAttemptsCount .. ":", Theme.COLORS[self.textColor], shadowcolor)
 		end,
-		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end,
+		onClick = function(self) SCREEN.openEditAttemptsWindow() end,
 	},
 	WelcomeMessageEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -32,7 +30,7 @@ StreamerScreen.Buttons = {
 			local y = self.box[2]
 			Drawing.drawText(x, y, Resources.StreamerScreen.LabelWelcomeMessage .. ":", Theme.COLORS[self.textColor], shadowcolor)
 		end,
-		onClick = function(self) StreamerScreen.openEditWelcomeMessageWindow() end,
+		onClick = function(self) SCREEN.openEditWelcomeMessageWindow() end,
 	},
 	ShowFavorites = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -54,7 +52,7 @@ StreamerScreen.Buttons = {
 		pokemonID = 1,
 		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
-			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
+			SCREEN.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
 		end,
 	},
@@ -65,7 +63,7 @@ StreamerScreen.Buttons = {
 		pokemonID = 4,
 		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
-			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
+			SCREEN.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
 		end,
 	},
@@ -76,7 +74,7 @@ StreamerScreen.Buttons = {
 		pokemonID = 7,
 		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
-			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
+			SCREEN.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
 		end,
 	},
@@ -108,22 +106,22 @@ StreamerScreen.Buttons = {
 }
 
 function StreamerScreen.initialize()
-	for _, button in pairs(StreamerScreen.Buttons) do
+	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
-			button.textColor = StreamerScreen.Colors.upperText
+			button.textColor = SCREEN.Colors.text
 		end
 		if button.boxColors == nil then
-			button.boxColors = { StreamerScreen.Colors.upperBorder, StreamerScreen.Colors.upperBoxFill }
+			button.boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill }
 		end
 	end
 
-	StreamerScreen.Buttons.ShowFavorites.toggleState = Options["Show on new game screen"] or false
+	SCREEN.Buttons.ShowFavorites.toggleState = Options["Show on new game screen"] or false
 
-	StreamerScreen.loadFavorites()
+	SCREEN.loadFavorites()
 end
 
 function StreamerScreen.refreshButtons()
-	for _, button in pairs(StreamerScreen.Buttons) do
+	for _, button in pairs(SCREEN.Buttons) do
 		if button.updateSelf ~= nil then button:updateSelf() end
 	end
 end
@@ -189,7 +187,7 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 	form:createButton(Resources.AllScreens.Save, 200, 29, function()
 		local optionSelected = ExternalUI.BizForms.getText(pokedexDropdown)
 		iconButton.pokemonID = PokemonData.getIdFromName(optionSelected) or 0
-		StreamerScreen.saveFavorites()
+		SCREEN.saveFavorites()
 		Program.redraw(true)
 		form:destroy()
 	end)
@@ -204,16 +202,16 @@ function StreamerScreen.loadFavorites()
 	first = first or "1"
 	second = second or "4"
 	third = third or "7"
-	StreamerScreen.Buttons.PokemonFavorite1.pokemonID = tonumber(first) or 1
-	StreamerScreen.Buttons.PokemonFavorite2.pokemonID = tonumber(second) or 4
-	StreamerScreen.Buttons.PokemonFavorite3.pokemonID = tonumber(third) or 7
+	SCREEN.Buttons.PokemonFavorite1.pokemonID = tonumber(first) or 1
+	SCREEN.Buttons.PokemonFavorite2.pokemonID = tonumber(second) or 4
+	SCREEN.Buttons.PokemonFavorite3.pokemonID = tonumber(third) or 7
 end
 
 function StreamerScreen.saveFavorites()
 	local favoriteIds = {
-		StreamerScreen.Buttons.PokemonFavorite1.pokemonID or 0,
-		StreamerScreen.Buttons.PokemonFavorite2.pokemonID or 0,
-		StreamerScreen.Buttons.PokemonFavorite3.pokemonID or 0,
+		SCREEN.Buttons.PokemonFavorite1.pokemonID or 0,
+		SCREEN.Buttons.PokemonFavorite2.pokemonID or 0,
+		SCREEN.Buttons.PokemonFavorite3.pokemonID or 0,
 	}
 	Options["Startup favorites"] = table.concat(favoriteIds, ",")
 	Main.SaveSettings(true)
@@ -221,61 +219,40 @@ end
 
 -- USER INPUT FUNCTIONS
 function StreamerScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, StreamerScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function StreamerScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
 
-	local topBox = {
+	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
 		y = Constants.SCREEN.MARGIN + 10,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
 		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
-		text = Theme.COLORS[StreamerScreen.Colors.upperText],
-		border = Theme.COLORS[StreamerScreen.Colors.upperBorder],
-		fill = Theme.COLORS[StreamerScreen.Colors.upperBoxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[StreamerScreen.Colors.upperBoxFill]),
+		text = Theme.COLORS[SCREEN.Colors.text],
+		border = Theme.COLORS[SCREEN.Colors.border],
+		fill = Theme.COLORS[SCREEN.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
 	}
-	-- Will use the bottom-box later for OAuth Twitch stuff
-	local botBox = {
-		x = topBox.x,
-		y = topBox.y + topBox.height + 5,
-		width = topBox.width,
-		height = Constants.SCREEN.HEIGHT - topBox.height - 15,
-		text = Theme.COLORS[StreamerScreen.Colors.lowerText],
-		border = Theme.COLORS[StreamerScreen.Colors.lowerBorder],
-		fill = Theme.COLORS[StreamerScreen.Colors.lowerBoxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[StreamerScreen.Colors.lowerBoxFill]),
-	}
-	local textLineY = topBox.y + 2
+	local textLineY = canvas.y + 2
 
 	-- Draw top border box
-	gui.defaultTextBackground(topBox.fill)
-	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
+	gui.defaultTextBackground(canvas.fill)
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	-- Draw header text
 	local headerText = Utils.toUpperUTF8(Resources.StreamerScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw Favorites Label
-	Drawing.drawText(topBox.x + 3, topBox.y + 40, Resources.StreamerScreen.LabelFavorites .. ":", topBox.text, topBox.shadow)
-
-	-- Draw bottom border box
-	-- gui.defaultTextBackground(botBox.fill)
-	-- gui.drawRectangle(botBox.x, botBox.y, botBox.width, botBox.height, botBox.border, botBox.fill)
+	Drawing.drawText(canvas.x + 3, canvas.y + 40, Resources.StreamerScreen.LabelFavorites .. ":", canvas.text, canvas.shadow)
 
 	-- Draw all buttons
-	for _, button in pairs(StreamerScreen.Buttons) do
-		local buttonShadow
-		if button.boxColors[2] == StreamerScreen.Colors.upperBoxFill then
-			buttonShadow = topBox.shadow
-		else
-			buttonShadow = botBox.shadow
-		end
-		Drawing.drawButton(button, buttonShadow)
+	for _, button in pairs(SCREEN.Buttons) do
+		Drawing.drawButton(button, canvas.shadow)
 	end
 end

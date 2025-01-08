@@ -3,10 +3,14 @@ FileManager = {}
 -- Define file separator. Windows is \ and Linux is /
 FileManager.slash = package.config:sub(1,1) or "\\"
 
+-- File/Folder names cannot use the characters included in this pattern. These include < > : " / \ | ? *
+FileManager.INVALID_FILE_PATTERN = '[%<%>%:%"%/%\\%|%?%*]'
+
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
 	Custom = "extensions",
 	Quickload = "quickload",
+	TrackerNotes = "tracker_notes", -- gets created in `FileManager.setupFolders()`
 	SavedGames = "saved_games", -- needs to be created first to be used
 	BackupSaves = "backup_saves", -- needs to be created first to be used
 	DataCode = "data",
@@ -14,6 +18,7 @@ FileManager.Folders = {
 	ScreensCode = "screens",
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
+	GameAddresses = "GameAddresses",
 	Images = "images",
 	Trainers = "trainers",
 	TrainersPortraits = "trainerPortraits",
@@ -35,6 +40,8 @@ FileManager.Files = {
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
 	CRASH_REPORT = FileManager.Folders.TrackerCode .. FileManager.slash .. "crashreport.txt",
 	KNOWN_WORKING_DIR = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt",
+	NEWRUN_PROFILES = FileManager.Folders.TrackerCode .. FileManager.slash .. "NewRunProfiles.json",
+	ADDRESS_OVERRIDES = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses .. FileManager.slash .. "TrackerOverrides.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -74,6 +81,7 @@ FileManager.Urls = {
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
 	DISCUSSIONS = "https://github.com/besteon/Ironmon-Tracker/discussions/389", -- Discussion: "Help us translate the Ironmon Tracker"
+	NEW_RUNS = "https://github.com/besteon/Ironmon-Tracker/wiki/New-Runs-Setup",
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 	STREAM_CONNECT = "https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide",
 }
@@ -138,8 +146,10 @@ FileManager.LuaCode = {
 	{ name = "StatsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua", },
 	{ name = "RandomEvosScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "RandomEvosScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
+	{ name = "CatchRatesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CatchRatesScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
 	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
+	{ name = "BattleDetailsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleDetailsScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StatMarkingScoreSheet", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatMarkingScoreSheet.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
@@ -164,6 +174,15 @@ FileManager.LuaCode = {
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
+
+function FileManager.setupFolders()
+	if not FileManager.getPathOverride("Tracker Data") then
+		local folder = FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+		if not FileManager.folderExists(folder) then
+			FileManager.createFolder(folder)
+		end
+	end
+end
 
 -- Returns true if a file exists at its absolute file path; false otherwise
 function FileManager.fileExists(filepath)
@@ -499,6 +518,25 @@ function FileManager.getPathOverride(key)
 	return FileManager.tryAppendSlash(folderpath)
 end
 
+---Returns the filepath of the currently loaded ROM. Note: Only works for Bizhawk emulator
+---@return string|nil filepath
+function FileManager.getLoadedRomPath()
+	if not Main.IsOnBizhawk() then
+		return nil
+	end
+	local luaconsole = client.gettool("luaconsole")
+	local luaImp = luaconsole and luaconsole.get_LuaImp()
+	local filepath = luaImp and luaImp.PathEntries and luaImp.PathEntries.LastRomPath or ""
+	if filepath ~= "" then
+		return filepath
+	end
+	return nil
+end
+
+function FileManager.getTdatFolderPath()
+	return FileManager.getPathOverride("Tracker Data") or FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+end
+
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
@@ -550,6 +588,8 @@ function FileManager.getCustomFolderPath()
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
+---@param path string
+---@return string
 function FileManager.extractFolderNameFromPath(path)
 	if path == nil or path == "" then return "" end
 
@@ -566,6 +606,9 @@ function FileManager.extractFolderNameFromPath(path)
 	return ""
 end
 
+---@param path string
+---@param includeExtension? boolean Optional, includes the file extension; default: false
+---@return string
 function FileManager.extractFileNameFromPath(path, includeExtension)
 	if path == nil or path == "" then return "" end
 
@@ -577,6 +620,8 @@ function FileManager.extractFileNameFromPath(path, includeExtension)
 	end
 end
 
+---@param path string
+---@return string
 function FileManager.extractFileExtensionFromPath(path)
 	if path == nil or path == "" then return "" end
 
@@ -643,6 +688,15 @@ function FileManager.CopyFile(filepath, filepathCopy, overwriteOrAppend)
 	copyOfFile:close()
 
 	return true
+end
+
+function FileManager.deleteFile(filepath)
+	if (filepath or "") == "" then
+		return false
+	end
+	pcall(function()
+		os.remove(filepath)
+	end)
 end
 
 ---Writes the contents of `table` to the file at `filepath`

@@ -1,11 +1,11 @@
 NotebookIndexScreen = {
 	Colors = {
-		text = "Default text",
+		text = "Lower box text",
 		highlight = "Intermediate text",
 		positive = "Positive text",
 		negative = "Negative text",
-		border = "Upper box border",
-		boxFill = "Upper box background",
+		border = "Lower box border",
+		boxFill = "Lower box background",
 	},
 	Data = {
 	},

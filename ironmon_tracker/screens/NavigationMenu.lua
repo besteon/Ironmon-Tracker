@@ -55,10 +55,14 @@ NavigationMenu.Buttons = {
 				self.textColor = NavigationMenu.Colors.highlight
 			end
 		end,
-		onClick = function() Program.changeScreenView(QuickloadScreen) end
+		onClick = function()
+			QuickloadScreen.currentTab = QuickloadScreen.Tabs.General
+			QuickloadScreen.refreshButtons()
+			Program.changeScreenView(QuickloadScreen)
+		end
 	},
 	Notebook = {
-		getText = function(self) return "Notebook" or Resources.NavigationMenu.ButtonNotebook end,
+		getText = function(self) return Resources.NavigationMenu.ButtonNotebook end,
 		image = Constants.PixelImages.NOTEPAD,
 		index = 5,
 		isVisible = function() return not NavigationMenu.showCredits end,
