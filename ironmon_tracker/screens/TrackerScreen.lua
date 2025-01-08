@@ -535,13 +535,16 @@ function TrackerScreen.initialize()
 
 	-- Buttons for each badge
 	local badgeWidth = 16
+	local badgeInfoTable = Constants.Badges[GameSettings.game] or {}
+	local badgePrefix = badgeInfoTable.Prefix or "FRLG" -- just picked a default
+	local kerningOffsets = badgeInfoTable.IconOffsets or {}
 	for index = 1, 8, 1 do
 		local badgeName = "badge" .. index
-		local xOffset = Constants.SCREEN.WIDTH + 7 + ((index-1) * (badgeWidth + 1)) + GameSettings.badgeXOffsets[index]
+		local xOffset = Constants.SCREEN.WIDTH + 7 + ((index-1) * (badgeWidth + 1)) + (kerningOffsets[index] or 0)
 
 		TrackerScreen.Buttons[badgeName] = {
 			type = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath(FileManager.Folders.Badges, GameSettings.badgePrefix .. "_" .. badgeName .. "_OFF", FileManager.Extensions.BADGE),
+			image = FileManager.buildImagePath(FileManager.Folders.Badges, badgePrefix .. "_" .. badgeName .. "_OFF", FileManager.Extensions.BADGE),
 			box = { xOffset, 138, badgeWidth, badgeWidth },
 			badgeIndex = index,
 			badgeState = 0,
@@ -551,7 +554,7 @@ function TrackerScreen.initialize()
 				if self.badgeState ~= state then
 					self.badgeState = state
 					local badgeOff = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
-					local name = GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOff
+					local name = badgePrefix .. "_badge" .. self.badgeIndex .. badgeOff
 					self.image = FileManager.buildImagePath(FileManager.Folders.Badges, name, FileManager.Extensions.BADGE)
 				end
 			end

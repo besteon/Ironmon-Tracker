@@ -42,6 +42,25 @@ Constants.STAT_STATES = {
 	[3] = { text = "=", textColor = "Default text" },
 }
 
+-- Holds information about looking up badge icon files and kerning offsets to draw onto screen
+Constants.Badges = {
+	-- Ruby/Sapphire
+	[1] = {
+		Prefix = "RSE",
+		IconOffsets = { 1, 1, 0, 0, 1, 1, 1, 1 },
+	},
+	-- Emerald
+	[2] = {
+		Prefix = "RSE",
+		IconOffsets = { 1, 1, 0, 0, 1, 1, 1, 1 },
+	},
+	-- FireRed/LeafGreen
+	[3] = {
+		Prefix = "FRLG",
+		IconOffsets = { 0, -2, -2, 0, 1, 1, 0, 1 },
+	},
+}
+
 Constants.MoveTypeColors = {
 	normal = 0xFFA8A878,
 	fighting = 0xFFC03028,
