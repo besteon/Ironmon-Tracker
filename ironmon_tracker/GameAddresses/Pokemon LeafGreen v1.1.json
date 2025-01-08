@@ -1,12 +1,12 @@
 {
     "GameInfo": {
         "GameCode": 1112557381,
-        "VersionName": "Pokémon LeafGreen v1.1",
-        "GameNumber": 3,
         "GameName": "Pokemon LeafGreen (U)",
-        "VersionGroup": 2,
+        "GameNumber": 3,
+        "Language": "English",
         "VersionColor": "LeafGreen",
-        "Language": "English"
+        "VersionGroup": 2,
+        "VersionName": "Pokémon LeafGreen v1.1"
     },
     "Addresses": {
         "sBattleBuffersTransferData": "2022874",

@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "VersionColor": "Ruby",
-        "GameName": "Pokemon Ruby (U)",
-        "VersionGroup": 1,
-        "GameNumber": 1,
-        "VersionName": "Pokémon Ruby v1.1",
         "GameCode": 1096308293,
-        "Language": "English"
+        "GameName": "Pokemon Ruby (U)",
+        "GameNumber": 1,
+        "Language": "English",
+        "VersionColor": "Ruby",
+        "VersionGroup": 1,
+        "VersionName": "Pokémon Ruby v1.1"
     },
     "Addresses": {
         "gTrainerBattleOpponent_A": "202FF5E",

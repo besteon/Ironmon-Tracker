@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "VersionColor": "FireRed",
+        "GameCode": 1112560196,
         "GameName": "Pokemon Feuerrote (Germany)",
-        "VersionName": "Pokémon Feuerrote",
-        "Language": "German",
         "GameNumber": 3,
+        "Language": "German",
+        "VersionColor": "FireRed",
         "VersionGroup": 2,
-        "GameCode": 1112560196
+        "VersionName": "Pokémon Feuerrote"
     },
     "Addresses": {
         "BattleScript_MoveUsedWokeUp": "81DD2DA",

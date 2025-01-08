@@ -1,12 +1,12 @@
 {
     "GameInfo": {
+        "GameCode": 1096306757,
+        "GameName": "Pokemon Sapphire (U)",
+        "GameNumber": 1,
+        "Language": "English",
         "VersionColor": "Sapphire",
         "VersionGroup": 1,
-        "GameNumber": 1,
-        "GameCode": 1096306757,
-        "VersionName": "Pokémon Sapphire v1.0",
-        "GameName": "Pokemon Sapphire (U)",
-        "Language": "English"
+        "VersionName": "Pokémon Sapphire v1.0"
     },
     "Addresses": {
         "gBattleCommunication": "2024D1E",

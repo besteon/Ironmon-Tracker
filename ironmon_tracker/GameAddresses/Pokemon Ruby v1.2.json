@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "GameNumber": 1,
-        "VersionGroup": 1,
         "GameCode": 1096308293,
-        "VersionColor": "Ruby",
+        "GameName": "Pokemon Ruby (U)",
+        "GameNumber": 1,
         "Language": "English",
-        "VersionName": "Pokémon Ruby v1.2",
-        "GameName": "Pokemon Ruby (U)"
+        "VersionColor": "Ruby",
+        "VersionGroup": 1,
+        "VersionName": "Pokémon Ruby v1.2"
     },
     "Addresses": {
         "gSideTimers": "2024C80",
@@ -323,5 +323,5 @@
             "address": "81D986F",
             "abilityIds": [10, 11]
         }
-    },
+    }
 }

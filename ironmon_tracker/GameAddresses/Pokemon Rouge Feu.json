@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "VersionName": "Pokémon Rouge Feu",
-        "GameNumber": 3,
         "GameCode": 1112560198,
+        "GameName": "Pokemon Rouge Feu (France)",
+        "GameNumber": 3,
+        "Language": "French",
         "VersionColor": "FireRed",
         "VersionGroup": 2,
-        "Language": "French",
-        "GameName": "Pokemon Rouge Feu (France)"
+        "VersionName": "Pokémon Rouge Feu"
     },
     "Addresses": {
         "bagPocket_TmHm_Size": "3A",

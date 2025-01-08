@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "VersionGroup": 2,
-        "Language": "Italian",
-        "GameNumber": 3,
-        "VersionName": "Pokémon Rosso Fuoco",
-        "VersionColor": "FireRed",
         "GameCode": 1112560201,
-        "GameName": "Pokemon Rosso Fuoco (Italy)"
+        "GameName": "Pokemon Rosso Fuoco (Italy)",
+        "GameNumber": 3,
+        "Language": "Italian",
+        "VersionColor": "FireRed",
+        "VersionGroup": 2,
+        "VersionName": "Pokémon Rosso Fuoco"
     },
     "Addresses": {
         "gBattleMainFunc": "3004ED4",

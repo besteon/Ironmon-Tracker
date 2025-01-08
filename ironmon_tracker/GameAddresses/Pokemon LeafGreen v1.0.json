@@ -1,12 +1,12 @@
 {
     "GameInfo": {
+        "GameCode": 1112557381,
+        "GameName": "Pokemon LeafGreen (U)",
+        "GameNumber": 3,
+        "Language": "English",
         "VersionColor": "LeafGreen",
         "VersionGroup": 2,
-        "Language": "English",
-        "VersionName": "Pokémon LeafGreen v1.0",
-        "GameName": "Pokemon LeafGreen (U)",
-        "GameCode": 1112557381,
-        "GameNumber": 3
+        "VersionName": "Pokémon LeafGreen v1.0"
     },
     "Addresses": {
         "EncryptionKeyOffset": "F20",

@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "VersionName": "Pokémon FireRed v1.1",
-        "VersionGroup": 2,
+        "GameCode": 1112560197,
+        "GameName": "Pokemon FireRed (U)",
+        "GameNumber": 3,
         "Language": "English",
         "VersionColor": "FireRed",
-        "GameNumber": 3,
-        "GameCode": 1112560197,
-        "GameName": "Pokemon FireRed (U)"
+        "VersionGroup": 2,
+        "VersionName": "Pokémon FireRed v1.1"
     },
     "Addresses": {
         "gHitMarker": "2023DD0",

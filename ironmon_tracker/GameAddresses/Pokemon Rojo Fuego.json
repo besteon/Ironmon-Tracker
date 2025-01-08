@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "GameName": "Pokemon Rojo Fuego (Spain)",
         "GameCode": 1112560211,
+        "GameName": "Pokemon Rojo Fuego (Spain)",
+        "GameNumber": 3,
+        "Language": "Spanish",
         "VersionColor": "FireRed",
         "VersionGroup": 2,
-        "VersionName": "Pokémon Rojo Fuego",
-        "Language": "Spanish",
-        "GameNumber": 3
+        "VersionName": "Pokémon Rojo Fuego"
     },
     "Addresses": {
         "bagPocket_Berries_Size": "2B",

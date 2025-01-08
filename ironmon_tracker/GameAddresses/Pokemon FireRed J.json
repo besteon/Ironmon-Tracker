@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "GameNumber": 3,
-        "GameName": "Pokemon FireRed (J)",
-        "VersionName": "Pokémon FireRed J",
-        "Language": "Japanese",
         "GameCode": 1112560202,
+        "GameName": "Pokemon FireRed (J)",
+        "GameNumber": 3,
+        "Language": "Japanese",
         "VersionColor": "FireRed",
-        "VersionGroup": 2
+        "VersionGroup": 2,
+        "VersionName": "Pokémon FireRed J"
     },
     "Addresses": {
         "gPaydayMoney": "2023DDE",

@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "VersionGroup": 1,
-        "VersionName": "Pokémon Emerald",
-        "VersionColor": "Emerald",
         "GameCode": 1112556869,
+        "GameName": "Pokemon Emerald (U)",
         "GameNumber": 2,
         "Language": "English",
-        "GameName": "Pokemon Emerald (U)"
+        "VersionColor": "Emerald",
+        "VersionGroup": 1,
+        "VersionName": "Pokémon Emerald"
     },
     "Addresses": {
         "gameStatsOffset": "159C",

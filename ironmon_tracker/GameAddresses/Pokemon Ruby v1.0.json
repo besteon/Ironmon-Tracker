@@ -1,12 +1,12 @@
 {
     "GameInfo": {
-        "GameNumber": 1,
         "GameCode": 1096308293,
         "GameName": "Pokemon Ruby (U)",
-        "VersionName": "Pokémon Ruby v1.0",
+        "GameNumber": 1,
+        "Language": "English",
         "VersionColor": "Ruby",
         "VersionGroup": 1,
-        "Language": "English"
+        "VersionName": "Pokémon Ruby v1.0"
     },
     "Addresses": {
         "gMapHeader": "202E828",

@@ -1,11 +1,11 @@
 {
     "GameInfo": {
+        "GameCode": 1096306757,
         "GameName": "Pokemon Sapphire (U)",
         "GameNumber": 1,
-        "VersionGroup": 1,
-        "GameCode": 1096306757,
-        "VersionColor": "Sapphire",
         "Language": "English",
+        "VersionColor": "Sapphire",
+        "VersionGroup": 1,
         "VersionName": "Pokémon Sapphire v1.2"
     },
     "Addresses": {
