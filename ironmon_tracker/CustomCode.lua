@@ -20,7 +20,7 @@ CustomCode = {
 		-- Known compatible extensions
 		ExtensionKeys = {
 			NatDex = "NatDexExtension",
-			MoveExpansion = "MoveExpansionExtension",
+			MoveExpansion = "MAXExtension",
 		},
 	},
 }

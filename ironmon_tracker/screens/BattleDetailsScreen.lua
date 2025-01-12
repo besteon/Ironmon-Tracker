@@ -463,11 +463,6 @@ function SCREEN.updateData(buildPagedButtons)
 		return
 	end
 
-	-- TEMPORARY TODO: Don't calc data for some Rom Hacks, as they're missing game addresses
-	if CustomCode.RomHacks.isPlayingMoveExpansion() then
-		return
-	end
-
 	SCREEN.clearBuiltData()
 
 	-- Read in battle details data from the game
