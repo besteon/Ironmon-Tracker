@@ -607,7 +607,7 @@ end
 ---@param branchName? string Optional, defaults to the `main` branch
 ---@return string url Example: https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz
 function FileManager.getTarDownloadUrl(githubRepoUrl, branchName)
-	githubRepoUrl = FileManager.tryAppendSlash(githubRepoUrl or "")
+	githubRepoUrl = FileManager.trimSlash(githubRepoUrl or "")
 	branchName = (branchName or "main"):lower()
 	local tarEnding
 	if branchName == "main" then

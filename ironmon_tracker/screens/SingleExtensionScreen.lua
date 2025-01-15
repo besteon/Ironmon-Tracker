@@ -75,11 +75,23 @@ SingleExtensionScreen.Buttons = {
 
 			local isUpdateAvailable, updateUrl = updateFunc()
 			if isUpdateAvailable then
-				self.updateStatus = "Available"
-				self.textColor = "Positive text"
-				if updateUrl ~= nil then
-					Utils.openBrowserWindow(updateUrl)
-				end
+				self.updateStatus = "Updating..."
+				self.textColor = "Intermediate text"
+				-- Delay the update a few frames to redraw screen to show update in progress
+				Program.addFrameCounter("SingleExtensionScreen:UpdateExtension", 4, function()
+					local success = TrackerAPI.updateExtension(SingleExtensionScreen.extensionKey)
+					if success then
+						self.updateStatus = "Updated!"
+						self.textColor = "Positive text"
+					else
+						self.updateStatus = "Manual Download"
+						self.textColor = "Intermediate text"
+						if updateUrl ~= nil then
+							Utils.openBrowserWindow(updateUrl)
+						end
+					end
+					Program.redraw(true)
+				end, 1)
 			else
 				self.updateStatus = "Unvailable"
 				self.textColor = SingleExtensionScreen.Colors.text
