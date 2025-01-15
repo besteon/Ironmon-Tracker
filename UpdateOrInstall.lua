@@ -261,7 +261,19 @@ function UpdateOrInstall.updateFiles(archiveFolderPath)
 end
 
 -- Returns a string of batch commands to run based on the operating system, also returns error messages
-function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedFolder, isOnWindows)
+function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedFolder, isOnWindows, folderNamesToExclude, fileNamesToExclude)
+	folderNamesToExclude = folderNamesToExclude or {
+		'.vscode',
+		'.github',
+		string.format('ironmon_tracker%sDebug', UpdateOrInstall.slash),
+	}
+	fileNamesToExclude = fileNamesToExclude or {
+		'.editorconfig',
+		'.gitattributes',
+		'.gitignore',
+		'README.md',
+	}
+
 	local messages = {
 		downloading = "Downloading the latest Ironmon Tracker version.",
 		extracting = "Extracting downloaded files.",
@@ -270,18 +282,6 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 
 	local batchCommands = {}
 	local pauseCommand
-
-	local foldersToRemove = {
-		string.format('%s.vscode', extractedFolder .. UpdateOrInstall.slash),
-		string.format('%s.github', extractedFolder .. UpdateOrInstall.slash),
-		string.format('%sironmon_tracker%sDebug', extractedFolder .. UpdateOrInstall.slash, UpdateOrInstall.slash),
-	}
-	local filesToRemove = {
-		string.format('%s.editorconfig', extractedFolder .. UpdateOrInstall.slash),
-		string.format('%s.gitattributes', extractedFolder .. UpdateOrInstall.slash),
-		string.format('%s.gitignore', extractedFolder .. UpdateOrInstall.slash),
-		string.format('%sREADME.md', extractedFolder .. UpdateOrInstall.slash),
-	}
 
 	if isOnWindows then
 		batchCommands = {
@@ -293,11 +293,13 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 			string.format('tar -xzf "%s"', archive),
 			string.format('del "%s"', archive),
 		}
-		for _, folder in ipairs(foldersToRemove) do
-			table.insert(batchCommands, string.format('rmdir "%s" /s /q', folder))
+		for _, folderName in ipairs(folderNamesToExclude or {}) do
+			local folderPath = extractedFolder .. UpdateOrInstall.slash .. folderName
+			table.insert(batchCommands, string.format('rmdir "%s" /s /q', folderPath))
 		end
-		for _, file in ipairs(filesToRemove) do
-			table.insert(batchCommands, string.format('del "%s" /q /f', file))
+		for _, fileName in ipairs(fileNamesToExclude or {}) do
+			local filePath = extractedFolder .. UpdateOrInstall.slash .. fileName
+			table.insert(batchCommands, string.format('del "%s" /q /f', filePath))
 		end
 		pauseCommand = string.format("echo; && echo %s && pause && exit /b 6", messages.error1)
 	else
@@ -317,11 +319,13 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 		end
 		table.insert(batchCommands, string.format('rm -rf "%s"', archive))
 
-		for _, folder in ipairs(foldersToRemove) do
-			table.insert(batchCommands, string.format('rm -rf "%s"', folder))
+		for _, folderName in ipairs(folderNamesToExclude or {}) do
+			local folderPath = extractedFolder .. UpdateOrInstall.slash .. folderName
+			table.insert(batchCommands, string.format('rm -rf "%s"', folderPath))
 		end
-		for _, file in ipairs(filesToRemove) do
-			table.insert(batchCommands, string.format('rm -f "%s"', file))
+		for _, fileName in ipairs(fileNamesToExclude or {}) do
+			local filePath = extractedFolder .. UpdateOrInstall.slash .. fileName
+			table.insert(batchCommands, string.format('rm -f "%s"', filePath))
 		end
 		-- Temp removing the "pause" as can't tell if it was causing issues.
 		pauseCommand = string.format('echo && echo %s && exit 6', messages.error1)
@@ -338,7 +342,7 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 end
 
 -- Returns a string of batch commands to run based on the operating system, also returns error messages
-function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
+function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows, destinationFolder)
 	local messages = {
 		filesready = "New release files downloaded and ready for update.",
 		updating = "Applying the update, copying over files.",
@@ -352,12 +356,18 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	local sleepTime = 3
 
 	if isOnWindows then
+		local xcopyCommand
+		if (destinationFolder or "") == "" then -- if nil/empty
+			-- /s: for subdirectories, /y: no overwrite prompts, /q: no msg display, /c: skip files with errors
+			xcopyCommand = string.format('xcopy "%s" /s /y /q /c', extractedFolder)
+		else
+			xcopyCommand = string.format('xcopy "%s" "%s" /s /y /q /c', extractedFolder, destinationFolder)
+		end
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
 			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
 			string.format('echo %s', messages.updating),
-			-- /s: for subdirectories, /y: no overwrite prompts, /q: no msg display, /c: skip files with errors
-			string.format('xcopy "%s" /s /y /q /c', extractedFolder),
+			xcopyCommand,
 			-- /s: deletes directory tree, /q: no confirmation prompts
 			string.format('rmdir "%s" /s /q', extractedFolder),
 			'echo;',
@@ -366,11 +376,12 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 		}
 		pauseCommand = string.format("echo; && echo %s && echo %s && pause && exit /b 6", messages.error1, messages.error2)
 	else
-		local destinationFolder
-		if IronmonTracker.isOnBizhawk then
-			destinationFolder = "." -- current directory
-		else
-			destinationFolder = IronmonTracker.workingDir
+		if (destinationFolder or "") == "" then -- if nil/empty
+			if IronmonTracker.isOnBizhawk then
+				destinationFolder = "." -- current directory
+			else
+				destinationFolder = IronmonTracker.workingDir
+			end
 		end
 		batchCommands = {
 			string.format('echo %s', messages.filesready),

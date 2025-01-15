@@ -398,7 +398,7 @@ end
 -----------------------------------
 
 ---Checks if a Tracker Extension is enabled, if it exists
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@return boolean isEnabled
 function TrackerAPI.isExtensionEnabled(extensionName)
 	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
@@ -406,7 +406,7 @@ function TrackerAPI.isExtensionEnabled(extensionName)
 end
 
 ---Gets an extension object, if one exists
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@return table? extension
 function TrackerAPI.getExtensionSelf(extensionName)
 	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
@@ -414,7 +414,7 @@ function TrackerAPI.getExtensionSelf(extensionName)
 end
 
 ---Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file
 ---@param value string|number|boolean The value that is being saved; allowed types: number, boolean, string
 function TrackerAPI.saveExtensionSetting(extensionName, key, value)
@@ -432,7 +432,7 @@ function TrackerAPI.saveExtensionSetting(extensionName, key, value)
 end
 
 ---Gets a setting from the user's Settings.ini file
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file
 ---@return string|number|boolean? value Returns the value that was saved, or returns nil if it doesn't exist.
 function TrackerAPI.getExtensionSetting(extensionName, key)
@@ -443,4 +443,79 @@ function TrackerAPI.getExtensionSetting(extensionName, key)
 	local settingsKey = string.format("%s_%s", encodedName, encodedKey)
 	local value = Main.MetaSettings.extconfig[settingsKey]
 	return tonumber(value or "") or value
+end
+
+---Automatically downloads and updates an extension to its latest Github release, then reloads it into the Tracker
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over, such as README; default: "README.md" and "LICENSE"
+---@param branchName? string Optional, defaults to the `main` branch
+---@return boolean success
+function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNamesToExclude, branchName)
+	local ext = CustomCode.ExtensionLibrary[extensionName or false]
+	if not ext or not ext.selfObject or Utils.isNilOrEmpty(ext.selfObject.url) then
+		return false
+	end
+
+	local repoUrl = ext.selfObject.url
+	local tarUrl = FileManager.getTarDownloadUrl(repoUrl, branchName)
+	local tarArchiveName = FileManager.getTarDownloadArchiveName(repoUrl, branchName)
+	local archiveFolderPath = FileManager.prependDir(tarArchiveName)
+	local archiveFilePath = archiveFolderPath .. FileManager.Extensions.TAR_GZ
+	local destinationFolder = FileManager.getExtensionsFolderPath()
+	local isOnWindows = Main.OS == "Windows"
+
+	print(string.format("> %s (%s)", "Updating Tracker Extension...", extensionName))
+	Utils.tempDisableBizhawkSound()
+
+	-- Download and Extract the tar.gz release file from Github repo
+	local downloadCommand, downloadErr1 = UpdateOrInstall.buildDownloadExtractCommand(
+		tarUrl,
+		archiveFilePath,
+		archiveFolderPath,
+		isOnWindows,
+		folderNamesToExclude or {},
+		fileNamesToExclude or { "README.md", "LICENSE" }
+	)
+	local downloadResult = os.execute(downloadCommand)
+	if not (downloadResult == true or downloadResult == 0) then -- true / 0 = successful
+		Utils.tempEnableBizhawkSound()
+		print(string.format("> %s (%s)", "Error updating Tracker Extension", extensionName))
+		print("> ERROR: " .. tostring(downloadErr1))
+		return false
+	end
+
+	-- Copy over extract files to the Tracker's extension folder
+	local copyCommand, copyErr1, copyErr2 = UpdateOrInstall.buildCopyFilesCommand(
+		archiveFolderPath,
+		isOnWindows,
+		destinationFolder
+	)
+	local copyResult = os.execute(copyCommand)
+	if not (copyResult == true or copyResult == 0) then -- true / 0 = successful
+		print("> WARNING: " .. tostring(copyErr1))
+		print("> " .. tostring(copyErr2))
+		-- Always succeed (return true) now that the new XCOPY succeeds regardless of error
+	end
+
+	-- Reload the extension files (unload existing extension, load updated file, perform extension startup/init)
+	local extKey = ext.key
+	local requiresReloading = ext.isLoaded
+	if requiresReloading then
+		if ext.selfObject and type(ext.selfObject["unload"]) == "function" then
+			ext.selfObject.unload()
+		end
+	end
+	CustomCode.loadExtension(extKey)
+	if requiresReloading then
+		local updatedExt = CustomCode.ExtensionLibrary[extKey or false] or {}
+		if updatedExt.selfObject and type(updatedExt.selfObject["startup"]) == "function" then
+			updatedExt.selfObject.startup()
+		end
+	end
+
+	Utils.tempEnableBizhawkSound()
+	print(string.format("> %s (%s)", "Tracker Extension updated successfully!", extensionName))
+
+	return true
 end
