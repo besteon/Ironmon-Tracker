@@ -54,8 +54,10 @@ SingleExtensionScreen.Buttons = {
 				return Resources.SingleExtensionScreen.ButtonUpdateAvailable
 			elseif self.updateStatus == "Unvailable" then
 				return Resources.SingleExtensionScreen.ButtonNoUpdateFound
-			else
+			elseif self.updateStatus == "Unchecked" then
 				return Resources.SingleExtensionScreen.ButtonCheckForUpdates
+			else
+				return self.updateStatus
 			end
 		end,
 		updateStatus = "Unchecked", -- checked later when clicked
