@@ -18,6 +18,7 @@ local function CodeExtensionTemplate()
 	-- INTENRAL TRACKER FUNCTIONS BELOW
 	-- Add any number of these below functions to your extension that you want to use.
 	-- If you don't need a function, don't add it at all; leave ommitted for faster code execution.
+	-- IMPORTANT: To repeat, do NOT use all of these functions. Comment out or omit them. Otherwise performance will suffer.
 	--------------------------------------
 
 	-- Executed when the user clicks the "Options" button while viewing the extension details within the Tracker's UI
@@ -29,7 +30,8 @@ local function CodeExtensionTemplate()
 
 	-- Executed when the user clicks the "Check for Updates" button while viewing the extension details within the Tracker's UI
 	-- Returns [true, downloadUrl] if an update is available (downloadUrl auto opens in browser for user); otherwise returns [false, downloadUrl]
-	-- Remove this function if you choose not to implement a version update check for your extension
+	-- The existence of this function will allow the Tracker to automatically update & install your extension if an update is available
+	-- Your extension needs to define the `self.github` and `self.url` value in order for this auto-update to work
 	function self.checkForUpdates()
 		-- Update the pattern below to match your version. You can check what this looks like by visiting the latest release url on your repo
 		local versionResponsePattern = '"tag_name":%s+"%w+(%d+%.%d+)"' -- matches "1.0" in "tag_name": "v1.0"

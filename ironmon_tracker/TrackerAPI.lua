@@ -453,11 +453,21 @@ end
 ---@return boolean success
 function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNamesToExclude, branchName)
 	local ext = CustomCode.ExtensionLibrary[extensionName or false]
-	if not ext or not ext.selfObject or Utils.isNilOrEmpty(ext.selfObject.url) then
+	if not ext or not ext.selfObject then
 		return false
 	end
 
-	local repoUrl = ext.selfObject.url
+	-- A url or github repo is required as a source for the extension release update download
+	local repoUrl
+	if not Utils.isNilOrEmpty(ext.selfObject.url) then
+		repoUrl = ext.selfObject.url
+	elseif not Utils.isNilOrEmpty(ext.selfObject.github) then
+		repoUrl = string.format("https://github.com/%s", ext.selfObject.github)
+	end
+	if not repoUrl then
+		return false
+	end
+
 	local tarUrl = FileManager.getTarDownloadUrl(repoUrl, branchName)
 	local tarArchiveName = FileManager.getTarDownloadArchiveName(repoUrl, branchName)
 	local archiveFolderPath = FileManager.prependDir(tarArchiveName)

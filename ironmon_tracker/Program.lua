@@ -331,6 +331,8 @@ end
 
 function Program.delayedStartup()
 	Options.alertImportantChanges()
+	-- DEBUG
+	CustomCode.checkForExtensionUpdates()
 end
 
 function Program.mainLoop()

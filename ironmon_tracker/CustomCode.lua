@@ -235,6 +235,88 @@ function CustomCode.refreshExtensionList()
 	Main.SaveSettings(true)
 end
 
+function CustomCode.checkForExtensionUpdates()
+	-- Update check not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+		return
+	end
+
+	-- TODO: Check date elsewhere if its okay to do a version update chkec (done outside this function)
+
+	-- Build curl update commands for each enabled extension
+	local extensionsToCheck = {}
+	local extensionCommandParts = {}
+	for _, extension in ipairs(CustomCode.EnabledExtensions) do
+		local selfObj = extension.selfObject or {}
+		local githubRepo
+		if not Utils.isNilOrEmpty(selfObj.github) then
+			githubRepo = selfObj.github
+		elseif not Utils.isNilOrEmpty(selfObj.url) then
+			githubRepo = string.match(selfObj.url, "github%.com%/([^%/]+%/[^%/]+)") -- Format: MyUsername/ExtensionRepo
+		end
+		if githubRepo then
+			githubRepo = FileManager.trimSlash(githubRepo)
+			local commandPart = string.format('"https://api.github.com/repos/%s/releases/latest" --ssl-no-revoke', githubRepo)
+			table.insert(extensionsToCheck, extension)
+			table.insert(extensionCommandParts, commandPart)
+			Utils.printDebug(string.format("ExtensionKey: %s, URL: https://api.github.com/repos/%s/releases/latest", extension.key or "N/A", githubRepo))
+		end
+	end
+	if #extensionsToCheck == 0 then
+		Utils.printDebug("No extensions requiring an update.")
+		return
+	end
+
+	-- Execute a single curl command to check for updates for all those extensions
+	Utils.printDebug("Checking %s extensions for updates...", #extensionsToCheck)
+	local allCommandParts = table.concat(extensionCommandParts, " -: ")
+	local versionCheckCommand = string.format('curl %s', allCommandParts)
+	Utils.tempDisableBizhawkSound()
+	local success, fileLines = FileManager.tryOsExecute(versionCheckCommand)
+	Utils.tempEnableBizhawkSound()
+	if not success then
+		return
+	end
+	local response = table.concat(fileLines or {}, "\n")
+	Utils.printDebug("Parsing results...")
+
+	-- The below section determines which extensions need updating
+	local function _formatVersionNumber(version)
+		local _, count = string.gsub(version, "%.", "")
+		-- Should be at least two period dividers (v1.2.3)
+		if (2 - count) > 0 then
+			return version .. string.rep(".0", 2 - count)
+		end
+		return version
+	end
+	-- Currently assumes the number of tag_names is the same as the number of extensions counted above
+	local i = 1
+	local extensionsToUpdate = {}
+	for version in string.gmatch(response, '"tag_name":%s+"[^%d]+([%d%.]+)"') or {} do
+		-- Parse version number from response
+		local responseVersion = _formatVersionNumber(version)
+		-- Determine version number from loaded extension
+		local extension = extensionsToCheck[i] or {}
+		local selfObj = extension.selfObject or {}
+		if not Utils.isNilOrEmpty(selfObj.version) then
+			local extVersion = _formatVersionNumber(selfObj.version)
+			local requiresUpdate = Utils.isNewerVersion(responseVersion, extVersion)
+			if requiresUpdate then
+				table.insert(extensionsToUpdate, extension)
+			end
+			Utils.printDebug(string.format("ExtensionKey: %s, Current Version: %s, New Version: %s", extension.key or "N/A", extVersion, responseVersion))
+		end
+		i = i + 1
+	end
+
+	-- DEBUG
+	Utils.printDebug("Extensions requiring an update (%s):", #extensionsToUpdate)
+	for j, extension in ipairs(extensionsToUpdate or {}) do
+		local selfObj = extension.selfObject or {}
+		Utils.printDebug(string.format("%s. ExtensionKey: %s, Version: %s", j, extension.key or "N/A", selfObj.version or "N/A"))
+	end
+end
+
 -- Simulates an interface-like function execution for custom code files
 function CustomCode.execFunctions(funcLabel, ...)
 	if not CustomCode.isEnabled() then return end
