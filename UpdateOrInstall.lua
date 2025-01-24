@@ -289,8 +289,7 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
 			'echo;',
 			string.format('echo %s', messages.extracting),
-			-- /d: Changes the current drive (if provided path is a different drive)
-			string.format('cd /d "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
+			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
 			string.format('tar -xzf "%s"', archive),
 			string.format('del "%s"', archive),
 		}
@@ -355,8 +354,7 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	if isOnWindows then
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
-			-- /d: Changes the current drive (if provided path is a different drive)
-			string.format('cd /d "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
+			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
 			string.format('echo %s', messages.updating),
 			-- /s: for subdirectories, /y: no overwrite prompts, /q: no msg display, /c: skip files with errors
 			string.format('xcopy "%s" /s /y /q /c', extractedFolder),
