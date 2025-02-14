@@ -20,7 +20,8 @@ CustomCode = {
 		-- Known compatible extensions
 		ExtensionKeys = {
 			NatDex = "NatDexExtension",
-			MoveExpansion = "MAXExtension",
+			MoveExpansion = "MoveExpansionExtension", -- Phys/Special split, extra moves
+			MAX = "MAXExtension", -- same as above but with extra abilities
 		},
 	},
 }
@@ -319,6 +320,17 @@ end
 ---@return boolean
 function CustomCode.RomHacks.isPlayingMoveExpansion()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MoveExpansion
+	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		return false
+	end
+	-- Have to manually check added data to determine if Move Expansion extension is in use
+	return MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
+end
+
+---Returns true if the rom loaded is MAX modified, and the extension is enabled and running
+---@return boolean
+function CustomCode.RomHacks.isPlayingMAX()
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MAX
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
 		return false
 	end
