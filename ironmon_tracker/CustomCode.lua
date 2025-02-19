@@ -235,13 +235,13 @@ function CustomCode.refreshExtensionList()
 	Main.SaveSettings(true)
 end
 
-function CustomCode.checkForExtensionUpdates()
+---(Currently Unused) Checks all enabled extensions for version updates
+---@return table extensions List of extensions that have an update available
+function CustomCode.checkExtensionsForUpdates()
 	-- Update check not supported on Linux Bizhawk 2.8, Lua 5.1
 	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-		return
+		return {}
 	end
-
-	-- TODO: Check date elsewhere if its okay to do a version update chkec (done outside this function)
 
 	-- Build curl update commands for each enabled extension
 	local extensionsToCheck = {}
@@ -259,26 +259,26 @@ function CustomCode.checkForExtensionUpdates()
 			local commandPart = string.format('"https://api.github.com/repos/%s/releases/latest" --ssl-no-revoke', githubRepo)
 			table.insert(extensionsToCheck, extension)
 			table.insert(extensionCommandParts, commandPart)
-			Utils.printDebug(string.format("ExtensionKey: %s, URL: https://api.github.com/repos/%s/releases/latest", extension.key or "N/A", githubRepo))
+			-- Utils.printDebug(string.format("ExtensionKey: %s, URL: %s", extension.key or "N/A", commandPart))
 		end
 	end
 	if #extensionsToCheck == 0 then
-		Utils.printDebug("No extensions requiring an update.")
-		return
+		-- Utils.printDebug("No extensions requiring an update.")
+		return {}
 	end
 
 	-- Execute a single curl command to check for updates for all those extensions
-	Utils.printDebug("Checking %s extensions for updates...", #extensionsToCheck)
+	-- Utils.printDebug("Checking %s extensions for updates...", #extensionsToCheck)
 	local allCommandParts = table.concat(extensionCommandParts, " -: ")
 	local versionCheckCommand = string.format('curl %s', allCommandParts)
 	Utils.tempDisableBizhawkSound()
 	local success, fileLines = FileManager.tryOsExecute(versionCheckCommand)
 	Utils.tempEnableBizhawkSound()
 	if not success then
-		return
+		return {}
 	end
 	local response = table.concat(fileLines or {}, "\n")
-	Utils.printDebug("Parsing results...")
+	-- Utils.printDebug("Parsing results...")
 
 	-- The below section determines which extensions need updating
 	local function _formatVersionNumber(version)
@@ -304,17 +304,12 @@ function CustomCode.checkForExtensionUpdates()
 			if requiresUpdate then
 				table.insert(extensionsToUpdate, extension)
 			end
-			Utils.printDebug(string.format("ExtensionKey: %s, Current Version: %s, New Version: %s", extension.key or "N/A", extVersion, responseVersion))
+			-- Utils.printDebug(string.format("ExtensionKey: %s, Current Version: %s, New Version: %s", extension.key or "N/A", extVersion, responseVersion))
 		end
 		i = i + 1
 	end
 
-	-- DEBUG
-	Utils.printDebug("Extensions requiring an update (%s):", #extensionsToUpdate)
-	for j, extension in ipairs(extensionsToUpdate or {}) do
-		local selfObj = extension.selfObject or {}
-		Utils.printDebug(string.format("%s. ExtensionKey: %s, Version: %s", j, extension.key or "N/A", selfObj.version or "N/A"))
-	end
+	return extensionsToUpdate
 end
 
 -- Simulates an interface-like function execution for custom code files
