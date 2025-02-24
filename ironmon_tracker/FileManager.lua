@@ -585,9 +585,9 @@ function FileManager.getNetworkPath()
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
----Returns a properly formatted folder path where custom code files are located; includes trailing slash
+---Returns a properly formatted folder path where extensions code files are located; includes trailing slash.
 ---@return string folderpath
-function FileManager.getCustomFolderPath()
+function FileManager.getExtensionsFolderPath()
 	local listOfPaths = {
 		FileManager.Folders.Custom,
 		"", -- Necessary to include a trailing slash, helps with appending a filename
@@ -595,11 +595,11 @@ function FileManager.getCustomFolderPath()
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
----Returns a properly formatted folder path where extensions code files are located; includes trailing slash.
----Note: this is a redudant/duplicate function of `FileManager.getCustomFolderPath()`, for convenience
+---Returns a properly formatted folder path where custom code files are located; includes trailing slash
+---Note: this is a redudant/duplicate function of `FileManager.getExtensionsFolderPath()`, for convenience
 ---@return string folderpath
-function FileManager.getExtensionsFolderPath()
-	return FileManager.getCustomFolderPath()
+function FileManager.getCustomFolderPath()
+	return FileManager.getExtensionsFolderPath()
 end
 
 ---Returns a fully built URL for the tar archive to be downloaded for a Github release

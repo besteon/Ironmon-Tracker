@@ -95,7 +95,7 @@ function CustomCode.loadExtension(extensionKey)
 		return nil
 	end
 
-	local customCodeFolder = FileManager.getCustomFolderPath()
+	local customCodeFolder = FileManager.getExtensionsFolderPath()
 	local filepath = FileManager.getPathIfExists(customCodeFolder .. extensionKey .. FileManager.Extensions.LUA_CODE)
 
 	if filepath == nil then
@@ -202,7 +202,7 @@ function CustomCode.refreshExtensionList()
 	-- Used to help remove any inactive or missing extension files
 	local installedExtensions = {}
 
-	local customFolderPath = FileManager.getCustomFolderPath()
+	local customFolderPath = FileManager.getExtensionsFolderPath()
 	local customFiles = FileManager.getFilesFromDirectory(customFolderPath)
 	for _, filename in pairs(customFiles) do
 		local name = FileManager.extractFileNameFromPath(filename) or ""

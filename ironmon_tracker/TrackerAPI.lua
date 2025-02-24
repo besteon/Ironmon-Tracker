@@ -445,24 +445,27 @@ function TrackerAPI.getExtensionSetting(extensionName, key)
 	return tonumber(value or "") or value
 end
 
----Automatically downloads and updates an extension to its latest Github release, then reloads it into the Tracker
----@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
+---Automatically downloads and updates/installs an extension to its latest Github release, then reloads it into the Tracker; Note: this does not enabled the extensio
+---@param extensionNameOrUrl string The name/key of the existing extension calling this function, or the repo url if installing new extension; use only alphanumeric characters, no spaces
 ---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
 ---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over, such as README; default: "README.md" and "LICENSE"
 ---@param branchName? string Optional, defaults to the `main` branch
 ---@return boolean success
-function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNamesToExclude, branchName)
-	local ext = CustomCode.ExtensionLibrary[extensionName or false]
-	if not ext or not ext.selfObject then
+function TrackerAPI.updateOrInstallExtension(extensionNameOrUrl, folderNamesToExclude, fileNamesToExclude, branchName)
+	if Utils.isNilOrEmpty(extensionNameOrUrl) then
 		return false
 	end
 
+	local existingExtension = CustomCode.ExtensionLibrary[extensionNameOrUrl]
+
 	-- A url or github repo is required as a source for the extension release update download
 	local repoUrl
-	if not Utils.isNilOrEmpty(ext.selfObject.url) then
-		repoUrl = ext.selfObject.url
-	elseif not Utils.isNilOrEmpty(ext.selfObject.github) then
-		repoUrl = string.format("https://github.com/%s", ext.selfObject.github)
+	if not existingExtension then
+		repoUrl = extensionNameOrUrl
+	elseif not Utils.isNilOrEmpty(existingExtension.selfObject.url) then
+		repoUrl = existingExtension.selfObject.url
+	elseif not Utils.isNilOrEmpty(existingExtension.selfObject.github) then
+		repoUrl = string.format("https://github.com/%s", existingExtension.selfObject.github)
 	end
 	if not repoUrl then
 		return false
@@ -475,7 +478,6 @@ function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNam
 	local destinationFolder = FileManager.getExtensionsFolderPath()
 	local isOnWindows = Main.OS == "Windows"
 
-	print(string.format("> %s (%s)", "Updating Tracker Extension...", extensionName))
 	Utils.tempDisableBizhawkSound()
 
 	-- Download and Extract the tar.gz release file from Github repo
@@ -490,7 +492,8 @@ function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNam
 	local downloadResult = os.execute(downloadCommand)
 	if not (downloadResult == true or downloadResult == 0) then -- true / 0 = successful
 		Utils.tempEnableBizhawkSound()
-		print(string.format("> %s (%s)", "Error updating Tracker Extension", extensionName))
+		print(string.format("> %s (%s)", "Error updating/installing Tracker Extension"))
+		print(string.format("> NAME/URL: %s", extensionNameOrUrl))
 		print("> ERROR: " .. tostring(downloadErr1))
 		return false
 	end
@@ -508,24 +511,31 @@ function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNam
 		-- Always succeed (return true) now that the new XCOPY succeeds regardless of error
 	end
 
-	-- Reload the extension files (unload existing extension, load updated file, perform extension startup/init)
-	local extKey = ext.key
-	local requiresReloading = ext.isLoaded
-	if requiresReloading then
-		if ext.selfObject and type(ext.selfObject["unload"]) == "function" then
-			ext.selfObject.unload()
+	-- For extension update: Reload the extension files (unload existing extension, load updated file, perform extension startup/init)
+	if existingExtension then
+		local extKey = existingExtension.key
+		local requiresReloading = existingExtension.isLoaded
+		if requiresReloading then
+			if existingExtension.selfObject and type(existingExtension.selfObject["unload"]) == "function" then
+				existingExtension.selfObject.unload()
+			end
 		end
-	end
-	CustomCode.loadExtension(extKey)
-	if requiresReloading then
-		local updatedExt = CustomCode.ExtensionLibrary[extKey or false] or {}
-		if updatedExt.selfObject and type(updatedExt.selfObject["startup"]) == "function" then
-			updatedExt.selfObject.startup()
+		CustomCode.loadExtension(extKey)
+		if requiresReloading then
+			local updatedExt = CustomCode.ExtensionLibrary[extKey or false] or {}
+			if updatedExt.selfObject and type(updatedExt.selfObject["startup"]) == "function" then
+				updatedExt.selfObject.startup()
+			end
+		end
+	else -- Otherwise "install it" by making it visible in the loaded extensions list
+		CustomCode.refreshExtensionList()
+		if Program.currentScreen == CustomExtensionsScreen then
+			CustomExtensionsScreen.buildOutPagedButtons()
+			Program.redraw(true)
 		end
 	end
 
 	Utils.tempEnableBizhawkSound()
-	print(string.format("> %s (%s)", "Tracker Extension updated successfully!", extensionName))
 
 	return true
 end

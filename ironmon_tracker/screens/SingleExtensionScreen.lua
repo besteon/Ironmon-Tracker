@@ -164,7 +164,7 @@ function SingleExtensionScreen.updateConfirmationPrompt(button, releaseUrl)
 		Program.redraw(true)
 		-- Delay the update a few frames to redraw screen to show update in progress
 		Program.addFrameCounter("SingleExtensionScreen:UpdateExtension", 4, function()
-			local success = TrackerAPI.updateExtension(SingleExtensionScreen.extensionKey)
+			local success = TrackerAPI.updateOrInstallExtension(SingleExtensionScreen.extensionKey)
 			if success then
 				button.updateStatus = "Updated!"
 				button.textColor = "Positive text"
