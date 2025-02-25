@@ -475,8 +475,7 @@ ScreenResources{
 		LabelExtensionsEnabled = "Extensions enabled", -- NEEDS TRANSLATION
 		ButtonUpdateAllExtensions = "Update all extensions", -- NEEDS TRANSLATION
 		ButtonFindMoreExtensions = "Find more extensions", -- NEEDS TRANSLATION
-		ButtonInstallFromUrl = "Install from URL", -- NEEDS TRANSLATION
-		ButtonInstallFromFolder = "Install from folder", -- NEEDS TRANSLATION
+		ButtonInstallNewExtension = "Install a new extension", -- NEEDS TRANSLATION
 		OptionAllowCustomCode = "Allow custom code to run", -- NEEDS TRANSLATION
 	},
 	SingleExtensionScreen = {

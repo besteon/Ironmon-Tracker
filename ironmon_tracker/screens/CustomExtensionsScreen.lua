@@ -84,7 +84,7 @@ SCREEN.Buttons = {
 	LabelNumberInstalled = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return string.format("%s:", Resources[SCREEN.Key].LabelTotalInstalled) end,
-		box = { CANVAS.X + 9, CANVAS.Y + 16, 120, 11 },
+		box = { CANVAS.X + 9, CANVAS.Y + 17, 120, 11 },
 		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.General end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -98,43 +98,30 @@ SCREEN.Buttons = {
 		image = Constants.PixelImages.SPARKLES,
 		iconColors = { SCREEN.Colors.highlight },
 		getText = function(self) return Resources[SCREEN.Key].ButtonUpdateAllExtensions end,
-		box = { CANVAS.X + 10, CANVAS.Y + 33, 120, 16 },
+		box = { CANVAS.X + 10, CANVAS.Y + 42, 120, 16 },
 		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.General and CustomCode.ExtensionCount > 0 end,
 		onClick = function(self)
-			-- TODO: Popup box prompt for confimation and status
+			SCREEN.updateAllExtensionsPrompt()
 		end,
 	},
 	FindMoreExtensions = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAP_PINDROP,
 		getText = function(self) return Resources[SCREEN.Key].ButtonFindMoreExtensions end,
-		box = { CANVAS.X + 10, CANVAS.Y + 57, 120, 16 },
+		box = { CANVAS.X + 10, CANVAS.Y + 64, 120, 16 },
 		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.General end,
 		onClick = function(self)
 			Utils.openBrowserWindow(FileManager.Urls.EXTENSIONS)
 		end,
 	},
-	InstallFromUrl = {
+	InstallNewExtension = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.INSTALL_BOX,
-		getText = function(self) return Resources[SCREEN.Key].ButtonInstallFromUrl end,
-		box = { CANVAS.X + 10, CANVAS.Y + 76, 120, 16 },
+		getText = function(self) return Resources[SCREEN.Key].ButtonInstallNewExtension end,
+		box = { CANVAS.X + 10, CANVAS.Y + 86, 120, 16 },
 		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.General end,
 		onClick = function(self)
-			-- TODO: Popup box prompt
-		end,
-	},
-	InstallFromFolder = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.INSTALL_BOX,
-		getText = function(self) return Resources[SCREEN.Key].ButtonInstallFromFolder end,
-		box = { CANVAS.X + 10, CANVAS.Y + 95, 120, 16 },
-		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.General end,
-		onClick = function(self)
-			-- TODO: Popup box prompt if no changes
-			CustomCode.refreshExtensionList()
-			SCREEN.buildOutPagedButtons()
-			Program.redraw(true)
+			SCREEN.installNewExtensionPrompt()
 		end,
 	},
 
@@ -331,6 +318,154 @@ function SCREEN.togglePagedButtons(makeActive)
 	SCREEN.refreshButtons()
 end
 
+function SCREEN.updateAllExtensionsPrompt()
+	if CustomCode.ExtensionCount == 0 then
+		return
+	end
+
+	local form = ExternalUI.BizForms.createForm("Update all extensions?", 375, 210)
+	local X = 15
+	local lineY = 10
+	form.Controls.labelDesc1 = form:createLabel(string.format("The Tracker will check all %s extensions for an update.", CustomCode.ExtensionCount), X, lineY)
+	lineY = lineY + 20
+	form.Controls.labelDesc2 = form:createLabel(string.format("If found, the update will be downloaded and installed automatically."), X, lineY)
+	lineY = lineY + 35
+	form.Controls.labelDesc3 = form:createLabel(string.format("This may take a few minutes. Continue?"), X, lineY)
+	lineY = lineY + 25
+	form.Controls.labelStatus = form:createLabel("", X, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.labelStatus, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+	lineY = lineY + 25
+
+	-- If for some reason the user wants to cancel any update(s) in progress, they can press CANCEL button to interrupt and exit out
+	local cancelUpdateInProgress = false
+
+	-- Updates a single extension at a time, with a delay inbetween to report back status changes
+	local successfulCount = 0
+	local function cascadeUpdateExtensions(extensionsToUpdate, index)
+		if cancelUpdateInProgress then
+			return
+		end
+
+		local extension = extensionsToUpdate[index] or {}
+		local success = CustomCode.updateExtension(extension.key)
+		if success then
+			successfulCount = successfulCount + 1
+		end
+
+		if index < #extensionsToUpdate then
+			index = index + 1
+			local progressMsg = string.format("UPDATING EXTENSION %s OF %s.", index, #extensionsToUpdate)
+			ExternalUI.BizForms.setText(form.Controls.labelStatus, progressMsg)
+			Program.addFrameCounter("CustomExtensionsScreen:CascadeUpdate", 10, function()
+				cascadeUpdateExtensions(extensionsToUpdate, index)
+			end, 1)
+		end
+	end
+
+	local function beginUpdateExtensions()
+		local extensionsToUpdate = CustomCode.checkExtensionsForUpdates() or {}
+		if cancelUpdateInProgress then
+			return
+		end
+
+		-- If no updates found, display that status
+		if #extensionsToUpdate == 0 then
+			ExternalUI.BizForms.setText(form.Controls.labelStatus, "NO UPDATES FOUND")
+			return
+		end
+
+		-- Update each extension that has an update, one at a time
+		local progressMsg = string.format("UPDATING EXTENSION %s OF %s.", 1, #extensionsToUpdate)
+		ExternalUI.BizForms.setText(form.Controls.labelStatus, progressMsg)
+		Program.addFrameCounter("CustomExtensionsScreen:CascadeUpdate", 10, function()
+			cascadeUpdateExtensions(extensionsToUpdate, 1)
+		end, 1)
+
+		-- Final status message stating the update is complete.
+		local statusMsg = string.format("UPDATE COMPLETE: %s/%s EXTENSIONS UPDATED.", successfulCount, #extensionsToUpdate)
+		ExternalUI.BizForms.setText(form.Controls.labelStatus, statusMsg)
+	end
+
+	-- UPDATE/CANCEL
+	form.Controls.buttonUpdate = form:createButton("Update Extensions", X + 50, lineY, function()
+		ExternalUI.BizForms.setText(form.Controls.labelStatus, "CHECKING FOR UPDATES...")
+		Program.addFrameCounter("CustomExtensionsScreen:BeginUpdate", 10, function()
+			beginUpdateExtensions()
+		end, 1)
+	end, 130, 25)
+
+	form.Controls.buttonCancel = form:createButton(Resources.AllScreens.Cancel, X + 190, lineY, function()
+		cancelUpdateInProgress = true
+		form:destroy()
+	end, 90, 25)
+end
+
+function SCREEN.installNewExtensionPrompt()
+	local form = ExternalUI.BizForms.createForm("Install a new extension", 375, 230)
+	local X = 15
+	local lineY = 10
+	form.Controls.labelDesc1 = form:createLabel(string.format("Enter the GitHub URL for the extension you wish to install."), X, lineY)
+	lineY = lineY + 20
+	local exampleURL = "https://github.com/Username/ExtensionName"
+	form.Controls.labelDesc2 = form:createLabel(string.format("Example: %s", exampleURL), X, lineY)
+	lineY = lineY + 30
+	form.Controls.labelUrl = form:createLabel(string.format("URL:"), X, lineY)
+	lineY = lineY + 20
+	form.Controls.textboxUrl = form:createTextBox("", X, lineY, 340, 20)
+	lineY = lineY + 30
+	form.Controls.labelStatus = form:createLabel("", X, lineY)
+	ExternalUI.BizForms.setProperty(form.Controls.labelStatus, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+	lineY = lineY + 35
+
+	-- Check if any new extension files were added to the Tracker's `extensions` folder, if so, install them
+	local function checkForNewExtensionFiles()
+		local totalInstalled = CustomCode.ExtensionCount
+		CustomCode.refreshExtensionList()
+		local numNewInstalled = CustomCode.ExtensionCount - totalInstalled
+		if numNewInstalled > 0 then
+			local newInstallsMsg = string.format("%s NEW EXTENSION%s INSTALLED FROM TRACKER FOLDER", numNewInstalled, numNewInstalled == 1 and "" or "S")
+			ExternalUI.BizForms.setText(form.Controls.labelStatus, newInstallsMsg)
+			SCREEN.buildOutPagedButtons()
+			Program.redraw(true)
+		end
+	end
+	Program.addFrameCounter("CustomExtensionsScreen:CheckExtensionFiles", 5, function()
+		checkForNewExtensionFiles()
+	end, 1)
+
+	local function beginInstallExtension(url)
+		local success = TrackerAPI.installNewExtension(url)
+		if success then
+			ExternalUI.BizForms.setText(form.Controls.labelStatus, "INSTALL COMPLETE! - PLEASE ENABLE THE EXTENSION")
+			ExternalUI.BizForms.setText(form.Controls.textboxUrl, "")
+		else
+			ExternalUI.BizForms.setText(form.Controls.labelStatus, "ERROR INSTALLING EXTENSION - SEE LUA CONSOLE")
+		end
+	end
+
+	-- INSTALL/CANCEL
+	form.Controls.buttonInstall = form:createButton("Install Extension", X + 50, lineY, function()
+		local textboxUrl = ExternalUI.BizForms.getText(form.Controls.textboxUrl) or ""
+		local githubUserAndRepo = string.match(textboxUrl, "github%.com%/([^%/]+%/[^%/]+)")
+		if not githubUserAndRepo then
+			ExternalUI.BizForms.setText(form.Controls.labelStatus, "PLEASE ENTER A VALID GITHUB REPOSITORY URL")
+			ExternalUI.BizForms.setProperty(form.Controls.labelStatus, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+			return
+		end
+
+		local formattedUrl = string.format("https://github.com/%s", githubUserAndRepo)
+		ExternalUI.BizForms.setText(form.Controls.labelStatus, "DOWNLOADING EXTENSION...")
+		ExternalUI.BizForms.setProperty(form.Controls.labelStatus, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+		Program.addFrameCounter("CustomExtensionsScreen:DownloadInstallExtension", 10, function()
+			beginInstallExtension(formattedUrl)
+		end, 1)
+	end, 130, 25)
+
+	form.Controls.buttonCancel = form:createButton(Resources.AllScreens.Cancel, X + 190, lineY, function()
+		form:destroy()
+	end, 90, 25)
+end
+
 function SCREEN.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.updateSelf ~= nil then
@@ -365,6 +500,7 @@ function SCREEN.drawScreen()
 		fill = Theme.COLORS[SCREEN.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
 	}
+
 	local headerText = Utils.toUpperUTF8(Resources[SCREEN.Key].Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
