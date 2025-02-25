@@ -20,7 +20,8 @@ CustomCode = {
 		-- Known compatible extensions
 		ExtensionKeys = {
 			NatDex = "NatDexExtension",
-			MoveExpansion = "MoveExpansionExtension",
+			MoveExpansion = "MoveExpansionExtension", -- Phys/Special split, extra moves
+			MAX = "MAXExtension", -- same as above but with extra abilities
 		},
 	},
 }
@@ -95,7 +96,7 @@ function CustomCode.loadExtension(extensionKey)
 		return nil
 	end
 
-	local customCodeFolder = FileManager.getCustomFolderPath()
+	local customCodeFolder = FileManager.getExtensionsFolderPath()
 	local filepath = FileManager.getPathIfExists(customCodeFolder .. extensionKey .. FileManager.Extensions.LUA_CODE)
 
 	if filepath == nil then
@@ -198,11 +199,52 @@ function CustomCode.disableExtension(extensionKey)
 	end
 end
 
+---Reloads an extension by turning it off (disable), loading the extension's lua code file, and turning it back on (enable)
+---@param extensionKey string
+function CustomCode.reloadExtension(extensionKey)
+	local extension = CustomCode.ExtensionLibrary[extensionKey or false]
+	if not extension then
+		return
+	end
+	Utils.tempDisableBizhawkSound()
+	local extKey = extension.key
+	local requiresReloading = extension.isLoaded
+	if requiresReloading then
+		if extension.selfObject and type(extension.selfObject["unload"]) == "function" then
+			extension.selfObject.unload()
+		end
+	end
+	CustomCode.loadExtension(extKey)
+	if requiresReloading then
+		local updatedExt = CustomCode.ExtensionLibrary[extKey or false] or {}
+		if updatedExt.selfObject and type(updatedExt.selfObject["startup"]) == "function" then
+			updatedExt.selfObject.startup()
+		end
+	end
+	Utils.tempEnableBizhawkSound()
+end
+
+---Auto-updates the extension by downloading and installing the latest release
+---@param extensionKey string The unique extension key, usually the filename of the extension
+---@return boolean success
+function CustomCode.updateExtension(extensionKey)
+	local extension = CustomCode.ExtensionLibrary[extensionKey]
+	if extension == nil then
+		return false
+	end
+	local updateFuncOverride = extension.selfObject.downloadAndInstallUpdate
+	if type(updateFuncOverride) == "function" then
+		return updateFuncOverride()
+	else
+		return TrackerAPI.updateExtension(extensionKey)
+	end
+end
+
 function CustomCode.refreshExtensionList()
 	-- Used to help remove any inactive or missing extension files
 	local installedExtensions = {}
 
-	local customFolderPath = FileManager.getCustomFolderPath()
+	local customFolderPath = FileManager.getExtensionsFolderPath()
 	local customFiles = FileManager.getFilesFromDirectory(customFolderPath)
 	for _, filename in pairs(customFiles) do
 		local name = FileManager.extractFileNameFromPath(filename) or ""
@@ -233,6 +275,131 @@ function CustomCode.refreshExtensionList()
 
 	collectgarbage()
 	Main.SaveSettings(true)
+end
+
+---Checks all enabled extensions for version updates
+---@return table extensions List of extensions that have an update available
+function CustomCode.checkExtensionsForUpdates()
+	-- Update check not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+		return {}
+	end
+
+	-- Build curl update commands for each enabled extension
+	local extensionsToCheck = {}
+	local extensionCommandParts = {}
+	for _, extension in ipairs(CustomCode.EnabledExtensions) do
+		local selfObj = extension.selfObject or {}
+		local githubRepo
+		if not Utils.isNilOrEmpty(selfObj.github) then
+			githubRepo = selfObj.github
+		elseif not Utils.isNilOrEmpty(selfObj.url) then
+			githubRepo = string.match(selfObj.url, "github%.com%/([^%/]+%/[^%/]+)") -- Format: MyUsername/ExtensionRepo
+		end
+		if githubRepo then
+			githubRepo = FileManager.trimSlash(githubRepo)
+			local commandPart = string.format('"https://api.github.com/repos/%s/releases/latest" --ssl-no-revoke', githubRepo)
+			table.insert(extensionsToCheck, extension)
+			table.insert(extensionCommandParts, commandPart)
+		end
+	end
+	if #extensionsToCheck == 0 then
+		return {}
+	end
+
+	-- Execute a single curl command to check for updates for all those extensions
+	local allCommandParts = table.concat(extensionCommandParts, " -: ")
+	local versionCheckCommand = string.format('curl %s', allCommandParts)
+	Utils.tempDisableBizhawkSound()
+	local success, fileLines = FileManager.tryOsExecute(versionCheckCommand)
+	Utils.tempEnableBizhawkSound()
+	if not success then
+		return {}
+	end
+	local response = table.concat(fileLines or {}, "\n")
+
+	-- The below section determines which extensions need updating
+	local function _formatVersionNumber(version)
+		local _, count = string.gsub(version, "%.", "")
+		-- Should be at least two period dividers (v1.2.3)
+		if (2 - count) > 0 then
+			return version .. string.rep(".0", 2 - count)
+		end
+		return version
+	end
+	-- Currently assumes the number of tag_names is the same as the number of extensions counted above
+	local i = 1
+	local extensionsToUpdate = {}
+	for version in string.gmatch(response, '"tag_name":%s+"[^%d]+([%d%.]+)"') or {} do
+		-- Parse version number from response
+		local responseVersion = _formatVersionNumber(version)
+		-- Determine version number from loaded extension
+		local extension = extensionsToCheck[i] or {}
+		local selfObj = extension.selfObject or {}
+		if not Utils.isNilOrEmpty(selfObj.version) then
+			local extVersion = _formatVersionNumber(selfObj.version)
+			local requiresUpdate = Utils.isNewerVersion(responseVersion, extVersion)
+			if requiresUpdate then
+				table.insert(extensionsToUpdate, extension)
+			end
+		end
+		i = i + 1
+	end
+
+	return extensionsToUpdate
+end
+
+---Internal code to download extension files from a Github and copy them over to the Tracker's `extensions` folder.
+---Developers, refer to TrackerAPI for the supported update or install functions instead of using this one.
+---@param githubRepoUrl string The repo url where their extension is hosted
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default to exclude: "README.md", "LICENSE", and ".gitignore"
+---@param branchName? string Optional, defaults to the `main` branch
+---@return boolean success
+function CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesToExclude, fileNamesToExclude, branchName)
+	local tarUrl = FileManager.getTarDownloadUrl(githubRepoUrl, branchName)
+	local tarArchiveName = FileManager.getTarDownloadArchiveName(githubRepoUrl, branchName)
+	local archiveFolderPath = FileManager.prependDir(tarArchiveName)
+	local archiveFilePath = archiveFolderPath .. FileManager.Extensions.TAR_GZ
+	local destinationFolder = FileManager.getExtensionsFolderPath()
+	local isOnWindows = Main.OS == "Windows"
+
+	Utils.tempDisableBizhawkSound()
+
+	-- Download and Extract the tar.gz release file from Github repo
+	local downloadCommand, downloadErr1 = UpdateOrInstall.buildDownloadExtractCommand(
+		tarUrl,
+		archiveFilePath,
+		archiveFolderPath,
+		isOnWindows,
+		folderNamesToExclude or {},
+		fileNamesToExclude or { "README.md", "LICENSE", ".gitignore" }
+	)
+	local downloadResult = os.execute(downloadCommand)
+	if not (downloadResult == true or downloadResult == 0) then -- true / 0 = successful
+		Utils.tempEnableBizhawkSound()
+		print(string.format("> %s (%s)", "Error updating/installing Tracker Extension"))
+		print(string.format("> URL: %s", githubRepoUrl))
+		print("> ERROR: " .. tostring(downloadErr1))
+		return false
+	end
+
+	-- Copy over extract files to the Tracker's extension folder
+	local copyCommand, copyErr1, copyErr2 = UpdateOrInstall.buildCopyFilesCommand(
+		archiveFolderPath,
+		isOnWindows,
+		destinationFolder
+	)
+	local copyResult = os.execute(copyCommand)
+	if not (copyResult == true or copyResult == 0) then -- true / 0 = successful
+		print("> WARNING: " .. tostring(copyErr1))
+		print("> " .. tostring(copyErr2))
+		-- Always succeed (return true) now that the new XCOPY succeeds regardless of error
+	end
+
+	Utils.tempEnableBizhawkSound()
+
+	return true
 end
 
 -- Simulates an interface-like function execution for custom code files
@@ -319,6 +486,17 @@ end
 ---@return boolean
 function CustomCode.RomHacks.isPlayingMoveExpansion()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MoveExpansion
+	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		return false
+	end
+	-- Have to manually check added data to determine if Move Expansion extension is in use
+	return MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
+end
+
+---Returns true if the rom loaded is MAX modified, and the extension is enabled and running
+---@return boolean
+function CustomCode.RomHacks.isPlayingMAX()
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MAX
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
 		return false
 	end

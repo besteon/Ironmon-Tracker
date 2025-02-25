@@ -52,10 +52,12 @@ SingleExtensionScreen.Buttons = {
 		getText = function(self)
 			if self.updateStatus == "Available" then
 				return Resources.SingleExtensionScreen.ButtonUpdateAvailable
-			elseif self.updateStatus == "Unvailable" then
+			elseif self.updateStatus == "No Update" then
 				return Resources.SingleExtensionScreen.ButtonNoUpdateFound
-			else
+			elseif self.updateStatus == "Unchecked" then
 				return Resources.SingleExtensionScreen.ButtonCheckForUpdates
+			else
+				return self.updateStatus
 			end
 		end,
 		updateStatus = "Unchecked", -- checked later when clicked
@@ -68,20 +70,15 @@ SingleExtensionScreen.Buttons = {
 			self.textColor = SingleExtensionScreen.Colors.text
 		end,
 		onClick = function(self)
-			local updateFunc = SingleExtensionScreen.extension.selfObject.checkForUpdates
-			if type(updateFunc) ~= "function" then
+			local extUpdateFunc = SingleExtensionScreen.extension.selfObject.checkForUpdates
+			if type(extUpdateFunc) ~= "function" then
 				return
 			end
-
-			local isUpdateAvailable, updateUrl = updateFunc()
+			local isUpdateAvailable, updateUrl = extUpdateFunc()
 			if isUpdateAvailable then
-				self.updateStatus = "Available"
-				self.textColor = "Positive text"
-				if updateUrl ~= nil then
-					Utils.openBrowserWindow(updateUrl)
-				end
+				SingleExtensionScreen.updateConfirmationPrompt(self, updateUrl)
 			else
-				self.updateStatus = "Unvailable"
+				self.updateStatus = "No Update"
 				self.textColor = SingleExtensionScreen.Colors.text
 			end
 			Program.redraw(true)
@@ -144,6 +141,48 @@ function SingleExtensionScreen.setupScreenWithInfo(extensionKey, extension)
 	SingleExtensionScreen.extensionKey = extensionKey
 	SingleExtensionScreen.extension = extension
 	SingleExtensionScreen.refreshButtons()
+end
+
+function SingleExtensionScreen.updateConfirmationPrompt(button, releaseUrl)
+	button = button or {}
+
+	local form = ExternalUI.BizForms.createForm("Update Extension?", 330, 150)
+	local X = 15
+	local lineY = 10
+	form.Controls.labelDescription = form:createLabel(string.format("An update is available, would you like to update now?"), X, lineY)
+	lineY = lineY + 25
+	local extension = SingleExtensionScreen.extension or SingleExtensionScreen.getEmptyExtension()
+	local extName = extension.selfObject.name or "???"
+	form.Controls.labelProfileName = form:createLabel(string.format("Extension:  %s", extName), X, lineY)
+	lineY = lineY + 35
+
+	-- YES / RELEASE NOTES / CANCEL
+	form.Controls.buttonYes = form:createButton(Resources.AllScreens.Yes, X + 5, lineY, function()
+		form:destroy()
+		button.updateStatus = "Updating..."
+		button.textColor = "Intermediate text"
+		Program.redraw(true)
+		-- Delay the update a few frames to redraw screen to show update in progress
+		Program.addFrameCounter("SingleExtensionScreen:UpdateExtension", 4, function()
+			local success = CustomCode.updateExtension(SingleExtensionScreen.extensionKey)
+			if success then
+				button.updateStatus = "Updated!"
+				button.textColor = "Positive text"
+			else
+				button.updateStatus = "Manual Download"
+				button.textColor = "Intermediate text"
+			end
+			Program.redraw(true)
+		end, 1)
+	end, 60, 25)
+	if releaseUrl ~= nil then
+		form.Controls.buttonViewReleaseNotes = form:createButton("View Release Notes", X + 75, lineY, function()
+			Utils.openBrowserWindow(releaseUrl)
+		end, 125, 25)
+	end
+	form.Controls.buttonCancel = form:createButton(Resources.AllScreens.Cancel, X + 210, lineY, function()
+		form:destroy()
+	end, 60, 25)
 end
 
 function SingleExtensionScreen.getEmptyExtension()

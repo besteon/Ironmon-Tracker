@@ -74,6 +74,7 @@ FileManager.Extensions = {
 	BIZHAWK_SAVESTATE = ".State",
 	MGBA_SAVESTATE = ".ss0", -- ".ss0" through ".ss9" are okay to use
 	LUA_CODE = ".lua",
+	TAR_GZ = ".tar.gz",
 }
 
 FileManager.Urls = {
@@ -533,10 +534,12 @@ function FileManager.getLoadedRomPath()
 	return nil
 end
 
+---@return string folderpath
 function FileManager.getTdatFolderPath()
 	return FileManager.getPathOverride("Tracker Data") or FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
 end
 
+---@return string filepath
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
@@ -547,6 +550,7 @@ function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
+---@return string filepath
 function FileManager.buildSpritePath(animationType, imageName, imageExtension)
 	local imageFolder = Options.getIconSet().folder
 	local listOfPaths = {
@@ -559,7 +563,8 @@ function FileManager.buildSpritePath(animationType, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
--- Returns a properly formatted folder path where randomizer settings files are located; includes trailing slash
+---Returns a properly formatted folder path where randomizer settings files are located; includes trailing slash
+---@return string folderpath
 function FileManager.getRandomizerSettingsPath()
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
@@ -569,7 +574,8 @@ function FileManager.getRandomizerSettingsPath()
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
--- Returns a properly formatted folder path where network files are located; includes trailing slash
+---Returns a properly formatted folder path where network files are located; includes trailing slash
+---@return string folderpath
 function FileManager.getNetworkPath()
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
@@ -579,13 +585,52 @@ function FileManager.getNetworkPath()
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
--- Returns a properly formatted folder path where custom code files are located; includes trailing slash
-function FileManager.getCustomFolderPath()
+---Returns a properly formatted folder path where extensions code files are located; includes trailing slash.
+---@return string folderpath
+function FileManager.getExtensionsFolderPath()
 	local listOfPaths = {
 		FileManager.Folders.Custom,
 		"", -- Necessary to include a trailing slash, helps with appending a filename
 	}
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
+end
+
+---Returns a properly formatted folder path where custom code files are located; includes trailing slash
+---Note: this is a redudant/duplicate function of `FileManager.getExtensionsFolderPath()`, for convenience
+---@return string folderpath
+function FileManager.getCustomFolderPath()
+	return FileManager.getExtensionsFolderPath()
+end
+
+---Returns a fully built URL for the tar archive to be downloaded for a Github release
+---@param githubRepoUrl string
+---@param branchName? string Optional, defaults to the `main` branch
+---@return string url Example: https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz
+function FileManager.getTarDownloadUrl(githubRepoUrl, branchName)
+	githubRepoUrl = FileManager.trimSlash(githubRepoUrl or "")
+	branchName = (branchName or "main"):lower()
+	local tarEnding
+	if branchName == "main" then
+		tarEnding = string.format("/archive/main%s", FileManager.Extensions.TAR_GZ)
+	else
+		branchName = Utils.replaceText(branchName, " ", "-")
+		tarEnding = string.format("/archive/refs/heads/%s%s", branchName, FileManager.Extensions.TAR_GZ)
+	end
+	return githubRepoUrl .. tarEnding
+end
+
+---Returns the archive name for the tar archive that would be downloaded for a Github release
+---Note: Append .tar.gz for the unextracted filename of the downloaded file
+---@param githubRepoUrl string
+---@param branchName? string Optional, defaults to the `main` branch
+---@return string filename Example: Ironmon-Tracker-main
+function FileManager.getTarDownloadArchiveName(githubRepoUrl, branchName)
+	githubRepoUrl = FileManager.trimSlash(githubRepoUrl or "")
+	branchName = (branchName or "main"):lower()
+	local repoName = FileManager.extractFolderNameFromPath(githubRepoUrl)
+	repoName = Utils.replaceText(repoName, " ", "-")
+	branchName = Utils.replaceText(branchName, " ", "-")
+	return string.format("%s-%s", repoName, branchName)
 end
 
 ---@param path string
