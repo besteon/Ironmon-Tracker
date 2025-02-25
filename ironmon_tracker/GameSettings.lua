@@ -7,8 +7,9 @@ GameSettings = {
 		SoftwareVersion = 0x080000BC,
 	},
 	RomHackSupport = {
-		NatDex = true, -- Support for Nat. Dex added as of v8.5.0
-		PhysSpecSplit = true, -- Support for Moves having the Physical/Special split
+		NatDex = true, -- Support for Nat. Dex added as of v8.5.0; extension name: "NatDexExtension"
+		PhysSpecSplit = true, -- Support for Moves having the Physical/Special split; extension name: "MoveExpansionExtension"
+		MAX = true, -- Support for Moves having phys/special split AND new abilities added; extension name: "MAXExtension"
 	},
 }
 
@@ -56,6 +57,12 @@ FireRed:
 LeafGreen:
 	- 1.0: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
 	- 1.1: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
+
+MoveExpansion:
+	- Emerald: ??? (https://github.com/champred/pokeemerald/tree/em-me-v1)
+	- FireRed: ??? (https://github.com/champred/pokeemerald/tree/fr-me-v2)
+MAX:
+	- Emerald: https://raw.githubusercontent.com/champred/pokeemerald/refs/heads/symbols/pokeemerald.sym
 
 General Notes:
 	- EWRAM (02xxxxxx) addresses are the same between all versions of a game
