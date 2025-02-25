@@ -445,7 +445,7 @@ function TrackerAPI.getExtensionSetting(extensionName, key)
 	return tonumber(value or "") or value
 end
 
----Automatically downloads and updates/installs an extension to its latest Github release, then reloads it into the Tracker; Note: this does not enabled the extensio
+---Automatically downloads and updates/installs an extension to its latest Github release, then reloads it into the Tracker; Note: this does not enabled the extension
 ---@param extensionNameOrUrl string The name/key of the existing extension calling this function, or the repo url if installing new extension; use only alphanumeric characters, no spaces
 ---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
 ---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over, such as README; default: "README.md" and "LICENSE"
