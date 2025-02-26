@@ -608,10 +608,10 @@ end
 ---@return string url Example: https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz
 function FileManager.getTarDownloadUrl(githubRepoUrl, branchName)
 	githubRepoUrl = FileManager.trimSlash(githubRepoUrl or "")
-	branchName = (branchName or "main"):lower()
+	branchName = (branchName or CustomCode.DefaultBranch):lower()
 	local tarEnding
-	if branchName == "main" then
-		tarEnding = string.format("/archive/main%s", FileManager.Extensions.TAR_GZ)
+	if branchName == CustomCode.DefaultBranch then
+		tarEnding = string.format("/archive/%s%s", CustomCode.DefaultBranch, FileManager.Extensions.TAR_GZ)
 	else
 		branchName = Utils.replaceText(branchName, " ", "-")
 		tarEnding = string.format("/archive/refs/heads/%s%s", branchName, FileManager.Extensions.TAR_GZ)
@@ -626,7 +626,7 @@ end
 ---@return string filename Example: Ironmon-Tracker-main
 function FileManager.getTarDownloadArchiveName(githubRepoUrl, branchName)
 	githubRepoUrl = FileManager.trimSlash(githubRepoUrl or "")
-	branchName = (branchName or "main"):lower()
+	branchName = (branchName or CustomCode.DefaultBranch):lower()
 	local repoName = FileManager.extractFolderNameFromPath(githubRepoUrl)
 	repoName = Utils.replaceText(repoName, " ", "-")
 	branchName = Utils.replaceText(branchName, " ", "-")

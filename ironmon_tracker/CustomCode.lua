@@ -24,6 +24,21 @@ CustomCode = {
 			MAX = "MAXExtension", -- same as above but with extra abilities
 		},
 	},
+
+	-- When installing/updating extensions, the below files and folders are removed after the release download and before copying over the files/folders
+	DefaultFoldersToExclude = {
+		".vscode",
+		".github",
+	},
+	DefaultFilenamesToExclude = {
+		'.editorconfig',
+		'.gitattributes',
+		".gitignore",
+		"README.md",
+		"LICENSE",
+	},
+	-- The default release branch where extensions install/update from their respective GitHub repositories
+	DefaultBranch = "main",
 }
 
 -- Returns true if the settings option for custom code extensions is enabled; false otherwise
@@ -199,7 +214,7 @@ function CustomCode.disableExtension(extensionKey)
 	end
 end
 
----Reloads an extension by turning it off (disable), loading the extension's lua code file, and turning it back on (enable)
+---Reloads an extension by turning it off, loading the extension's lua code file, and turning it back on
 ---@param extensionKey string
 function CustomCode.reloadExtension(extensionKey)
 	local extension = CustomCode.ExtensionLibrary[extensionKey or false]
@@ -352,9 +367,9 @@ end
 ---Internal code to download extension files from a Github and copy them over to the Tracker's `extensions` folder.
 ---Developers, refer to TrackerAPI for the supported update or install functions instead of using this one.
 ---@param githubRepoUrl string The repo url where their extension is hosted
----@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
----@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default to exclude: "README.md", "LICENSE", and ".gitignore"
----@param branchName? string Optional, defaults to the `main` branch
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default, refer to: CustomCode.DefaultFoldersToExclude
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default, refer to: CustomCode.DefaultFilenamesToExclude
+---@param branchName? string Optional, defaults to the `main` branch: CustomCode.DefaultBranch
 ---@return boolean success
 function CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesToExclude, fileNamesToExclude, branchName)
 	local tarUrl = FileManager.getTarDownloadUrl(githubRepoUrl, branchName)
@@ -372,8 +387,8 @@ function CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesT
 		archiveFilePath,
 		archiveFolderPath,
 		isOnWindows,
-		folderNamesToExclude or {},
-		fileNamesToExclude or { "README.md", "LICENSE", ".gitignore" }
+		folderNamesToExclude or CustomCode.DefaultFoldersToExclude or {},
+		fileNamesToExclude or CustomCode.DefaultFilenamesToExclude or {}
 	)
 	local downloadResult = os.execute(downloadCommand)
 	if not (downloadResult == true or downloadResult == 0) then -- true / 0 = successful
