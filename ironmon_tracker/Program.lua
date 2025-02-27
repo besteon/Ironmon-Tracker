@@ -1564,6 +1564,7 @@ function Program.getTMsHMsBagItems()
 	return tms, hms
 end
 
+---@class IPokemon
 Program.DefaultPokemon = {
 	personality = 0,
 	nickname = "",
@@ -1596,6 +1597,9 @@ Program.DefaultPokemon = {
 	ivs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 }
 
+---Creates and returns a new IPokemon object
+---@param o? table Optional initial object table
+---@return IPokemon pokemon An IPokemon object
 function Program.DefaultPokemon:new(o)
 	o = o or {}
 	setmetatable(o, self)
@@ -1604,19 +1608,20 @@ function Program.DefaultPokemon:new(o)
 end
 
 ---A Trainer data struct read in from game memory
+---@class ITrainer
 Program.GameTrainer = {
 	trainerId = 0, -- The internal ID number of the trainer
 	defeated = false, -- If the player has defeated this trainer; requires a separate game data read
 	-- /*0x00*/ u8 partyFlags;
 	partyFlags = 0,
 	-- /*0x01*/ u8 trainerClass;
-	trainerClass = 0,
+	trainerClass = "",
 	-- /*0x02*/ u8 encounterMusic_gender; // last bit is gender
 	gender = 0,
 	-- /*0x03*/ u8 trainerPic;
 	trainerPic = 0,
 	-- /*0x04*/ u8 trainerName[12];
-	trainerName = 0, -- size: 12
+	trainerName = "", -- size: 12
 	-- /*0x10*/ u16 items[MAX_TRAINER_ITEMS];
 	items = {}, -- value: itemId, size: 4
 	-- /*0x18*/ bool8 doubleBattle;
@@ -1631,6 +1636,9 @@ Program.GameTrainer = {
 	},
 }
 
+---Creates and returns a new ITrainer object
+---@param o? table Optional initial object table
+---@return ITrainer trainer An ITrainer object
 function Program.GameTrainer:new(o)
 	o = o or {}
 	setmetatable(o, self)

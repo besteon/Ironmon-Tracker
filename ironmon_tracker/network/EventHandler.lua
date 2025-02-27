@@ -1005,6 +1005,7 @@ EventHandler.DefaultEvents = {
 
 -- Event object prototypes
 
+---@class IEvent
 EventHandler.IEvent = {
 	-- Required unique key
 	Key = EventHandler.Events.None.Key,
@@ -1021,7 +1022,7 @@ EventHandler.IEvent = {
 }
 ---Creates and returns a new IEvent object
 ---@param o? table Optional initial object table
----@return table event An IEvent object
+---@return IEvent event An IEvent object
 function EventHandler.IEvent:new(o)
 	o = o or {}
 	o.Key = o.Key or EventHandler.Events.None.Key
