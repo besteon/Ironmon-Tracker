@@ -25,6 +25,7 @@ FileManager.Folders = {
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
+	GachaMon = "GachaMon",
 }
 
 FileManager.Files = {
@@ -42,6 +43,7 @@ FileManager.Files = {
 	KNOWN_WORKING_DIR = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt",
 	NEWRUN_PROFILES = FileManager.Folders.TrackerCode .. FileManager.slash .. "NewRunProfiles.json",
 	ADDRESS_OVERRIDES = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses .. FileManager.slash .. "TrackerOverrides.json",
+	GACHAMON_DATA = FileManager.Folders.GachaMon .. FileManager.slash .. "AllGachaMonData.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -109,6 +111,7 @@ FileManager.LuaCode = {
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
+	{ name = "GachaMonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonData.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
