@@ -143,6 +143,15 @@ function Main.Run()
 		end
 	end
 
+	-- Verify that at least one of the Tracker files on the filesystem are accessible (no diacritics/accented characters in the absolute path to the file)
+	local verificationPath = FileManager.prependDir(FileManager.Files.ADDRESS_OVERRIDES)
+	if not FileManager.fileExists(verificationPath) then
+		Main.DisplayError("The Tracker cannot access its files: Issue with folder's location.\n\nCheck that there are no diacritics/accented characters in the full folder path to your Tracker folder. For example: é ñ ü")
+		print("> [ERROR] Unable to access file path to:")
+		print(string.format("> %s", verificationPath))
+		return
+	end
+
 	Memory.initialize()
 	GameSettings.initialize()
 	Resources.autoDetectForeignLanguage()
