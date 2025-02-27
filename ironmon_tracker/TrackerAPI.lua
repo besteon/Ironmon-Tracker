@@ -398,7 +398,7 @@ end
 -----------------------------------
 
 ---Checks if a Tracker Extension is enabled, if it exists
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@return boolean isEnabled
 function TrackerAPI.isExtensionEnabled(extensionName)
 	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
@@ -406,7 +406,7 @@ function TrackerAPI.isExtensionEnabled(extensionName)
 end
 
 ---Gets an extension object, if one exists
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@return table? extension
 function TrackerAPI.getExtensionSelf(extensionName)
 	local ext = CustomCode.ExtensionLibrary[extensionName or false] or {}
@@ -414,7 +414,7 @@ function TrackerAPI.getExtensionSelf(extensionName)
 end
 
 ---Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file
 ---@param value string|number|boolean The value that is being saved; allowed types: number, boolean, string
 function TrackerAPI.saveExtensionSetting(extensionName, key, value)
@@ -432,7 +432,7 @@ function TrackerAPI.saveExtensionSetting(extensionName, key, value)
 end
 
 ---Gets a setting from the user's Settings.ini file
----@param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
+---@param extensionName string The name/key of the extension calling this function; use only alphanumeric characters, no spaces
 ---@param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file
 ---@return string|number|boolean? value Returns the value that was saved, or returns nil if it doesn't exist.
 function TrackerAPI.getExtensionSetting(extensionName, key)
@@ -443,4 +443,70 @@ function TrackerAPI.getExtensionSetting(extensionName, key)
 	local settingsKey = string.format("%s_%s", encodedName, encodedKey)
 	local value = Main.MetaSettings.extconfig[settingsKey]
 	return tonumber(value or "") or value
+end
+
+---Automatically downloads and installs an extension from its latest Github release; This will not enable the extension
+---@param githubRepoUrl string The repo url where their extension is hosted; Example: https://github.com/Username/ExtensionName
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default, refer to: CustomCode.DefaultFoldersToExclude
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default, refer to: CustomCode.DefaultFilenamesToExclude
+---@param branchName? string Optional, defaults to the `main` branch: CustomCode.DefaultBranch
+---@return boolean success
+function TrackerAPI.installNewExtension(githubRepoUrl, folderNamesToExclude, fileNamesToExclude, branchName)
+	if Utils.isNilOrEmpty(githubRepoUrl) then
+		return false
+	end
+
+	-- Perform the download and file update
+	local success = CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesToExclude, fileNamesToExclude, branchName)
+	if not success then
+		return false
+	end
+
+	-- Finally, "install it" by making it visible in the loaded extensions list
+	Utils.tempDisableBizhawkSound()
+	CustomCode.refreshExtensionList()
+	if Program.currentScreen == CustomExtensionsScreen then
+		CustomExtensionsScreen.buildOutPagedButtons()
+		Program.redraw(true)
+	end
+	Utils.tempEnableBizhawkSound()
+
+	return true
+end
+
+---Automatically downloads and updates an extension to its latest Github release, then reloads it into the Tracker
+---@param extensionName string The name/key of the existing extension calling this function; use only alphanumeric characters, no spaces
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default, refer to: CustomCode.DefaultFoldersToExclude
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default, refer to: CustomCode.DefaultFilenamesToExclude
+---@param branchName? string Optional, defaults to the `main` branch: CustomCode.DefaultBranch
+---@return boolean success
+function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNamesToExclude, branchName)
+	if Utils.isNilOrEmpty(extensionName) then
+		return false
+	end
+	local extension = CustomCode.ExtensionLibrary[extensionName]
+	if not extension then
+		return false
+	end
+
+	-- A url or github repo is required as a source for the extension release update download
+	local githubRepoUrl
+	if not Utils.isNilOrEmpty(extension.selfObject.url) then
+		githubRepoUrl = extension.selfObject.url
+	elseif not Utils.isNilOrEmpty(extension.selfObject.github) then
+		githubRepoUrl = string.format("https://github.com/%s", extension.selfObject.github)
+	end
+	if not githubRepoUrl then
+		return false
+	end
+
+	-- Perform the download and file update
+	local success = CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesToExclude, fileNamesToExclude, branchName)
+	if not success then
+		return false
+	end
+
+	CustomCode.reloadExtension(extension.key)
+
+	return true
 end

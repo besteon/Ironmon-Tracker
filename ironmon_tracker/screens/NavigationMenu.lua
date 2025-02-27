@@ -123,6 +123,12 @@ NavigationMenu.Buttons = {
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			CustomExtensionsScreen.buildOutPagedButtons()
+			-- Change the landing page if there are already some extensions installed, for easier access
+			if CustomCode.ExtensionCount > 0 then
+				CustomExtensionsScreen.currentTab = CustomExtensionsScreen.Tabs.Extensions
+			else
+				CustomExtensionsScreen.currentTab = CustomExtensionsScreen.Tabs.General
+			end
 			Program.changeScreenView(CustomExtensionsScreen)
 		end
 	},

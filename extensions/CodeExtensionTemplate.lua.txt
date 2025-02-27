@@ -18,6 +18,7 @@ local function CodeExtensionTemplate()
 	-- INTENRAL TRACKER FUNCTIONS BELOW
 	-- Add any number of these below functions to your extension that you want to use.
 	-- If you don't need a function, don't add it at all; leave ommitted for faster code execution.
+	-- IMPORTANT: To repeat, do NOT use all of these functions. Comment out or omit them. Otherwise performance will suffer.
 	--------------------------------------
 
 	-- Executed when the user clicks the "Options" button while viewing the extension details within the Tracker's UI
@@ -28,8 +29,9 @@ local function CodeExtensionTemplate()
 	end
 
 	-- Executed when the user clicks the "Check for Updates" button while viewing the extension details within the Tracker's UI
+	-- The existence of this function will allow the Tracker to automatically update & install your extension if an update is available
+	-- Your extension needs to define the `self.github` and `self.url` value in order for this auto-update to work
 	-- Returns [true, downloadUrl] if an update is available (downloadUrl auto opens in browser for user); otherwise returns [false, downloadUrl]
-	-- Remove this function if you choose not to implement a version update check for your extension
 	function self.checkForUpdates()
 		-- Update the pattern below to match your version. You can check what this looks like by visiting the latest release url on your repo
 		local versionResponsePattern = '"tag_name":%s+"%w+(%d+%.%d+)"' -- matches "1.0" in "tag_name": "v1.0"
@@ -38,6 +40,18 @@ local function CodeExtensionTemplate()
 		local compareFunc = function(a, b) return a ~= b and not Utils.isNewerVersion(a, b) end -- if current version is *older* than online version
 		local isUpdateAvailable = Utils.checkForVersionUpdate(versionCheckUrl, self.version, versionResponsePattern, compareFunc)
 		return isUpdateAvailable, downloadUrl
+	end
+
+	-- Executed when the user clicks the "Check for Updates" or "Update All Extensions" button
+	-- NOTE: Only add this function to your extension if you need to override how the update is performed.
+	-- Defining this function is optional. The below code is the default code the Tracker uses for all extensions that have a `self.github` or `self.url` value defined.
+	-- Returns [true] if the auto-update is successful; false otherwise
+	function self.downloadAndInstallUpdate()
+		-- Note: After the extension files are downloaded from Github and unzipped, you may have extra files in there that aren't needed for the extension to work
+		-- Refer to the documentation in TrackerAPI to learn more about how to exclude these files/folders, as well as how to download from a specific release branch
+		local extensionFilenameKey = "CodeExtensionTemplate" -- REPLACE WITH FILENAME OF EXTENSION
+		local success = TrackerAPI.updateExtension(extensionFilenameKey)
+		return success
 	end
 
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code

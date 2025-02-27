@@ -467,11 +467,15 @@ ScreenResources{
 		LabelBattle = "Battle!", -- NEEDS TRANSLATION
 	},
 	CustomExtensionsScreen = {
-		Title = "Custom Extensions", -- NEEDS TRANSLATION
-		ButtonGetExtensions = "Get Extensions", -- NEEDS TRANSLATION
-		ButtonGetMore = "(Get More)", -- NEEDS TRANSLATION
-		ButtonInstallNew = "Install New", -- NEEDS TRANSLATION
-		LabelNoExtensions = "You currently don't have any custom extensions installed.", -- NEEDS TRANSLATION
+		Title = "Tracker Extensions", -- NEEDS TRANSLATION
+		TabGeneral = "General", -- NEEDS TRANSLATION
+		TabExtensions = "Extensions", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
+		LabelTotalInstalled = "Total installed", -- NEEDS TRANSLATION
+		LabelExtensionsEnabled = "Extensions enabled", -- NEEDS TRANSLATION
+		ButtonUpdateAllExtensions = "Update all extensions", -- NEEDS TRANSLATION
+		ButtonFindMoreExtensions = "Find more extensions", -- NEEDS TRANSLATION
+		ButtonInstallNewExtension = "Install a new extension", -- NEEDS TRANSLATION
 		OptionAllowCustomCode = "Allow custom code to run", -- NEEDS TRANSLATION
 	},
 	SingleExtensionScreen = {
