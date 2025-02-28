@@ -62,11 +62,8 @@ Trackers for other games:
 
 ## Latest Changes
 
-### New Run Profiles
-![The New Runs setup screen, showing the Profiles tab with two profiles listed, one for Emerald Kaizo and the other for FireRed Subpar Kaizo.](https://github.com/user-attachments/assets/acee631e-f2b6-448f-8806-3c391e7d338e)
-
-### Call Rates for All Ball Types
-![The Ball Catch Rates screen showing different catch rates for various types of Poké Balls](https://github.com/user-attachments/assets/9c81283b-e103-4608-bebb-202967fe6d37)
+### Easier Extension Installs & Updates
+![The new Extensions screen rework, showing the number of extensions installed as well as buttons that can update all extensions or install a new extension.](https://github.com/user-attachments/assets/b0fa7354-033a-448c-93d5-1f6d0c1b2877)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

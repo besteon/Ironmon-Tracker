@@ -311,6 +311,7 @@ end
 
 -- Request/Response object prototypes
 
+---@class IRequest
 RequestHandler.IRequest = {
 	-- Required unique GUID, for syncing request/responses with the client
 	GUID = "",
@@ -329,7 +330,7 @@ RequestHandler.IRequest = {
 }
 ---Creates and returns a new IRequest object
 ---@param o? table Optional initial object table
----@return table request An IRequest object
+---@return IRequest request An IRequest object
 function RequestHandler.IRequest:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()
@@ -340,6 +341,7 @@ function RequestHandler.IRequest:new(o)
 	return o
 end
 
+---@class IResponse
 RequestHandler.IResponse = {
 	-- Required unique GUID, for syncing request/responses with the client
 	GUID = "",
@@ -352,10 +354,14 @@ RequestHandler.IResponse = {
 	Platform = "",
 	-- The informative response message to send back to the client
 	Message = "",
+	-- Any additional information that needs to be sent over
+	AdditionalInfo = {},
+	-- Any global variables to send over for updating
+	GlobalVars = {},
 }
 ---Creates and returns a new IResponse object
 ---@param o? table Optional initial object table
----@return table response An IResponse object
+---@return IResponse response An IResponse object
 function RequestHandler.IResponse:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()
@@ -363,6 +369,8 @@ function RequestHandler.IResponse:new(o)
 	o.StatusCode = o.StatusCode or RequestHandler.StatusCodes.NOT_FOUND
 	o.Platform = o.Platform or ""
 	o.Message = o.Message or ""
+	o.AdditionalInfo = o.AdditionalInfo or {}
+	o.GlobalVars = o.GlobalVars or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o

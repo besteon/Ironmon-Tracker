@@ -1,5 +1,4 @@
 Network = {
-	CurrentConnection = {},
 	lastUpdateTime = 0,
 	STREAMERBOT_VERSION = "1.0.5", -- Known streamerbot version. Update this value to inform user to update streamerbot code
 	TEXT_UPDATE_FREQUENCY = 2, -- # of seconds
@@ -87,7 +86,7 @@ end
 
 ---@return boolean
 function Network.isConnected()
-	return Network.CurrentConnection.State > Network.ConnectionState.Closed
+	return Network.CurrentConnection ~= nil and Network.CurrentConnection.State > Network.ConnectionState.Closed
 end
 
 ---@return table supportedTypes
@@ -299,6 +298,8 @@ function Network.updateByHttp()
 end
 
 -- Connection object prototype
+
+---@class IConnection
 Network.IConnection = {
 	Type = Network.ConnectionTypes.None,
 	State = Network.ConnectionState.Closed,
@@ -314,7 +315,18 @@ Network.IConnection = {
 			Network.lastUpdateTime = os.time()
 		end
 	end,
+	-- Other attributes
+	SocketIP = "",
+	SocketPort = 0,
+	HttpGetUrl = "",
+	HttpPostUrl = "",
+	InboundFile = "",
+	OutboundFile = "",
+	InboundWasEmpty = true,
 }
+
+---@param o? table
+---@return IConnection connection
 function Network.IConnection:new(o)
 	o = o or {}
 	setmetatable(o, self)

@@ -447,9 +447,9 @@ end
 
 ---Automatically downloads and installs an extension from its latest Github release; This will not enable the extension
 ---@param githubRepoUrl string The repo url where their extension is hosted; Example: https://github.com/Username/ExtensionName
----@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
----@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default to exclude: "README.md", "LICENSE", and ".gitignore"
----@param branchName? string Optional, defaults to the `main` branch
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default, refer to: CustomCode.DefaultFoldersToExclude
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default, refer to: CustomCode.DefaultFilenamesToExclude
+---@param branchName? string Optional, defaults to the `main` branch: CustomCode.DefaultBranch
 ---@return boolean success
 function TrackerAPI.installNewExtension(githubRepoUrl, folderNamesToExclude, fileNamesToExclude, branchName)
 	if Utils.isNilOrEmpty(githubRepoUrl) then
@@ -476,9 +476,9 @@ end
 
 ---Automatically downloads and updates an extension to its latest Github release, then reloads it into the Tracker
 ---@param extensionName string The name/key of the existing extension calling this function; use only alphanumeric characters, no spaces
----@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default: none
----@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default to exclude: "README.md", "LICENSE", and ".gitignore"
----@param branchName? string Optional, defaults to the `main` branch
+---@param folderNamesToExclude? table Optional, list of downloaded folder names to remove from the release before copying over; default, refer to: CustomCode.DefaultFoldersToExclude
+---@param fileNamesToExclude? table Optional, list of downloaded file names to remove from the release before copying over; default, refer to: CustomCode.DefaultFilenamesToExclude
+---@param branchName? string Optional, defaults to the `main` branch: CustomCode.DefaultBranch
 ---@return boolean success
 function TrackerAPI.updateExtension(extensionName, folderNamesToExclude, fileNamesToExclude, branchName)
 	if Utils.isNilOrEmpty(extensionName) then
