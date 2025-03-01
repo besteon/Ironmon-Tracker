@@ -331,6 +331,7 @@ end
 
 function Program.delayedStartup()
 	Options.alertImportantChanges()
+	GachaMonData.test()
 end
 
 function Program.mainLoop()

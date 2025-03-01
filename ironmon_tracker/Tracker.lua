@@ -52,8 +52,10 @@ Tracker.DefaultData = {
 	safariEncounters = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
 	hiddenPowers = {},
-	-- performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
+	-- Performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
 	initialMoveset = {},
+	-- Records GachaMon data for a pokemon that is viewed by the player, once per mon; [personality] = true
+	gachamonCaptures = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
 	centerHeals = 0,
 	-- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
@@ -74,6 +76,7 @@ function Tracker.DefaultData:new(o)
 	o.safariEncounters = o.safariEncounters or {}
 	o.hiddenPowers = o.hiddenPowers or {}
 	o.initialMoveset = o.initialMoveset or {}
+	o.gachamonCaptures = o.gachamonCaptures or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -356,6 +359,22 @@ function Tracker.tryTrackInitialMoveset(pokemon)
 			end
 		end
 	end
+end
+
+--- Records GachaMon data for a pokemon that is viewed by the player, once per mon
+--- @param pokemon IPokemon
+function Tracker.tryTrackGachaMon(pokemon)
+	if (pokemon.personality or 0) == 0 or Tracker.Data.gachamonCaptures[pokemon.personality] then
+		return
+	end
+	Tracker.Data.gachamonCaptures[pokemon.personality] = true
+end
+
+--- Checks if a pokemon has already been recorded for GachaMon
+--- @param pokemon IPokemon
+--- @return boolean
+function Tracker.hasTrackedGachaMon(pokemon)
+	return Tracker.Data.gachamonCaptures[pokemon.personality or 0]
 end
 
 --- @param trainerId number The trainerId to check if it's a rival

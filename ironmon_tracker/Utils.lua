@@ -1240,6 +1240,7 @@ function Utils.isNewerVersion(version1, version2)
 end
 
 -- Base64 Code Below
+-- https://github.com/iskolbin/lbase64/blob/master/base64.lua
 Utils.Base64 = {}
 
 local function _getBase64ExtractFunc()
@@ -1247,13 +1248,14 @@ local function _getBase64ExtractFunc()
 	local extract = _G.bit32 and _G.bit32.extract -- Lua 5.2/Lua 5.3 in compatibility mode
 	if not extract then
 		---@diagnostic disable-next-line: undefined-field
-		if _G.bit then -- LuaJIT
-			---@diagnostic disable-next-line: undefined-field
-			local shl, shr, band = _G.bit.lshift, _G.bit.rshift, _G.bit.band
-			extract = function( v, from, width )
-				return band( shr( v, from ), shl( 1, width ) - 1 )
-			end
-		elseif _G._VERSION == "Lua 5.1" then
+		-- if _G.bit then -- LuaJIT
+		-- 	---@diagnostic disable-next-line: undefined-field
+		-- 	local shl, shr, band = _G.bit.lshift, _G.bit.rshift, _G.bit.band
+		-- 	extract = function( v, from, width )
+		-- 		return band( shr( v, from ), shl( 1, width ) - 1 )
+		-- 	end
+		-- elseif _G._VERSION == "Lua 5.1" then
+		if _G._VERSION == "Lua 5.1" then
 			extract = function( v, from, width )
 				local w = 0
 				local flag = 2^from
