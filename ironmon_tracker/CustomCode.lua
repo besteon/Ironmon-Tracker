@@ -27,8 +27,7 @@ CustomCode = {
 
 	-- When installing/updating extensions, the below files and folders are removed after the release download and before copying over the files/folders
 	DefaultFoldersToExclude = {
-		".vscode",
-		".github",
+		-- Note: The download/extract command will fail if it tries to remove a folder that doesn't exist
 	},
 	DefaultFilenamesToExclude = {
 		'.editorconfig',
@@ -393,9 +392,8 @@ function CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesT
 	local downloadResult = os.execute(downloadCommand)
 	if not (downloadResult == true or downloadResult == 0) then -- true / 0 = successful
 		Utils.tempEnableBizhawkSound()
-		print(string.format("> %s (%s)", "Error updating/installing Tracker Extension"))
-		print(string.format("> URL: %s", githubRepoUrl))
 		print("> ERROR: " .. tostring(downloadErr1))
+		print("> URL: " .. tostring(githubRepoUrl))
 		return false
 	end
 
