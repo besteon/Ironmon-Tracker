@@ -1,14 +1,18 @@
 GachaMonData = {}
-GachaMonData.EncodedDataVersion = 101
 GachaMonData.ShinyOdds = 0.002 -- 1 in 500, similar to Pokémon Go
 
 -- Populated on Tracker startup from the ratings data json file
 GachaMonData.RatingsSystem = {}
 
+-- Encoder for shareable GachaMon cards
+GachaMonData.DataEncoder = {
+	Version = 1,
+	Decoders = {},
+}
+
 --[[
 TODO LIST
 - Find an efficient way to store GachaMon(s) per seed, is it really all of them?
-- Optimize the Shareable GachaMon encoding feature
 - Determine when to use capture a GachaMon, converting it and storing it in collection
 - Design UI for viewing a single GachaMon
 - Design UI and animation for capturing a new GachaMon
@@ -85,10 +89,10 @@ function GachaMonData.test()
 			gachamon.RatingScore,
 			gachamon.Stars
 		)
-		local b64string = GachaMonData.encodeData(gachamon)
-		Utils.printDebug(b64string)
+		local stringpair = GachaMonData.DataEncoder.encodeData(gachamon)
+		Utils.printDebug(stringpair)
 	else
-		Utils.printDebug("No Pokemon")
+		Utils.printDebug("[GACHAMON] No Pokémon in party.")
 	end
 end
 
@@ -107,7 +111,6 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 
 	-- Core data copy
 	gachamon.AbilityId = PokemonData.getAbilityId(pokemonData.pokemonID, pokemonData.abilityNum)
-	gachamon.Ivs = Utils.convertIVsTableToNumber(pokemonData.ivs)
 	for statKey, _ in pairs(pokemonData.stats or {}) do
 		gachamon.Stats[statKey] = pokemonData.stats[statKey] or 0
 	end
@@ -125,9 +128,8 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 		gachamon.IsShiny = 1
 	end
 
-	local rating, stars = GachaMonData.calculateRating(gachamon)
-	gachamon.RatingScore = rating
-	gachamon.Stars = stars
+	gachamon.RatingScore = GachaMonData.calculateRating(gachamon)
+	gachamon.Stars = GachaMonData.getStarsFromRating(gachamon.RatingScore)
 
 	return gachamon
 end
@@ -135,7 +137,6 @@ end
 ---Rate the GachaMon based on its ability, moves, stats, and other factors
 ---@param gachamon IGachaMon
 ---@return number rating Value between 0 and 100
----@return number stars Value between 1 and 6
 function GachaMonData.calculateRating(gachamon)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
@@ -190,53 +191,27 @@ function GachaMonData.calculateRating(gachamon)
 	ratingTotal = ratingTotal + speedRating
 
 	-- OTHER
-	-- What else should be considered for stars? IVs? STAB? Ruleset?
-
-	-- STARS
-	local stars = 0
-	for _, ratingPair in ipairs(RS.RatingToStars or {}) do
-		if ratingTotal >= (ratingPair.Rating or 1) and ratingPair.Stars then
-			stars = ratingPair.Stars
-			break
-		end
-	end
+	-- What else should be considered for stars? STAB? Ruleset?
 
 	Utils.printDebug("[RATINGS] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s",
 		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating)
 
-	return ratingTotal, stars
+	return ratingTotal
 end
 
----comment
----@param gachamon IGachaMon
----@return string b64string
-function GachaMonData.encodeData(gachamon)
-	-- POKEMONID RATING GENDER NATURE LEVEL ABILITYID ISSHINY STATS(6) MOVES(4)
-	local FORMAT = "%04d%03d%01d%02d%03d%03d%01d" .. ("%03d"):rep(10)
-	local datastring = string.format(FORMAT,
-		gachamon.PokemonId,
-		math.floor(gachamon.RatingScore),
-		gachamon.Gender,
-		gachamon.Nature,
-		gachamon.Level,
-		gachamon.AbilityId,
-		gachamon.IsShiny,
-		gachamon.Stats.hp,
-		gachamon.Stats.atk,
-		gachamon.Stats.def,
-		gachamon.Stats.spa,
-		gachamon.Stats.spd,
-		gachamon.Stats.spe,
-		-- gachamon.Ivs, -- TODO
-		gachamon.Moves[1] or 0,
-		gachamon.Moves[2] or 0,
-		gachamon.Moves[3] or 0,
-		gachamon.Moves[4] or 0
-	)
-	local b64string = Utils.Base64.encode(datastring)
-	local stringpair = string.format("%s%s", GachaMonData.EncodedDataVersion, b64string)
-	-- Example output: 101MDIyNDAwMDAwMzA0MzA3MjAxMDQxMTMwOTIwNjgwOTkwOTIwMjYwMjgwMjQwMjYwMTAwMDQwODkwMjYzMjYyOTk=
-	return stringpair
+---Use the RatingsSystem to determine the number of stars a given rating is worth
+---@param rating number
+---@return number stars Value between 0 and 6
+function GachaMonData.getStarsFromRating(rating)
+	if rating <= 0 then
+		return 0
+	end
+	for _, ratingPair in ipairs(GachaMonData.RatingsSystem.RatingToStars or {}) do
+		if rating >= (ratingPair.Rating or 1) and ratingPair.Stars then
+			return ratingPair.Stars
+		end
+	end
+	return 0
 end
 
 ---Imports all GachaMon Ratings data from a JSON file
@@ -321,7 +296,7 @@ end
 
 ---@class IGachaMon
 GachaMonData.IGachaMon = {
-	-- ENCODED VALUES (shareable data for trading/battling)
+	-- RAW DATA (Encoded values, shareable data)
 
 	PokemonId = 0,
 	RatingScore = 0,
@@ -331,11 +306,10 @@ GachaMonData.IGachaMon = {
 	Level = 0,
 	AbilityId = 0,
 	IsShiny = 0, -- GachaMons have higher shiny chance
-	Ivs = 0, -- Stored as a single number, 5 bits per stat
 	Stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 	Moves = {}, -- Ordered list of the 4 move ids the mon had when collected
 
-	-- NON-ENCODED VALUES
+	-- META DATA (Non-encoded values)
 
 	-- Some unique identifier, might not need to be a GUID
 	GUID = "",
@@ -360,13 +334,11 @@ function GachaMonData.IGachaMon:new(o)
 
 	o.PokemonId = o.PokemonId or 0
 	o.RatingScore = o.RatingScore or 0
-	o.Stars = o.Stars or 0
 	o.Gender = o.Gender or 0
 	o.Nature = o.Nature or 0
 	o.Level = o.Level or 0
 	o.AbilityId = o.AbilityId or 0
 	o.IsShiny = o.IsShiny or 0
-	o.Ivs = o.Ivs or 0
 	o.Stats = o.Stats or { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
 	o.Moves = o.Moves or {}
 
@@ -377,8 +349,112 @@ function GachaMonData.IGachaMon:new(o)
 	o.LocationObtained = o.LocationObtained or ""
 	o.LocationDeath = o.LocationDeath or ""
 	o.Lifespan = o.Lifespan or 0
+	o.Stars = o.Stars or 0
 
 	setmetatable(o, self)
 	self.__index = self
 	return o
+end
+
+---Converts a base10 number to a base16 hexidecimal string
+---@param num number
+---@param minimumDigits? number
+---@return string
+local function _numberToHex(num, minimumDigits)
+	local format
+	if minimumDigits then
+		format = "%0" .. minimumDigits .. "x"
+	else
+		format = "%x"
+	end
+	return string.format(format, num)
+end
+
+---Converts a base16 hexidecimal string to a base10 number
+---@param hex string
+---@return number
+local function _hexToNumber(hex)
+	return tonumber(hex, 16)
+end
+
+---Encodes GachaMon data into a string-pair (version + b64string), for sharing cool cards
+---@param gachamon IGachaMon
+---@return string
+function GachaMonData.DataEncoder.encodeData(gachamon)
+	-- Bit-compress these three values together, format: NNNNNGGS
+	local shinyGenderNature = gachamon.IsShiny + Utils.bit_lshift(gachamon.Gender, 1) + Utils.bit_lshift(gachamon.Nature, 3)
+	local data = {
+		_numberToHex(gachamon.PokemonId, 3),
+		_numberToHex(math.floor(gachamon.RatingScore), 2),
+		_numberToHex(gachamon.Level, 2),
+		_numberToHex(gachamon.AbilityId, 2),
+		_numberToHex(shinyGenderNature, 2),
+		_numberToHex(gachamon.Stats.hp, 3),
+		_numberToHex(gachamon.Stats.atk, 3),
+		_numberToHex(gachamon.Stats.def, 3),
+		_numberToHex(gachamon.Stats.spa, 3),
+		_numberToHex(gachamon.Stats.spd, 3),
+		_numberToHex(gachamon.Stats.spe, 3),
+		_numberToHex(gachamon.Moves[1] or 0, 3),
+		_numberToHex(gachamon.Moves[2] or 0, 3),
+		_numberToHex(gachamon.Moves[3] or 0, 3),
+		_numberToHex(gachamon.Moves[4] or 0, 3),
+	}
+	local version = _numberToHex(GachaMonData.DataEncoder.Version, 2)
+	local datastring = table.concat(data)
+	local b64string = Utils.Base64.encode(datastring)
+	local stringpair = string.format("%s%s", version, b64string)
+	-- 1st Example: 01MDIyNDAwMDAwMzA0MzA3MjAxMDQxMTMwOTIwNjgwOTkwOTIwMjYwMjgwMjQwMjYwMTAwMDQwODkwMjYzMjYyOTk=
+	-- 2nd Example: 01MGUwNDUyYjQ4MTgwNjgwNzEwNWMwNDQwNjMwNWMwNTkwMWExNDYxMmI=
+	return stringpair
+end
+
+---Decodes a GachaMon string-pair (version + b64string) into an IGachaMon data table; decode function determined by version number
+---@param stringpair string A string containing the version number (head) and base-64 string (tail)
+---@return IGachaMon|nil gachamon
+function GachaMonData.DataEncoder.decodeData(stringpair)
+	local version = _hexToNumber(stringpair:sub(1, 2))
+	local decoder = GachaMonData.DataEncoder.Decoders[version or false]
+	if type(decoder) ~= "function" then
+		return nil
+	end
+	local b64string = stringpair:sub(3)
+	local gachamon = decoder(b64string)
+	if gachamon.Stars <= 0 then
+		gachamon.Stars = GachaMonData.getStarsFromRating(gachamon.RatingScore)
+	end
+	return gachamon
+end
+
+---Version 1 Decoder
+---@param b64string string
+---@return IGachaMon
+GachaMonData.DataEncoder.Decoders[1] = function(b64string)
+	local datastring = Utils.Base64.decode(b64string)
+	local gachamon = GachaMonData.IGachaMon:new({
+		PokemonId = _hexToNumber(datastring:sub(1, 3)),
+		RatingScore = _hexToNumber(datastring:sub(4, 5)),
+		Level = _hexToNumber(datastring:sub(6, 7)),
+		AbilityId = _hexToNumber(datastring:sub(8, 9)),
+		Stats = {
+			hp = _hexToNumber(datastring:sub(12, 14)),
+			atk = _hexToNumber(datastring:sub(15, 17)),
+			def = _hexToNumber(datastring:sub(18, 20)),
+			spa = _hexToNumber(datastring:sub(21, 23)),
+			spd = _hexToNumber(datastring:sub(24, 26)),
+			spe = _hexToNumber(datastring:sub(27, 29)),
+		},
+		Moves = {
+			_hexToNumber(datastring:sub(30, 32)),
+			_hexToNumber(datastring:sub(33, 35)),
+			_hexToNumber(datastring:sub(36, 38)),
+			_hexToNumber(datastring:sub(39, 41)),
+		}
+	})
+	-- Bit-compressed these three values together, format: NNNNNGGS
+	local shinyGenderNature = _hexToNumber(datastring:sub(10, 11))
+	gachamon.IsShiny = Utils.getbits(shinyGenderNature, 0, 1)
+	gachamon.Gender = Utils.getbits(shinyGenderNature, 1, 2)
+	gachamon.Nature = Utils.getbits(shinyGenderNature, 3, 5)
+	return gachamon
 end
