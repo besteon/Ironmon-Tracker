@@ -874,14 +874,7 @@ function Program.readNewPokemon(startAddress, personality)
 			spd = Utils.getbits(effort2, 8, 8),
 			spe = Utils.getbits(effort1, 24, 8),
 		},
-		ivs = {
-			hp = Utils.getbits(misc2, 0, 5),
-			atk = Utils.getbits(misc2, 5, 5),
-			def = Utils.getbits(misc2, 10, 5),
-			spa = Utils.getbits(misc2, 20, 5),
-			spd = Utils.getbits(misc2, 25, 5),
-			spe = Utils.getbits(misc2, 15, 5),
-		},
+		ivs = Utils.convertIVNumberToTable(misc2),
 	})
 end
 

@@ -5,8 +5,19 @@ GachaMonData.ShinyOdds = 0.002 -- 1 in 500, similar to Pokémon Go
 -- Populated on Tracker startup from the ratings data json file
 GachaMonData.RatingsSystem = {}
 
+--[[
+TODO LIST
+- Find an efficient way to store GachaMon(s) per seed, is it really all of them?
+- Optimize the Shareable GachaMon encoding feature
+- Determine when to use capture a GachaMon, converting it and storing it in collection
+- Design UI for viewing a single GachaMon
+- Design UI and animation for capturing a new GachaMon
+- Add Options for: "Show Opening Animation", ...
+]]
+
 function GachaMonData.initialize()
 	GachaMonData.importRatingSystemFromJson()
+
 	-- DEBUG
 	-- Program.addFrameCounter("GachaMonTest", 60, GachaMonData.test, 1)
 	-- GachaMonData.processRawData()
@@ -96,9 +107,9 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 
 	-- Core data copy
 	gachamon.AbilityId = PokemonData.getAbilityId(pokemonData.pokemonID, pokemonData.abilityNum)
+	gachamon.Ivs = Utils.convertIVsTableToNumber(pokemonData.ivs)
 	for statKey, _ in pairs(pokemonData.stats or {}) do
 		gachamon.Stats[statKey] = pokemonData.stats[statKey] or 0
-		gachamon.Ivs[statKey] = pokemonData.ivs[statKey] or 0
 	end
 	for _, move in ipairs(pokemonData.moves or {}) do
 		if MoveData.isValid(move.id) then
@@ -144,7 +155,7 @@ function GachaMonData.calculateRating(gachamon)
 
 	-- STATS
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
-	local bst = pokemonInternal.bst
+	local bst = math.max(pokemonInternal.bst, 1) -- minimum of 1
 	-- Highest Attacking Stat % of BST
 	local offensiveStat = gachamon.Stats.atk > gachamon.Stats.spa and gachamon.Stats.atk or gachamon.Stats.spa
 	local offensivePercentage = offensiveStat / bst
@@ -179,6 +190,9 @@ function GachaMonData.calculateRating(gachamon)
 	ratingTotal = ratingTotal + speedRating
 
 	-- OTHER
+	-- What else should be considered for stars? IVs? STAB? Ruleset?
+
+	-- STARS
 	local stars = 0
 	for _, ratingPair in ipairs(RS.RatingToStars or {}) do
 		if ratingTotal >= (ratingPair.Rating or 1) and ratingPair.Stars then
@@ -197,8 +211,8 @@ end
 ---@param gachamon IGachaMon
 ---@return string b64string
 function GachaMonData.encodeData(gachamon)
-	-- POKEMONID RATING GENDER NATURE LEVEL ABILITYID ISSHINY STATS(6) IVS(6) MOVES(4)
-	local FORMAT = "%04d%03d%01d%02d%03d%03d%01d" .. ("%03d"):rep(16)
+	-- POKEMONID RATING GENDER NATURE LEVEL ABILITYID ISSHINY STATS(6) MOVES(4)
+	local FORMAT = "%04d%03d%01d%02d%03d%03d%01d" .. ("%03d"):rep(10)
 	local datastring = string.format(FORMAT,
 		gachamon.PokemonId,
 		math.floor(gachamon.RatingScore),
@@ -213,12 +227,7 @@ function GachaMonData.encodeData(gachamon)
 		gachamon.Stats.spa,
 		gachamon.Stats.spd,
 		gachamon.Stats.spe,
-		gachamon.Ivs.hp,
-		gachamon.Ivs.atk,
-		gachamon.Ivs.def,
-		gachamon.Ivs.spa,
-		gachamon.Ivs.spd,
-		gachamon.Ivs.spe,
+		-- gachamon.Ivs, -- TODO
 		gachamon.Moves[1] or 0,
 		gachamon.Moves[2] or 0,
 		gachamon.Moves[3] or 0,
@@ -234,7 +243,7 @@ end
 ---@param filepath? string Optional, a custom JSON file
 ---@return boolean success
 function GachaMonData.importRatingSystemFromJson(filepath)
-	filepath = filepath or GachaMonData.getRatingsFilePath() or ""
+	filepath = filepath or GachaMonData.getRatingSystemFilePath() or ""
 	if not FileManager.fileExists(filepath) then
 		return false
 	end
@@ -297,8 +306,8 @@ function GachaMonData.importCollectionFromJson(filepath)
 end
 
 ---@return string filepath
-function GachaMonData.getRatingsFilePath()
-	return FileManager.prependDir(FileManager.Files.GACHAMON_RATINGS)
+function GachaMonData.getRatingSystemFilePath()
+	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
 end
 
 ---@return string filepath
@@ -321,9 +330,9 @@ GachaMonData.IGachaMon = {
 	Nature = 0,
 	Level = 0,
 	AbilityId = 0,
-	IsShiny = 0, -- GachaMons have higher shiny chance (TBD)
+	IsShiny = 0, -- GachaMons have higher shiny chance
+	Ivs = 0, -- Stored as a single number, 5 bits per stat
 	Stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
-	Ivs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 	Moves = {}, -- Ordered list of the 4 move ids the mon had when collected
 
 	-- NON-ENCODED VALUES
@@ -357,9 +366,9 @@ function GachaMonData.IGachaMon:new(o)
 	o.Level = o.Level or 0
 	o.AbilityId = o.AbilityId or 0
 	o.IsShiny = o.IsShiny or 0
+	o.Ivs = o.Ivs or 0
 	o.Stats = o.Stats or { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
-	o.Ivs = o.Ivs or { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
-	o.Ivs = o.Ivs or { }
+	o.Moves = o.Moves or {}
 
 	o.GUID = o.GUID or Utils.newGUID()
 	o.GameVersion = o.GameVersion or ""
