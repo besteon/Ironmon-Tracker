@@ -440,7 +440,7 @@
 		"359": 11,
 		"360": 9.25
 	},
-	"Stats": {
+	"BaseStats": {
 		"Offensive": [
 			{
 				"Percentage": 0.22,
