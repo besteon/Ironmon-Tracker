@@ -586,13 +586,13 @@ function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWi
 			if self.framesElapsed >= self.maxFrames then
 				self.framesElapsed = 0.0
 				if type(callFunc) == "function" then
-					callFunc()
 					if numExecutions then
 						self.timesExecuted = self.timesExecuted + 1
 						if self.timesExecuted >= numExecutions then
 							Program.removeFrameCounter(label)
 						end
 					end
+					callFunc()
 				end
 			end
 		end,
