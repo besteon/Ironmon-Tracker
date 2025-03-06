@@ -713,6 +713,12 @@ ScreenResources{
 		FilterTrainerName = "Trainer Name",
 		FilterRouteName = "Route Name",
 	},
+	GachaMonOverlay = {
+		TabStats = "General",
+		TabGamePack = "Game Pack",
+		TabCollection = "Collection",
+		TabOptions = "Options",
+	},
 	TeamViewArea = {
 		EggNickname = "EGG",
 	},

@@ -375,6 +375,8 @@ function Program.redraw(forced)
 			UpdateScreen.drawReleaseNotesOverlay()
 		elseif StreamConnectOverlay.isDisplayed then
 			StreamConnectOverlay.drawScreen()
+		elseif GachaMonOverlay.isDisplayed then
+			GachaMonOverlay.drawScreen()
 		elseif LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
 		end

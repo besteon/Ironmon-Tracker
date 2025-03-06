@@ -19,7 +19,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		getText = function(self) return Resources.ExtrasScreen.ButtonViewLogs end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 27, 130, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 25, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function(self)
 			Program.changeScreenView(ViewLogWarningScreen)
@@ -29,7 +29,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonCoverageCalculator end,
 		image = Constants.PixelImages.SWORD_ATTACK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 47, 130, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 44, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function(self)
 			CoverageCalcScreen.prepopulateMoveTypes()
@@ -40,7 +40,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonTimeMachine end,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 67, 130, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 63, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
@@ -51,10 +51,20 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.WARNING,
 		getText = function(self) return Resources.ExtrasScreen.ButtonCrashRecovery end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 87, 130, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 82, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function(self)
 			Program.changeScreenView(CrashRecoveryScreen)
+		end
+	},
+	GachaMonCollection = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.POKEBALL,
+		getText = function(self) return "GachaMon Collection" or Resources.ExtrasScreen.ButtonGachaMonCollection end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 101, 132, 16 },
+		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
+		onClick = function(self)
+			GachaMonOverlay.isDisplayed = true
 		end
 	},
 	EstimateIVs = {
@@ -67,7 +77,7 @@ ExtrasScreen.Buttons = {
 			end
 		end,
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 107, 130, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 120, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
