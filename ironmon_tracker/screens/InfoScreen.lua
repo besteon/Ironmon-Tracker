@@ -67,7 +67,7 @@ InfoScreen.Buttons = {
 				self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
 			end
 			-- If the log viewer is open, use its animation type
-			local animType = LogOverlay.isDisplayed and SpriteData.Types.Idle or self.animType
+			local animType = Program.isScreenOverlayOpen() and SpriteData.Types.Idle or self.animType
 			return pokemonID, self.animType or animType
 		end,
 		animType = SpriteData.Types.Idle,
@@ -75,7 +75,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
-			if SpriteData.canDrawIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
+			if SpriteData.canDrawIcon(InfoScreen.infoLookup) and not Program.isScreenOverlayOpen() then
 				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
 				Program.redraw(true)
 			end
@@ -363,7 +363,7 @@ function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.infoLookup = info
 	if screen == InfoScreen.Screens.ROUTE_INFO then
 		InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-		InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
+		InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
 	end
 	Program.changeScreenView(InfoScreen)
 end
@@ -515,7 +515,7 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.infoLookup.mapId = mapId
 			InfoScreen.infoLookup.encounterArea = encounterArea
 			InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
+			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
 			Program.redraw(true)
 		end
 		form:destroy()
@@ -527,7 +527,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local areaInfo
 	local totalPossible = 0
-	if Options["Open Book Play Mode"] or LogOverlay.isDisplayed then
+	if Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay then
 		areaInfo = {}
 		local selectedEncKey
 		for key, val in pairs(RandomizerLog.EncounterTypes) do
@@ -701,7 +701,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 	-- POKEMON TYPES
 	local type1, type2 = data.p.types[1], data.p.types[2]
-	if LogOverlay.isDisplayed and RandomizerLog.Data.Pokemon[pokemonID] then
+	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Pokemon[pokemonID] then
 		type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.EMPTY
 		type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
 	end
@@ -886,7 +886,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local movePP = data.m.pp
 	local movePower = data.m.power
 	local moveAcc = data.m.accuracy
-	if LogOverlay.isDisplayed and RandomizerLog.Data.Moves[moveId] then
+	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Moves[moveId] then
 		local moveLog = RandomizerLog.Data.Moves[moveId]
 		moveType = moveLog.type or PokemonData.Types.EMPTY
 		moveCategory = MoveData.getCategory(moveId, moveType)
@@ -1080,7 +1080,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local showPercents = InfoScreen.Buttons.ShowRoutePercentages.toggleState
 	local showLevels = InfoScreen.Buttons.ShowRouteLevels.toggleState
 	-- Don't clarify the pokemon are shown "in order of appearence" if the order is known
-	if not (Options["Open Book Play Mode"] or LogOverlay.isDisplayed or showPercents or showLevels) then
+	if not (Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay or showPercents or showLevels) then
 		Drawing.drawText(boxX + 2, botBoxY, Resources.InfoScreen.LabelOrderAppearance .. ":", botBoxTextColor, boxBotShadow)
 	end
 

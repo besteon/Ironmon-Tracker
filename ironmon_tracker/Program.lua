@@ -1,6 +1,6 @@
 Program = {
-	currentScreen = 1,
-	previousScreens = {}, -- breadcrumbs for clicking the Back button
+	currentScreen = {},
+	currentOverlay = nil, -- set to nil when not in use
 	updateRequired = false,
 	inStartMenu = false,
 	inCatchingTutorial = false,
@@ -185,7 +185,7 @@ Program.GameTimer = {
 	end,
 	checkInput = function(self, xmouse, ymouse)
 		-- Don't pause if either game screen overlay is covering the screen
-		if not Options["Display play time"] or LogOverlay.isDisplayed or UpdateScreen.showNotes then return end
+		if not Options["Display play time"] or Program.isScreenOverlayOpen() then return end
 		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
 		if clicked then
 			if self.isPaused then
@@ -227,7 +227,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING or StreamConnectOverlay.isDisplayed or UpdateScreen.showNotes
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or Program.isScreenOverlayOpen() or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -252,7 +252,7 @@ Program.Pedometer = {
 	end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+		local hasConflict = Battle.inActiveBattle() or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -289,6 +289,7 @@ function Program.initialize()
 	else
 		Program.currentScreen = StartupScreen
 	end
+	Program.currentOverlay = nil
 
 	if Main.IsOnBizhawk() then
 		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
@@ -369,19 +370,10 @@ function Program.redraw(forced)
 		Program.ActiveRepel:draw()
 		Program.GameTimer:draw()
 
-		-- These screens occupy the main game screen space, overlayed on top, and need their own check; order matters
-		-- TODO: Create some sort of combined overlay detection variable
-		if UpdateScreen.showNotes then
-			UpdateScreen.drawReleaseNotesOverlay()
-		elseif StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.drawScreen()
-		elseif GachaMonOverlay.isDisplayed then
-			GachaMonOverlay.drawScreen()
-		elseif LogOverlay.isDisplayed then
-			LogOverlay.drawScreen()
+		if Program.currentOverlay and type(Program.currentOverlay.drawScreen) == "function" then
+			Program.currentOverlay.drawScreen()
 		end
-
-		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
+		if Program.currentScreen and type(Program.currentScreen.drawScreen) == "function" then
 			Program.currentScreen.drawScreen()
 		end
 
@@ -397,13 +389,45 @@ function Program.redraw(forced)
 end
 
 function Program.changeScreenView(screen)
-	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
 	Program.lastActiveTimestamp = os.time()
-	if type(screen.refreshButtons) == "function" then
+	if screen and type(screen.refreshButtons) == "function" then
 		screen:refreshButtons()
 	end
 	Program.currentScreen = screen
 	Program.redraw(true)
+end
+
+---Opens an overlay screen, which draws over the actual game screen itself
+---@param screen table
+---@param redraw? boolean Optional, if true will redraw the screen
+function Program.openOverlayScreen(screen, redraw)
+	Program.lastActiveTimestamp = os.time()
+	-- Close any open screen if different
+	if Program.currentOverlay and Program.currentOverlay ~= screen then
+		Program.closeScreenOverlay()
+	end
+	-- Change to the screen
+	Program.currentOverlay = screen
+	if screen and type(screen.open) == "function" then
+		screen:open()
+	end
+	if redraw then
+		Program.redraw(true)
+	end
+end
+
+---Returns true if there is a screen overlay open; false otherwise
+---@return boolean
+function Program.isScreenOverlayOpen()
+	return Program.currentOverlay ~= nil
+end
+
+---Closes/removes any open screen overlay. If that overlay screen has a `close` function, it calls that first.
+function Program.closeScreenOverlay()
+	if Program.currentOverlay and type(Program.currentOverlay.close) == "function" then
+		Program.currentOverlay:close()
+	end
+	Program.currentOverlay = nil
 end
 
 -- Deprecated

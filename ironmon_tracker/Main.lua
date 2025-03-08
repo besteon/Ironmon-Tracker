@@ -353,7 +353,7 @@ function Main.AfterStartupScreenRedirect()
 	end
 
 	if Main.Version.showReleaseNotes then
-		UpdateScreen.showNotes = true
+		Program.openOverlayScreen(UpdateScreen.Overlay)
 		Main.Version.showReleaseNotes = false
 		UpdateScreen.buildOutPagedButtons()
 		UpdateScreen.refreshButtons()

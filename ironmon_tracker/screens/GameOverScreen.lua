@@ -69,7 +69,9 @@ GameOverScreen.Buttons = {
 		onClick = function(self)
 			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 			LogOverlay.isGameOver = false
-			LogOverlay.isDisplayed = false
+			if Program.currentOverlay == LogOverlay then
+				Program.closeScreenOverlay()
+			end
 			Program.GameTimer:unpause()
 			GameOverScreen.refreshButtons()
 			GameOverScreen.Buttons.SaveGameFiles:reset()
@@ -101,7 +103,9 @@ GameOverScreen.Buttons = {
 			else
 				GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 				LogOverlay.isGameOver = false
-				LogOverlay.isDisplayed = false
+				if Program.currentOverlay == LogOverlay then
+					Program.closeScreenOverlay()
+				end
 				Program.GameTimer:unpause()
 				GameOverScreen.refreshButtons()
 				GameOverScreen.Buttons.SaveGameFiles:reset()

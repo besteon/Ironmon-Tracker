@@ -6,6 +6,8 @@ GachaMonData = {
 
 	-- Populated from file only when the user first goes to view the Collection on the Tracker
 	HistorialCollection = {},
+	-- Used to determine if the historical collection has been loaded from the file for this play session
+	isCollectionLoaded = false,
 
 	-- Populated on Tracker startup from the ratings data json file
 	RatingsSystem = {},
@@ -34,60 +36,9 @@ TODO LIST
 function GachaMonData.initialize()
 	GachaMonData.CurrentCollection = {}
 	GachaMonData.HistorialCollection = {}
+	GachaMonData.isCollectionLoaded = false
 	GachaMonData.FileStorage.importRatingSystem()
 	GachaMonData.FileStorage.importCurrentCollection()
-end
-
-function GachaMonData.processRawData()
-	local SEPARATOR = "ENDOFKEYS"
-	local FOLDER = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GachaMon .. FileManager.slash
-	local rawDataPath = FileManager.prependDir(FOLDER .. "RawInput.txt")
-	local outputPath = FileManager.prependDir(FOLDER .. "RawOutput.json")
-
-	local readingRatings, totalOffset = false, 0
-	local data = {}
-	local lines = FileManager.readLinesFromFile(rawDataPath)
-	for i, line in ipairs(lines or {}) do
-		if line == SEPARATOR then
-			readingRatings = true
-			totalOffset = i
-		elseif not readingRatings then
-			local id = DataHelper.findAbilityId(line)
-			local obj = { id = id }
-			table.insert(data, obj)
-		else
-			local index = i - totalOffset
-			local obj = data[index] or {}
-			local rating = tonumber(line)
-			-- nearest hundreth
-			obj.rating = math.floor(rating * 100 + 0.5) / 100
-		end
-	end
-	table.sort(data, function(a,b) return a.id < b.id end)
-
-	local missingIds = {}
-	for id, value in ipairs(AbilityData.Abilities) do
-		local found = false
-		for _, obj in ipairs(data) do
-			if obj.id == id then
-				found = true
-				break
-			end
-		end
-		if not found then
-			table.insert(missingIds, value.name)
-		end
-	end
-	Utils.printDebug("Missing: %s", table.concat(missingIds, ", "))
-
-	Utils.printDebug("Data Count: %s", #data)
-	local formattedData = {
-		Abilities = {}
-	}
-	for _, obj in ipairs(data) do
-		formattedData.Abilities[tostring(obj.id)] = obj.rating
-	end
-	FileManager.encodeToJsonFile(outputPath, formattedData)
 end
 
 function GachaMonData.test()
@@ -243,7 +194,24 @@ function GachaMonData.getShareablyCode(gachamon)
 	return b64string
 end
 
--- GachaMon object prototypes
+---Temporary way to display data until things are more defined.
+---@return table
+function GachaMonData.getStats()
+	local stats = {
+		NumGamePack = 0,
+		NumCollection = 0,
+		MostRecent = nil,
+	}
+	if not GachaMonData.isCollectionLoaded then
+		return stats
+	end
+	stats.NumGamePack = #GachaMonData.CurrentCollection
+	stats.NumCollection = #GachaMonData.HistorialCollection
+	if stats.NumGamePack > 0 then
+		stats.MostRecent = GachaMonData.CurrentCollection[stats.NumGamePack]
+	end
+	return stats
+end
 
 ---@class IGachaMon
 GachaMonData.IGachaMon = {
@@ -419,17 +387,28 @@ end
 
 ---Imports any existing Current Collection GachaMons (when resuming a game session)
 ---@param filepath? string Optional, defaults to the filepath used by GachaMonData
----@return boolean success
 function GachaMonData.FileStorage.importCurrentCollection(filepath)
 	filepath = filepath or GachaMonData.FileStorage.getCurrentCollectionFilePath() or ""
 	if not FileManager.fileExists(filepath) then
-		return false
+		return
 	end
 
 	-- Import any existing data
 	GachaMonData.CurrentCollection = GachaMonData.FileStorage.getCollectionFromFile(filepath)
+end
 
-	return true
+---Imports any existing Historial Collection GachaMons (when resuming a game session)
+---@param filepath? string Optional, defaults to the filepath used by GachaMonData
+function GachaMonData.FileStorage.importHistorialCollection(filepath)
+	GachaMonData.isCollectionLoaded = true
+
+	filepath = filepath or GachaMonData.FileStorage.getHistorialCollectionFilePath() or ""
+	if not FileManager.fileExists(filepath) then
+		return
+	end
+
+	-- Import any existing data
+	GachaMonData.HistorialCollection = GachaMonData.FileStorage.getCollectionFromFile(filepath)
 end
 
 ---Imports all GachaMon Colection data

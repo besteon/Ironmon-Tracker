@@ -252,7 +252,7 @@ function EventHandler.queueRequestForLater(queueKey, request)
 	end
 	Q.Requests[request.GUID] = request
 	-- Refresh the queue if it's open on the screen
-	if StreamConnectOverlay.isDisplayed and StreamConnectOverlay.currentTab == StreamConnectOverlay.Tabs.Queue then
+	if Program.currentOverlay == StreamConnectOverlay and StreamConnectOverlay.currentTab == StreamConnectOverlay.Tabs.Queue then
 		StreamConnectOverlay.buildPagedButtons()
 	end
 	return true

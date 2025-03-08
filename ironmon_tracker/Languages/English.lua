@@ -714,9 +714,9 @@ ScreenResources{
 		FilterRouteName = "Route Name",
 	},
 	GachaMonOverlay = {
-		TabStats = "General",
-		TabGamePack = "Game Pack",
+		TabRecent = "Recent",
 		TabCollection = "Collection",
+		TabBattle = "Battle",
 		TabOptions = "Options",
 	},
 	TeamViewArea = {

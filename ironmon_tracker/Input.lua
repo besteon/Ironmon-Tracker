@@ -138,6 +138,13 @@ function Input.getJoypadInputFormatted()
 	end
 end
 
+---If the screen has/uses a Pager, this will return that object; nil otherwise
+---@param screen table
+---@return table|nil
+local function _getPager(screen)
+	return type(screen) == "table" and screen.Pager or nil
+end
+
 function Input.checkJoypadInput()
 	-- Don't process controller buttons while rebinding them
 	if SetupScreen.inProcessOfBinding() then
@@ -174,30 +181,16 @@ function Input.checkJoypadInput()
 	end
 
 	if joypad[nextBtn] and not Input.prevJoypadInput[nextBtn] then
-		if LogOverlay.isDisplayed then
-			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
-				LogTabPokemonDetails.Pager:nextPage()
-			else
-				LogOverlay.Windower:nextPage()
-			end
-		elseif StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.Pager:nextPage()
-		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.nextPage) == "function" then
-			Program.currentScreen.Pager:nextPage()
+		local pager = _getPager(Program.currentOverlay) or _getPager(Program.currentScreen)
+		if pager and type(pager.nextPage) == "function" then
+			pager:nextPage()
 		end
 	end
 
 	if joypad[previousBtn] and not Input.prevJoypadInput[previousBtn] then
-		if LogOverlay.isDisplayed then
-			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
-				LogTabPokemonDetails.Pager:prevPage()
-			else
-				LogOverlay.Windower:prevPage()
-			end
-		elseif StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.Pager:prevPage()
-		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.prevPage) == "function" then
-			Program.currentScreen.Pager:prevPage()
+		local pager = _getPager(Program.currentOverlay) or _getPager(Program.currentScreen)
+		if pager and type(pager.prevPage) == "function" then
+			pager:prevPage()
 		end
 	end
 
@@ -317,12 +310,9 @@ function Input.checkMouseInput(xmouse, ymouse)
 	if TeamViewArea.isDisplayed() then
 		TeamViewArea.checkInput(xmouse, ymouse)
 	end
-	if UpdateScreen.showNotes then
-		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
-	elseif StreamConnectOverlay.isDisplayed then
-		StreamConnectOverlay.checkInput(xmouse, ymouse)
-	elseif LogOverlay.isDisplayed then
-		LogOverlay.checkInput(xmouse, ymouse)
+
+	if Program.currentOverlay and type(Program.currentOverlay.checkInput) == "function" then
+		Program.currentOverlay.checkInput(xmouse, ymouse)
 	end
 end
 
