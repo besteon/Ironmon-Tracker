@@ -51,6 +51,9 @@ Options = {
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
 	["Active Profile"] = "",
+	["Show GachaMon catch info in Carousel box"] = true,
+	["Animate GachaMon pack opening"] = true,
+	["Add GachaMon to collection after defeating a trainer"] = true,
 
 	-- Internal Tracker settings
 	["Has checked carousel battle details"] = false,

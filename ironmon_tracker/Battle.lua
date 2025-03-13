@@ -789,6 +789,8 @@ function Battle.beginNewBattle()
 	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
+	GachaMonData.clearNewestMonToShow()
+
 	-- If the lead encountered enemy Pokemon is a shiny, trigger a pulsing sparkle effect
 	if (Tracker.getPokemon(1, false) or {}).isShiny then
 		TrackerScreen.Buttons.ShinyEffect:activatePulsing()

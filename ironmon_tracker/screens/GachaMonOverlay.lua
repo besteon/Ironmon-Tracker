@@ -198,7 +198,7 @@ function GachaMonOverlay.tryLoadCollection()
 		return
 	end
 	Program.addFrameCounter("GachaMonOverlay:LoadCollection", 4, function()
-		GachaMonData.FileStorage.importHistorialCollection()
+		GachaMonData.FileStorage.importCollection()
 		-- Temporary method to hold some stats
 		SCREEN.Stats = GachaMonData.getStats()
 		Program.redraw(true)

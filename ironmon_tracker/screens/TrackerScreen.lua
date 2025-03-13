@@ -468,6 +468,7 @@ TrackerScreen.CarouselTypes = {
 	NOTES = 5, -- During battle
 	BATTLE_DETAILS = 6, -- During battle
 	PEDOMETER = 7, -- Outside of battle
+	GACHAMON = 8, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -609,7 +610,7 @@ function TrackerScreen.buildCarousel()
 			if not Options["Allow carousel rotation"] and TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER]:canShow() then
 				return false
 			end
-			return Battle.isViewingOwn and not showEarlyRouteEncounters()
+			return Battle.isViewingOwn and not GachaMonData.hasNewestMonToShow() and not showEarlyRouteEncounters()
 		end,
 		getContentList = function(self)
 			local badgeButtons = {}
@@ -720,7 +721,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselRouteInfo.toggleState then
 				return false
 			end
-			if showEarlyRouteEncounters() then
+			if not GachaMonData.hasNewestMonToShow() and showEarlyRouteEncounters() then
 				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
 				return true
 			else
@@ -771,7 +772,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselPedometer.toggleState then
 				return false
 			end
-			return Battle.isViewingOwn and Program.Pedometer:isInUse()
+			return Battle.isViewingOwn and not GachaMonData.hasNewestMonToShow() and Program.Pedometer:isInUse()
 		end,
 		getContentList = function(self)
 			TrackerScreen.Buttons.PedometerStepText:updateSelf()
@@ -826,6 +827,30 @@ function TrackerScreen.buildCarousel()
 				return { TrackerScreen.Buttons.TrainerSummary }
 			else
 				return TrackerScreen.Buttons.TrainerSummary.updatedText or ""
+			end
+		end,
+	}
+
+	--  GACHAMON
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.GACHAMON] = {
+		type = TrackerScreen.CarouselTypes.GACHAMON,
+		framesToShow = 420,
+		canShow = function(self)
+			if not Options["Show GachaMon catch info in Carousel box"] then
+				return false
+			end
+			return GachaMonData.hasNewestMonToShow()
+		end,
+		getContentList = function(self)
+			-- TODO: Eventually return a clickable button to open the GachaMon pack w/ animation
+			-- Also don't actually display stars, let them open the pack first
+			local gachamon = GachaMonData.newestRecentMon or {}
+			local stars = GachaMonData.getStarsFromRating(gachamon.RatingScore or 0)
+			local gachamonText = string.format("    New GachaMon:  %s stars!", stars)
+			if Main.IsOnBizhawk() then
+				return { gachamonText }
+			else
+				return gachamonText or ""
 			end
 		end,
 	}

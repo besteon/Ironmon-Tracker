@@ -15,6 +15,7 @@ ironmon_tracker/*.txt
 ironmon_tracker/NewRunProfiles.json
 ironmon_tracker/network/Requests.json
 ironmon_tracker/images/pokemonAnimated/*.gif
+ironmon_tracker/GachaMon/*.gtcg
 AnimatedPokemon.gif
 RandomizerErrorLog.txt
 ThemePresets.txt

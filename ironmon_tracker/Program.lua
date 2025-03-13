@@ -728,6 +728,8 @@ function Program.updatePokemonTeams()
 		Tracker.Data.isNewGame = true
 	end
 
+	local previousLeadMon = Program.GameData.PlayerTeam[1] or {}
+
 	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
@@ -772,6 +774,12 @@ function Program.updatePokemonTeams()
 
 		-- Next Pokemon - Each is offset by 100 bytes
 		addressOffset = addressOffset + Program.Addresses.sizeofPokemonStruct
+	end
+
+	-- If the lead Pokémon changed (new mon viewed), then try to turn it into a GachaMon; only for catches, exclude battles
+	local currentLeadMon = Program.GameData.PlayerTeam[1]
+	if currentLeadMon and previousLeadMon.personality ~= currentLeadMon.personality and not Battle.inActiveBattle() then
+		GachaMonData.tryAddToRecentMons(currentLeadMon)
 	end
 end
 

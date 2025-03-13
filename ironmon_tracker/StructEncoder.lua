@@ -115,9 +115,9 @@ function StructEncoder.binaryPack(format, ...)
 			table.insert(stream, tostring(table.remove(vars, 1)))
 			table.insert(stream, string.char(0))
 		elseif opt == 'c' then
-			local n = format:sub(i + 1):match('%d+')
+			local n = format:sub(i + 1):match('^%d+') or ''
 			local str = tostring(table.remove(vars, 1))
-			local len = tonumber(n)
+			local len = tonumber(n) or 1
 			if len <= 0 then
 				len = str:len()
 			end
@@ -132,6 +132,9 @@ function StructEncoder.binaryPack(format, ...)
 	return table.concat(stream)
 end
 
+---@param format string
+---@param stream string
+---@param pos? number
 function StructEncoder.binaryUnpack(format, stream, pos)
 	local vars = {}
 	local iterator = pos or 1
@@ -193,7 +196,7 @@ function StructEncoder.binaryUnpack(format, stream, pos)
 		elseif opt == 's' then
 			local bytes = {}
 			for j = iterator, stream:len() do
-				if stream:sub(j,j) == string.char(0) or  stream:sub(j) == '' then
+				if stream:sub(j,j) == string.char(0) or stream:sub(j) == '' then
 					break
 				end
 
@@ -204,8 +207,8 @@ function StructEncoder.binaryUnpack(format, stream, pos)
 			iterator = iterator + str:len() + 1
 			table.insert(vars, str)
 		elseif opt == 'c' then
-			local n = format:sub(i + 1):match('%d+')
-			local len = tonumber(n)
+			local n = format:sub(i + 1):match('^%d+') or ''
+			local len = tonumber(n) or 1
 			if len <= 0 then
 				len = table.remove(vars)
 			end
