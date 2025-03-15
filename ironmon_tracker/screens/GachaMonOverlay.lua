@@ -31,6 +31,7 @@ GachaMonOverlay = {
 			resourceKey = "TabOptions",
 		},
 	},
+	Data = {},
 	currentTab = nil,
 }
 local SCREEN = GachaMonOverlay
@@ -71,6 +72,19 @@ GachaMonOverlay.TabButtons = {
 }
 
 GachaMonOverlay.Buttons = {
+	PartyLeadGachaMon = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { CANVAS.X + 40, CANVAS.Y + 20, 70, 70, },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Recent end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local card = SCREEN.Data.LeadGachaMonCard
+			GachaMonOverlay.drawCard(card, x, y)
+		end,
+		onClick = function(self)
+
+		end,
+	},
 	CollectionSize = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return string.format("%s:", "GachaMons in Collection" or Resources[SCREEN.Key].Label) end,
@@ -88,7 +102,7 @@ GachaMonOverlay.Buttons = {
 	},
 	GamePackSize = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return string.format("%s:", "GachaMons caught this attempt" or Resources[SCREEN.Key].Label) end,
+		getText = function(self) return string.format("%s:", "GachaMons caught this seed" or Resources[SCREEN.Key].Label) end,
 		getValue = function(self)
 			return GachaMonData.isCollectionLoaded and SCREEN.Stats and (SCREEN.Stats.NumGamePack or 0) or Constants.BLANKLINE
 		end,
@@ -111,6 +125,66 @@ GachaMonOverlay.Buttons = {
 		isVisible = function(self) return not GachaMonData.isCollectionLoaded end,
 	},
 }
+
+---Draws a GachaMon card
+---@param card table
+function GachaMonOverlay.drawCard(card, x, y)
+	if not card then
+		return
+	end
+	local numStars = card.Stars or 0
+	local W, H, TOPW, TOPH = 70, 70, 40, 10
+	local COLORS = {
+		bg = Drawing.Colors.BLACK,
+		-- border = Drawing.Colors.WHITE,
+		border1 = card.FrameColors and card.FrameColors[1] or Drawing.Colors.WHITE,
+		border2 = card.FrameColors and card.FrameColors[2] or Drawing.Colors.WHITE,
+		stars = numStars > 5 and Drawing.Colors.YELLOW or Drawing.Colors.WHITE,
+		power = Drawing.Colors.WHITE,
+		text = Drawing.Colors.WHITE,
+		name = Drawing.Colors.YELLOW - Drawing.ColorEffects.DARKEN,
+	}
+
+	-- Draw frame border
+	gui.drawRectangle(x, y, W, H, COLORS.bg, COLORS.bg)
+	-- left-half
+	gui.drawLine(x+1, y+1, x+1+TOPW, y+1, COLORS.border1)
+	gui.drawLine(x+1, y+1, x+1, y+H-1, COLORS.border1)
+	gui.drawLine(x+1, y+H-1, x+W/2, y+H-1, COLORS.border1)
+	local barW = 4
+	gui.drawLine(x+1, y+H-15, x+W/2, y+H-15, COLORS.border1)
+	gui.drawLine(x+W/2+1, y+H-15, x+W-1, y+H-15, COLORS.border2)
+	local angleW = 4
+	gui.drawLine(x+TOPW, y+1, x+TOPW+angleW, y+1+TOPH, COLORS.border2)
+	gui.drawLine(x+TOPW+1, y+1, x+TOPW+1+angleW, y+1+TOPH, COLORS.border2)
+	-- right-half
+	gui.drawLine(x+1+TOPW+angleW, y+1+TOPH, x+W-1, y+1+TOPH, COLORS.border2)
+	gui.drawLine(x+W-1, y+H-1, x+W-1, y+1+TOPH, COLORS.border2)
+	gui.drawLine(x+W/2+1, y+H-1, x+W-1, y+H-1, COLORS.border2)
+
+	-- STARS
+	numStars = math.max(numStars, 5)
+	Drawing.drawText(x + 2, y + 2, string.rep("*", card.Stars or 0), COLORS.stars)
+	-- POWER
+	local powerRightAlign = 3 + Utils.calcWordPixelLength(tostring(card.Power))
+	Drawing.drawText(x + W - powerRightAlign, y, card.Power or Constants.BLANKLINE, COLORS.power)
+	-- ICON
+	if PokemonData.isImageIDValid(card.PokemonId) then
+		Drawing.drawPokemonIcon(card.PokemonId, x + W / 2 - 16, y + 8)
+	end
+	-- ABILITY TEXT
+	if AbilityData.isValid(card.AbilityId) then
+		local abilityName = AbilityData.Abilities[card.AbilityId].name
+		local abilityX = Utils.getCenteredTextX(abilityName, W) - 1
+		Drawing.drawText(x + abilityX, y + H - 28, abilityName, COLORS.text)
+	end
+	-- NAME TEXT
+	if PokemonData.isValid(card.PokemonId) then
+		local monName = PokemonData.Pokemon[card.PokemonId].name
+		local monX = Utils.getCenteredTextX(monName, W) - 1
+		Drawing.drawText(x + monX, y + H - 14, monName, COLORS.name)
+	end
+end
 
 function GachaMonOverlay.initialize()
 	SCREEN.createTabs()
@@ -191,13 +265,58 @@ function GachaMonOverlay.createTabs()
 		}
 		startX = startX + tabWidth
 	end
+
+	-- CREATE OPTIONS CHECKBOXES
+	startX = CANVAS.X + 4
+	startY = CANVAS.Y + 4
+	local optionKeyMap = {
+		{ "Show GachaMon catch info in Carousel box", "OptionShowGachaMonInCarouselBox", },
+		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },
+		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
+	}
+	for _, optionTuple in ipairs(optionKeyMap) do
+		local textWidth = Utils.calcWordPixelLength(Resources[SCREEN.Key][optionTuple[2]])
+		textWidth = math.max(textWidth, 50) -- minimum 50 pixels
+		SCREEN.Buttons[optionTuple[1]] = {
+			type = Constants.ButtonTypes.CHECKBOX,
+			optionKey = optionTuple[1],
+			getText = function(self) return Resources[SCREEN.Key][optionTuple[2]] end,
+			clickableArea = { startX, startY, textWidth + 8, 8 },
+			box = {	startX, startY, 8, 8 },
+			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Options end,
+			toggleState = Options[optionTuple[1]],
+			updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+			onClick = function(self)
+				self.toggleState = Options.toggleSetting(self.optionKey)
+				Program.redraw(true)
+			end
+		}
+		startY = startY + Constants.SCREEN.LINESPACING + 1
+	end
+end
+
+function GachaMonOverlay.buildData()
+	SCREEN.Data = {}
+
+	-- Create the display card for the lead pokemon
+	local leadPokemon = TrackerAPI.getPlayerPokemon(1)
+	if leadPokemon then
+		GachaMonData.tryAddToRecentMons(leadPokemon)
+		local leadGachamon = GachaMonData.RecentMons[leadPokemon.personality or false]
+		if leadGachamon then
+			SCREEN.Data.LeadGachaMonCard = leadGachamon:getCardDisplayData()
+		end
+	end
+
+	-- Temporary method to hold some stats
+	SCREEN.Stats = GachaMonData.getStats()
 end
 
 function GachaMonOverlay.tryLoadCollection()
 	if GachaMonData.isCollectionLoaded then
 		return
 	end
-	Program.addFrameCounter("GachaMonOverlay:LoadCollection", 4, function()
+	Program.addFrameCounter("GachaMonOverlay:LoadCollection", 2, function()
 		GachaMonData.FileStorage.importCollection()
 		-- Temporary method to hold some stats
 		SCREEN.Stats = GachaMonData.getStats()
@@ -208,9 +327,8 @@ end
 -- OVERLAY OPEN
 function GachaMonOverlay.open()
 	LogSearchScreen.clearSearch()
-	GachaMonOverlay.tryLoadCollection()
-	-- Temporary method to hold some stats
-	SCREEN.Stats = GachaMonData.getStats()
+	SCREEN.tryLoadCollection()
+	SCREEN.buildData()
 	SCREEN.currentTab = SCREEN.Tabs.Recent
 	SCREEN.refreshButtons()
 end

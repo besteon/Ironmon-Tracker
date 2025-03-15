@@ -844,8 +844,7 @@ function TrackerScreen.buildCarousel()
 		getContentList = function(self)
 			-- TODO: Eventually return a clickable button to open the GachaMon pack w/ animation
 			-- Also don't actually display stars, let them open the pack first
-			local gachamon = GachaMonData.newestRecentMon or {}
-			local stars = GachaMonData.getStarsFromRating(gachamon.RatingScore or 0)
+			local stars = GachaMonData.newestRecentMon and GachaMonData.newestRecentMon:getStars() or 0
 			local gachamonText = string.format("    New GachaMon:  %s stars!", stars)
 			if Main.IsOnBizhawk() then
 				return { gachamonText }

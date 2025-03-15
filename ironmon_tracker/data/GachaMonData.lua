@@ -1,10 +1,11 @@
 GachaMonData = {
 	ShinyOdds = 0.002, -- 1 in 500, similar to Pokémon Go
+	TrainersToDefeat = 2, -- The number of trainers a Pokémon needs to defeat to automatically be kept in the player's permanent Collection
 
 	-- The user's entire GachaMon collection (ordered list). Populated from file only when the user first goes to view the Collection on the Tracker
 	Collection = {},
 
-	-- Stores the GachaMons for the current gameplay session only. Table key is the mon's personality value
+	-- Stores the GachaMons for the current gameplay session only. Table key is the Pokémon's personality value
 	RecentMons = {},
 
 	-- Populated on Tracker startup from the ratings data json file
@@ -13,7 +14,7 @@ GachaMonData = {
 	FileStorage = {
 		-- The current version of the PackFormat below. If the format changes, this version must be incremented.
 		Version = 1,
-		-- The order and sizing of all data per GachaMon packed into binary, first byte is always the version number
+		-- The order and sizing of all data per GachaMon packed into binary, first byte is *always* the version number
 		PackFormat = "BIHBBBBBBBBHL",
 		-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
 		RomHashSize = 64,
@@ -27,9 +28,7 @@ GachaMonData = {
 
 --[[
 TODO LIST
-- [Game Trigger] Auto-add to collection any mon used to defeat a trainer in battle (set it's Keep value)
 - [Ratings System] Cannot use hidden Base Stat values, most use visible values and new formula somehow
-- [UI] Design UI for viewing a single GachaMon
 - [UI] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Text UI] Create a basic MGBA viewing interface
 ]]
@@ -59,7 +58,7 @@ function GachaMonData.test()
 	Utils.printDebug("[GACHAMON] %s >>> Rating: %s | Stars: %s <<<",
 		PokemonData.Pokemon[gachamon.PokemonId].name,
 		gachamon.RatingScore,
-		GachaMonData.getStarsFromRating(gachamon.RatingScore)
+		gachamon:getStars()
 	)
 
 	-- Test to-and-from binary
@@ -70,6 +69,8 @@ function GachaMonData.test()
 	-- Test base-64 encoding of data
 	local b64string = GachaMonData.getShareablyCode(gachamon)
 	Utils.printDebug("Share Code: %s", b64string)
+
+	Program.openOverlayScreen(GachaMonOverlay, true)
 end
 
 ---@param pokemonData IPokemon
@@ -108,15 +109,17 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 		gachamon.Temp.IsShiny = 1
 	end
 
-	gachamon.RatingScore = GachaMonData.calculateRating(gachamon)
+	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon)
+	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon)
+	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
 
 	return gachamon
 end
 
----Rate the GachaMon based on its ability, moves, stats, and other factors
+---Calculates the GachaMon's "Rating Score" based on its ability, moves, stats, and other factors
 ---@param gachamon IGachaMon
 ---@return number rating Value between 0 and 100
-function GachaMonData.calculateRating(gachamon)
+function GachaMonData.calculateRatingScore(gachamon)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
@@ -179,15 +182,48 @@ function GachaMonData.calculateRating(gachamon)
 	return math.floor(ratingTotal + 0.5)
 end
 
----Use the RatingsSystem to determine the number of stars a given rating is worth
----@param rating number
----@return number stars Value between 0 and 6
-function GachaMonData.getStarsFromRating(rating)
-	if rating <= 0 then
+---Calculates the GachaMon's "Battle Power" based on its rating, STAB moves, nature, etc
+---@param gachamon IGachaMon
+---@return number power Value between 0 and 16000
+function GachaMonData.calculateBattlePower(gachamon)
+	local power = 0
+
+	-- Add rating bonus
+	local ratingBonus = math.floor((gachamon.RatingScore or 0) / 10 + 0.5) * 1000
+	power = power + ratingBonus
+
+	-- Add STAB bonus
+	local stabBonus = 0
+	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or false] or PokemonData.BlankPokemon
+	for _, moveId in ipairs(gachamon:getMoveIds() or {}) do
+		local move = MoveData.Moves[moveId or false]
+		if move and Utils.isSTAB(move, move.type, pokemonInternal.types or {}) then
+			stabBonus = stabBonus + 1000
+			break
+		end
+	end
+	power = power + stabBonus
+
+	-- Add matching nature bonus
+	if gachamon.BaseStats then
+		local statKey = (gachamon.BaseStats.atk or 0) > (gachamon.BaseStats.spa or 0) and "atk" or "spa"
+		local multiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
+		local natureBonus = math.floor(multiplier * 10 - 10) * 1000
+		power = power + natureBonus
+	end
+
+	return math.floor(power)
+end
+
+---Calculates the GachaMon's "Stars" based on its rating score
+---@param gachamon IGachaMon
+---@return number stars Value between 0 and 6 (0: non-existent rating, 6: is the 5+ rating)
+function GachaMonData.calculateStars(gachamon)
+	if (gachamon.RatingScore or 0) <= 0 then
 		return 0
 	end
 	for _, ratingPair in ipairs(GachaMonData.RatingsSystem.RatingToStars or {}) do
-		if rating >= (ratingPair.Rating or 1) and ratingPair.Stars then
+		if gachamon.RatingScore >= (ratingPair.Rating or 1) and ratingPair.Stars then
 			return ratingPair.Stars
 		end
 	end
@@ -248,6 +284,30 @@ function GachaMonData.tryAddToRecentMons(pokemon)
 	return true
 end
 
+---Called when a Pokémon/GachaMon wins a trainer battle, flagging it to save in the permanent collection
+---@param mon IPokemon|IGachaMon It's associated GachaMon from RecentMons will be used
+---@return boolean success
+function GachaMonData.tryKeepInCollection(mon)
+	local gachamon = GachaMonData.RecentMons[mon.personality or mon.Personality or false]
+	if not gachamon or gachamon.Temp.Keep == 1 then
+		return false
+	end
+	-- Only auto-keep the good, successful Pokémon
+	gachamon.Temp.TrainersDefeated = (gachamon.Temp.TrainersDefeated or 0) + 1
+	if gachamon.Temp.TrainersDefeated < GachaMonData.TrainersToDefeat then
+		return false
+	end
+
+	Utils.printDebug("[tryKeepInCollection] Keeping this mon, Personality: %s", tostring(gachamon.Personality))
+
+	-- Flag this GachaMon as something to keep in collection
+	gachamon.Temp.Keep = 1
+	-- Reset its compressed data and rebuild it
+	gachamon.C_MoveIdsGameVersionKeep = 0
+	gachamon:compressMoveIdsGameVersionKeep()
+	return true
+end
+
 
 ---@class IGachaMon
 GachaMonData.IGachaMon = {
@@ -261,6 +321,8 @@ GachaMonData.IGachaMon = {
 	BaseStats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 	-- 1 Byte (7 bits); value rounded up
 	RatingScore = 0,
+	-- 0 Bytes (4 bits); stored with PokemonId as 0BBBBPPP
+	BattlePower = 0,
 	-- 2 Bytes (16 bits); The seed number at the time this mon was collected
 	SeedNumber = 0,
 	-- 5 Bytes (9 bits x4, + 3 bits + 1 bit); 4 move ids, game version, and keep permanently; left-most byte as KVVVMMMM
@@ -276,6 +338,27 @@ GachaMonData.IGachaMon = {
 	Temp = {},
 
 	-- Helper functions for converting data to proper formats, binary or otherwise
+
+	---Builds the display data needed to show off a GachaMon collectable card
+	---@return table
+	getCardDisplayData = function(self)
+		if self.Temp.Card then
+			return self.Temp.Card
+		end
+		self.Temp.Card = {}
+		local C = self.Temp.Card
+		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
+
+		C.Stars = self:getStars()
+		C.Power = self.BattlePower or 0
+		C.PokemonId = self.PokemonId -- Icon
+		C.AbilityId = self.AbilityId -- Rules Text
+		C.FrameType = self:getIsShiny() == 1 and "Jagged" or "Straight"
+		C.FrameColors = {}
+		C.FrameColors[1] = Constants.MoveTypeColors[pokemonInternal.types[1] or PokemonData.Types.UNKNOWN]
+		C.FrameColors[2] = Constants.MoveTypeColors[pokemonInternal.types[2] or false] or C.FrameColors[1]
+		return C
+	end,
 
 	-- KVVVMMMM MMMMMMMM MMMMMMMM MMMMMMMM MMMMMMMM
 	compressMoveIdsGameVersionKeep = function(self)
@@ -311,6 +394,55 @@ GachaMonData.IGachaMon = {
 		end
 		return self.C_DateObtained
 	end,
+
+	---@return number
+	getStars = function(self)
+		if not self.Temp.Stars then
+			self.Temp.Stars = GachaMonData.calculateStars(self)
+		end
+		return self.Temp.Stars or 0
+	end,
+	---@return number keep 1 = keep in collection; 0 = don't keep
+	getKeep = function(self)
+		return Utils.getbits(self.C_MoveIdsGameVersionKeep, 39, 1)
+	end,
+	---@return string
+	getGameVersion = function(self)
+		local versionNum = Utils.getbits(self.C_MoveIdsGameVersionKeep, 36, 3)
+		return GameSettings.numberToGameVersion(versionNum)
+	end,
+	---@return table moveIds
+	getMoveIds = function(self)
+		if not self.Temp.MoveIds then
+			self.Temp.MoveIds = {
+				Utils.getbits(self.C_MoveIdsGameVersionKeep, 0, 9),
+				Utils.getbits(self.C_MoveIdsGameVersionKeep, 9, 9),
+				Utils.getbits(self.C_MoveIdsGameVersionKeep, 18, 9),
+				Utils.getbits(self.C_MoveIdsGameVersionKeep, 27, 9),
+			}
+		end
+		return self.Temp.MoveIds
+	end,
+	---@return number isShiny 1 = shiny; 0 = not shiny
+	getIsShiny = function(self)
+		return Utils.getbits(self.C_ShinyGenderNature, 0, 1)
+	end,
+	---@return number
+	getGender = function(self)
+		return Utils.getbits(self.C_ShinyGenderNature, 1, 2)
+	end,
+	---@return number
+	getNature = function(self)
+		return Utils.getbits(self.C_ShinyGenderNature, 3, 5)
+	end,
+	---@return table datetable { year=#, month=#, day=# }
+	getDateObtainedTable = function(self)
+		return {
+			day = Utils.getbits(self.C_DateObtained, 0, 5),
+			month = Utils.getbits(self.C_DateObtained, 5, 4),
+			year = 2000 + Utils.getbits(self.C_DateObtained, 9, 7),
+		}
+	end,
 }
 ---Creates and returns a new IGachaMon object
 ---@param o? table Optional initial object table
@@ -322,6 +454,7 @@ function GachaMonData.IGachaMon:new(o)
 	o.AbilityId = o.AbilityId or 0
 	o.BaseStats = o.BaseStats or { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
 	o.RatingScore = o.RatingScore or 0
+	o.BattlePower = o.BattlePower or 0
 	o.SeedNumber = o.SeedNumber or 0
 	o.C_MoveIdsGameVersionKeep = o.C_MoveIdsGameVersionKeep or 0
 	o.C_ShinyGenderNature = o.C_ShinyGenderNature or 0
@@ -586,6 +719,8 @@ end
 ---@param gachamon IGachaMon
 ---@return string binaryStream
 function GachaMonData.FileStorage.monToBinary(gachamon)
+	local battlePower = math.floor(gachamon.BattlePower / 1000)
+	local idAndPower = gachamon.PokemonId + Utils.bit_lshift(battlePower, 11)
 	-- Shove all the compressed bytes together into a long
 	local c1 = gachamon:compressMoveIdsGameVersionKeep() -- 40 bits
 	local c2 = gachamon:compressShinyGenderNature() -- 8 bits
@@ -597,7 +732,7 @@ function GachaMonData.FileStorage.monToBinary(gachamon)
 		-- Ordered set of data to pack into binary
 		GachaMonData.FileStorage.Version,
 		gachamon.Personality,
-		gachamon.PokemonId,
+		idAndPower,
 		gachamon.AbilityId,
 		gachamon.BaseStats.hp,
 		gachamon.BaseStats.atk,
@@ -649,7 +784,6 @@ GachaMonData.FileStorage.BinaryStreamReaders[1] = function(binaryStream, positio
 	local data = { StructEncoder.binaryUnpack(format, binaryStream, position) }
 	local gachamon = GachaMonData.IGachaMon:new({
 		Personality = data[2],
-		PokemonId = data[3],
 		AbilityId = data[4],
 		BaseStats = {
 			hp = data[5],
@@ -662,6 +796,9 @@ GachaMonData.FileStorage.BinaryStreamReaders[1] = function(binaryStream, positio
 		RatingScore = data[11],
 		SeedNumber = data[12],
 	})
+	local idAndPower = data[3]
+	gachamon.PokemonId = Utils.getbits(idAndPower, 0, 11)
+	gachamon.BattlePower = Utils.getbits(idAndPower, 11, 4) * 1000
 	local last8bytes = data[13]
 	gachamon.C_MoveIdsGameVersionKeep = Utils.getbits(last8bytes, 0, 40)
 	gachamon.C_ShinyGenderNature = Utils.getbits(last8bytes, 40, 8)

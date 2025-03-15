@@ -718,6 +718,9 @@ ScreenResources{
 		TabCollection = "Collection",
 		TabBattle = "Battle",
 		TabOptions = "Options",
+		OptionShowGachaMonInCarouselBox = "Show GachaMon catch info in Carousel box",
+		OptionAutoAddGachaMonToCollection = "Add GachaMon to collection after defeating a trainer",
+		OptionAnimateGachaMonPackOpening = "Animate GachaMon pack opening",
 	},
 	TeamViewArea = {
 		EggNickname = "EGG",
