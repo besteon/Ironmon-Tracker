@@ -553,10 +553,17 @@ function Program.stepFrames()
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
 
-	for _, framecounter in pairs(Program.Frames.Others or {}) do
+	local toRemove = {}
+	for label, framecounter in pairs(Program.Frames.Others or {}) do
 		if type(framecounter.step) == "function" then
 			framecounter:step()
 		end
+		if framecounter.finished then
+			table.insert(toRemove, label)
+		end
+	end
+	for _, label in ipairs(toRemove) do
+		Program.removeFrameCounter(label)
 	end
 
 	SpriteData.updateActiveIcons()
@@ -574,7 +581,10 @@ function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWi
 	Program.Frames.Others[label] = {
 		framesElapsed = 0.0,
 		maxFrames = frames,
+		callFunc = callFunc,
 		timesExecuted = 0,
+		maxExecutions = numExecutions,
+		finished = false,
 		paused = false,
 		pause = function(self) self.paused = true end,
 		unpause = function(self) self.paused = false end,
@@ -585,14 +595,14 @@ function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWi
 			self.framesElapsed = self.framesElapsed + delta
 			if self.framesElapsed >= self.maxFrames then
 				self.framesElapsed = 0.0
-				if type(callFunc) == "function" then
-					if numExecutions then
+				if type(self.callFunc) == "function" then
+					if self.maxExecutions then
 						self.timesExecuted = self.timesExecuted + 1
-						if self.timesExecuted >= numExecutions then
-							Program.removeFrameCounter(label)
+						if self.timesExecuted >= self.maxExecutions then
+							self.finished = true
 						end
 					end
-					callFunc()
+					pcall(self.callFunc)
 				end
 			end
 		end,
