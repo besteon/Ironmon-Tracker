@@ -27,6 +27,7 @@ MoveData.Values = {
 	BideId = 117,
 	TransformId = 144,
 	SubstituteId = 164,
+	TripleKickId = 167,
 	NightmareId = 171,
 	CurseId = 174,
 	ProtectId = 182,
@@ -350,6 +351,49 @@ function MoveData.calcHiddenPowerTypeAndPower(ivs)
 	movePower = math.floor(moveSum * 40 / 63) + 30 -- results in 30 through 70, inclusive
 
 	return moveType, movePower
+end
+
+---Determines (guesses) at the expected numerical power of a given move. For example, average power for multi-hit moves, or max power for HP based moves.
+---@param moveId number
+---@return number
+function MoveData.getExpectedPower(moveId)
+	if not MoveData.isValid(moveId) then
+		return 0
+	end
+
+	if moveId == MoveData.Values.LowKickId then
+		return 80
+	elseif moveId == MoveData.Values.EruptionId or moveId == MoveData.Values.WaterSpoutId then
+		return 150
+	elseif moveId == MoveData.Values.FlailId or moveId == MoveData.Values.ReversalId then
+		return 80
+	elseif moveId == MoveData.Values.ReturnId then
+		return 102
+	elseif moveId == MoveData.Values.FrustrationId then
+		return 50
+	elseif moveId == MoveData.Values.TripleKickId then
+		return 60
+	end
+
+	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Variable_number_of_strikes
+	local multiHitMoves = {
+		[292] = true, [140] = true, [198] = true, [331] = true, [4] = true, [3] = true,
+		[31] = true, [154] = true, [333] = true, [42] = true, [350] = true, [131] = true
+	}
+	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Fixed_number_of_multiple_strikes
+	local doubleHitMoves = {
+		[155] = true, [24] = true
+	}
+
+	local power = tonumber(MoveData.Moves[moveId].power) or 0
+	if doubleHitMoves[moveId] then
+		return (power * 2)
+	elseif multiHitMoves[moveId] then
+		-- Average of 3 hits
+		return (power * 3)
+	end
+
+	return power
 end
 
 MoveData.BlankMove = {

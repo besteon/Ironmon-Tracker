@@ -417,7 +417,7 @@ function Drawing.drawButton(button, shadowcolor)
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
 	end
 
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER or (button.type == nil and text ~= "") then
 		Drawing.drawText(x + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.disabled then

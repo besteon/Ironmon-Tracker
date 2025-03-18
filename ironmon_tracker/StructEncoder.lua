@@ -35,7 +35,7 @@ PACK FORMAT AVAILABLE TYPES
 "i" a signed int (4 bytes).
 "I" an unsigned int (4 bytes).
 "l" a signed long (8 bytes).
-"L" an unsigned long (8 bytes).
+"L" an unsigned long (8 bytes); DON'T USE WITH LUA NUMBER.
 "f" a float (4 bytes).
 "d" a double (8 bytes).
 "s" a zero-terminated string.
