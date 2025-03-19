@@ -31,9 +31,8 @@ GachaMonData = {
 TODO LIST
 - [UI] Recent tab: show first mon in party with ways to cycle through recent mons. Show some stats. Add save in collection button
 - [UI] Collection tab: find a way to display lots of data cleanly. Quick access to favorite button.
-- [UI] Single-Card-View: rearrange sections to center the card up front. add functionality to buttons
 - [UI] Options: add a "clean up collection" button + prompt to easily delete non-favorite cards with certain criteria
-- [UI] Battle: ???
+- [UI] Battle: ??? Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
 - [UI] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Text UI] Create a basic MGBA viewing interface
 ]]
@@ -74,10 +73,7 @@ function GachaMonData.test()
 	local b64string = GachaMonData.getShareablyCode(gachamon)
 	Utils.printDebug("Share Code: %s", b64string)
 
-	Program.openOverlayScreen(GachaMonOverlay)
-	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
-	GachaMonOverlay.refreshButtons()
-	Program.redraw(true)
+	Program.openOverlayScreen(GachaMonOverlay, true)
 end
 
 ---@param pokemonData IPokemon
@@ -121,7 +117,10 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 		gachamon.Temp.IsShiny = 1
 	end
 
-	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon)
+	local pokemonInternal = PokemonData.Pokemon[pokemonData.pokemonID or 0]
+	local baseStats = pokemonInternal and pokemonInternal.baseStats or {}
+
+	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon, baseStats)
 	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon)
 	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
 
@@ -130,8 +129,9 @@ end
 
 ---Calculates the GachaMon's "Rating Score" based on its ability, moves, stats, and other factors
 ---@param gachamon IGachaMon
+---@param baseStats table
 ---@return number rating Value between 0 and 100
-function GachaMonData.calculateRatingScore(gachamon)
+function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
@@ -149,39 +149,36 @@ function GachaMonData.calculateRatingScore(gachamon)
 	ratingTotal = ratingTotal + moveRating
 
 	-- STATS
-	local stats = gachamon:getStats()
-	local statTotal = 0
-	for _, statValue in pairs(stats or {}) do
-		statTotal = statTotal + statValue
-	end
-	statTotal = math.max(statTotal, 1) -- minimum of 1
-	-- Highest Attacking Stat % of Total
-	local offensiveStat = stats.atk > stats.spa and stats.atk or stats.spa
-	local offensivePercentage = offensiveStat / statTotal
+	-- Offensive Stats (Atk & Spa separately)
+	local offensiveAtk = baseStats.atk or 0
+	local offensiveSpa = baseStats.spa or 0
 	local offensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
-		if offensivePercentage >= (ratingPair.Percentage or 1) and ratingPair.Rating then
-			offensiveRating = ratingPair.Rating
-			break
+		if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
+			offensiveRating = offensiveRating + ratingPair.Rating
+			offensiveAtk = 0
+		end
+		if offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
+			offensiveRating = offensiveRating + ratingPair.Rating
+			offensiveSpa = 0
 		end
 	end
 	ratingTotal = ratingTotal + offensiveRating
-	-- Combined Defensive Stat % of Total (HP, Spdef, Def)
-	local defensiveStats = stats.hp + stats.def + stats.spd
-	local defensivePercentage = defensiveStats / statTotal
+	-- Defensives Stat (HP, Def, SpDef)
+	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
 	local defensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Defensive or {}) do
-		if defensivePercentage >= (ratingPair.Percentage or 1) and ratingPair.Rating then
+		if defensiveStats >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
 			defensiveRating = ratingPair.Rating
 			break
 		end
 	end
 	ratingTotal = ratingTotal + defensiveRating
-	-- Speed % of Total
-	local speedPercentage = stats.spe / statTotal
+	-- Speed Stat (Spe)
+	local speedStat = (baseStats.spe or 0)
 	local speedRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Speed or {}) do
-		if speedPercentage >= (ratingPair.Percentage or 1) and ratingPair.Rating then
+		if speedStat >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
 			speedRating = ratingPair.Rating
 			break
 		end
@@ -390,7 +387,9 @@ GachaMonData.IGachaMon = {
 			C.StatBars[statKey] = math.min(math.floor((stats[statKey] or 0) / self.Level), 5)
 			-- Utils.printDebug("[%s] Stat: %s, Value: %s, Stats: %s", self.PokemonId, statKey, C.StatBars[statKey], stats[statKey])
 		end
-		C.FrameType = self:getIsShiny() == 1 and "Jagged" or "Straight"
+		if self:getIsShiny() == 1 then
+			C.ShinyAnimationFrame = math.random(1, 120)
+		end
 		C.FrameColors = {}
 		C.FrameColors[1] = Constants.MoveTypeColors[pokemonInternal.types[1] or PokemonData.Types.UNKNOWN]
 		C.FrameColors[2] = Constants.MoveTypeColors[pokemonInternal.types[2] or false] or C.FrameColors[1]
@@ -473,6 +472,9 @@ GachaMonData.IGachaMon = {
 	---@return number keep 1 = keep in collection; 0 = don't keep
 	getKeep = function(self)
 		return Utils.getbits(self.C_MoveIdsGameVersionKeep, 39, 1)
+	end,
+	setKeep = function(self, keepBit)
+		self.C_MoveIdsGameVersionKeep = Utils.getbits(self.C_MoveIdsGameVersionKeep, 0, 39) + Utils.bit_lshift(keepBit, 39)
 	end,
 	---@return string
 	getGameVersion = function(self)

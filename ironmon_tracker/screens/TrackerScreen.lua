@@ -457,6 +457,18 @@ TrackerScreen.Buttons = {
 			end
 		end
 	},
+	GachaMonSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.POKEBALL,
+		getText = function(self) return self.updatedText or "" end,
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.GACHAMON end,
+		onClick = function(self)
+			Program.openOverlayScreen(GachaMonOverlay, true)
+		end
+	},
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -842,14 +854,11 @@ function TrackerScreen.buildCarousel()
 			return GachaMonData.hasNewestMonToShow()
 		end,
 		getContentList = function(self)
-			-- TODO: Eventually return a clickable button to open the GachaMon pack w/ animation
-			-- Also don't actually display stars, let them open the pack first
-			local stars = GachaMonData.newestRecentMon and GachaMonData.newestRecentMon:getStars() or 0
-			local gachamonText = string.format("    New GachaMon:  %s stars!", stars)
+			TrackerScreen.Buttons.GachaMonSummary.updatedText = string.format(" %s", "New GachaMon captured!")
 			if Main.IsOnBizhawk() then
-				return { gachamonText }
+				return { TrackerScreen.Buttons.GachaMonSummary }
 			else
-				return gachamonText or ""
+				return TrackerScreen.Buttons.GachaMonSummary.updatedText or ""
 			end
 		end,
 	}

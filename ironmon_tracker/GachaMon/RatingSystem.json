@@ -443,30 +443,36 @@
 	"Stats": {
 		"Offensive": [
 			{
+				"BaseStat": 120,
 				"Percentage": 0.22,
 				"Rating": 15
 			},
 			{
+				"BaseStat": 90,
 				"Percentage": 0.19,
 				"Rating": 10
 			},
 			{
+				"BaseStat": 60,
 				"Percentage": 0.15,
 				"Rating": 5
 			}
 		],
 		"Defensive": [
 			{
+				"BaseStat": 240,
 				"Percentage": 0.45,
 				"Rating": 5
 			}
 		],
 		"Speed": [
 			{
+				"BaseStat": 90,
 				"Percentage": 0.19,
 				"Rating": 10
 			},
 			{
+				"BaseStat": 60,
 				"Percentage": 0.15,
 				"Rating": 5
 			}

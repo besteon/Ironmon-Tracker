@@ -78,68 +78,87 @@ GachaMonOverlay.TabButtons = {
 
 GachaMonOverlay.Buttons = {}
 
-local TEMPCOL = 90
 GachaMonOverlay.Tabs.View.Buttons = {
-	Dividers = {
-		box = { CANVAS.X + 88, CANVAS.Y, 1, CANVAS.H, },
-		draw = function(self, shadowcolor)
-			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			local color = Theme.COLORS[SCREEN.Colors.border]
-			local segmentLength, segmentSpacer = 4, 6
-			for iy = y, (y + h), segmentLength + segmentSpacer do
-				gui.drawLine(x, iy, x, math.min(iy + segmentLength, y + h), color)
-			end
-		end,
-	},
-	GachaMonCard = {
-		box = { CANVAS.X + 3, CANVAS.Y + 3, 70, 70, },
+	NameAndOtherInfo = {
+		box = { CANVAS.X + 4, CANVAS.Y + 2, 100, 11, },
 		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
 		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
+			local x, y, x2 = self.box[1], self.box[2], self.box[1] + 58
+			local color = Theme.COLORS[SCREEN.Colors.text]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			local pokemonInternal = PokemonData.Pokemon[SCREEN.Data.ViewedMon.PokemonId or false] or PokemonData.BlankPokemon
+			-- NAME & GENDER
+			local nameText = Utils.toUpperUTF8(pokemonInternal.name)
+			Drawing.drawText(x, y, nameText, highlight, shadowcolor)
+			local genderIndex = SCREEN.Data.ViewedMon:getGender()
+			local gSymbols = { Constants.PixelImages.MALE_SYMBOL, Constants.PixelImages.FEMALE_SYMBOL }
+			if gSymbols[genderIndex] then
+				local nameTextW = 8 + Utils.calcWordPixelLength(nameText)
+				Drawing.drawImageAsPixels(gSymbols[genderIndex], x + nameTextW, y + 1, highlight, shadowcolor)
+			end
+			y = y + Constants.SCREEN.LINESPACING
+			-- LEVEL & NATURE
+			local levelText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, SCREEN.Data.ViewedMon.Level or 0)
+			local nature = SCREEN.Data.ViewedMon:getNature()
+			local natureText = Resources.Game.NatureNames[nature + 1]
+			Drawing.drawText(x, y, levelText, color, shadowcolor)
+			if natureText then
+				Drawing.drawText(x2, y, string.format("%s %s", natureText, "Nature"), color, shadowcolor)
+			end
+			y = y + Constants.SCREEN.LINESPACING
+			-- RATING & STARS
+			local ratingText = tostring(SCREEN.Data.ViewedMon.RatingScore or 0)
+			local ratingTextW = 5 + Utils.calcWordPixelLength(ratingText)
+			local starsText = string.format("(%s stars)", SCREEN.Data.ViewedMon:getStars())
+			Drawing.drawText(x, y, string.format("%s:", "Rating"), color, shadowcolor)
+			Drawing.drawText(x2, y, ratingText, color, shadowcolor)
+			Drawing.drawText(x2 + ratingTextW, y, starsText, color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING
+			-- BATTLE POWER
+			local powerText = tostring(SCREEN.Data.ViewedMon.BattlePower or 0)
+			Drawing.drawText(x, y, string.format("%s:", "Battle Power"), color, shadowcolor)
+			Drawing.drawText(x2, y, powerText, color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING
+			-- GAME VERSION & DATE
+			local versionText = SCREEN.Data.ViewedMon:getGameVersion()
+			local versionTextW = 4 + Utils.calcWordPixelLength(versionText)
+			local dateFormatted = os.date("%x", os.time(SCREEN.Data.ViewedMon:getDateObtainedTable()))
+			local dateText = string.format("%s  %s", Constants.BLANKLINE, dateFormatted)
+			Drawing.drawText(x, y, string.format("%s:", "Caught on"), color, shadowcolor)
+			Drawing.drawText(x2, y, versionText, color, shadowcolor)
+			Drawing.drawText(x2 + versionTextW, y, dateText, color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING
+			-- SEED & DATE
+			local seedFormatted = Utils.formatNumberWithCommas(SCREEN.Data.ViewedMon.SeedNumber or 0)
+			Drawing.drawText(x2, y, string.format("%s # %s", "Seed", seedFormatted), color, shadowcolor)
+			-- Drawing.drawText(x2, y, seedFormatted, color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING
+		end,
+	},
+
+	GachaMonCard = {
+		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 1, 76, 76, },
+		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawRectangle(x - 1, y - 1, w + 2, h + 2, border, nil)--Drawing.Colors.BLACK)
+			gui.drawLine(x, y + h + 2, x + w, y + h + 2, shadowcolor)
 			local card = SCREEN.Data.ViewedMon:getCardDisplayData()
 			GachaMonOverlay.drawGachaCard(card, x, y)
 		end,
 	},
-	ShareCode = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.POKEBALL,
-		iconColors = TrackerScreen.PokeBalls.ColorList,
-		getText = function(self) return "Share Code" end,
-		box = { CANVAS.X + 4, CANVAS.Y + 85, 80, 16, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
-		updateSelf = function(self)
-		end,
-		onClick = function(self)
-		end,
-	},
-	Favorite = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.HEART,
-		getText = function(self) return "Favorite" end,
-		box = { CANVAS.X + 4, CANVAS.Y + 104, 80, 16, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
-		updateSelf = function(self)
-		end,
-		onClick = function(self)
-		end,
-	},
-	KeepInCollection = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.CHECKMARK,
-		iconColors = { SCREEN.Colors.positive },
-		getText = function(self) return "In Collection" end,
-		box = { CANVAS.X + 4, CANVAS.Y + 123, 80, 16, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
-		updateSelf = function(self)
-		end,
-		onClick = function(self)
-		end,
-	},
+
 	Stats = {
-		box = { CANVAS.X + TEMPCOL + 1, CANVAS.Y + 3, 100, 66, },
+		getText = function(self) return string.format("%s", "Stats") end,
+		textColor = SCREEN.Colors.highlight,
+		box = { CANVAS.X + 3, CANVAS.Y + 69, 44, 11, },
 		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
 		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			gui.drawLine(x + 1, y + h, x + w, y + h, Theme.COLORS[SCREEN.Colors.border])
+			y = y + 2
+
 			local langOffset = (Resources.currentLanguage == Resources.Languages.JAPANESE) and 3 or 0
 			local statLabels = {
 				Resources.TrackerScreen.StatHP, Resources.TrackerScreen.StatATK, Resources.TrackerScreen.StatDEF,
@@ -147,7 +166,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			}
 			local stats = SCREEN.Data.ViewedMon:getStats()
 			for i, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-				local iy = y + 10 * (i-1)
+				local iy = y + 10 * i
 				local color = Theme.COLORS[SCREEN.Colors.text]
 				local natureSymbol
 				local natureMultiplier = Utils.getNatureMultiplier(statKey, SCREEN.Data.ViewedMon:getNature())
@@ -159,21 +178,24 @@ GachaMonOverlay.Tabs.View.Buttons = {
 					natureSymbol = Constants.BLANKLINE
 				end
 				-- STAT LABEL
-				Drawing.drawText(x, iy, statLabels[i], color, shadowcolor)
+				Drawing.drawText(x + 1, iy, statLabels[i], color, shadowcolor)
 				if natureSymbol then
-					Drawing.drawText(x + 16 + langOffset, iy - 1, natureSymbol, color, nil, 5, Constants.Font.FAMILY)
+					Drawing.drawText(x + 17 + langOffset, iy - 1, natureSymbol, color, nil, 5, Constants.Font.FAMILY)
 				end
 				-- STAT VALUE
 				if not Options["Color stat numbers by nature"] then
 					color = Theme.COLORS[SCREEN.Colors.text]
 				end
 				local statVal = (stats[statKey] or 0) == 0 and Constants.BLANKLINE or stats[statKey]
-				Drawing.drawNumber(x + 25, iy, statVal, 3, color, shadowcolor)
+				Drawing.drawNumber(x + 26, iy, statVal, 3, color, shadowcolor)
 			end
 		end,
 	},
+
 	Moves = {
-		box = { CANVAS.X + TEMPCOL + 50, CANVAS.Y + 3, 100, 44, },
+		getText = function(self) return string.format("%s", Resources.TrackerScreen.HeaderMoves) end,
+		textColor = SCREEN.Colors.highlight,
+		box = { CANVAS.X + 57, CANVAS.Y + 88, 83, 11, },
 		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
 		onClick = function(self)
 			-- local moveIds = SCREEN.Data.ViewedMon:getMoveIds()
@@ -182,7 +204,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			-- end
 		end,
 		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			gui.drawLine(x + 1, y + h, x + w, y + h, Theme.COLORS[SCREEN.Colors.border])
+			y = y + 2
+
 			local moveIds = SCREEN.Data.ViewedMon:getMoveIds()
 			for i, moveId in ipairs(moveIds or {}) do
 				local name, power = Constants.BLANKLINE, ""
@@ -194,70 +219,93 @@ GachaMonOverlay.Tabs.View.Buttons = {
 					end
 				end
 				local color = Theme.COLORS[SCREEN.Colors.text]
-				local iy = y + 11 * (i-1)
-				Drawing.drawText(x, iy, name, color, shadowcolor)
-				Drawing.drawNumber(x + 75, iy, power, 3, color, shadowcolor)
+				local iy = y + 10 * i
+				Drawing.drawText(x + 1, iy, name, color, shadowcolor)
+				Drawing.drawNumber(x + 65, iy, power, 3, color, shadowcolor)
 			end
 			-- local moveColor = Constants.MoveTypeColors[move.type or false] or Theme.COLORS[SCREEN.Colors.text]
 			-- local pokemonInternal = PokemonData.Pokemon[SCREEN.Data.ViewedMon.PokemonId or false] or PokemonData.BlankPokemon
 		end,
 	},
-	NameLevelGender = {
-		getText = function(self)
-			local pokemonInternal = PokemonData.Pokemon[SCREEN.Data.ViewedMon.PokemonId or false] or PokemonData.BlankPokemon
-			return string.format("%s  (%s.%s)", pokemonInternal.name, Resources.TrackerScreen.LevelAbbreviation, SCREEN.Data.ViewedMon.Level or 0)
-		end,
-		textColor = SCREEN.Colors.text,
-		box = { CANVAS.X + TEMPCOL, CANVAS.Y + 70, 100, 11, },
+
+	ShareCode = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = TrackerScreen.PokeBalls.ColorList,
+		getText = function(self) return "Share Code" end,
+		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 83, 78, 16, },
+		noShadowBorder = true,
 		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
+		onClick = function(self)
+			GachaMonOverlay.openShareCodeWindow(SCREEN.Data.ViewedMon)
+		end,
 		draw = function(self, shadowcolor)
-			local x, y = self.box[1], self.box[2]
-			local gender = SCREEN.Data.ViewedMon:getGender()
-			local gSymbol
-			if gender == 1 then
-				gSymbol = Constants.PixelImages.MALE_SYMBOL
-			elseif gender == 2 then
-				gSymbol = Constants.PixelImages.FEMALE_SYMBOL
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			-- Draw single shadow line
+			gui.drawLine(x + 1, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
+		end,
+	},
+	Favorite = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.HEART,
+		getText = function(self) return "Favorite" end,
+		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 103, 78, 16, },
+		noShadowBorder = true,
+		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
+		updateSelf = function(self)
+			local favorite = SCREEN.Data.ViewedMon and SCREEN.Data.ViewedMon.Favorite or 0
+			if favorite == 1 then
+				self.iconColors = { 0xFFF04037, Drawing.Colors.RED, Drawing.Colors.WHITE }
+			else
+				self.iconColors = { SCREEN.Colors.text, SCREEN.Colors.boxFill, SCREEN.Colors.boxFill }
 			end
-			if gSymbol then
-				Drawing.drawImageAsPixels(gSymbol, x + 90, y + 2, Theme.COLORS[self.textColor], shadowcolor)
+		end,
+		onClick = function(self)
+			if SCREEN.Data.ViewedMon then
+				SCREEN.Data.ViewedMon.Favorite = math.abs(SCREEN.Data.ViewedMon.Favorite - 1)
+			end
+			self:updateSelf()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			-- Draw single shadow line
+			gui.drawLine(x + 1, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
+		end,
+	},
+	KeepInCollection = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.CHECKMARK,
+		iconColors = { SCREEN.Colors.positive },
+		getText = function(self) return "In Collection" end,
+		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 123, 78, 16, },
+		noShadowBorder = true,
+		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
+		updateSelf = function(self)
+			local keep = SCREEN.Data.ViewedMon and SCREEN.Data.ViewedMon:getKeep() or 0
+			if keep == 1 then
+				self.image = Constants.PixelImages.CHECKMARK
+				self.iconColors = { SCREEN.Colors.positive }
+			else
+				self.image = Constants.PixelImages.CROSS
+				self.iconColors = { SCREEN.Colors.text }
 			end
 		end,
-	},
-	Nature = {
-		getText = function(self)
-			local nature = SCREEN.Data.ViewedMon:getNature()
-			return string.format("%s:  %s", "Nature", Resources.Game.NatureNames[nature + 1] or Constants.BLANKLINE)
+		onClick = function(self)
+			if SCREEN.Data.ViewedMon then
+				local keep = SCREEN.Data.ViewedMon:getKeep() or 0
+				-- TODO: First confirm if its okay to delete this mon if its in real Collection (not recent mon)
+				keep = math.abs(keep - 1) -- invert
+				SCREEN.Data.ViewedMon:setKeep(keep)
+			end
+			self:updateSelf()
+			Program.redraw(true)
 		end,
-		textColor = SCREEN.Colors.text,
-		box = { CANVAS.X + TEMPCOL, CANVAS.Y + 81, 100, 11, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
-	},
-	RatingAndStars = {
-		getText = function(self)
-			return string.format("%s:  %s   %s", "Rating", SCREEN.Data.ViewedMon.RatingScore or 0, string.rep("*", SCREEN.Data.ViewedMon:getStars()))
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			-- Draw single shadow line
+			gui.drawLine(x + 1, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
 		end,
-		textColor = SCREEN.Colors.text,
-		box = { CANVAS.X + TEMPCOL, CANVAS.Y + 92, 100, 11, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
-	},
-	SeedAndDate = {
-		getText = function(self)
-			local seedFormatted = Utils.formatNumberWithCommas(SCREEN.Data.ViewedMon.SeedNumber or 0)
-			local dateFormatted = os.date("%x", os.time(SCREEN.Data.ViewedMon:getDateObtainedTable()))
-			return string.format("%s:  %s  (%s)", "Seed", seedFormatted, dateFormatted)
-		end,
-		textColor = SCREEN.Colors.text,
-		box = { CANVAS.X + TEMPCOL, CANVAS.Y + 103, 100, 11, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
-	},
-	GameVersion = {
-		getText = function(self)
-			return string.format("%s:  %s", "Version", SCREEN.Data.ViewedMon:getGameVersion())
-		end,
-		textColor = SCREEN.Colors.text,
-		box = { CANVAS.X + TEMPCOL, CANVAS.Y + 114, 100, 11, },
-		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
 	},
 }
 
@@ -336,6 +384,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, showFavoriteOverride)
 		return
 	end
 	local numStars = card.Stars or 0
+	local BORDER = 3
 	local W, H, TOP_W, TOP_H, BOT_H = 70, 70, 40, 10, 15
 	local COLORS = {
 		bg = Drawing.Colors.BLACK,
@@ -349,7 +398,12 @@ function GachaMonOverlay.drawGachaCard(card, x, y, showFavoriteOverride)
 	}
 
 	-- FRAME
-	gui.drawRectangle(x, y, W, H, COLORS.bg, COLORS.bg)
+	gui.drawRectangle(x, y, W + BORDER * 2, H + BORDER * 2, COLORS.bg, COLORS.bg)
+	if card.ShinyAnimationFrame then
+		-- TODO
+	end
+	x = x + BORDER
+	y = y + BORDER
 	-- left-half
 	gui.drawLine(x+1, y+1, x+1+TOP_W, y+1, COLORS.border1)
 	gui.drawLine(x+1, y+1, x+1, y+H-1, COLORS.border1)
@@ -549,12 +603,23 @@ function GachaMonOverlay.tryLoadCollection()
 	end, 1)
 end
 
+function GachaMonOverlay.openShareCodeWindow(gachamon)
+	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
+	local form = ExternalUI.BizForms.createForm("GachaMon Share Code", 450, 160)
+	form:createLabel("Show off your GachaMon by sharing this code.", 19, 10)
+	form:createLabel(string.format("%s:", "Copy the shareable code below with Ctrl+C"), 19, 30)
+	form:createTextBox(shareCode, 20, 55, 400, 22, nil, false, true)
+	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+		form:destroy()
+	end)
+end
+
 -- OVERLAY OPEN
 function GachaMonOverlay.open()
 	LogSearchScreen.clearSearch()
 	SCREEN.tryLoadCollection()
 	SCREEN.buildData()
-	SCREEN.currentTab = SCREEN.Tabs.Recent
+	SCREEN.currentTab = SCREEN.Tabs.View
 	SCREEN.refreshButtons()
 end
 
@@ -563,9 +628,9 @@ function GachaMonOverlay.close()
 	LogSearchScreen.clearSearch()
 	-- If the game hasn't started yet
 	if not Program.isValidMapLocation() then
-		Program.changeScreenView(StartupScreen)
+		Program.currentScreen = StartupScreen
 	else
-		Program.changeScreenView(TrackerScreen)
+		Program.currentScreen = TrackerScreen
 	end
 end
 

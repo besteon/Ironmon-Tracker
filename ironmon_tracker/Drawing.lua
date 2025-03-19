@@ -411,7 +411,7 @@ function Drawing.drawButton(button, shadowcolor)
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
-		if shadowcolor ~= nil then
+		if shadowcolor ~= nil and not button.noShadowBorder then
 			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
 		end
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)

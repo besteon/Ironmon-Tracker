@@ -534,6 +534,7 @@ Constants.PixelImages = {
 		{1,1,0,0,0,0,0,1,1},
 	},
 	POKEBALL = { -- 12x12
+		iconColors = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, },
 		{0,0,0,0,1,1,1,1,0,0,0,0},
 		{0,0,1,1,2,2,2,2,1,1,0,0},
 		{0,1,2,2,2,3,2,2,2,2,1,0},
