@@ -12,13 +12,6 @@ GachaMonData = {
 	-- Populated on Tracker startup from the ratings data json file
 	RatingsSystem = {},
 
-	FileStorage = {
-		-- The current version of the binary stream transform. If the format changes, this version must be incremented.
-		Version = 1,
-		-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
-		RomHashSize = 64,
-	},
-
 	-- A one-time initial collection load when the Collection is first viewed
 	initialCollectionLoad = false,
 	-- Anytime Collection changes, flag this as true; Collection is saved to file sparingly, typically when the Overlay or Tracker closes
@@ -45,8 +38,8 @@ function GachaMonData.initialize()
 	GachaMonData.clearNewestMonToShow()
 
 	-- Import universally useful data
-	GachaMonData.FileStorage.importRatingSystem()
-	GachaMonData.FileStorage.importRecentGachaMons()
+	GachaMonFileManager.importRatingSystem()
+	GachaMonFileManager.importRecentGachaMons()
 end
 
 function GachaMonData.test()
@@ -66,8 +59,8 @@ function GachaMonData.test()
 		)
 
 		-- Test to-and-from binary
-		local binaryStream = GachaMonData.FileStorage.monToBinary(gachamon)
-		local mon = GachaMonData.FileStorage.binaryToMon(binaryStream)
+		local binaryStream = GachaMonFileManager.monToBinary(gachamon)
+		local mon = GachaMonFileManager.binaryToMon(binaryStream)
 		Utils.printDebug("Binary Transform Success: %s - %s", tostring(mon ~= nil), mon ~= nil and mon.PokemonId or "N/A")
 
 		-- Test base-64 encoding of data
@@ -103,7 +96,7 @@ end
 ---@return IGachaMon gachamon
 function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	local gachamon = GachaMonData.IGachaMon:new({
-		Version = GachaMonData.FileStorage.Version,
+		Version = GachaMonFileManager.Version,
 		Personality = pokemonData.personality or 0,
 		PokemonId = pokemonData.pokemonID or 0,
 		Level = pokemonData.level or 0,
@@ -140,6 +133,12 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	if gachamon.Temp.IsShiny ~= 1 and math.random() <= GachaMonData.SHINY_ODDS then
 		gachamon.Temp.IsShiny = 1
 	end
+
+	gachamon:compressStatsHpAtkDef()
+	gachamon:compressStatsSpaSpdSpe()
+	gachamon:compressMoveIdsGameVersionKeep()
+	gachamon:compressShinyGenderNature()
+	gachamon:compressDateObtained()
 
 	local pokemonInternal = PokemonData.Pokemon[pokemonData.pokemonID or 0]
 	local baseStats = pokemonInternal and pokemonInternal.baseStats or {}
@@ -282,7 +281,7 @@ end
 ---@param gachamon IGachaMon
 ---@return string b64string
 function GachaMonData.getShareablyCode(gachamon)
-	local binaryStream = GachaMonData.FileStorage.monToBinary(gachamon)
+	local binaryStream = GachaMonFileManager.monToBinary(gachamon)
 	local b64string = StructEncoder.encodeBase64(binaryStream)
 	return b64string
 end
@@ -310,7 +309,7 @@ function GachaMonData.tryAddToRecentMons(pokemon)
 	-- Create the GachaMon from the IPokemon data, then add it
 	local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
 	GachaMonData.RecentMons[pokemon.personality] = gachamon
-	GachaMonData.FileStorage.saveRecentMonsToFile()
+	GachaMonFileManager.saveRecentMonsToFile()
 	GachaMonData.newestRecentMon = gachamon
 	return true
 end
@@ -360,7 +359,7 @@ function GachaMonData.updateGachaMonAndSave(gachamon, isFave, isKeep)
 	end
 
 	if GachaMonData.isRecentMon(gachamon) then
-		GachaMonData.FileStorage.saveRecentMonsToFile()
+		GachaMonFileManager.saveRecentMonsToFile()
 	elseif GachaMonData.Collection.isLoadedFromFile then -- this should always be true if editing a collection mon
 		GachaMonData.collectionRequiresSaving = true
 	end
@@ -582,9 +581,9 @@ GachaMonData.IGachaMon = {
 		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
 		return pokemonInternal.name
 	end,
-	---@return table moveIds
+	---@return table stats
 	getStats = function(self)
-		if not self.Temp.Stats then
+		if self.Temp.Stats == nil then
 			self.Temp.Stats = {
 				hp = Utils.getbits(self.C_StatsHpAtkDef, 0, 10),
 				atk = Utils.getbits(self.C_StatsHpAtkDef, 10, 10),
@@ -598,7 +597,7 @@ GachaMonData.IGachaMon = {
 	end,
 	---@return number
 	getStars = function(self)
-		if not self.Temp.Stars then
+		if self.Temp.Stars == nil then
 			self.Temp.Stars = GachaMonData.calculateStars(self)
 		end
 		return self.Temp.Stars or 0
@@ -607,14 +606,25 @@ GachaMonData.IGachaMon = {
 	getKeep = function(self)
 		return Utils.getbits(self.C_MoveIdsGameVersionKeep, 39, 1)
 	end,
+	---@return number
+	getGameVersionNumber = function(self)
+		if self.Temp.GameVersion == nil then
+			local versionNum = Utils.getbits(self.C_MoveIdsGameVersionKeep, 36, 3)
+			self.Temp.GameVersion = versionNum
+		end
+		return self.Temp.GameVersion
+	end,
 	---@return string
-	getGameVersion = function(self)
-		local versionNum = Utils.getbits(self.C_MoveIdsGameVersionKeep, 36, 3)
-		return GameSettings.numberToGameVersion(versionNum)
+	getGameVersionName = function(self)
+		if self.Temp.GameVersionName == nil then
+			local versionNum = Utils.getbits(self.C_MoveIdsGameVersionKeep, 36, 3)
+			self.Temp.GameVersionName = GameSettings.numberToGameVersion(versionNum)
+		end
+		return self.Temp.GameVersionName
 	end,
 	---@return table moveIds
 	getMoveIds = function(self)
-		if not self.Temp.MoveIds then
+		if self.Temp.MoveIds == nil then
 			self.Temp.MoveIds = {
 				Utils.getbits(self.C_MoveIdsGameVersionKeep, 0, 9),
 				Utils.getbits(self.C_MoveIdsGameVersionKeep, 9, 9),
@@ -626,15 +636,24 @@ GachaMonData.IGachaMon = {
 	end,
 	---@return number isShiny 1 = shiny; 0 = not shiny
 	getIsShiny = function(self)
-		return Utils.getbits(self.C_ShinyGenderNature, 0, 1)
+		if self.Temp.IsShiny == nil then
+			self.Temp.IsShiny = Utils.getbits(self.C_ShinyGenderNature, 0, 1)
+		end
+		return self.Temp.IsShiny
 	end,
 	---@return number
 	getGender = function(self)
-		return Utils.getbits(self.C_ShinyGenderNature, 1, 2)
+		if self.Temp.Gender == nil then
+			self.Temp.Gender = Utils.getbits(self.C_ShinyGenderNature, 1, 2)
+		end
+		return self.Temp.Gender
 	end,
 	---@return number
 	getNature = function(self)
-		return Utils.getbits(self.C_ShinyGenderNature, 3, 5)
+		if self.Temp.Nature == nil then
+			self.Temp.Nature = Utils.getbits(self.C_ShinyGenderNature, 3, 5)
+		end
+		return self.Temp.Nature
 	end,
 	---@return table datetable { year=#, month=#, day=# }
 	getDateObtainedTable = function(self)
@@ -668,375 +687,6 @@ function GachaMonData.IGachaMon:new(o)
 	setmetatable(o, self)
 	self.__index = self
 	return o
-end
-
-
--- A historical record of ALL binary data readers/writers and their storage size, such that any stream of binary data can be transformed into a GachaMon object
--- When adding new versions, don't use function shortcuts for binary/data conversion. Each must be written out per-version.
-GachaMonData.FileStorage.BinaryStreams = {}
-
----@return string filepath
-function GachaMonData.FileStorage.getRatingSystemFilePath()
-	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
-end
----@return string filepath
-function GachaMonData.FileStorage.getRecentGachaMonsFilePath()
-	return FileManager.prependDir(FileManager.Files.GACHAMON_RECENT)
-end
----@return string filepath
-function GachaMonData.FileStorage.getCollectionFilePath()
-	return FileManager.prependDir(FileManager.Files.GACHAMON_COLLECTION)
-end
-
----Imports all GachaMon Ratings data from a JSON file
----@param filepath? string Optional, a custom JSON file
----@return boolean success
-function GachaMonData.FileStorage.importRatingSystem(filepath)
-	filepath = filepath or GachaMonData.FileStorage.getRatingSystemFilePath() or ""
-	if not FileManager.fileExists(filepath) then
-		return false
-	end
-
-	local data = FileManager.decodeJsonFile(filepath)
-	if not (data and data.Abilities and data.Moves and data.Stats and data.RatingToStars) then
-		return false
-	end
-
-	-- Copy over the imported data to the gachamon ratings system
-	GachaMonData.RatingsSystem = {
-		Abilities = {},
-		Moves = {},
-		Stats = {},
-		RatingToStars = {},
-	}
-	local RS = GachaMonData.RatingsSystem
-
-	for idStr, rating in pairs(data.Abilities or {}) do
-		local id = tonumber(idStr)
-		if id then
-			RS.Abilities[id] = rating
-		end
-	end
-	for idStr, rating in pairs(data.Moves or {}) do
-		local id = tonumber(idStr)
-		if id then
-			RS.Moves[id] = rating
-		end
-	end
-	for statCategory, list in pairs(data.Stats or {}) do
-		RS.Stats[statCategory] = {}
-		local statTable = RS.Stats[statCategory]
-		for _, ratingPair in ipairs(list or {}) do
-			table.insert(statTable, ratingPair)
-		end
-	end
-	for _, ratingPair in ipairs(data.RatingToStars or {}) do
-		table.insert(RS.RatingToStars, ratingPair)
-	end
-
-	return true
-end
-
----Imports any existing Recent GachaMons (when resuming a game session)
----@param filepathOverride? string
-function GachaMonData.FileStorage.importRecentGachaMons(filepathOverride)
-	local filepath = filepathOverride or GachaMonData.FileStorage.getRecentGachaMonsFilePath() or ""
-	if not FileManager.fileExists(filepath) then
-		return
-	end
-	local importedRomHash = GachaMonData.FileStorage.getRomHashFromFile(filepath)
-	if not importedRomHash then
-		return
-	end
-
-	-- If the RecentMons on file match this ROM, use them
-	local recentMonsOrdered = GachaMonData.FileStorage.getCollectionFromFile(filepath, GachaMonData.FileStorage.RomHashSize + 1)
-	if importedRomHash == GameSettings.getRomHash() then
-		for _, gachamon in ipairs(recentMonsOrdered) do
-			GachaMonData.RecentMons[gachamon.Personality] = gachamon
-		end
-		return
-	end
-
-	-- Otherwise, store any RecentMons, which were flagged as "Keep", from the previous rom into the user's Collection
-	for _, gachamon in ipairs(recentMonsOrdered or {}) do
-		if gachamon:getKeep() == 1 then
-			table.insert(GachaMonData.Collection, gachamon)
-			GachaMonData.FileStorage.tryAppendToCollection(gachamon)
-		end
-	end
-	-- Empty the file
-	local file = io.open(filepath, "w")
-	if file then
-		file:close()
-	end
-end
-
----Imports any existing Collection GachaMons (when resuming a game session)
----@param filepath? string Optional, defaults to the filepath used by GachaMonData
-function GachaMonData.FileStorage.importCollection(filepath)
-	filepath = filepath or GachaMonData.FileStorage.getCollectionFilePath() or ""
-	if not FileManager.fileExists(filepath) then
-		return
-	end
-
-	-- Import any existing data
-	GachaMonData.Collection = GachaMonData.FileStorage.getCollectionFromFile(filepath)
-	GachaMonData.Collection.isLoadedFromFile = true
-end
-
----Reads the RomHash value from the start of the RecentMons data file
----@param filepathOverride? string
----@return string|nil
-function GachaMonData.FileStorage.getRomHashFromFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonData.FileStorage.getRecentGachaMonsFilePath()
-	if not FileManager.fileExists(filepath) then
-		return nil
-	end
-	local file = io.open(filepath, "rb")
-	if not file then
-		return nil
-	end
-	local binaryStream = file:read("*a") or ""
-	file:close()
-	local packFormat = string.format("c%s", GachaMonData.FileStorage.RomHashSize or 64)
-	local romHash = StructEncoder.binaryUnpack(packFormat, binaryStream)
-	romHash = romHash:match("^%s*(.-)%s*$") or "" -- trim whitespace
-	return romHash
-end
-
----Imports all GachaMon Colection data
----@param filepath string
----@param startPosition? number
----@return table collection A table of IGachaMon
-function GachaMonData.FileStorage.getCollectionFromFile(filepath, startPosition)
-	startPosition = startPosition or 1
-	local collection = {}
-	if not FileManager.fileExists(filepath) then
-		return collection
-	end
-	local file = io.open(filepath, "rb")
-	if not file then
-		return collection
-	end
-
-	local binaryStream = file:read("*a") or ""
-	file:close()
-	-- Utils.printDebug("  [GetCollection] Start Position: %s, Stream Size: %s", tostring(startPosition), tostring(#binaryStream))
-	local position = startPosition
-	while position <= #binaryStream do
-		local gachamon, size = GachaMonData.FileStorage.binaryToMon(binaryStream, position)
-		if gachamon and size > 0 then
-			table.insert(collection, gachamon)
-			position = position + size
-		else
-			-- If something goes wrong and data can't be read in
-			break
-		end
-	end
-
-	return collection
-end
-
----Saves an entire GachaMon collection table to a file, stored as a binary stream
----@param filepathOverride? string
----@return boolean success
-function GachaMonData.FileStorage.saveRecentMonsToFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonData.FileStorage.getRecentGachaMonsFilePath()
-	if not filepath then
-		return false
-	end
-	local file = io.open(filepath, "wb")
-	if not file then
-		return false
-	end
-
-	local romHash = GameSettings.getRomHash()
-	local packFormat = string.format("c%s", GachaMonData.FileStorage.RomHashSize or 64)
-	local hashBinaryStream = StructEncoder.binaryPack(packFormat, romHash)
-	file:write(hashBinaryStream)
-
-	for _, gachamon in pairs(GachaMonData.RecentMons or {}) do
-		local binaryStream = GachaMonData.FileStorage.monToBinary(gachamon)
-		if not Utils.isNilOrEmpty(binaryStream) then
-			file:write(binaryStream)
-		end
-	end
-	file:flush()
-	file:close()
-
-	return true
-end
-
----Saves an entire GachaMon collection table to a file, stored as a binary stream
----@param collection table
----@param filepathOverride? string
----@return boolean success
-function GachaMonData.FileStorage.saveCollectionToFile(collection, filepathOverride)
-	local filepath = filepathOverride or GachaMonData.FileStorage.getCollectionFilePath()
-	if not collection or not filepath then
-		return false
-	end
-	local file = io.open(filepath, "wb")
-	if not file then
-		return false
-	end
-
-	for _, gachamon in ipairs(collection) do
-		local binaryStream = GachaMonData.FileStorage.monToBinary(gachamon)
-		if not Utils.isNilOrEmpty(binaryStream) then
-			file:write(binaryStream)
-		end
-	end
-	file:flush()
-	file:close()
-
-	return true
-end
-
----Called when the Overlay or Tracker closes and, if applicable, saves the collection to file.
----@param collection? table
----@param filepathOverride? string
----@return boolean success
-function GachaMonData.FileStorage.trySaveCollectionOnClose(collection, filepathOverride)
-	if not GachaMonData.collectionRequiresSaving then
-		return false
-	end
-	GachaMonData.collectionRequiresSaving = false
-	collection = collection or GachaMonData.Collection
-	return GachaMonData.FileStorage.saveCollectionToFile(GachaMonData.Collection, filepathOverride)
-end
-
----Appends GachaMon data to the end of the collection data file
----@param gachamon IGachaMon
----@param filepathOverride? string
----@return boolean success
-function GachaMonData.FileStorage.tryAppendToCollection(gachamon, filepathOverride)
-	-- TODO: Add additional verification to prevent duplicate append of data
-
-	local filepath = filepathOverride or GachaMonData.FileStorage.getCollectionFilePath()
-	if not gachamon or not filepath then
-		return false
-	end
-	local file = io.open(filepath, "ab") -- Append to end of collection
-	if not file then
-		return false
-	end
-
-	local binaryStream = GachaMonData.FileStorage.monToBinary(gachamon)
-	if not Utils.isNilOrEmpty(binaryStream) then
-		file:write(binaryStream)
-		file:flush()
-	end
-
-	file:close()
-	return true
-end
-
----Transforms GachaMon data into a compact binary stream of data
----@param gachamon IGachaMon
----@return string binaryStream
-function GachaMonData.FileStorage.monToBinary(gachamon)
-	local version = gachamon.Version
-	local BS = GachaMonData.FileStorage.BinaryStreams[version or false] or {}
-	if type(BS.Writer) ~= "function" then
-		return ""
-	end
-	local binaryStream = BS.Writer(gachamon)
-	return binaryStream
-end
-
----Transforms binary data into a GachaMon object; the data transform process is determined by version number
----@param binaryStream string compact binary stream of data
----@param position? number starting position
----@return IGachaMon|nil gachamon
----@return number size
-function GachaMonData.FileStorage.binaryToMon(binaryStream, position)
-	position = position or 1
-	local version = StructEncoder.binaryUnpack("B", binaryStream, position)
-	-- Utils.printDebug("  [binaryToMon] position: %s, version: %s", tostring(position), tostring(version))
-	local BS = GachaMonData.FileStorage.BinaryStreams[version or false] or {}
-	if type(BS.Reader) ~= "function" then
-		return nil, 0
-	end
-	local gachamon, size = BS.Reader(binaryStream, position)
-	-- Utils.printDebug("  [binaryToMon] success: %s, size: %s", tostring(gachamon ~= nil), tostring(size))
-	if not gachamon or size == 0 then
-		return nil, 0
-	end
-	return gachamon, size
-end
-
---Version 1 Binary Stream
-GachaMonData.FileStorage.BinaryStreams[1] = {
-	Format = "BIHBBBHIIII", -- The packing format (version # always occupies the 1st byte)
-	Size = 28, -- Number of bytes per GachaMon stored
-}
-
----@param binaryStream string compact binary stream of data
----@return IGachaMon|nil gachamon
----@return number size
-GachaMonData.FileStorage.BinaryStreams[1].Reader = function(binaryStream, position)
-	local BS = GachaMonData.FileStorage.BinaryStreams[1]
-	if Utils.isNilOrEmpty(binaryStream) then
-		return nil, 0
-	end
-	-- Unpack binary data into a table
-	local data = { StructEncoder.binaryUnpack(BS.Format, binaryStream, position) }
-	local gachamon = GachaMonData.IGachaMon:new({
-		Version = data[1],
-		Personality = data[2],
-		Level = data[4],
-		AbilityId = data[5],
-		RatingScore = data[6],
-		SeedNumber = data[7],
-		C_StatsHpAtkDef = data[8],
-		C_StatsSpaSpdSpe = data[9],
-	})
-	local idPowerFavorite = data[3]
-	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
-	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000
-	gachamon.Favorite = Utils.getbits(idPowerFavorite, 15, 1)
-	local movepair1 = data[10]
-	local movepair2 = data[11]
-	-- Utils.printDebug("Unpack: %x as %s", Utils.getbits(last8bytes, 0, 40), Utils.getbits(Utils.getbits(last8bytes, 0, 40), 0, 9))
-	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
-	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
-	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
-	gachamon.Temp.IsShiny = Utils.getbits(gachamon.C_ShinyGenderNature, 0, 1)
-	return gachamon, BS.Size
-end
-
----@param gachamon IGachaMon
----@return string binaryStream compact binary stream of data
-GachaMonData.FileStorage.BinaryStreams[1].Writer = function(gachamon)
-	local BS = GachaMonData.FileStorage.BinaryStreams[1]
-	local battlePower = math.floor(gachamon.BattlePower / 1000)
-	-- Compress into a 2-byte value
-	local idPowerFavorite = gachamon.PokemonId + Utils.bit_lshift(battlePower, 11) + Utils.bit_lshift(gachamon.Favorite, 15)
-	-- Compress stats into two 4-byte pairs
-	local stats1 = gachamon:compressStatsHpAtkDef()
-	local stats2 = gachamon:compressStatsSpaSpdSpe()
-	-- Compress various other values together into two 4-byte pairs
-	local c1 = gachamon:compressMoveIdsGameVersionKeep() -- 40 bits
-	local c2 = gachamon:compressShinyGenderNature() -- 8 bits
-	local c3 = gachamon:compressDateObtained() -- 16 bits
-	local movepair1 = Utils.getbits(c1, 0, 32)
-	local movepair2 = Utils.getbits(c1, 32, 8) + Utils.bit_lshift(c2, 8) + Utils.bit_lshift(c3, 16)
-	return StructEncoder.binaryPack(BS.Format,
-		-- Ordered set of data to pack into binary
-		gachamon.Version,
-		gachamon.Personality,
-		idPowerFavorite,
-		gachamon.Level,
-		gachamon.AbilityId,
-		gachamon.RatingScore,
-		gachamon.SeedNumber,
-		stats1,
-		stats2,
-		movepair1,
-		movepair2
-	)
 end
 
 --[[

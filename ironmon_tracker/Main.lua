@@ -480,7 +480,7 @@ end
 function Main.ExitSafely(crashed)
 	Network.closeConnections()
 	CrashRecoveryScreen.logCrashReport(crashed == true)
-	GachaMonData.FileStorage.trySaveCollectionOnClose()
+	GachaMonFileManager.trySaveCollectionOnClose()
 end
 
 ---Loads a ROM file into the emulator

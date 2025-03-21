@@ -126,7 +126,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			-- COLLECTED ON INFO: DATE, SEED, GAME VERSION
 			local dateText = os.date("%x", os.time(SCREEN.Data.ViewedMon:getDateObtainedTable()))
 			local seedText = Utils.formatNumberWithCommas(SCREEN.Data.ViewedMon.SeedNumber or 0)
-			local versionText = SCREEN.Data.ViewedMon:getGameVersion()
+			local versionText = SCREEN.Data.ViewedMon:getGameVersionName()
 			Drawing.drawText(x, y, string.format("%s:", "Collected on"), color, shadowcolor)
 			Drawing.drawText(x2, y, dateText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
@@ -799,7 +799,7 @@ function GachaMonOverlay.tryLoadCollection()
 	end
 	Program.addFrameCounter("GachaMonOverlay:LoadCollection", 10, function()
 		GachaMonData.initialCollectionLoad = true
-		GachaMonData.FileStorage.importCollection()
+		GachaMonFileManager.importCollection()
 		GachaMonOverlay.buildCollectionData()
 		if Program.currentOverlay == SCREEN and SCREEN.currentTab == SCREEN.Tabs.Collection then
 			Program.redraw(true)
@@ -830,7 +830,7 @@ end
 -- OVERLAY CLOSE
 function GachaMonOverlay.close()
 	LogSearchScreen.clearSearch()
-	GachaMonData.FileStorage.trySaveCollectionOnClose()
+	GachaMonFileManager.trySaveCollectionOnClose()
 	if SCREEN.Data then
 		SCREEN.Data.ViewedMon = nil
 		if SCREEN.Data.Recent then
