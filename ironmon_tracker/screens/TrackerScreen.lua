@@ -460,6 +460,7 @@ TrackerScreen.Buttons = {
 	GachaMonSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.POKEBALL,
+		iconColors = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, },
 		getText = function(self) return self.updatedText or "" end,
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },

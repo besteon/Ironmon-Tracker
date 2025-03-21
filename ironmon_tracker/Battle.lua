@@ -823,7 +823,7 @@ function Battle.endCurrentBattle()
 		if Options["Add GachaMon to collection after defeating a trainer"] then
 			local leadPokemon = TrackerAPI.getPlayerPokemon()
 			if leadPokemon and leadPokemon.curHP > 0 then
-				GachaMonData.tryKeepInCollection(leadPokemon)
+				GachaMonData.tryAutoKeepInCollection(leadPokemon)
 			end
 		end
 		-- Force display the Trainer's Defeated carousel for this timer's duration
