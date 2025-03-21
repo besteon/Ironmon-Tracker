@@ -295,36 +295,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			end
 			move.category = MoveData.getCategory(move.id, move.type)
 		elseif Options["Calculate variable damage"] then
-			if move.id == MoveData.Values.WeatherBallId then
-				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
-				move.category = MoveData.getCategory(move.id, move.type)
-			elseif move.id == MoveData.Values.LowKickId and Battle.inActiveBattle() and opposingPokemon ~= nil then
-				local targetWeight
-				if opposingPokemon.weight ~= nil then
-					targetWeight = opposingPokemon.weight
-				elseif PokemonData.Pokemon[opposingPokemon.pokemonID] ~= nil then
-					targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
-				else
-					targetWeight = 0
-				end
-				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
-			elseif MoveData.isOHKO(move.id) and Battle.inActiveBattle() and opposingPokemon ~= nil then
-				local levelDiff = viewedPokemon.level - opposingPokemon.level
-				if levelDiff > 0 then
-					local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
-					move.accuracy = tostring(math.min(accAsNum + levelDiff, 100))
-				elseif levelDiff < 0 then
-					move.accuracy = "X " -- Ineffective against higher level pokemon
-				end
-			elseif data.x.viewingOwn then
-				if move.id == MoveData.Values.FlailId or move.id == MoveData.Values.ReversalId then
-					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.id == MoveData.Values.EruptionId or move.id == MoveData.Values.WaterSpoutId then
-					move.power = Utils.calculateHighHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.id == MoveData.Values.ReturnId or move.id == MoveData.Values.FrustrationId then
-					move.power = Utils.calculateFriendshipBasedDamage(move.power, viewedPokemon.friendship)
-				end
-			end
+			MoveData.adjustForVariablePower(move, viewedPokemon, opposingPokemon)
 		end
 
 		-- Update: If STAB
