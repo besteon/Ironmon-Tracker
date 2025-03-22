@@ -165,6 +165,8 @@ function GachaMonFileManager.getCollectionFromFile(filepath, startPosition)
 			position = position + size
 		else
 			-- If something goes wrong and data can't be read in
+			local filename = FileManager.extractFileNameFromPath(filepath)
+			print("> [ERROR] Unable to read GachaMon at position %s in file %s", position, filename)
 			break
 		end
 	end

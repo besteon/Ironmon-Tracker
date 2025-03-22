@@ -22,11 +22,15 @@ GachaMonData = {
 
 --[[
 TODO LIST
-- [UI] Collection tab: find a way to display lots of data cleanly. Quick access to favorite button. Add filter options
+- [UI] Card: Find better star-symbol to draw
+- [UI] Collection tab:
+   - Filter by: star count, pokemon id, game version, "show faves" "show non-faves";
+   - Sort by: collection date, stars, battle power, pokemon id
 - [UI] Options: add a "clean up collection" button + prompt to easily delete non-favorite cards with certain criteria
-- [UI] Battle: ??? Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
 - [UI] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Text UI] Create a basic MGBA viewing interface
+TODO LATER:
+- [UI] Battle: ??? Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
 ]]
 
 function GachaMonData.initialize()
@@ -44,11 +48,6 @@ end
 
 function GachaMonData.test()
 	local pokemon = TrackerAPI.getPlayerPokemon()
-	-- if not pokemon then
-	-- 	Utils.printDebug("[GACHAMON] No Pokémon in party.")
-	-- 	return
-	-- end
-
 	if pokemon then
 		-- Test converting 1st mon in party to GachaMon
 		local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
@@ -369,7 +368,8 @@ end
 ---@param gachamon IGachaMon
 function GachaMonData.tryRemoveFromCollection(gachamon)
 	if GachaMonData.isRecentMon(gachamon) then
-		GachaMonData.updateGachaMonAndSave(gachamon, nil, false)
+		-- If not in collection, can't be set as favorite, so remove that as well
+		GachaMonData.updateGachaMonAndSave(gachamon, false, false)
 		return
 	end
 	-- If somehow how a GachaMon claims its in a collection that was never loaded
@@ -397,14 +397,22 @@ function GachaMonData.openGachaMonRemovalConfirmation(gachamon, index)
 	local name = gachamon:getName()
 	local stars = math.min(gachamon:getStars(), 5) -- max of 5
 	local power = gachamon.BattlePower or 0
+	local dateText = tostring(os.date("%x", os.time(gachamon:getDateObtainedTable())))
+	local seedText = Utils.formatNumberWithCommas(gachamon.SeedNumber or 0)
+	local versionText = gachamon:getGameVersionName()
 
-	local form = ExternalUI.BizForms.createForm("Permanently Remove From Collection?", 450, 160)
+	local form = ExternalUI.BizForms.createForm("Permanently Remove From Collection?", 450, 200)
 	form:createLabel("This will permanently remove this GachaMon from your Collection:", 19, 10)
-	form:createLabel(string.format("%s  ---  %s %s --- %s %s", name, stars, "Stars", power, "Battle Power"), 19, 30)
-	form.Controls.warningLabel = form:createLabel("ARE YOU SURE?", 150, 50)
+	form:createLabel(name, 90, 30)
+	form:createLabel(dateText, 250, 30)
+	form:createLabel(string.format("%s %s", stars, "Stars"), 90, 50)
+	form:createLabel(string.format("%s: %s", "Seed", seedText), 250, 50)
+	form:createLabel(string.format("%s %s", power, "Battle Power"), 90, 70)
+	form:createLabel(versionText, 250, 70)
+	form.Controls.warningLabel = form:createLabel("ARE YOU SURE?", 160, 100)
 	ExternalUI.BizForms.setProperty(form.Controls.warningLabel, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
 
-	form:createButton("Yes, Delete Forever!", 30, 85, function()
+	form:createButton("Yes, Delete Forever!", 70, 125, function()
 		table.remove(GachaMonData.Collection, index)
 		GachaMonData.collectionRequiresSaving = true
 		-- TODO: this probably isnt correct
@@ -414,10 +422,10 @@ function GachaMonData.openGachaMonRemovalConfirmation(gachamon, index)
 			Program.redraw(true)
 		end
 		form:destroy()
-	end)
-	form:createButton(Resources.AllScreens.Cancel, 260, 85, function()
+	end, 150, 25)
+	form:createButton(Resources.AllScreens.Cancel, 260, 125, function()
 		form:destroy()
-	end)
+	end, 90, 25)
 end
 
 
