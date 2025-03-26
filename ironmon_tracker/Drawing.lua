@@ -497,7 +497,15 @@ end
 
 function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	if imageMatrix == nil then return end
-	colorList = colorList or imageMatrix.iconColors or Theme.COLORS["Default text"]
+	-- Determine a valid color list to use
+	if not colorList then
+		if type(imageMatrix.getColors) == "function" then
+			colorList = imageMatrix:getColors()
+		elseif imageMatrix.iconColors then
+			colorList = imageMatrix.iconColors
+		end
+		colorList = colorList or Theme.COLORS["Default text"]
+	end
 
 	-- Convert to a list if only a single color is supplied
 	if type(colorList) == "number" then

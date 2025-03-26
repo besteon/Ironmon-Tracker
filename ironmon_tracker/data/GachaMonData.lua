@@ -1,6 +1,6 @@
 GachaMonData = {
 	MAX_BATTLE_POWER = 15000,
-	SHINY_ODDS = 0.002, -- 1 in 500, similar to Pokémon Go
+	SHINY_ODDS = 0.004695, -- 1 in 213 odds. (Pokémon Go and Pokémon Sleep use 1/500)
 	TRAINERS_TO_DEFEAT = 2, -- The number of trainers a Pokémon needs to defeat to automatically be kept in the player's permanent Collection
 
 	-- The user's entire GachaMon collection (ordered list). Populated from file only when the user first goes to view the Collection on the Tracker
@@ -22,15 +22,13 @@ GachaMonData = {
 
 --[[
 TODO LIST
-- [UI] Card: Find better star-symbol to draw
-- [UI] Collection tab:
-   - Filter by: star count, pokemon id, game version, "show faves" "show non-faves";
-   - Sort by: collection date, stars, battle power, pokemon id
-- [UI] Options: add a "clean up collection" button + prompt to easily delete non-favorite cards with certain criteria
+- [UI] Battle: Add Import Code button. Find way to select from recent/collection.
+   - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
+- [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
 - [UI] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
-- [Text UI] Create a basic MGBA viewing interface
+- Optional: Show collection completion status somehow.
 TODO LATER:
-- [UI] Battle: ??? Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
+- [Text UI] Create a basic MGBA viewing interface
 ]]
 
 function GachaMonData.initialize()
@@ -47,27 +45,30 @@ function GachaMonData.initialize()
 end
 
 function GachaMonData.test()
-	local pokemon = TrackerAPI.getPlayerPokemon()
-	if pokemon then
-		-- Test converting 1st mon in party to GachaMon
-		local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
-		Utils.printDebug("[GACHAMON] %s >>> Rating: %s | Stars: %s <<<",
-			PokemonData.Pokemon[gachamon.PokemonId].name,
-			gachamon.RatingScore,
-			gachamon:getStars()
-		)
+	-- local pokemon = TrackerAPI.getPlayerPokemon()
+	-- if pokemon then
+	-- 	-- Test converting 1st mon in party to GachaMon
+	-- 	local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
+	-- 	Utils.printDebug("[GACHAMON] %s >>> Rating: %s | Stars: %s <<<",
+	-- 		PokemonData.Pokemon[gachamon.PokemonId].name,
+	-- 		gachamon.RatingScore,
+	-- 		gachamon:getStars()
+	-- 	)
 
-		-- Test to-and-from binary
-		local binaryStream = GachaMonFileManager.monToBinary(gachamon)
-		local mon = GachaMonFileManager.binaryToMon(binaryStream)
-		Utils.printDebug("Binary Transform Success: %s - %s", tostring(mon ~= nil), mon ~= nil and mon.PokemonId or "N/A")
+	-- 	-- Test to-and-from binary
+	-- 	local binaryStream = GachaMonFileManager.monToBinary(gachamon)
+	-- 	local mon = GachaMonFileManager.binaryToMon(binaryStream)
+	-- 	Utils.printDebug("Binary Transform Success: %s - %s", tostring(mon ~= nil), mon ~= nil and mon.PokemonId or "N/A")
 
-		-- Test base-64 encoding of data
-		local b64string = GachaMonData.getShareablyCode(gachamon)
-		Utils.printDebug("Share Code: %s", b64string)
-	end
+	-- 	-- Test base-64 encoding of data
+	-- 	local b64string = GachaMonData.getShareablyCode(gachamon)
+	-- 	Utils.printDebug("Share Code: %s", b64string)
+	-- end
 
-	Program.openOverlayScreen(GachaMonOverlay, true)
+	Program.openOverlayScreen(GachaMonOverlay)
+	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Collection
+	GachaMonOverlay.refreshButtons()
+	Program.redraw(true)
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -409,8 +410,8 @@ function GachaMonData.openGachaMonRemovalConfirmation(gachamon, index)
 	form:createLabel(string.format("%s: %s", "Seed", seedText), 250, 50)
 	form:createLabel(string.format("%s %s", power, "Battle Power"), 90, 70)
 	form:createLabel(versionText, 250, 70)
-	form.Controls.warningLabel = form:createLabel("ARE YOU SURE?", 160, 100)
-	ExternalUI.BizForms.setProperty(form.Controls.warningLabel, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+	form.Controls.labelWarning = form:createLabel("ARE YOU SURE?", 160, 100)
+	ExternalUI.BizForms.setProperty(form.Controls.labelWarning, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
 
 	form:createButton("Yes, Delete Forever!", 70, 125, function()
 		table.remove(GachaMonData.Collection, index)
@@ -481,7 +482,7 @@ GachaMonData.IGachaMon = {
 		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
 
 		C.Stars = self:getStars()
-		C.Power = self.BattlePower or 0
+		C.BattlePower = self.BattlePower or 0
 		C.Favorite = self.Favorite or 0
 		C.InCollection = self:getKeep() == 1
 		C.PokemonId = self.PokemonId -- Icon
