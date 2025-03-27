@@ -25,12 +25,11 @@ GachaMonOverlay = {
 			tabKey = "Collection",
 			resourceKey = "TabCollection",
 		},
-		-- TODO: Will add in later, on release
-		-- Battle = {
-		-- 	index = 4,
-		-- 	tabKey = "Battle",
-		-- 	resourceKey = "TabBattle",
-		-- },
+		Battle = {
+			index = 4,
+			tabKey = "Battle",
+			resourceKey = "TabBattle",
+		},
 		Options = {
 			index = 5,
 			tabKey = "Options",
@@ -121,7 +120,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 			y = y + Constants.SCREEN.LINESPACING
 			-- LEVEL & NATURE
-			local levelText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, SCREEN.Data.ViewedMon.Level or 0)
+			local levelText = string.format("%s. %s", Resources.TrackerScreen.LevelAbbreviation, SCREEN.Data.ViewedMon.Level or 0)
 			local nature = SCREEN.Data.ViewedMon:getNature()
 			local natureText = Resources.Game.NatureNames[nature + 1]
 			if natureText then
@@ -130,21 +129,18 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			Drawing.drawText(x2, y, levelText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- RATING & STARS
-			local ratingText = tostring(SCREEN.Data.ViewedMon.RatingScore or 0)
-			local ratingTextW = 5 + Utils.calcWordPixelLength(ratingText)
 			local stars = tostring(SCREEN.Data.ViewedMon:getStars())
 			if tonumber(stars) > 5 then
 				stars = "5+"
 			end
-			local starsText = string.format("(%s stars)", stars)
+			local ratingText = string.format("%s %s  (%s %s)", SCREEN.Data.ViewedMon.RatingScore or 0, "points", stars, "stars")
 			Drawing.drawText(x, y, string.format("%s:", "Rating"), color, shadowcolor)
 			Drawing.drawText(x2, y, ratingText, color, shadowcolor)
-			Drawing.drawText(x2 + ratingTextW, y, starsText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- BATTLE POWER
-			local powerText = tostring(SCREEN.Data.ViewedMon.BattlePower or 0)
+			local bpText = string.format("%s %s", SCREEN.Data.ViewedMon.BattlePower or 0, "BP")
 			Drawing.drawText(x, y, string.format("%s:", "Battle Power"), color, shadowcolor)
-			Drawing.drawText(x2, y, powerText, color, shadowcolor)
+			Drawing.drawText(x2, y, bpText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- COLLECTED ON INFO: DATE, SEED, GAME VERSION
 			local dateText = os.date("%x", os.time(SCREEN.Data.ViewedMon:getDateObtainedTable()))
@@ -153,9 +149,9 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			Drawing.drawText(x, y, string.format("%s:", "Collected on"), color, shadowcolor)
 			Drawing.drawText(x2, y, dateText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
-			Drawing.drawText(x2, y, string.format("%s # %s", "Seed", seedText), color, shadowcolor)
-			y = y + Constants.SCREEN.LINESPACING
 			Drawing.drawText(x2, y, versionText, color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING
+			Drawing.drawText(x2, y, string.format("%s %s", "Seed", seedText), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 		end,
 	},
@@ -256,24 +252,30 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 		end,
 	},
-	ShareCode = {
+	Battle = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.POKEBALL,
-		iconColors = TrackerScreen.PokeBalls.ColorList,
-		getText = function(self) return "Share Code" end,
-		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 83, 78, 16, },
+		image = Constants.PixelImages.BATTLE_BALLS,
+		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
+		getText = function(self) return "Battle" end,
+		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 82, 78, 17, },
 		noShadowBorder = true,
 		isVisible = function(self) return SCREEN.Data.ViewedMon ~= nil end,
 		onClick = function(self)
 			if not SCREEN.Data.ViewedMon then
 				return
 			end
-			GachaMonOverlay.openShareCodeWindow(SCREEN.Data.ViewedMon)
+			SCREEN.Data.Battle.PlayerMon = SCREEN.Data.ViewedMon
+			SCREEN.currentTab = SCREEN.Tabs.Battle
+			SCREEN.refreshButtons()
+			Program.redraw(true)
 		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			-- Draw single shadow line
 			gui.drawLine(x + 1, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
+			-- Redraw box's bottom line because icon too large w/ its shadow
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawLine(x, y + h, x + 17, y + h, border)
 		end,
 	},
 	Favorite = {
@@ -384,33 +386,9 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 			gui.drawLine(CANVAS.X + 213, y + 69, CANVAS.X + CANVAS.W - 1, y + 69, border)
 		end,
 	},
-	SortByDate = {
-		image = Constants.PixelImages.CALENDAR,
-		box = { CANVAS.X + 216, CANVAS.Y + 32, 16, 16, },
-		sortFunc = SCREEN.SortFuncs.ByDateDesc,
-		onClick = function(self)
-			if SCREEN.Data.Recent.SortFunc == self.sortFunc then
-				SCREEN.Data.Recent.SortFunc = SCREEN.SortFuncs.DefaultRecentSort
-			else
-				SCREEN.Data.Recent.SortFunc = self.sortFunc
-			end
-			SCREEN.buildRecentData()
-			SCREEN.refreshButtons()
-			Program.redraw(true)
-		end,
-		draw = function(self, shadowcolor)
-			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			if SCREEN.Data.Recent.SortFunc == self.sortFunc then
-				local highlight = Theme.COLORS[SCREEN.Colors.highlight]
-				Drawing.drawSelectionIndicators(x, y, w, h, highlight, 1, 5, 1)
-			end
-			x, y = x + 3, y + 2
-			Drawing.drawImageAsPixels(self.image, x, y, self.image:getColors(), shadowcolor)
-		end
-	},
 	SortByStars = {
 		image = Constants.PixelImages.STAR,
-		box = { CANVAS.X + 216, CANVAS.Y + 51, 16, 16, },
+		box = { CANVAS.X + 216, CANVAS.Y + 32, 16, 16, },
 		sortFunc = SCREEN.SortFuncs.ByStarsDesc,
 		onClick = function(self)
 			if SCREEN.Data.Recent.SortFunc == self.sortFunc then
@@ -440,7 +418,7 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 	},
 	SortByBattlePower = {
 		image = Constants.PixelImages.PHYSICAL,
-		box = { CANVAS.X + 216, CANVAS.Y + 70, 16, 16, },
+		box = { CANVAS.X + 216, CANVAS.Y + 51, 16, 16, },
 		sortFunc = SCREEN.SortFuncs.ByBattlePowerDesc,
 		onClick = function(self)
 			if SCREEN.Data.Recent.SortFunc == self.sortFunc then
@@ -464,7 +442,30 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 			Drawing.drawText(x, y, "BP", color, shadowcolor, 11)
 		end
 	},
-
+	SortByDate = {
+		image = Constants.PixelImages.CALENDAR,
+		box = { CANVAS.X + 216, CANVAS.Y + 70, 16, 16, },
+		sortFunc = SCREEN.SortFuncs.ByDateDesc,
+		onClick = function(self)
+			if SCREEN.Data.Recent.SortFunc == self.sortFunc then
+				SCREEN.Data.Recent.SortFunc = SCREEN.SortFuncs.DefaultRecentSort
+			else
+				SCREEN.Data.Recent.SortFunc = self.sortFunc
+			end
+			SCREEN.buildRecentData()
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			if SCREEN.Data.Recent.SortFunc == self.sortFunc then
+				local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+				Drawing.drawSelectionIndicators(x, y, w, h, highlight, 1, 5, 1)
+			end
+			x, y = x + 3, y + 2
+			Drawing.drawImageAsPixels(self.image, x, y, self.image:getColors(), shadowcolor)
+		end
+	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.UP_ARROW,
@@ -539,33 +540,9 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 			gui.drawLine(CANVAS.X + 213, y + 69, CANVAS.X + CANVAS.W - 1, y + 69, border)
 		end,
 	},
-	SortByDate = {
-		image = Constants.PixelImages.CALENDAR,
-		box = { CANVAS.X + 216, CANVAS.Y + 32, 16, 16, },
-		sortFunc = SCREEN.SortFuncs.ByDateDesc,
-		onClick = function(self)
-			if SCREEN.Data.Collection.SortFunc == self.sortFunc then
-				SCREEN.Data.Collection.SortFunc = SCREEN.SortFuncs.DefaultCollectionSort
-			else
-				SCREEN.Data.Collection.SortFunc = self.sortFunc
-			end
-			SCREEN.buildCollectionData()
-			SCREEN.refreshButtons()
-			Program.redraw(true)
-		end,
-		draw = function(self, shadowcolor)
-			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			if SCREEN.Data.Collection.SortFunc == self.sortFunc then
-				local highlight = Theme.COLORS[SCREEN.Colors.highlight]
-				Drawing.drawSelectionIndicators(x, y, w, h, highlight, 1, 5, 1)
-			end
-			x, y = x + 3, y + 2
-			Drawing.drawImageAsPixels(self.image, x, y, self.image:getColors(), shadowcolor)
-		end
-	},
 	SortByStars = {
 		image = Constants.PixelImages.STAR,
-		box = { CANVAS.X + 216, CANVAS.Y + 51, 16, 16, },
+		box = { CANVAS.X + 216, CANVAS.Y + 32, 16, 16, },
 		sortFunc = SCREEN.SortFuncs.ByStarsDesc,
 		onClick = function(self)
 			if SCREEN.Data.Collection.SortFunc == self.sortFunc then
@@ -595,7 +572,7 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 	},
 	SortByBattlePower = {
 		image = Constants.PixelImages.PHYSICAL,
-		box = { CANVAS.X + 216, CANVAS.Y + 70, 16, 16, },
+		box = { CANVAS.X + 216, CANVAS.Y + 51, 16, 16, },
 		sortFunc = SCREEN.SortFuncs.ByBattlePowerDesc,
 		onClick = function(self)
 			if SCREEN.Data.Collection.SortFunc == self.sortFunc then
@@ -617,6 +594,30 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			Drawing.drawText(x + 1, y + 1, "BP", shadowcolor, shadowcolor, 11)
 			Drawing.drawText(x, y, "BP", color, shadowcolor, 11)
+		end
+	},
+	SortByDate = {
+		image = Constants.PixelImages.CALENDAR,
+		box = { CANVAS.X + 216, CANVAS.Y + 70, 16, 16, },
+		sortFunc = SCREEN.SortFuncs.ByDateDesc,
+		onClick = function(self)
+			if SCREEN.Data.Collection.SortFunc == self.sortFunc then
+				SCREEN.Data.Collection.SortFunc = SCREEN.SortFuncs.DefaultCollectionSort
+			else
+				SCREEN.Data.Collection.SortFunc = self.sortFunc
+			end
+			SCREEN.buildCollectionData()
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			if SCREEN.Data.Collection.SortFunc == self.sortFunc then
+				local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+				Drawing.drawSelectionIndicators(x, y, w, h, highlight, 1, 5, 1)
+			end
+			x, y = x + 3, y + 2
+			Drawing.drawImageAsPixels(self.image, x, y, self.image:getColors(), shadowcolor)
 		end
 	},
 
@@ -661,9 +662,74 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 	},
 }
 
--- GachaMonOverlay.Tabs.Battle.Buttons = {
-
--- }
+GachaMonOverlay.Tabs.Battle.Buttons = {
+	PlayerGachaMonCard = {
+		box = { CANVAS.X + 30, CANVAS.Y + 30, 76, 76, },
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			-- Draw card
+			local gachamon = SCREEN.Data.Battle and SCREEN.Data.Battle.PlayerMon or nil
+			local card = gachamon and gachamon:getCardDisplayData() or {}
+			SCREEN.drawGachaCard(card, x, y, 1)
+		end,
+	},
+	OpponentGachaMonCard = {
+		box = { CANVAS.X + 130, CANVAS.Y + 30, 76, 76, },
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			-- Draw card
+			local gachamon = SCREEN.Data.Battle and SCREEN.Data.Battle.OpponentMon or nil
+			local card = gachamon and gachamon:getCardDisplayData() or {}
+			SCREEN.drawGachaCard(card, x, y, 1, false, false)
+		end,
+	},
+	ShareCode = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = TrackerScreen.PokeBalls.ColorList,
+		getText = function(self) return "Share Code" end,
+		box = { CANVAS.X + 23, CANVAS.Y + 123, 82, 16, },
+		isVisible = function(self) return SCREEN.Data.Battle and SCREEN.Data.Battle.PlayerMon ~= nil end,
+		onClick = function(self)
+			local gachamon = SCREEN.Data.Battle.PlayerMon
+			if not gachamon then
+				return
+			end
+			SCREEN.openShareCodeWindow(gachamon)
+		end,
+	},
+	ChooseFighter = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.BATTLE_BALLS,
+		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
+		getText = function(self) return "Choose Fighter" end,
+		box = { CANVAS.X + 23, CANVAS.Y + 123, 82, 18, },
+		isVisible = function(self) return SCREEN.Data.Battle and SCREEN.Data.Battle.PlayerMon == nil end,
+		onClick = function(self)
+			local gachamon = SCREEN.Data.Battle.PlayerMon
+			if gachamon then
+				return
+			end
+			SCREEN.currentTab = SCREEN.Tabs.Collection
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+	},
+	ImportCode = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.TRIANGLE_DOWN,
+		iconColors = { SCREEN.Colors.highlight },
+		getText = function(self) return "Add Opponent" end,
+		box = { CANVAS.X + 123, CANVAS.Y + 123, 82, 18, },
+		onClick = function(self)
+			local _callbackFunc = function(gachamon)
+				SCREEN.Data.Battle.OpponentMon = gachamon
+				Program.redraw(true)
+			end
+			SCREEN.openImportCodeWindow(_callbackFunc)
+		end,
+	},
+}
 
 GachaMonOverlay.Tabs.Options.Buttons = {
 	-- Option checkboxes are added later in createTabsAndButtons()
@@ -717,7 +783,7 @@ function GachaMonOverlay.initialize()
 	SCREEN.createTabsAndButtons()
 	SCREEN.currentTab = SCREEN.Tabs.Recent
 
-	for _, tab in pairs(GachaMonOverlay.Tabs) do
+	for _, tab in pairs(SCREEN.Tabs) do
 		for _, button in pairs(tab.Buttons or {}) do
 			if button.textColor == nil then
 				button.textColor = SCREEN.Colors.text
@@ -962,6 +1028,7 @@ function GachaMonOverlay.tryLoadCollection()
 	end
 	GachaMonData.initialCollectionLoad = true
 	GachaMonFileManager.importCollection()
+	GachaMonData.checkForNatDexRequirement()
 end
 
 GachaMonOverlay.FilterOptions = {
@@ -1081,6 +1148,8 @@ local function _buildFilterFunc(form)
 	end
 end
 
+---comment
+---@param gachamon IGachaMon
 function GachaMonOverlay.openShareCodeWindow(gachamon)
 	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
 	local form = ExternalUI.BizForms.createForm("GachaMon Share Code", 450, 160)
@@ -1089,7 +1158,33 @@ function GachaMonOverlay.openShareCodeWindow(gachamon)
 	form:createTextBox(shareCode, 20, 55, 400, 22, nil, false, true)
 	form:createButton(Resources.AllScreens.Close, 200, 85, function()
 		form:destroy()
-	end)
+	end, 80, 25)
+end
+
+---comment
+---@param onImportFunc? function
+function GachaMonOverlay.openImportCodeWindow(onImportFunc)
+	local form = ExternalUI.BizForms.createForm("GachaMon Import Code", 450, 160)
+	form:createLabel("Battle against someone else's GachaMon by importing its Share Code here.", 19, 10)
+	form:createLabel(string.format("%s:", "Paste the code below Ctrl+V"), 19, 30)
+	form.Controls.code = form:createTextBox("", 20, 55, 400, 22, nil, false, true)
+	form:createButton(Resources.AllScreens.Import, 80, 85, function()
+		local b64string = ExternalUI.BizForms.getText(form.Controls.code) or ""
+		-- Trim whitespace
+		b64string = b64string:match("^%s*(.-)%s*$") or ""
+		local gachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
+		if gachamon then
+			gachamon.Favorite = 0
+			-- TODO: remove attributes like "Favorite"
+		end
+		if type(onImportFunc) == "function" then
+			onImportFunc(gachamon)
+		end
+		form:destroy()
+	end, 80, 25)
+	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+		form:destroy()
+	end, 80, 25)
 end
 
 function GachaMonOverlay.openFilterSettingsWindow(tabKey)
@@ -1160,9 +1255,7 @@ end
 ---@param showFavoriteOverride? boolean Optional, displays the heart (empty or full); default: only if actually favorited
 ---@param showCollectionOverride? boolean Optional, displays the checkmark (empty or full); default: never shows
 function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOverride, showCollectionOverride)
-	if not card then
-		return
-	end
+	card = card or {}
 	borderPadding = borderPadding or 3
 	local numStars = card.Stars or 0
 	local W, H, TOP_W, TOP_H, BOT_H = 68, 68, 40, 10, 15
@@ -1203,10 +1296,8 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 		Drawing.drawImageAsPixels(Constants.PixelImages.SPARKLES, x + 3, y+TOP_H+13, {COLORS.shiny})
 	end
 
-	-- FRAME
-	local angleW = 4
+	-- CARD BACKGROUND
 	-- This is the "im mad and just want it to work, sorry future me/ anyone else" section of the code
-	-- transparent bg
 	gui.drawRectangle(x+1, y+1, W/2-1, H-2-BOT_H, COLORS.bg1, COLORS.bg1)
 	gui.drawRectangle(x+1+W/2, y+2, 7, 8, COLORS.bg2, COLORS.bg2)
 	gui.drawRectangle(x+1+W/2, y+1+TOP_H, W/2-2, H-TOP_H-2-BOT_H, COLORS.bg2, COLORS.bg2)
@@ -1216,36 +1307,40 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
 
 	-- STARS
-	local needsTwoLines = (numStars >= 5)
-	local starIcon = Constants.PixelImages.STAR
-	local starIconColors = starIcon:getColors()
-	starIconColors[4] = Drawing.ColorEffects.DARKEN * 2
-	local starSize = 9
-	-- Use Platinum colors for highest rarity (5+ stars)
-	if numStars > 5 then
-		starIconColors[1] = 0xFFEEEEEE
-		starIconColors[2] = 0xFFCCCCCC
-		numStars = 5
-	end
-	if numStars == 5 then
-		starSize = starSize + 1
-	end
-	for i = 1, numStars, 1 do
-		local iX = x + 1 + starSize * (i - 1)
-		local iY = y + 1
-		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
-		if i >= 4 and needsTwoLines then
-			iX = iX + 5 - 3 * starSize
-			iY = iY + starSize - 4
+	if numStars > 0 then
+		local needsTwoLines = (numStars >= 5)
+		local starIcon = Constants.PixelImages.STAR
+		local starIconColors = starIcon:getColors()
+		starIconColors[4] = Drawing.ColorEffects.DARKEN * 2
+		local starSize = 9
+		-- Use Platinum colors for highest rarity (5+ stars)
+		if numStars > 5 then
+			starIconColors[1] = 0xFFEEEEEE
+			starIconColors[2] = 0xFFCCCCCC
+			numStars = 5
 		end
-		Drawing.drawImageAsPixels(starIcon, iX, iY, starIconColors)
+		if numStars == 5 then
+			starSize = starSize + 1
+		end
+		for i = 1, numStars, 1 do
+			local iX = x + 1 + starSize * (i - 1)
+			local iY = y + 1
+			-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
+			if i >= 4 and needsTwoLines then
+				iX = iX + 5 - 3 * starSize
+				iY = iY + starSize - 4
+			end
+			Drawing.drawImageAsPixels(starIcon, iX, iY, starIconColors)
+		end
 	end
 
+	-- CARD FRAME
 	-- left-half
 	gui.drawLine(x+1, y+1, x+1+TOP_W-7, y+1, COLORS.border1)
 	gui.drawLine(x+1, y+1, x+1, y+H-1, COLORS.border1)
 	gui.drawLine(x+1, y+H-1, x+W/2, y+H-1, COLORS.border1)
 	local botBarY = y+H-BOT_H
+	local angleW = 4
 	gui.drawLine(x+1, botBarY, x+W/2, botBarY, COLORS.border1)
 	gui.drawLine(x+W/2+1, botBarY, x+W-1, botBarY, COLORS.border2)
 	gui.drawLine(x+TOP_W, y+1, x+TOP_W+angleW, y+1+TOP_H, COLORS.border2)
@@ -1257,15 +1352,33 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	gui.drawLine(x+W/2+1, y+H-1, x+W-1, y+H-1, COLORS.border2)
 
 	-- POWER
-	local powerRightAlign = 3 + Utils.calcWordPixelLength(tostring(card.BattlePower))
-	if card.BattlePower > 9999 then
-		powerRightAlign = powerRightAlign - 1
+	if (card.BattlePower or 0) > 0 then
+		local powerRightAlign = 3 + Utils.calcWordPixelLength(tostring(card.BattlePower))
+		if card.BattlePower > 9999 then
+			powerRightAlign = powerRightAlign - 1
+		end
+		Drawing.drawText(x + W - powerRightAlign, y, card.BattlePower or Constants.BLANKLINE, COLORS.power)
 	end
-	Drawing.drawText(x + W - powerRightAlign, y, card.BattlePower or Constants.BLANKLINE, COLORS.power)
+
 	-- POKEMON ICON
-	if PokemonData.isImageIDValid(card.PokemonId) then
-		Drawing.drawPokemonIcon(card.PokemonId, x + W / 2 - 16, y + 8)
+	local pX, pY = (x + W / 2 - 16), (y + 8)
+	local pokemonImageId = card.PokemonId
+	if PokemonData.isImageIDValid(pokemonImageId) and pokemonImageId ~= 0 then
+		-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
+		if GachaMonData.requiresNatDex and card.PokemonId >= 412 then
+			local iconset = Options.getIconSet()
+			local natdexIconSet = Options.IconSetMap[3]
+			if iconset and iconset ~= natdexIconSet then
+				pX = pX - (iconset.xOffset or 0) + (natdexIconSet.xOffset or 0)
+				pY = pY - (iconset.yOffset or 0) + (natdexIconSet.yOffset or 0)
+			end
+		end
+	else
+		-- Question mark icon
+		pokemonImageId = 252
 	end
+	Drawing.drawPokemonIcon(pokemonImageId, pX, pY)
+
 	-- FAVORITE ICON
 	if card.Favorite == 1 or showFavoriteOverride then
 		local heartFill = Constants.PixelImages.HEART.iconColors
@@ -1274,6 +1387,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 		end
 		Drawing.drawImageAsPixels(Constants.PixelImages.HEART, x+W-14, y+TOP_H+4, heartFill)
 	end
+
 	-- IN COLLECTION ICON (only if requested)
 	if showCollectionOverride then
 		local checkmarkIcon = Constants.PixelImages.CHECKMARK
@@ -1284,20 +1398,25 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 		end
 		Drawing.drawImageAsPixels(checkmarkIcon, x+W-14, y+TOP_H+16, checkmarkFill)
 	end
+
 	-- ABILITY TEXT
+	local abilityName = Constants.BLANKLINE
 	if AbilityData.isValid(card.AbilityId) then
-		local abilityName = AbilityData.Abilities[card.AbilityId].name
-		local abilityX = Utils.getCenteredTextX(abilityName, W) - 1
-		Drawing.drawText(x + abilityX + 1, y + H - 26, abilityName, COLORS.shadow)
-		Drawing.drawText(x + abilityX, y + H - 27, abilityName, COLORS.text)
+		abilityName = AbilityData.Abilities[card.AbilityId].name
 	end
+	local abilityX = Utils.getCenteredTextX(abilityName, W) - 1
+	Drawing.drawText(x + abilityX + 1, y + H - 26, abilityName, COLORS.shadow)
+	Drawing.drawText(x + abilityX, y + H - 27, abilityName, COLORS.text)
+
 	-- NAME TEXT
+	local monName = Constants.BLANKLINE
 	if PokemonData.isValid(card.PokemonId) then
-		local monName = PokemonData.Pokemon[card.PokemonId].name
-		local monX = Utils.getCenteredTextX(monName, W) - 1
-		Drawing.drawText(x + monX + 1, y + H - 13, monName, COLORS.shadow)
-		Drawing.drawText(x + monX, y + H - 14, monName, COLORS.name)
+		monName = PokemonData.Pokemon[card.PokemonId].name
 	end
+	local monX = Utils.getCenteredTextX(monName, W) - 1
+	Drawing.drawText(x + monX + 1, y + H - 13, monName, COLORS.shadow)
+	Drawing.drawText(x + monX, y + H - 14, monName, COLORS.name)
+
 	-- STAT BARS
 	if type(card.StatBars) == "table" then
 		for i, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
@@ -1342,22 +1461,6 @@ function GachaMonOverlay.close()
 	end
 end
 
-function GachaMonOverlay.stepFrameForShiny()
-	if not SCREEN.hasShinyToDraw then
-		return
-	end
-
-	SCREEN.shinyFrameCounter = (SCREEN.shinyFrameCounter + 1) % 80
-	if SCREEN.shinyFrameCounter == 0 then
-		Program.Frames.waitToDraw = 0
-			SCREEN.ShinyStars = {}
-			for _ = 1, math.random(2, 3), 1 do
-				local starPoint = { x = math.random(0, 59), y = math.random(0, 59)}
-				table.insert(SCREEN.ShinyStars, starPoint)
-			end
-	end
-end
-
 -- USER INPUT FUNCTIONS
 function SCREEN.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.TabButtons)
@@ -1389,6 +1492,9 @@ function SCREEN.drawScreen()
 	if SCREEN.currentTab == SCREEN.Tabs.Recent or SCREEN.currentTab == SCREEN.Tabs.Collection then
 		gui.drawRectangle(canvas.x + 1, canvas.y + 1, 210, 141, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
 		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
+	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
+		gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
+		-- Draw a divider and center ball
 	end
 
 	-- Draw all buttons

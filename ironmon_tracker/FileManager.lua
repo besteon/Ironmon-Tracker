@@ -25,7 +25,7 @@ FileManager.Folders = {
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
-	GachaMon = "GachaMon",
+	GachaMon = "gachamon",
 }
 
 FileManager.Files = {
@@ -43,9 +43,9 @@ FileManager.Files = {
 	KNOWN_WORKING_DIR = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt",
 	NEWRUN_PROFILES = FileManager.Folders.TrackerCode .. FileManager.slash .. "NewRunProfiles.json",
 	ADDRESS_OVERRIDES = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses .. FileManager.slash .. "TrackerOverrides.json",
-	GACHAMON_RATING_SYSTEM = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GachaMon .. FileManager.slash .. "RatingSystem.json",
-	GACHAMON_RECENT = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gtcg",
-	GACHAMON_COLLECTION = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GachaMon .. FileManager.slash .. "FullCollection.gtcg",
+	GACHAMON_COLLECTION = FileManager.Folders.GachaMon .. FileManager.slash .. "FullCollection.gccg",
+	GACHAMON_RECENT = FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gccg",
+	GACHAMON_RATING_SYSTEM = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonRatingSystem.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -128,6 +128,7 @@ FileManager.LuaCode = {
 	{ name = "Pickle", filepath = "Pickle.lua", },
 	{ name = "Tracker", filepath = "Tracker.lua", },
 	{ name = "MGBA", filepath = "MGBA.lua", },
+	{ name = "GachaMonAnimations", filepath = "GachaMonAnimations.lua", },
 	-- Network files
 	{ name = "Network", filepath = FileManager.Folders.Network .. FileManager.slash .. "Network.lua", },
 	{ name = "EventHandler", filepath = FileManager.Folders.Network .. FileManager.slash .. "EventHandler.lua", },

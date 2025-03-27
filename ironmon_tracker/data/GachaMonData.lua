@@ -18,15 +18,24 @@ GachaMonData = {
 	collectionRequiresSaving = false,
 	-- When a new GachaMon is caught/created, this will temporarily store that mon's data
 	newestRecentMon = nil,
+	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
+	requiresNatDex = false,
 }
 
 --[[
 TODO LIST
-- [UI] Battle: Add Import Code button. Find way to select from recent/collection.
-   - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
 - [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
-- [UI] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
+   - Cleanup filters are probably just # stars. Warn before cleaning up how many total will get removed.
+- [Animation] Shiny has a rainbow / animated frame border
+- [Animation] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
+- [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
+   - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
 - Optional: Show collection completion status somehow.
+TESTING LIST
+- [Test] Deleting stuff from collection
+- [Test] Nat Dex capture then swap to non-nat dex
+- [Test] Playing a few normal games and catching 7+ pokemon in each
+- [Test] Evo a captured mon
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
 ]]
@@ -37,6 +46,7 @@ function GachaMonData.initialize()
 	GachaMonData.Collection = {}
 	GachaMonData.initialCollectionLoad = false
 	GachaMonData.collectionRequiresSaving = false
+	GachaMonData.requiresNatDex = false
 	GachaMonData.clearNewestMonToShow()
 
 	-- Import universally useful data
@@ -66,7 +76,7 @@ function GachaMonData.test()
 	-- end
 
 	Program.openOverlayScreen(GachaMonOverlay)
-	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Collection
+	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Battle
 	GachaMonOverlay.refreshButtons()
 	Program.redraw(true)
 end
@@ -277,13 +287,22 @@ function GachaMonData.calculateStars(gachamon)
 	return 0
 end
 
----Transforms the GachaMon data into a sharable base-64 string. Example: AeAANkgYMEQkm38tWQAaAEYBKwE=
+---Transforms the GachaMon data into a shareable base-64 string. Example: AeAANkgYMEQkm38tWQAaAEYBKwE=
 ---@param gachamon IGachaMon
 ---@return string b64string
 function GachaMonData.getShareablyCode(gachamon)
 	local binaryStream = GachaMonFileManager.monToBinary(gachamon)
-	local b64string = StructEncoder.encodeBase64(binaryStream)
+	local b64string = StructEncoder.encodeBase64(binaryStream or "")
 	return b64string
+end
+
+---Transforms a base-64 string code back into them GachaMon data it represents.
+---@param b64string string
+---@return IGachaMon|nil gachamon
+function GachaMonData.transformCodeIntoGachaMon(b64string)
+	local binaryStream = StructEncoder.decodeBase64(b64string)
+	local gachamon = GachaMonFileManager.binaryToMon(binaryStream or "")
+	return gachamon
 end
 
 ---Returns true if a new GachaMon is available for viewing on the Tracker
@@ -429,6 +448,44 @@ function GachaMonData.openGachaMonRemovalConfirmation(gachamon, index)
 	end, 90, 25)
 end
 
+---In some cases, the player's collection might contain Pokémon from a Nat. Dex. game,
+---but the current ROM/Tracker settigns wouldn't otherwise be able to display them.
+function GachaMonData.checkForNatDexRequirement()
+	if not GachaMonData.initialCollectionLoad or CustomCode.RomHacks.isPlayingNatDex() then
+		return
+	end
+
+	-- Check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
+	local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
+		-- Check if it's a Nat. Dex. Pokémon
+		if gachamon.PokemonId >= 412 then
+			GachaMonData.requiresNatDex = true
+			break
+		end
+	end
+	if not GachaMonData.requiresNatDex or not natdexExt then
+		return
+	end
+
+	-- If so, add in necessary data and references
+	if type(natdexExt.buildExtensionPaths) == "function" then
+		natdexExt.buildExtensionPaths()
+	end
+	if type(natdexExt.addNewPokemonData) == "function" then
+		natdexExt.addNewPokemonData()
+	end
+	if type(natdexExt.addNewMoves) == "function" then
+		natdexExt.addNewMoves()
+	end
+	if type(natdexExt.addNewSprites) == "function" then
+		natdexExt.addNewSprites()
+	end
+	if type(natdexExt.addResources) == "function" then
+		natdexExt.addResources()
+	end
+end
+
 
 ---@class IGachaMon
 GachaMonData.IGachaMon = {
@@ -437,7 +494,7 @@ GachaMonData.IGachaMon = {
 	Version = 0,
 	-- 4 Bytes; the Pokémon game's "unique identifier"
 	Personality = 0,
-	-- 2 Bytes (11 bits)
+	-- 2 Bytes (11- bits)
 	PokemonId = 0,
 	-- 1 Byte (7 bits)
 	Level = 0,
@@ -445,9 +502,9 @@ GachaMonData.IGachaMon = {
 	AbilityId = 0,
 	-- 1 Byte (7 bits); value rounded up
 	RatingScore = 0,
-	-- 0 Bytes (4 bits); stored with PokemonId as FBBBBPPP
+	-- 0 Bytes (4- bits); stored with PokemonId as FBBBBPPP
 	BattlePower = 0,
-	-- 0 Bytes (1 bit); stored with PokemonId as FBBBBPPP
+	-- 0 Bytes (1- bit); stored with PokemonId as FBBBBPPP
 	Favorite = 0,
 	-- 2 Bytes (16 bits); The seed number at the time this mon was collected
 	SeedNumber = 0,

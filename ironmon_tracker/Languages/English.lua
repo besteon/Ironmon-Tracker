@@ -720,7 +720,7 @@ ScreenResources{
 		TabBattle = "Battle",
 		TabOptions = "Options",
 		OptionShowGachaMonInCarouselBox = "Show GachaMon catch info in Carousel box",
-		OptionAutoAddGachaMonToCollection = "Add GachaMon to collection after defeating trainers",
+		OptionAutoAddGachaMonToCollection = "Add GachaMon to collection after defeating 2 trainers",
 		OptionAnimateGachaMonPackOpening = "Animate GachaMon pack opening",
 	},
 	TeamViewArea = {

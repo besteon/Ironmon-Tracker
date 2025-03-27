@@ -8,6 +8,7 @@ Settings.ini
 *Attempts.txt
 quickload/*.jar
 quickload/*.rnqs
+gachamon/*.gccg
 extensions/*
 !extensions/How to use.txt
 !extensions/CodeExtensionTemplate.lua.txt
@@ -15,7 +16,6 @@ ironmon_tracker/*.txt
 ironmon_tracker/NewRunProfiles.json
 ironmon_tracker/network/Requests.json
 ironmon_tracker/images/pokemonAnimated/*.gif
-ironmon_tracker/GachaMon/*.gtcg
 AnimatedPokemon.gif
 RandomizerErrorLog.txt
 ThemePresets.txt

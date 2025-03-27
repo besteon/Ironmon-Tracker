@@ -113,6 +113,7 @@ MoveData.TypeToCategory = {
 	[PokemonData.Types.ICE]      = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DRAGON]   = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DARK]     = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.FAIRY]    = MoveData.Categories.SPECIAL, -- Adding in just for Nat. Dex. rom hack support convenience
 	[PokemonData.Types.UNKNOWN]  = MoveData.Categories.NONE,
 }
 
@@ -134,6 +135,7 @@ MoveData.TypeToEffectiveness = {
 	dragon = { dragon = 2, steel = 0.5 },
 	dark = { fighting = 0.5, psychic = 2, ghost = 2, dark = 0.5, steel = 0.5 },
 	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
+	fairy = { fighting = 2, dark = 2, dragon = 2, poison = 0.5, steel = 0.5, fire = 0.5 }, -- Adding in just for Nat. Dex. rom hack support convenience
 }
 
 -- Is true when a Status move fails/doesn't work against a checked move type
