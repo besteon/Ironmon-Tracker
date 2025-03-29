@@ -1,16 +1,16 @@
 GachaMonData = {
 	MAX_BATTLE_POWER = 15000,
-	SHINY_ODDS = 0.004695, -- 1 in 213 odds. (Pokémon Go and Pokémon Sleep use 1/500)
+	SHINY_ODDS = 0.004695, -- 1 in 213 odds. (Pokémon Go and Pokémon Sleep use ~1/500)
 	TRAINERS_TO_DEFEAT = 2, -- The number of trainers a Pokémon needs to defeat to automatically be kept in the player's permanent Collection
 
 	-- The user's entire GachaMon collection (ordered list). Populated from file only when the user first goes to view the Collection on the Tracker
-	Collection = {},
+	Collection = {}, ---@type table<number, IGachaMon>
 
 	-- Stores the GachaMons for the current gameplay session only. Table key is the Pokémon's personality value
-	RecentMons = {},
+	RecentMons = {}, ---@type table<number, IGachaMon>
 
 	-- Populated on Tracker startup from the ratings data json file
-	RatingsSystem = {},
+	RatingsSystem = {}, ---@type table<string, table>
 
 	-- A one-time initial collection load when the Collection is first viewed
 	initialCollectionLoad = false,
@@ -25,12 +25,12 @@ GachaMonData = {
 --[[
 TODO LIST
 - [UI] Create a tiny GachaMon logo icon
-- [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
-   - Cleanup filters are probably just # stars. Warn before cleaning up how many total will get removed.
 - [Animation] Shiny has a rainbow / animated frame border
 - [Animation] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
+- [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
+   - Cleanup filters are probably just # stars. Warn before cleaning up how many total will get removed.
 - Optional: Show collection completion status somehow.
 TESTING LIST
 - [Test] Deleting stuff from collection
@@ -76,10 +76,16 @@ function GachaMonData.test()
 	-- 	Utils.printDebug("Share Code: %s", b64string)
 	-- end
 
-	Program.openOverlayScreen(GachaMonOverlay)
-	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Battle
-	GachaMonOverlay.refreshButtons()
-	Program.redraw(true)
+	-- OPEN THE OVERLAY
+	-- Program.openOverlayScreen(GachaMonOverlay)
+	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Battle
+	-- GachaMonOverlay.refreshButtons()
+	-- Program.redraw(true)
+
+	local k, v = next(GachaMonData.RecentMons)
+	if v then
+		GachaMonData.newestRecentMon = v
+	end
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -524,7 +530,7 @@ GachaMonData.IGachaMon = {
 	C_DateObtained = 0,
 
 	-- Any other data for easy access, but won't be stored in the collection file
-	Temp = {},
+	Temp = {}, ---@type table<string, any>
 
 	-- Helper functions for converting data to proper formats, binary or otherwise
 
