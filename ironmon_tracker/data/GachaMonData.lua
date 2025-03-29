@@ -24,6 +24,7 @@ GachaMonData = {
 
 --[[
 TODO LIST
+- [UI] Create a tiny GachaMon logo icon
 - [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
    - Cleanup filters are probably just # stars. Warn before cleaning up how many total will get removed.
 - [Animation] Shiny has a rainbow / animated frame border
@@ -732,7 +733,7 @@ GachaMonData.IGachaMon = {
 }
 ---Creates and returns a new IGachaMon object
 ---@param o? table Optional initial object table
----@return IGachaMon profile An IGachaMon object
+---@return IGachaMon gachamon An IGachaMon object
 function GachaMonData.IGachaMon:new(o)
 	o = o or {}
 	o.Version = o.Version or 0

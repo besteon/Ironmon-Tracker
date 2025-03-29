@@ -594,7 +594,7 @@ function Program.stepFrames()
 	end
 
 	SpriteData.updateActiveIcons()
-	GachaMonAnimations.stepFrames()
+	AnimationManager.stepFrames()
 end
 
 --- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
