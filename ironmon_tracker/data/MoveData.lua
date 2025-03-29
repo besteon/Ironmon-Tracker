@@ -1,7 +1,10 @@
 MoveData = {}
 
 MoveData.Values = {
+	GuillotineId = 12,
+	HornDrillId = 32,
 	LowKickId = 67,
+	FissureId = 90,
 	FlailId = 175,
 	ReversalId = 179,
 	ReturnId = 216,
@@ -12,6 +15,7 @@ MoveData.Values = {
 	SkillSwapId = 285,
 	WeatherBallId = 311,
 	WaterSpoutId = 323,
+	SheerColdId = 329,
 
 	-- The below are used by the BattleDetailsScreen
 	PayDayId = 6,
@@ -135,8 +139,9 @@ MoveData.TypeToEffectiveness = {
 	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
 }
 
--- Individual formulas for calculating any changes to a move based on contextual information, such as being in battle
-MoveData.VariablePowerAdjustmentFuncs = {
+---Individual formulas for calculating any changes to a move based on contextual information, such as being in battle; key=moveid, val=func
+---@type table<number, function>
+MoveData.MoveValueAdjustmentFuncs = {
 	[MoveData.Values.WeatherBallId] = function(move, sourcePokemon, targetPokemon)
 		if not Battle.inActiveBattle() then return end
 		move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
@@ -176,8 +181,7 @@ MoveData.VariablePowerAdjustmentFuncs = {
 		if not Battle.isViewingOwn then return end -- Only reveal Friendship for player's pokemon, not enemy
 		move.power = Utils.calculateFriendshipBasedDamage(move.power, sourcePokemon.friendship or 0)
 	end,
-	-- Guillotine
-	[12] = function(move, sourcePokemon, targetPokemon)
+	[MoveData.Values.GuillotineId] = function(move, sourcePokemon, targetPokemon)
 		if not Battle.inActiveBattle() then return end
 		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
 		if levelDiff > 0 then
@@ -187,8 +191,7 @@ MoveData.VariablePowerAdjustmentFuncs = {
 			move.accuracy = "X " -- Ineffective against higher level pokemon
 		end
 	end,
-	-- Horn Drill
-	[32] = function(move, sourcePokemon, targetPokemon)
+	[MoveData.Values.HornDrillId] = function(move, sourcePokemon, targetPokemon)
 		if not Battle.inActiveBattle() then return end
 		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
 		if levelDiff > 0 then
@@ -198,8 +201,7 @@ MoveData.VariablePowerAdjustmentFuncs = {
 			move.accuracy = "X " -- Ineffective against higher level pokemon
 		end
 	end,
-	-- Fissure
-	[90] = function(move, sourcePokemon, targetPokemon)
+	[MoveData.Values.FissureId] = function(move, sourcePokemon, targetPokemon)
 		if not Battle.inActiveBattle() then return end
 		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
 		if levelDiff > 0 then
@@ -209,8 +211,7 @@ MoveData.VariablePowerAdjustmentFuncs = {
 			move.accuracy = "X " -- Ineffective against higher level pokemon
 		end
 	end,
-	-- Sheer Cold
-	[329] = function(move, sourcePokemon, targetPokemon)
+	[MoveData.Values.SheerColdId] = function(move, sourcePokemon, targetPokemon)
 		if not Battle.inActiveBattle() then return end
 		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
 		if levelDiff > 0 then
@@ -443,14 +444,13 @@ end
 ---@param move table
 ---@param sourcePokemon? table Optional, as not all move adjustment calculations require a source and/or a target
 ---@param targetPokemon? table Optional, as not all move adjustment calculations require a source and/or a target
-function MoveData.adjustForVariablePower(move, sourcePokemon, targetPokemon)
+function MoveData.adjustVariableMoveValues(move, sourcePokemon, targetPokemon)
 	sourcePokemon = sourcePokemon or {}
 	targetPokemon = targetPokemon or {}
-	local adjustmentFunc = MoveData.VariablePowerAdjustmentFuncs[tonumber(move.id or 0) or false]
-	if type(adjustmentFunc) ~= "function" then
-		return
+	local adjustmentFunc = MoveData.MoveValueAdjustmentFuncs[tonumber(move.id or 0) or false]
+	if type(adjustmentFunc) == "function" then
+		adjustmentFunc(move, sourcePokemon, targetPokemon)
 	end
-	adjustmentFunc(move, sourcePokemon, targetPokemon)
 end
 
 MoveData.BlankMove = {
