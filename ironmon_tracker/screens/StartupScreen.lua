@@ -87,14 +87,6 @@ function StartupScreen.initialize()
 	end
 
 	StartupScreen.refreshButtons()
-
-	-- Output to console the Tracker data load status to help with troubleshooting
-	if Tracker.LoadStatus ~= nil then
-		local loadStatusMessage = Resources.StartupScreen[Tracker.LoadStatus]
-		if loadStatusMessage then
-			print(string.format("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage))
-		end
-	end
 end
 
 function StartupScreen.refreshButtons()

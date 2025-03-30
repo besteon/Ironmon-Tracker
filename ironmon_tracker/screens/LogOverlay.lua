@@ -516,7 +516,14 @@ function LogOverlay.getLogFileAutodetected(postFix)
 		local loadedRomName = plainFormatter(GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
 		local autodetectedName = plainFormatter(romname or "")
 		if loadedRomName ~= autodetectedName then
-			return nil
+			local filepath = FileManager.getLoadedRomPath() or ""
+			local basepath = filepath and filepath .. FileManager.slash or ""
+			local logfile = basepath .. GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM .. FileManager.Extensions.RANDOMIZER_LOGFILE
+			if FileManager.fileExists(logfile) then
+				return logfile
+			else
+				return nil
+			end
 		end
 	end
 

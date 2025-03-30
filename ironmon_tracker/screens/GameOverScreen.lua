@@ -11,11 +11,15 @@ GameOverScreen = {
 }
 
 -- Different functions to confirm if the game has ended in a loss (game over)
+-- Note: Each condition defaults to false until proven it is true (change from initial implementation)
 GameOverScreen.LossConditions = {
+	-- Returns true iff the player's party has real (non-egg) Pokémon in it and the lead Pokémon (first slot) has current HP of 0 (fainted)
 	LeadPokemonFaints = function()
 		local pokemon = TrackerAPI.getPlayerPokemon(1)
-		return pokemon and pokemon.curHP == 0 and pokemon.isEgg ~= 1
+		return pokemon and pokemon.curHP == 0 and pokemon.isEgg ~= 1 -- ignore eggs
 	end,
+
+	-- Returns true iff the player's party has real (non-egg) Pokémon in it and any of the highest-level of those have current HP of 0 (fainted)
 	HighestLevelFaints = function()
 		local highestLevel, highestFainted = 0, false
 		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
@@ -30,13 +34,19 @@ GameOverScreen.LossConditions = {
 		end
 		return highestFainted
 	end,
+
+	-- Returns true iff the player's party has real (non-egg) Pokémon in it and each of those have current HP of 0 (fainted)
 	EntirePartyFaints = function()
+		local numRealMons, numFainted = 0, 0
 		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
-			if pokemon.curHP ~= 0 and pokemon.isEgg ~= 1 then -- ignore eggs
-				return false
+			if pokemon.isEgg ~= 1 then -- ignore eggs
+				numRealMons = numRealMons + 1
+				if pokemon.curHP == 0 then
+					numFainted = numFainted + 1
+				end
 			end
 		end
-		return true
+		return numRealMons > 0 and numRealMons == numFainted
 	end,
 }
 

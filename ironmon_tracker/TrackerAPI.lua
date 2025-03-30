@@ -294,18 +294,17 @@ function TrackerAPI.getOption(key)
 	return Options[key]
 end
 
----Changes a Tracker option setting and saves it. Tracket settings are saved (persist) in the Settings.ini file
+---Changes a Tracker option setting and saves it. Tracker settings are saved (persist) in the Settings.ini file
 ---Create your own settings for an extension by using: `TrackerAPI.saveExtensionSetting()`
 ---@param key string
 ---@param value any Usually a boolean or a string
+---@param subtableKey? string Optional, for specifying a setting in an Options subcatgory, such as CONTROLS or FILES; case-sensitive
 ---@return boolean success true if an existing setting was changed, false if no setting was found
-function TrackerAPI.setOption(key, value)
-	-- Checks through categorized options, such as CONTROLS, FILES, or PATHS
-	for _, optionCategory in pairs(Options) do
-		if type(optionCategory) == "table" and optionCategory[key] ~= nil then
-			optionCategory[key] = value
-			return true
-		end
+function TrackerAPI.setOption(key, value, subtableKey)
+	if subtableKey and type(Options[subtableKey]) == "table" and Options[subtableKey][key] ~= nil then
+		Options[subtableKey][key] = value
+		Main.SaveSettings(true)
+		return true
 	end
 	if Options[key] ~= nil then
 		Options.addUpdateSetting(key, value)
@@ -373,7 +372,7 @@ end
 ---@param language string|table ENGLISH, SPANISH, GERMAN, FRENCH, ITALIAN, or a Resources.Language table
 function TrackerAPI.setLanguage(language)
 	if type(language) == "string" then
-		Resources.changeLanguageSetting(Resources[language:upper()], true)
+		Resources.changeLanguageSetting(Resources.Languages[language:upper()], true)
 	elseif type(language) == "table" then
 		Resources.changeLanguageSetting(language, true)
 	end
