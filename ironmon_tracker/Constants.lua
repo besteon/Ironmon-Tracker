@@ -179,6 +179,10 @@ Constants.OrderedLists = {
 		"Active Profile",
 		"Has checked carousel battle details",
 		"AlertNewOptionLR",
+		"Hide Pokemon stats until GachaMon viewed",
+		"Show GachaMon catch info in Carousel box",
+		"Animate GachaMon pack opening",
+		"Add GachaMon to collection after defeating a trainer",
 	},
 	CONTROLS = {
 		"Load next seed",

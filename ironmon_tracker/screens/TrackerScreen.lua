@@ -478,6 +478,9 @@ TrackerScreen.Buttons = {
 			-- end
 			Program.openOverlayScreen(GachaMonOverlay)
 			Program.redraw(true)
+			-- Delay revealing the stats for just a second
+			GachaMonData.clearNewestMonToShow()
+			Program.Frames.waitToDraw = 60
 		end,
 	},
 }
