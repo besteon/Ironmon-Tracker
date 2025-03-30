@@ -38,8 +38,6 @@ TODO LIST
 - [Animation] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
-- [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
-   - Cleanup filters are probably just # stars. Warn before cleaning up how many total will get removed.
 - Optional: Show collection completion status somehow.
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
@@ -82,14 +80,14 @@ function GachaMonData.test()
 
 	-- OPEN THE OVERLAY
 	-- Program.openOverlayScreen(GachaMonOverlay)
-	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.About
+	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Options
 	-- GachaMonOverlay.refreshButtons()
 	-- Program.redraw(true)
 
-	local k, v = next(GachaMonData.RecentMons)
-	if v then
-		GachaMonData.newestRecentMon = v
-	end
+	-- local k, v = next(GachaMonData.RecentMons)
+	-- if v then
+	-- 	GachaMonData.newestRecentMon = v
+	-- end
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -489,9 +487,9 @@ function GachaMonData.openGachaMonRemovalConfirmation(gachamon, index)
 	form:createButton("Yes, Delete Forever!", 70, 125, function()
 		table.remove(GachaMonData.Collection, index)
 		GachaMonData.collectionRequiresSaving = true
-		-- TODO: this probably isnt correct
 		if Program.currentOverlay == GachaMonOverlay and GachaMonOverlay.currentTab == GachaMonOverlay.Tabs.View then
 			GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Collection
+			GachaMonOverlay.buildCollectionData()
 			GachaMonOverlay.refreshButtons()
 			Program.redraw(true)
 		end

@@ -411,7 +411,7 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 				local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 				Drawing.drawSelectionIndicators(x, y, w, h, highlight, 1, 5, 1)
 			end
-			x, y = x + 3, y + 2
+			x, y = x + 3, y + 3
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local iconColors = {
 				color,
@@ -565,7 +565,7 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 				local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 				Drawing.drawSelectionIndicators(x, y, w, h, highlight, 1, 5, 1)
 			end
-			x, y = x + 3, y + 2
+			x, y = x + 3, y + 3
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local iconColors = {
 				color,
@@ -740,29 +740,35 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	-- Option checkboxes are added later in createTabsAndButtons()
 
 	RecentSize = {
-		getText = function(self) return string.format("%s:", "GachaMons caught this game" or Resources[SCREEN.Key].Label) end,
+		getText = function(self) return string.format(" %s", "GachaMons caught this game" or Resources[SCREEN.Key].Label) end,
 		getValue = function(self)
 			return SCREEN.Data.Recent and (#SCREEN.Data.Recent.OrderedGachaMons) or Constants.BLANKLINE
 		end,
-		box = { CANVAS.X + 2, CANVAS.Y + 60, 140, 11, },
+		box = { CANVAS.X + 10, CANVAS.Y + 8, CANVAS.W - 20, 14, },
 		draw = function(self, shadowcolor)
-			local x, y, w = self.box[1], self.box[2], self.box[3]
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local text = self:getValue()
 			local color = Theme.COLORS[SCREEN.Colors.highlight]
-			Drawing.drawNumber(x + w, y, text, 4, color, shadowcolor)
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawRectangle(x, y - 1, w, h, border)
+			gui.drawLine(x + 150, y, x + 150, y + h - 1, border)
+			Drawing.drawNumber(x + 170, y, text, 4, color, shadowcolor)
 		end,
 	},
 	CollectionSize = {
-		getText = function(self) return string.format("%s:", "Total GachaMons in collection" or Resources[SCREEN.Key].Label) end,
+		getText = function(self) return string.format(" %s", "Total GachaMons in collection" or Resources[SCREEN.Key].Label) end,
 		getValue = function(self)
 			return SCREEN.Data.Collection and (#SCREEN.Data.Collection.OrderedGachaMons) or Constants.BLANKLINE
 		end,
-		box = { CANVAS.X + 2, CANVAS.Y + 71, 140, 11, },
+		box = { CANVAS.X + 10, CANVAS.Y + 22, CANVAS.W - 20, 14, },
 		draw = function(self, shadowcolor)
-			local x, y, w = self.box[1], self.box[2], self.box[3]
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local text = self:getValue()
 			local color = Theme.COLORS[SCREEN.Colors.highlight]
-			Drawing.drawNumber(x + w, y, text, 4, color, shadowcolor)
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawRectangle(x, y - 1, w, h, border)
+			gui.drawLine(x + 150, y, x + 150, y + h - 1, border)
+			Drawing.drawNumber(x + 170, y, text, 4, color, shadowcolor)
 		end,
 	},
 	CleanupCollection = {
@@ -1003,7 +1009,7 @@ function GachaMonOverlay.createTabsAndButtons()
 
 	-- CREATE OPTIONS CHECKBOXES
 	startX = CANVAS.X + 4
-	startY = CANVAS.Y + 4
+	startY = CANVAS.Y + 48
 	local optionKeyMap = {
 		{ "Show GachaMon catch info in Carousel box", "OptionShowGachaMonInCarouselBox", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
@@ -1134,15 +1140,19 @@ GachaMonOverlay.FilterOptions = {
 	Stars4 = { id = "stars4", getLabel = function() return "4 Stars" end, value = 4, },
 	Stars5 = { id = "stars5", getLabel = function() return "5 Stars" end, value = 5, },
 	Stars6 = { id = "stars6", getLabel = function() return "5+ Stars" end, value = 6, },
+	BattlePowerLess = { id = "bpless", getLabel = function() return "Less than" end, value = 0, },
+	BattlePowerLessText = { id = "bplesstext", getLabel = function() return "0" end, value = 0, },
+	BattlePowerGreater = { id = "bpgreater", getLabel = function() return "Greater than" end, value = 0, },
+	BattlePowerGreaterText = { id = "bpgreatertext", getLabel = function() return "99999" end, value = 0, },
 	VersionFireRed = { id = "versionFR", getLabel = function() return "Fire Red" end, value = 3, },
 	VersionLeafGreen = { id = "versionLG", getLabel = function() return "Leaf Green" end, value = 5, },
 	VersionEmerald = { id = "versionE", getLabel = function() return "Emerald" end, value = 2, },
 	VersionRuby = { id = "versionR", getLabel = function() return "Ruby" end, value = 1, },
 	VersionSapphire = { id = "versionS", getLabel = function() return "Sapphire" end, value = 4, },
-	ShowFavorites = { id = "favorites", getLabel = function() return "Show Favorites" end, value = 1, },
-	ShowNonFavorites = { id = "nonfavorites", getLabel = function() return "Show Non-Favorites" end, value = 0, },
-	ShowShiny = { id = "shiny", getLabel = function() return "Show Shiny" end, value = 1, },
-	ShowNonShiny = { id = "nonshiny", getLabel = function() return "Show Non-Shiny" end, value = 0, },
+	ShowFavorites = { id = "favorites", getLabel = function() return "Favorites" end, value = 1, },
+	ShowNonFavorites = { id = "nonfavorites", getLabel = function() return "Non-Favorites" end, value = 0, },
+	ShowShiny = { id = "shiny", getLabel = function() return "Shiny" end, value = 1, },
+	ShowNonShiny = { id = "nonshiny", getLabel = function() return "Non-Shiny" end, value = 0, },
 	ByPokemon = {
 		id = "bypokemon",
 		getLabel = function() return string.format("%s %s:", "By", Resources.AllScreens.Pokemon) end,
@@ -1245,6 +1255,80 @@ local function _buildFilterFunc(form)
 end
 
 ---comment
+---@param form IBizhawkForm
+---@return function
+local function _buildRemovalFilterFunc(form)
+	local FO = GachaMonOverlay.FilterOptions
+	local BF = ExternalUI.BizForms
+	local matchStars = {
+		[FO.Stars1.value] = BF.isChecked(form.Controls[FO.Stars1.id]),
+		[FO.Stars2.value] = BF.isChecked(form.Controls[FO.Stars2.id]),
+		[FO.Stars3.value] = BF.isChecked(form.Controls[FO.Stars3.id]),
+		[FO.Stars4.value] = BF.isChecked(form.Controls[FO.Stars4.id]),
+		[FO.Stars5.value] = BF.isChecked(form.Controls[FO.Stars5.id]),
+		-- [FO.Stars6.value] = BF.isChecked(form.Controls[FO.Stars6.id]),
+	}
+	-- If nothing checked in this category, don't use or filter by this category
+	if not (matchStars[FO.Stars1.value] or matchStars[FO.Stars2.value] or matchStars[FO.Stars3.value] or matchStars[FO.Stars4.value] or matchStars[FO.Stars5.value]) then
+		matchStars = nil
+	end
+
+	local matchFavorites = {
+		[FO.ShowNonFavorites.value] = BF.isChecked(form.Controls[FO.ShowNonFavorites.id]),
+	}
+	-- If nothing checked in this category, don't use or filter by this category
+	if not (matchFavorites[FO.ShowNonFavorites.value]) then
+		matchFavorites = nil
+	end
+
+	local matchShiny = {
+		[FO.ShowShiny.value] = BF.isChecked(form.Controls[FO.ShowShiny.id]),
+		[FO.ShowNonShiny.value] = BF.isChecked(form.Controls[FO.ShowNonShiny.id]),
+	}
+	-- If nothing checked in this category, don't use or filter by this category
+	if not (matchShiny[FO.ShowShiny.value] or matchShiny[FO.ShowNonShiny.value]) then
+		matchShiny = nil
+	end
+
+	local compareBPLess, compareBPGreater
+	if BF.isChecked(form.Controls[FO.BattlePowerLess.id]) then
+		local val = tonumber(BF.getText(form.Controls[FO.BattlePowerLessText.id]) or "")
+		if val then
+			compareBPLess = function(bp) return bp < val end
+		end
+	end
+	if BF.isChecked(form.Controls[FO.BattlePowerGreater.id]) then
+		local val = tonumber(BF.getText(form.Controls[FO.BattlePowerGreaterText.id]) or "")
+		if val then
+			compareBPGreater = function(bp) return bp > val end
+		end
+	end
+	local checkBP
+	-- Only use this category if at least one option is checked
+	if compareBPLess or compareBPGreater then
+		checkBP = function(bp)
+			return (not compareBPLess or compareBPLess(bp)) and (not compareBPGreater or compareBPGreater(bp))
+		end
+	end
+
+	-- If nothing checked at all, don't use any filters or return any matched results
+	if matchStars == nil and matchFavorites == nil and matchShiny == nil and checkBP == nil then
+		return function(gachamon) return false end
+	end
+
+	return function(gachamon)
+		local stars = gachamon:getStars() or -1
+		local favorite = gachamon.Favorite or -1
+		local shiny = gachamon:getIsShiny()
+		local useStars = matchStars == nil or matchStars[stars]
+		local useFaves = matchFavorites == nil or matchFavorites[favorite]
+		local useShiny = matchShiny == nil or matchShiny[shiny]
+		local useBP = checkBP == nil or checkBP(gachamon.BattlePower or 0)
+		return useStars and useFaves and useShiny and useBP
+	end
+end
+
+---comment
 ---@param gachamon IGachaMon
 function GachaMonOverlay.openShareCodeWindow(gachamon)
 	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
@@ -1322,25 +1406,106 @@ function GachaMonOverlay.openFilterSettingsWindow(tabKey)
 end
 
 function GachaMonOverlay.openCleanupCollectionWindow()
-	local form = ExternalUI.BizForms.createForm("Cleanup Collection", 430, 280)
+	local form = ExternalUI.BizForms.createForm("Cleanup Collection", 430, 305)
 	local nextLineY = 15
 
+	local gachamonsToRemove = {}
+	local prevBPLess, prevBPGreater = -1, -1
+
 	local _anyClicked = function()
+		-- Reset the filtered Gachamons to be removed
+		if #gachamonsToRemove > 0 then
+			gachamonsToRemove = {}
+		end
+		-- Clear out the warning label
 		if form.Controls.labelWarning then
 			ExternalUI.BizForms.setText(form.Controls.labelWarning, "")
 		end
 	end
 
-	form:createLabel("Filter to show GachaMon cards with these qualities:", 20, nextLineY)
+	form:createLabel("Choose what GachaMon cards to permanently REMOVE from your collection:", 20, nextLineY)
+	nextLineY = nextLineY + 21
+	form:createLabel("Note: Favorite GachaMon are safe and will never be removed by cleanup.", 20, nextLineY)
 	nextLineY = nextLineY + 28
-	nextLineY = _createFilterControls(form, 20, nextLineY, false, _anyClicked)
+	local allChecked = false
+	local X_COL1, X_COL2, X_COL3 = 20 + 8, 20 + 118, 20 + 238
+	local FO = GachaMonOverlay.FilterOptions
+
+	form:createLabel(string.format("%s:", "Stars"), X_COL1 - 8, nextLineY)
+	form:createLabel(string.format("%s:", "Battle Power"), X_COL2 - 8, nextLineY)
+	form:createLabel(string.format("%s %s:", "Favorite / Shiny", Resources.AllScreens.Pokemon), X_COL3 - 8, nextLineY)
+	nextLineY = nextLineY + 21
+	form.Controls[FO.Stars1.id] = form:createCheckbox(FO.Stars1.getLabel(), X_COL1, nextLineY, _anyClicked, allChecked)
+	form.Controls[FO.BattlePowerLess.id] = form:createCheckbox(FO.BattlePowerLess.getLabel(), X_COL2, nextLineY, _anyClicked, allChecked)
+	form.Controls[FO.ShowFavorites.id] = form:createCheckbox(FO.ShowFavorites.getLabel(), X_COL3, nextLineY, _anyClicked, allChecked)
+	nextLineY = nextLineY + 21
+	form.Controls[FO.Stars2.id] = form:createCheckbox(FO.Stars2.getLabel(), X_COL1, nextLineY, _anyClicked, allChecked)
+	form.Controls[FO.BattlePowerLessText.id] = form:createTextBox(FO.BattlePowerLessText.getLabel(), X_COL2, nextLineY, 90, 22, "UNSIGNED", false, true, nil, _anyClicked)
+	form.Controls[FO.ShowNonFavorites.id] = form:createCheckbox(FO.ShowNonFavorites.getLabel(), X_COL3, nextLineY, _anyClicked, allChecked)
+	nextLineY = nextLineY + 21
+	form.Controls[FO.Stars3.id] = form:createCheckbox(FO.Stars3.getLabel(), X_COL1, nextLineY, _anyClicked, allChecked)
+	form.Controls[FO.ShowShiny.id] = form:createCheckbox(FO.ShowShiny.getLabel(), X_COL3, nextLineY, _anyClicked, allChecked)
+	nextLineY = nextLineY + 21
+	form.Controls[FO.Stars4.id] = form:createCheckbox(FO.Stars4.getLabel(), X_COL1, nextLineY, _anyClicked, allChecked)
+	form.Controls[FO.BattlePowerGreater.id] = form:createCheckbox(FO.BattlePowerGreater.getLabel(), X_COL2, nextLineY - 3, _anyClicked, allChecked)
+	form.Controls[FO.ShowNonShiny.id] = form:createCheckbox(FO.ShowNonShiny.getLabel(), X_COL3, nextLineY, _anyClicked, allChecked)
+	nextLineY = nextLineY + 21
+	form.Controls[FO.Stars5.id] = form:createCheckbox(FO.Stars5.getLabel(), X_COL1, nextLineY, _anyClicked, allChecked)
+	form.Controls[FO.BattlePowerGreaterText.id] = form:createTextBox(FO.BattlePowerGreaterText.getLabel(), X_COL2, nextLineY - 3, 90, 22, "UNSIGNED", false, true, nil, _anyClicked)
+	nextLineY = nextLineY + 33
+	form.Controls.labelWarning = form:createLabel("", 50, nextLineY)
+	ExternalUI.BizForms.setProperty(form.Controls.labelWarning, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+	nextLineY = nextLineY + 28
+
+	-- Favorites should never be removed
+	ExternalUI.BizForms.setProperty(form.Controls[FO.ShowFavorites.id], ExternalUI.BizForms.Properties.ENABLED, false)
 
 	form.Controls.btnApplyFilter = form:createButton("Apply Cleanup", 70, nextLineY, function()
-		-- TODO: Collect filter data as table, call function to use this to create a filter func, rebuild tab data
-		-- TODO: prompt for warning first before committing to cleanup action
-		form:destroy()
+		local currentBPLess = tonumber(ExternalUI.BizForms.getText(form.Controls[FO.BattlePowerLessText.id]) or "") or -1
+		local currentBPGreater = tonumber(ExternalUI.BizForms.getText(form.Controls[FO.BattlePowerGreaterText.id]) or "") or -1
+		local textBoxesChanged = currentBPLess ~= prevBPLess or currentBPGreater ~= prevBPGreater
+		prevBPLess = currentBPLess
+		prevBPGreater = currentBPGreater
+		-- First check how many GachaMons will be removed and alert the user for confirmation
+		if #gachamonsToRemove == 0 or textBoxesChanged then
+			local filterFunc = _buildRemovalFilterFunc(form)
+			for _, gachamon in ipairs(GachaMonData.Collection or {}) do
+				if filterFunc(gachamon) then
+					table.insert(gachamonsToRemove, gachamon)
+				end
+			end
+			local removalMsg
+			if #gachamonsToRemove == 0 then
+				removalMsg = "No GachaMons found in your collection matching the above criteria."
+			else
+				removalMsg = string.format("%s of %s GachaMons in your collection will be removed. Continue?",
+					#gachamonsToRemove,
+					#GachaMonData.Collection
+				)
+			end
+			ExternalUI.BizForms.setText(form.Controls.labelWarning, removalMsg)
+			ExternalUI.BizForms.setProperty(form.Controls.labelWarning, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+		else
+			-- Perform removal
+			local numRemoved = 0
+			for _, gachamon in ipairs(gachamonsToRemove or {}) do
+				local index = GachaMonData.findInCollection(gachamon)
+				if index ~= -1 then
+					numRemoved = numRemoved + 1
+					table.remove(GachaMonData.Collection, index)
+				end
+			end
+			gachamonsToRemove = {}
+			if numRemoved > 0 then
+				GachaMonData.collectionRequiresSaving = true
+				SCREEN.buildCollectionData()
+			end
+			local removalMsg = string.format("%s GachaMons were removed from your collection.", numRemoved)
+			ExternalUI.BizForms.setText(form.Controls.labelWarning, removalMsg)
+			ExternalUI.BizForms.setProperty(form.Controls.labelWarning, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+		end
 	end, 130, 25)
-	form.Controls.btnClose = form:createButton(Resources.AllScreens.Cancel, 240, nextLineY, function()
+	form.Controls.btnCancel = form:createButton(Resources.AllScreens.Cancel, 240, nextLineY, function()
 		form:destroy()
 	end, 80, 25)
 end
