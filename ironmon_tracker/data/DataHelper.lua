@@ -295,7 +295,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			end
 			move.category = MoveData.getCategory(move.id, move.type)
 		elseif Options["Calculate variable damage"] then
-			MoveData.adjustForVariablePower(move, viewedPokemon, opposingPokemon)
+			MoveData.adjustVariableMoveValues(move, viewedPokemon, opposingPokemon)
 		end
 
 		-- Update: If STAB
