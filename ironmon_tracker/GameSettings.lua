@@ -441,6 +441,22 @@ function GameSettings.getRomHash()
 	end
 end
 
+---Converts a `gameversion` string (i.e. "FireRed") to a number (i.e. 3) for data storage
+---@param gameversion string
+---@return number
+function GameSettings.gameVersionToNumber(gameversion)
+	local v = { ["Ruby"] = 1, ["Emerald"] = 2, ["FireRed"] = 3, ["Sapphire"] = 4, ["LeafGreen"] = 5 }
+	return v[gameversion or false] or 0
+end
+
+---Converts a number (i.e. 3) that represents the game version back to its string (i.e. "FireRed")
+---@param num number
+---@return string
+function GameSettings.numberToGameVersion(num)
+	local v = { "Ruby", "Emerald", "FireRed", "Sapphire", "LeafGreen" }
+	return v[num or false] or Constants.HIDDEN_INFO
+end
+
 ---Gets the filepath for the Game ROM addresses JSON
 ---@param softwareVersion? number Optional, if none provided, will read in the softwareVersion from the game via the emulator
 ---@return string|nil filepath The matching filepath; or `nil` if none found

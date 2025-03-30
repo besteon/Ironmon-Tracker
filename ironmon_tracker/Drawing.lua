@@ -411,13 +411,13 @@ function Drawing.drawButton(button, shadowcolor)
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
-		if shadowcolor ~= nil then
+		if shadowcolor ~= nil and not button.noShadowBorder then
 			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
 		end
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
 	end
 
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER or (button.type == nil and text ~= "") then
 		Drawing.drawText(x + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.disabled then
@@ -497,7 +497,15 @@ end
 
 function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	if imageMatrix == nil then return end
-	colorList = colorList or imageMatrix.iconColors or Theme.COLORS["Default text"]
+	-- Determine a valid color list to use
+	if not colorList then
+		if type(imageMatrix.getColors) == "function" then
+			colorList = imageMatrix:getColors()
+		elseif imageMatrix.iconColors then
+			colorList = imageMatrix.iconColors
+		end
+		colorList = colorList or Theme.COLORS["Default text"]
+	end
 
 	-- Convert to a list if only a single color is supplied
 	if type(colorList) == "number" then

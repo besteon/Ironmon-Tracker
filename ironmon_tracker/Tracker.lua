@@ -52,7 +52,7 @@ Tracker.DefaultData = {
 	safariEncounters = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
 	hiddenPowers = {},
-	-- performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
+	-- Performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
 	initialMoveset = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
 	centerHeals = 0,

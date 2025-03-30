@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "9", minor = "1", patch = "2" }
+Main.Version = { major = "9", minor = "1", patch = "3" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -353,7 +353,7 @@ function Main.AfterStartupScreenRedirect()
 	end
 
 	if Main.Version.showReleaseNotes then
-		UpdateScreen.showNotes = true
+		Program.openOverlayScreen(UpdateScreen.Overlay)
 		Main.Version.showReleaseNotes = false
 		UpdateScreen.buildOutPagedButtons()
 		UpdateScreen.refreshButtons()
@@ -480,6 +480,7 @@ end
 function Main.ExitSafely(crashed)
 	Network.closeConnections()
 	CrashRecoveryScreen.logCrashReport(crashed == true)
+	GachaMonFileManager.trySaveCollectionOnClose()
 end
 
 ---Loads a ROM file into the emulator

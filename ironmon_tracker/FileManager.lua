@@ -25,6 +25,7 @@ FileManager.Folders = {
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
+	GachaMon = "gachamon",
 }
 
 FileManager.Files = {
@@ -42,6 +43,9 @@ FileManager.Files = {
 	KNOWN_WORKING_DIR = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt",
 	NEWRUN_PROFILES = FileManager.Folders.TrackerCode .. FileManager.slash .. "NewRunProfiles.json",
 	ADDRESS_OVERRIDES = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses .. FileManager.slash .. "TrackerOverrides.json",
+	GACHAMON_COLLECTION = FileManager.Folders.GachaMon .. FileManager.slash .. "FullCollection.gccg",
+	GACHAMON_RECENT = FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gccg",
+	GACHAMON_RATING_SYSTEM = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonRatingSystem.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -97,6 +101,8 @@ FileManager.LuaCode = {
 	{ name = "Utils", filepath = "Utils.lua", },
 	{ name = "Memory", filepath = "Memory.lua", },
 	{ name = "GameSettings", filepath = "GameSettings.lua", },
+	{ name = "StructEncoder", filepath = "StructEncoder.lua", },
+	{ name = "GachaMonFileManager", filepath = "GachaMonFileManager.lua", },
 	-- Data files
 	{ name = "PokemonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonData.lua", },
 	{ name = "PokemonRevoData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonRevoData.lua", },
@@ -109,6 +115,7 @@ FileManager.LuaCode = {
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
+	{ name = "GachaMonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonData.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
@@ -121,6 +128,7 @@ FileManager.LuaCode = {
 	{ name = "Pickle", filepath = "Pickle.lua", },
 	{ name = "Tracker", filepath = "Tracker.lua", },
 	{ name = "MGBA", filepath = "MGBA.lua", },
+	{ name = "AnimationManager", filepath = "AnimationManager.lua", },
 	-- Network files
 	{ name = "Network", filepath = FileManager.Folders.Network .. FileManager.slash .. "Network.lua", },
 	{ name = "EventHandler", filepath = FileManager.Folders.Network .. FileManager.slash .. "EventHandler.lua", },
@@ -169,6 +177,7 @@ FileManager.LuaCode = {
 	{ name = "LogTabRouteDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabRouteDetails.lua", },
 	{ name = "LogTabTMs", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTMs.lua", },
 	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
+	{ name = "GachaMonOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GachaMonOverlay.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
 	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua"},
 	{ name = "StreamConnectOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamConnectOverlay.lua", },

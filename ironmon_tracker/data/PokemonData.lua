@@ -46,7 +46,7 @@ PokemonData.Types = {
 	ICE = "ice",
 	DRAGON = "dragon",
 	DARK = "dark",
-	-- FAIRY = "fairy", -- Currently unused. Expect this to be unused in Gen 1-5
+	FAIRY = "fairy", -- Adding in just for Nat. Dex. rom hack support convenience
 	UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
 	EMPTY = "", -- No second type for this Pokémon or an empty field
 }

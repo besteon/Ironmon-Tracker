@@ -152,7 +152,7 @@ function LogTabPokemon.buildPagedButtons()
 	end
 
 	-- First main page viewed by default is the Pokemon Window, so set that up now
-	if LogOverlay.isDisplayed then
+	if Program.currentOverlay == LogOverlay then
 		LogTabPokemon.realignGrid()
 	end
 end

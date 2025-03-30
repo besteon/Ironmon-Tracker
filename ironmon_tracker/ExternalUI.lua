@@ -327,12 +327,16 @@ end
 ---@param x number
 ---@param y number
 ---@param clickFunc function? Optional, note that you usually don't need a click func for this
+---@param isChecked boolean? Optional, the starting checked/unchecked state; defaults to unchecked
 ---@return number controlId
-function ExternalUI.IBizhawkForm:createCheckbox(text, x, y, clickFunc)
+function ExternalUI.IBizhawkForm:createCheckbox(text, x, y, clickFunc, isChecked)
 	if not Main.IsOnBizhawk() then return 0 end
 	local controlId = _forms.checkbox(self.ControlId, text, x, y)
 	_helper.tryAutoSize(controlId)
 	ExternalUI.BizForms.addOnClick(controlId, clickFunc)
+	if isChecked == true then
+		ExternalUI.BizForms.setChecked(controlId, true)
+	end
 	self.CreatedControls[controlId] = ExternalUI.BizForms.ControlTypes.Checkbox
 	return controlId
 end

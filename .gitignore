@@ -8,6 +8,7 @@ Settings.ini
 *Attempts.txt
 quickload/*.jar
 quickload/*.rnqs
+gachamon/*.gccg
 extensions/*
 !extensions/How to use.txt
 !extensions/CodeExtensionTemplate.lua.txt

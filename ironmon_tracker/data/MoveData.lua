@@ -31,6 +31,7 @@ MoveData.Values = {
 	BideId = 117,
 	TransformId = 144,
 	SubstituteId = 164,
+	TripleKickId = 167,
 	NightmareId = 171,
 	CurseId = 174,
 	ProtectId = 182,
@@ -116,6 +117,7 @@ MoveData.TypeToCategory = {
 	[PokemonData.Types.ICE]      = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DRAGON]   = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DARK]     = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.FAIRY]    = MoveData.Categories.SPECIAL, -- Adding in just for Nat. Dex. rom hack support convenience
 	[PokemonData.Types.UNKNOWN]  = MoveData.Categories.NONE,
 }
 
@@ -137,6 +139,7 @@ MoveData.TypeToEffectiveness = {
 	dragon = { dragon = 2, steel = 0.5 },
 	dark = { fighting = 0.5, psychic = 2, ghost = 2, dark = 0.5, steel = 0.5 },
 	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
+	fairy = { fighting = 2, dark = 2, dragon = 2, poison = 0.5, steel = 0.5, fire = 0.5 }, -- Adding in just for Nat. Dex. rom hack support convenience
 }
 
 ---Individual formulas for calculating any changes to a move based on contextual information, such as being in battle; key=moveid, val=func
@@ -438,6 +441,49 @@ function MoveData.calcHiddenPowerTypeAndPower(ivs)
 	movePower = math.floor(moveSum * 40 / 63) + 30 -- results in 30 through 70, inclusive
 
 	return moveType, movePower
+end
+
+---Determines (guesses) at the expected numerical power of a given move. For example, average power for multi-hit moves, or max power for HP based moves.
+---@param moveId number
+---@return number
+function MoveData.getExpectedPower(moveId)
+	if not MoveData.isValid(moveId) then
+		return 0
+	end
+
+	if moveId == MoveData.Values.LowKickId then
+		return 80
+	elseif moveId == MoveData.Values.EruptionId or moveId == MoveData.Values.WaterSpoutId then
+		return 150
+	elseif moveId == MoveData.Values.FlailId or moveId == MoveData.Values.ReversalId then
+		return 80
+	elseif moveId == MoveData.Values.ReturnId then
+		return 102
+	elseif moveId == MoveData.Values.FrustrationId then
+		return 50
+	elseif moveId == MoveData.Values.TripleKickId then
+		return 60
+	end
+
+	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Variable_number_of_strikes
+	local multiHitMoves = {
+		[292] = true, [140] = true, [198] = true, [331] = true, [4] = true, [3] = true,
+		[31] = true, [154] = true, [333] = true, [42] = true, [350] = true, [131] = true
+	}
+	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Fixed_number_of_multiple_strikes
+	local doubleHitMoves = {
+		[155] = true, [24] = true
+	}
+
+	local power = tonumber(MoveData.Moves[moveId].power) or 0
+	if doubleHitMoves[moveId] then
+		return (power * 2)
+	elseif multiHitMoves[moveId] then
+		-- Average of 3 hits
+		return (power * 3)
+	end
+
+	return power
 end
 
 ---Adjusts the move table data based on any variable damage calculations, or other attributes; No return, as this edits the move table directly.

@@ -448,6 +448,28 @@ function Utils.getNatureMultiplier(stat, nature)
 	return 1
 end
 
+---Converts an IV table of 6 stats to a single number, each value occupies 5 bits; identical to game's Pokémon data structure
+---@param ivs table
+---@return number
+function Utils.convertIVsTableToNumber(ivs)
+	return ivs.hp + Utils.bit_lshift(ivs.atk, 5) + Utils.bit_lshift(ivs.def, 10)
+		+ Utils.bit_lshift(ivs.spe, 15) + Utils.bit_lshift(ivs.spa, 20) + Utils.bit_lshift(ivs.spd, 25)
+end
+
+---Converts an IV number (single value but each stat occupies 5 bits) to a table with 6 stat keys; Refer to game's Pokémon data structure
+---@param ivsAsNumber number
+---@return table
+function Utils.convertIVNumberToTable(ivsAsNumber)
+	return {
+		hp = Utils.getbits(ivsAsNumber, 0, 5),
+		atk = Utils.getbits(ivsAsNumber, 5, 5),
+		def = Utils.getbits(ivsAsNumber, 10, 5),
+		spa = Utils.getbits(ivsAsNumber, 20, 5),
+		spd = Utils.getbits(ivsAsNumber, 25, 5),
+		spe = Utils.getbits(ivsAsNumber, 15, 5),
+	}
+end
+
 -- Returns a slightly darkened color
 function Utils.calcShadowColor(color, scale)
 	scale = scale or 0.92

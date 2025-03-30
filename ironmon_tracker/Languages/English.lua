@@ -713,6 +713,17 @@ ScreenResources{
 		FilterTrainerName = "Trainer Name",
 		FilterRouteName = "Route Name",
 	},
+	GachaMonOverlay = {
+		TabView = "View",
+		TabRecent = "Recent",
+		TabCollection = "Collection",
+		TabBattle = "Battle",
+		TabOptions = "Options",
+		TabAbout = "(?)",
+		OptionShowGachaMonInCarouselBox = "Show new GachaMons in bottom box",
+		OptionAutoAddGachaMonToCollection = "Auto save to collection after defeating 2 trainers",
+		OptionAnimateGachaMonPackOpening = "Animate GachaMon pack opening",
+	},
 	TeamViewArea = {
 		EggNickname = "EGG",
 	},

@@ -457,6 +457,29 @@ TrackerScreen.Buttons = {
 			end
 		end
 	},
+	GachaMonSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.POKEBALL,
+		iconColors = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, },
+		getText = function(self) return self.updatedText or "" end,
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.GACHAMON end,
+		onClick = function(self)
+			-- if not self.animation and GachaMonData.hasNewestMonToShow() then
+			-- 	Utils.printDebug("--- Clicked #1")
+			-- 	local x, y = Constants.SCREEN.WIDTH + 20, 30
+			-- 	self.animation = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
+			-- elseif self.animation and not self.animation.IsActive then
+			-- 	Utils.printDebug("--- Clicked #2")
+			-- 	AnimationManager.tryAddAnimationToActive(self.animation)
+			-- -- elseif -- TODO: ? skip the animation by clicking again
+			-- end
+			Program.openOverlayScreen(GachaMonOverlay)
+			Program.redraw(true)
+		end,
+	},
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -468,6 +491,7 @@ TrackerScreen.CarouselTypes = {
 	NOTES = 5, -- During battle
 	BATTLE_DETAILS = 6, -- During battle
 	PEDOMETER = 7, -- Outside of battle
+	GACHAMON = 8, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -609,7 +633,7 @@ function TrackerScreen.buildCarousel()
 			if not Options["Allow carousel rotation"] and TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER]:canShow() then
 				return false
 			end
-			return Battle.isViewingOwn and not showEarlyRouteEncounters()
+			return Battle.isViewingOwn and not GachaMonData.hasNewestMonToShow() and not showEarlyRouteEncounters()
 		end,
 		getContentList = function(self)
 			local badgeButtons = {}
@@ -720,7 +744,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselRouteInfo.toggleState then
 				return false
 			end
-			if showEarlyRouteEncounters() then
+			if not GachaMonData.hasNewestMonToShow() and showEarlyRouteEncounters() then
 				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
 				return true
 			else
@@ -771,7 +795,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselPedometer.toggleState then
 				return false
 			end
-			return Battle.isViewingOwn and Program.Pedometer:isInUse()
+			return Battle.isViewingOwn and not GachaMonData.hasNewestMonToShow() and Program.Pedometer:isInUse()
 		end,
 		getContentList = function(self)
 			TrackerScreen.Buttons.PedometerStepText:updateSelf()
@@ -826,6 +850,26 @@ function TrackerScreen.buildCarousel()
 				return { TrackerScreen.Buttons.TrainerSummary }
 			else
 				return TrackerScreen.Buttons.TrainerSummary.updatedText or ""
+			end
+		end,
+	}
+
+	--  GACHAMON
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.GACHAMON] = {
+		type = TrackerScreen.CarouselTypes.GACHAMON,
+		framesToShow = 420,
+		canShow = function(self)
+			if not Options["Show GachaMon catch info in Carousel box"] then
+				return false
+			end
+			return GachaMonData.hasNewestMonToShow()
+		end,
+		getContentList = function(self)
+			TrackerScreen.Buttons.GachaMonSummary.updatedText = string.format(" %s", "New GachaMon captured!")
+			if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.GachaMonSummary }
+			else
+				return TrackerScreen.Buttons.GachaMonSummary.updatedText or ""
 			end
 		end,
 	}
@@ -1016,6 +1060,11 @@ function TrackerScreen.drawScreen()
 		TrackerScreen.drawFavorites()
 	else
 		TrackerScreen.drawMovesArea(displayData)
+	end
+
+	local packAnimation = TrackerScreen.Buttons.GachaMonSummary.animation
+	if packAnimation then
+		AnimationManager.drawAnimation(packAnimation)
 	end
 end
 
