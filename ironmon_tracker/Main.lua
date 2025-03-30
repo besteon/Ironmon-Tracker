@@ -352,10 +352,10 @@ function Main.AfterStartupScreenRedirect()
 		return
 	end
 
-	if Main.Version.showReleaseNotes then
+	-- TODO: Fix this on 9.2.0 release
+	if false and Main.Version.showReleaseNotes then
 		Program.openOverlayScreen(UpdateScreen.Overlay)
 		Main.Version.showReleaseNotes = false
-		UpdateScreen.buildOutPagedButtons()
 		UpdateScreen.refreshButtons()
 		Main.SaveSettings(true)
 	end
