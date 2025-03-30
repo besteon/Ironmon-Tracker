@@ -784,4 +784,10 @@ function Tracker.AutoSave.loadFromFile()
 		FileManager.CopyFile(fileToLoad, Tracker.AutoSave.Tdat)
 		FileManager.deleteFile(fileToLoad)
 	end
+
+	-- Output to console the Tracker data load status to help with troubleshooting
+	local loadStatusMessage = Resources.StartupScreen[Tracker.LoadStatus or false]
+	if loadStatusMessage then
+		print(string.format("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage))
+	end
 end
