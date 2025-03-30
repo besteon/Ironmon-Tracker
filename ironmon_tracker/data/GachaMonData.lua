@@ -23,6 +23,14 @@ GachaMonData = {
 }
 
 --[[
+TESTING LIST
+- [Test] Deleting stuff from collection
+- [Test] Nat Dex capture then swap to non-nat dex
+- [Test] Playing a few normal games and catching 7+ pokemon in each
+- [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think)
+]]
+
+--[[
 TODO LIST
 - [UI] Create a tiny GachaMon logo icon
 - [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
@@ -33,11 +41,6 @@ TODO LIST
 - [UI] Options: add "clean up collection" functionality to easily delete non-favorite cards with certain criteria; display total to be removed
    - Cleanup filters are probably just # stars. Warn before cleaning up how many total will get removed.
 - Optional: Show collection completion status somehow.
-TESTING LIST
-- [Test] Deleting stuff from collection
-- [Test] Nat Dex capture then swap to non-nat dex
-- [Test] Playing a few normal games and catching 7+ pokemon in each
-- [Test] Evo a captured mon
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
 ]]
@@ -78,10 +81,10 @@ function GachaMonData.test()
 	-- end
 
 	-- OPEN THE OVERLAY
-	Program.openOverlayScreen(GachaMonOverlay)
-	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.About
-	GachaMonOverlay.refreshButtons()
-	Program.redraw(true)
+	-- Program.openOverlayScreen(GachaMonOverlay)
+	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.About
+	-- GachaMonOverlay.refreshButtons()
+	-- Program.redraw(true)
 
 	local k, v = next(GachaMonData.RecentMons)
 	if v then
@@ -293,6 +296,49 @@ function GachaMonData.calculateStars(gachamon)
 		end
 	end
 	return 0
+end
+
+---Creates a fake, random GachaMon; mostly to show what a sample card looks like
+---@return IGachaMon gachamon
+function GachaMonData.createRandomGachaMon()
+	local gachamon = GachaMonData.IGachaMon:new({
+		Version = GachaMonFileManager.Version,
+		Personality = -1,
+		PokemonId = Utils.randomPokemonID(),
+		Level = math.random(1, 100),
+		AbilityId = math.random(1, #AbilityData.Abilities),
+		SeedNumber = math.random(1, 29999),
+		Temp = {
+			Stats = {},
+			MoveIds = {
+				math.random(1, #MoveData.Moves),
+				math.random(1, #MoveData.Moves),
+				math.random(1, #MoveData.Moves),
+				math.random(1, #MoveData.Moves),
+			},
+			GameVersion = math.random(1, 5),
+			IsShiny = 0,
+			Gender = math.random(1, 2),
+			Nature = math.random(0, 24),
+			DateTimeObtained = os.time(),
+		},
+	})
+
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES or {}) do
+		gachamon.Temp.Stats[statKey] = gachamon.Level * math.random(1, 4)
+	end
+
+	gachamon:compressStatsHpAtkDef()
+	gachamon:compressStatsSpaSpdSpe()
+	gachamon:compressMoveIdsGameVersionKeep()
+	gachamon:compressShinyGenderNature()
+	gachamon:compressDateObtained()
+
+	gachamon.RatingScore = math.random(1, 71)
+	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
+	gachamon.BattlePower = (gachamon.Temp.Stars + math.random(0, 3)) * 1000
+
+	return gachamon
 end
 
 ---Transforms the GachaMon data into a shareable base-64 string. Example: AeAANkgYMEQkm38tWQAaAEYBKwE=

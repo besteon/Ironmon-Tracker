@@ -467,16 +467,16 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.GACHAMON end,
 		onClick = function(self)
-			if not self.animation and GachaMonData.hasNewestMonToShow() then
-				Utils.printDebug("--- Clicked #1")
-				local x, y = Constants.SCREEN.WIDTH + 20, 30
-				self.animation = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
-			elseif self.animation and not self.animation.IsActive then
-				Utils.printDebug("--- Clicked #2")
-				AnimationManager.tryAddAnimationToActive(self.animation)
-			-- elseif -- TODO: ? skip the animation by clicking again
-			end
-			-- Program.openOverlayScreen(GachaMonOverlay, true)
+			-- if not self.animation and GachaMonData.hasNewestMonToShow() then
+			-- 	Utils.printDebug("--- Clicked #1")
+			-- 	local x, y = Constants.SCREEN.WIDTH + 20, 30
+			-- 	self.animation = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
+			-- elseif self.animation and not self.animation.IsActive then
+			-- 	Utils.printDebug("--- Clicked #2")
+			-- 	AnimationManager.tryAddAnimationToActive(self.animation)
+			-- -- elseif -- TODO: ? skip the animation by clicking again
+			-- end
+			Program.openOverlayScreen(GachaMonOverlay)
 			Program.redraw(true)
 		end,
 	},

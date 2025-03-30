@@ -43,8 +43,6 @@ GachaMonOverlay = {
 	},
 	Data = {},
 	GACHAMONS_PER_PAGE = 6,
-	-- TODO: Eventually want an Espeon card (or shuckle or zangoose)
-	SAMPLE_CARD = "AW4EQMsniQgsEJsGGzjAAAowkAAbBdxSuFx5Mg==",
 	hasShinyToDraw = false,
 	shinyFrameCounter = 0,
 	currentTab = nil,
@@ -722,9 +720,9 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	ImportCode = {
+	AddOpponent = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.TRIANGLE_DOWN,
+		image = Constants.PixelImages.SWORD_ATTACK,
 		iconColors = { SCREEN.Colors.highlight },
 		getText = function(self) return "Add Opponent" end,
 		box = { CANVAS.X + 123, CANVAS.Y + 123, 82, 18, },
@@ -795,13 +793,13 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			Drawing.drawText(x + 4, y, headerText, highlight, nil, 14)
 			y = y + Constants.SCREEN.LINESPACING + 7
 			-- SLOGAN
-			local nameText = "Play IronMON, collect GachaMon cards!"
+			local nameText = "Play IronMON,  collect GachaMon cards!"
 			local nameTextX = Utils.getCenteredTextX(nameText, w) - 2
 			Drawing.drawText(x + nameTextX, y, nameText, color, shadowcolor)
 		end,
 	},
 	HowItWorks = {
-		box = { CANVAS.X + 5, CANVAS.Y + 42, 150, 50, },
+		box = { CANVAS.X + 5, CANVAS.Y + 39, 150, 60, },
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			local color = Theme.COLORS[SCREEN.Colors.text]
@@ -812,16 +810,17 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("1. %s", "Catch Pokémon"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("1.  %s", "Catch Pokémon"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("2. %s", "Acquire GachaMon cards"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("2.  %s", "Acquire GachaMon cards"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("3. %s", "Keep cards in your Collection"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("3.  %s", "Keep cards in your Collection"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
+			Drawing.drawText(x, y, string.format("4.  %s", "Battle!"), color, shadowcolor)
 		end,
 	},
 	WhatsOnCard = {
-		box = { CANVAS.X + 5, CANVAS.Y + 102, 150, 40, },
+		box = { CANVAS.X + 5, CANVAS.Y + 103, 150, 40, },
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			local color = Theme.COLORS[SCREEN.Colors.text]
@@ -832,22 +831,26 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("%s %s %s", "Stars", Constants.BLANKLINE, "The Pokémon's rating"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("%s  %s  %s", "Stars", Constants.BLANKLINE, "The Pokémon's rating"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("%s %s %s", "Battle Power", Constants.BLANKLINE, "The card's strength"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("%s  %s  %s", "Battle Power", Constants.BLANKLINE, "The card's strength"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
 		end,
 	},
 	SampleGachaMonCard = {
 		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 45, 76, 76, },
 		gachamon = nil,
+		randomizeCard = function(self)
+			self.gachamon = GachaMonData.createRandomGachaMon()
+		end,
 		updateSelf = function(self)
 			if not self.gachamon then
-				self.gachamon = GachaMonData.transformCodeIntoGachaMon(SCREEN.SAMPLE_CARD)
-				if self.gachamon then
-					self.gachamon.Favorite = 0
-				end
+				self:randomizeCard()
 			end
+		end,
+		onClick = function(self)
+			self:randomizeCard()
+			Program.redraw(true)
 		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -1032,6 +1035,7 @@ function GachaMonOverlay.buildData()
 		Collection = {},
 		Battle = {},
 		Options = {},
+		About = {},
 	}
 
 	SCREEN.buildRecentData()
@@ -1050,6 +1054,8 @@ function GachaMonOverlay.buildData()
 	if not SCREEN.Data.ViewedMon then
 		SCREEN.Data.ViewedMon = SCREEN.Data.Recent.OrderedGachaMons[1]
 	end
+
+	SCREEN.Tabs.About.Buttons.SampleGachaMonCard:randomizeCard()
 end
 
 ---Builds the data tables necessary for the tabs to diplsay the cards in the Recent caught GachaMons
@@ -1286,7 +1292,7 @@ function GachaMonOverlay.openFilterSettingsWindow(tabKey)
 	nextLineY = nextLineY + 28
 	nextLineY = _createFilterControls(form, 20, nextLineY, true)
 
-	form.Controls.btnApplyFilter = form:createButton("Apply Filters", 30, nextLineY, function()
+	form.Controls.btnApplyFilter = form:createButton("Apply Filters", 40, nextLineY, function()
 		SCREEN.Data[tabKey].FilterFunc = _buildFilterFunc(form)
 		if tabKey == "Recent" then
 			SCREEN.buildRecentData()
@@ -1297,7 +1303,7 @@ function GachaMonOverlay.openFilterSettingsWindow(tabKey)
 		Program.redraw(true)
 		form:destroy()
 	end, 110, 25)
-	form.Controls.btnResetFilter = form:createButton("Reset Filters", 155, nextLineY, function()
+	form.Controls.btnResetFilter = form:createButton("( Reset )", 175, nextLineY, function()
 		if SCREEN.Data[tabKey].FilterFunc ~= nil then
 			SCREEN.Data[tabKey].FilterFunc = nil
 			if tabKey == "Recent" then
@@ -1309,7 +1315,7 @@ function GachaMonOverlay.openFilterSettingsWindow(tabKey)
 			Program.redraw(true)
 		end
 		form:destroy()
-	end, 110, 25)
+	end, 80, 25)
 	form.Controls.btnClose = form:createButton(Resources.AllScreens.Cancel, 280, nextLineY, function()
 		form:destroy()
 	end, 80, 25)
