@@ -330,10 +330,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			local keep = SCREEN.Data.ViewedMon and SCREEN.Data.ViewedMon:getKeep() or 0
 			if keep == 1 then
 				self.image = Constants.PixelImages.CHECKMARK
-				self.iconColors = { SCREEN.Colors.positive }
+				self.getText = function() return "In Collection" end
 			else
-				self.image = Constants.PixelImages.CROSS
-				self.iconColors = { SCREEN.Colors.text }
+				self.image = nil
+				self.getText = function() return "" end
 			end
 		end,
 		onClick = function(self)
@@ -352,6 +352,12 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local keep = SCREEN.Data.ViewedMon and SCREEN.Data.ViewedMon:getKeep() or 0
+			if keep ~= 1 then
+				local text = "Add to Collection"
+				local color = Theme.COLORS[SCREEN.Colors.text]
+				Drawing.drawText(x + 4, y + 2, text, color, shadowcolor)
+			end
 			-- Draw single shadow line
 			gui.drawLine(x + 1, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
 		end,
