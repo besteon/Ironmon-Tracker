@@ -10,20 +10,20 @@ GachaMonOverlay = {
 		headerText = "Header text",
 	},
 	Tabs = {
-		View = {
-			index = 1,
-			tabKey = "View",
-			resourceKey = "TabView",
-		},
 		Recent = {
-			index = 2,
+			index = 1,
 			tabKey = "Recent",
 			resourceKey = "TabRecent",
 		},
 		Collection = {
-			index = 3,
+			index = 2,
 			tabKey = "Collection",
 			resourceKey = "TabCollection",
+		},
+		View = {
+			index = 3,
+			tabKey = "View",
+			resourceKey = "TabView",
 		},
 		Battle = {
 			index = 4,
@@ -35,9 +35,16 @@ GachaMonOverlay = {
 			tabKey = "Options",
 			resourceKey = "TabOptions",
 		},
+		About = {
+			index = 6,
+			tabKey = "About",
+			resourceKey = "TabAbout",
+		},
 	},
 	Data = {},
 	GACHAMONS_PER_PAGE = 6,
+	-- TODO: Eventually want an Espeon card (or shuckle or zangoose)
+	SAMPLE_CARD = "AW4EQMsniQgsEJsGGzjAAAowkAAbBdxSuFx5Mg==",
 	hasShinyToDraw = false,
 	shinyFrameCounter = 0,
 	currentTab = nil,
@@ -773,6 +780,89 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	},
 }
 
+GachaMonOverlay.Tabs.About.Buttons = {
+	Header = {
+		box = { CANVAS.X + 3, CANVAS.Y + 2, CANVAS.W - 8, 16, },
+		draw = function(self, shadowcolor)
+			local x, y, w = self.box[1], self.box[2], self.box[3]
+			local color = Theme.COLORS[SCREEN.Colors.text]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			-- NAME & GENDER
+			local headerText = "GachaMon  Collectable  Card  Game"
+			if Theme.DRAW_TEXT_SHADOWS then
+				Drawing.drawText(x + 4 + 1, y + 1, headerText, shadowcolor, nil, 14)
+			end
+			Drawing.drawText(x + 4, y, headerText, highlight, nil, 14)
+			y = y + Constants.SCREEN.LINESPACING + 7
+			-- SLOGAN
+			local nameText = "Play IronMON, collect GachaMon cards!"
+			local nameTextX = Utils.getCenteredTextX(nameText, w) - 2
+			Drawing.drawText(x + nameTextX, y, nameText, color, shadowcolor)
+		end,
+	},
+	HowItWorks = {
+		box = { CANVAS.X + 5, CANVAS.Y + 42, 150, 50, },
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local color = Theme.COLORS[SCREEN.Colors.text]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			local headerText = Utils.toUpperUTF8("How it works")
+			local headertW = Utils.calcWordPixelLength(headerText)
+			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
+			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
+			y = y + Constants.SCREEN.LINESPACING + 2
+			Drawing.drawText(x, y, string.format("1. %s", "Catch Pokémon"), color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING + 1
+			Drawing.drawText(x, y, string.format("2. %s", "Acquire GachaMon cards"), color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING + 1
+			Drawing.drawText(x, y, string.format("3. %s", "Keep cards in your Collection"), color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING + 1
+		end,
+	},
+	WhatsOnCard = {
+		box = { CANVAS.X + 5, CANVAS.Y + 102, 150, 40, },
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local color = Theme.COLORS[SCREEN.Colors.text]
+			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			local headerText = Utils.toUpperUTF8("What's on a Card")
+			local headertW = Utils.calcWordPixelLength(headerText)
+			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
+			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
+			y = y + Constants.SCREEN.LINESPACING + 2
+			Drawing.drawText(x, y, string.format("%s %s %s", "Stars", Constants.BLANKLINE, "The Pokémon's rating"), color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING + 1
+			Drawing.drawText(x, y, string.format("%s %s %s", "Battle Power", Constants.BLANKLINE, "The card's strength"), color, shadowcolor)
+			y = y + Constants.SCREEN.LINESPACING + 1
+		end,
+	},
+	SampleGachaMonCard = {
+		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 45, 76, 76, },
+		gachamon = nil,
+		updateSelf = function(self)
+			if not self.gachamon then
+				self.gachamon = GachaMonData.transformCodeIntoGachaMon(SCREEN.SAMPLE_CARD)
+				if self.gachamon then
+					self.gachamon.Favorite = 0
+				end
+			end
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			-- Draw containment border
+			gui.drawRectangle(x - 1, y - 1, w + 2, h + 2, border, Drawing.Colors.BLACK)
+			gui.drawLine(x, y + h + 2, x + w, y + h + 2, shadowcolor)
+
+			-- Draw card
+			local card = self.gachamon and self.gachamon:getCardDisplayData() or {}
+			GachaMonOverlay.drawGachaCard(card, x, y, 4, false, false)
+		end,
+	},
+}
+
 local function _getCurrentTabButtons()
 	return SCREEN.currentTab and SCREEN.currentTab.Buttons or {}
 end
@@ -913,16 +1003,16 @@ function GachaMonOverlay.createTabsAndButtons()
 	startY = CANVAS.Y + 4
 	local optionKeyMap = {
 		{ "Show GachaMon catch info in Carousel box", "OptionShowGachaMonInCarouselBox", },
-		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
+		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },
 	}
 	for _, optionTuple in ipairs(optionKeyMap) do
-		local textWidth = Utils.calcWordPixelLength(Resources[SCREEN.Key][optionTuple[2]])
+		local textWidth = Utils.calcWordPixelLength(" " .. Resources[SCREEN.Key][optionTuple[2]])
 		textWidth = math.max(textWidth, 50) -- minimum 50 pixels
 		SCREEN.Tabs.Options.Buttons[optionTuple[1]] = {
 			type = Constants.ButtonTypes.CHECKBOX,
 			optionKey = optionTuple[1],
-			getText = function(self) return Resources[SCREEN.Key][optionTuple[2]] end,
+			getText = function(self) return " " .. Resources[SCREEN.Key][optionTuple[2]] end,
 			clickableArea = { startX, startY, textWidth + 8, 8 },
 			box = {	startX, startY, 8, 8 },
 			toggleState = Options[optionTuple[1]],

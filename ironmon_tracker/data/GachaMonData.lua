@@ -25,6 +25,7 @@ GachaMonData = {
 --[[
 TODO LIST
 - [UI] Create a tiny GachaMon logo icon
+- [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
 - [Animation] Shiny has a rainbow / animated frame border
 - [Animation] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
@@ -77,10 +78,10 @@ function GachaMonData.test()
 	-- end
 
 	-- OPEN THE OVERLAY
-	-- Program.openOverlayScreen(GachaMonOverlay)
-	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Battle
-	-- GachaMonOverlay.refreshButtons()
-	-- Program.redraw(true)
+	Program.openOverlayScreen(GachaMonOverlay)
+	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.About
+	GachaMonOverlay.refreshButtons()
+	Program.redraw(true)
 
 	local k, v = next(GachaMonData.RecentMons)
 	if v then

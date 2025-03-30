@@ -477,6 +477,7 @@ TrackerScreen.Buttons = {
 			-- elseif -- TODO: ? skip the animation by clicking again
 			end
 			-- Program.openOverlayScreen(GachaMonOverlay, true)
+			Program.redraw(true)
 		end,
 	},
 }
