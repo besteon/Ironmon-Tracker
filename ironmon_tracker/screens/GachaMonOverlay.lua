@@ -816,7 +816,7 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("1.  %s", "Catch Pokémon"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("1.  %s", "Catch " .. Resources.AllScreens.Pokemon), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
 			Drawing.drawText(x, y, string.format("2.  %s", "Acquire GachaMon cards"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
@@ -837,7 +837,7 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("%s  %s  %s", "Stars", Constants.BLANKLINE, "The Pokémon's rating"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("%s  %s  %s", "Stars", Constants.BLANKLINE, "The " .. Resources.AllScreens.Pokemon .. "'s rating"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
 			Drawing.drawText(x, y, string.format("%s  %s  %s", "Battle Power", Constants.BLANKLINE, "The card's strength"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
@@ -1011,6 +1011,7 @@ function GachaMonOverlay.createTabsAndButtons()
 	startX = CANVAS.X + 4
 	startY = CANVAS.Y + 48
 	local optionKeyMap = {
+		{ "Hide Pokemon stats until GachaMon viewed", "OptionHideStatsUntilViewed", },
 		{ "Show GachaMon catch info in Carousel box", "OptionShowGachaMonInCarouselBox", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
 		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },

@@ -720,6 +720,7 @@ ScreenResources{
 		TabBattle = "Battle",
 		TabOptions = "Options",
 		TabAbout = "(?)",
+		OptionHideStatsUntilViewed = "Hide Pokémon stats until GachaMon viewed",
 		OptionShowGachaMonInCarouselBox = "Show new GachaMons in bottom box",
 		OptionAutoAddGachaMonToCollection = "Auto save to collection after defeating 2 trainers",
 		OptionAnimateGachaMonPackOpening = "Animate GachaMon pack opening",

@@ -51,6 +51,7 @@ Options = {
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
 	["Active Profile"] = "",
+	["Hide Pokemon stats until GachaMon viewed"] = false,
 	["Show GachaMon catch info in Carousel box"] = true,
 	["Animate GachaMon pack opening"] = true,
 	["Add GachaMon to collection after defeating a trainer"] = true,
