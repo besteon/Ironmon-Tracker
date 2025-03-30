@@ -1,7 +1,10 @@
 MoveData = {}
 
 MoveData.Values = {
+	GuillotineId = 12,
+	HornDrillId = 32,
 	LowKickId = 67,
+	FissureId = 90,
 	FlailId = 175,
 	ReversalId = 179,
 	ReturnId = 216,
@@ -12,6 +15,7 @@ MoveData.Values = {
 	SkillSwapId = 285,
 	WeatherBallId = 311,
 	WaterSpoutId = 323,
+	SheerColdId = 329,
 
 	-- The below are used by the BattleDetailsScreen
 	PayDayId = 6,
@@ -136,6 +140,90 @@ MoveData.TypeToEffectiveness = {
 	dark = { fighting = 0.5, psychic = 2, ghost = 2, dark = 0.5, steel = 0.5 },
 	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
 	fairy = { fighting = 2, dark = 2, dragon = 2, poison = 0.5, steel = 0.5, fire = 0.5 }, -- Adding in just for Nat. Dex. rom hack support convenience
+}
+
+---Individual formulas for calculating any changes to a move based on contextual information, such as being in battle; key=moveid, val=func
+---@type table<number, function>
+MoveData.MoveValueAdjustmentFuncs = {
+	[MoveData.Values.WeatherBallId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
+		move.category = MoveData.getCategory(move.id, move.type)
+	end,
+	[MoveData.Values.LowKickId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local pokemonInternal = PokemonData.Pokemon[targetPokemon.pokemonID or false] or PokemonData.BlankPokemon
+		local targetWeight = targetPokemon.weight or pokemonInternal.weight or 0
+		move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
+	end,
+	[MoveData.Values.FlailId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateLowHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.ReversalId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateLowHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.EruptionId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateHighHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.WaterSpoutId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateHighHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.ReturnId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal Friendship for player's pokemon, not enemy
+		move.power = Utils.calculateFriendshipBasedDamage(move.power, sourcePokemon.friendship or 0)
+	end,
+	[MoveData.Values.FrustrationId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal Friendship for player's pokemon, not enemy
+		move.power = Utils.calculateFriendshipBasedDamage(move.power, sourcePokemon.friendship or 0)
+	end,
+	[MoveData.Values.GuillotineId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
+	[MoveData.Values.HornDrillId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
+	[MoveData.Values.FissureId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
+	[MoveData.Values.SheerColdId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
 }
 
 -- Is true when a Status move fails/doesn't work against a checked move type
@@ -396,6 +484,19 @@ function MoveData.getExpectedPower(moveId)
 	end
 
 	return power
+end
+
+---Adjusts the move table data based on any variable damage calculations, or other attributes; No return, as this edits the move table directly.
+---@param move table
+---@param sourcePokemon? table Optional, as not all move adjustment calculations require a source and/or a target
+---@param targetPokemon? table Optional, as not all move adjustment calculations require a source and/or a target
+function MoveData.adjustVariableMoveValues(move, sourcePokemon, targetPokemon)
+	sourcePokemon = sourcePokemon or {}
+	targetPokemon = targetPokemon or {}
+	local adjustmentFunc = MoveData.MoveValueAdjustmentFuncs[tonumber(move.id or 0) or false]
+	if type(adjustmentFunc) == "function" then
+		adjustmentFunc(move, sourcePokemon, targetPokemon)
+	end
 end
 
 MoveData.BlankMove = {

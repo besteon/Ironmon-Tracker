@@ -372,7 +372,7 @@ end
 ---@param language string|table ENGLISH, SPANISH, GERMAN, FRENCH, ITALIAN, or a Resources.Language table
 function TrackerAPI.setLanguage(language)
 	if type(language) == "string" then
-		Resources.changeLanguageSetting(Resources[language:upper()], true)
+		Resources.changeLanguageSetting(Resources.Languages[language:upper()], true)
 	elseif type(language) == "table" then
 		Resources.changeLanguageSetting(language, true)
 	end
