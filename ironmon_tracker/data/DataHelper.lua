@@ -372,6 +372,13 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
 	data.x.pcheals = Tracker.Data.centerHeals
 
+	local gachamon = viewedPokemon.personality and GachaMonData.RecentMons[viewedPokemon.personality]
+	if gachamon then
+		data.x.gachamonStars = gachamon:getStars()
+	else
+		data.x.gachamonStars = 0
+	end
+
 	data.x.route = Constants.BLANKLINE
 	if RouteData.hasRoute(Program.GameData.mapId) then
 		data.x.route = RouteData.Info[Program.GameData.mapId].name or Constants.BLANKLINE

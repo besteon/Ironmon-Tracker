@@ -531,6 +531,8 @@ function Tracker.getDefaultPokemon()
 		bst = PokemonData.BlankPokemon.bst,
 		movelvls = { {}, {} },
 		weight = PokemonData.BlankPokemon.weight,
+		friendship = PokemonData.Values.DefaultBaseFriendship,
+		friendshipBase = PokemonData.Values.DefaultBaseFriendship,
 	})
 end
 

@@ -144,6 +144,37 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	GachaMonStars = {
+		box = { Constants.SCREEN.WIDTH + 61, 58, 38, 21 },
+		isVisible = function() return Battle.isViewingOwn and Options["Show GachaMon stars on main Tracker Screen"] and not Options["Track PC Heals"] and Tracker.getViewedPokemon() ~= nil end,
+		onClick = function(self)
+			if Program.isScreenOverlayOpen() and Program.currentOverlay ~= GachaMonOverlay then
+				Program.closeScreenOverlay()
+			elseif Program.currentOverlay == GachaMonOverlay then
+				return
+			end
+			Program.openOverlayScreen(GachaMonOverlay)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+			if gachamon then
+				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
+				GachaMonOverlay.Data.ViewedMon = gachamon
+			end
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+			if gachamon then
+				local x, y = self.box[1], self.box[2]
+				local numStars = gachamon:getStars() or 0
+				if numStars < 5 then
+					y = y + 3
+				end
+				GachaMonOverlay.drawGachaMonStars(numStars, x, y + 1)
+			end
+		end,
+	},
 	LogViewerQuickAccess = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
@@ -246,7 +277,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + 37, 46, 63, 11},
+		clickableArea = { Constants.SCREEN.WIDTH + 37, 46, 63, 10},
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return true end,
 		onClick = function(self)
@@ -273,7 +304,7 @@ TrackerScreen.Buttons = {
 	HealsInBag = {
 		-- Invisible clickable button
 		type = Constants.ButtonTypes.NO_BORDER,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 55, 21 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 54, 21 },
 		isVisible = function() return Battle.isViewingOwn end,
 		onClick = function(self)
 			HealsInBagScreen.changeTab(HealsInBagScreen.Tabs.All)
@@ -1235,6 +1266,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			end
 			Drawing.drawText(incBtn.box[1], incBtn.box[2], incBtn:getText(), Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
 			Drawing.drawText(decBtn.box[1], decBtn.box[2], decBtn:getText(), Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
+		elseif Options["Show GachaMon stars on main Tracker Screen"] then
+			Drawing.drawButton(TrackerScreen.Buttons.GachaMonStars, shadowcolor)
 		else
 			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end

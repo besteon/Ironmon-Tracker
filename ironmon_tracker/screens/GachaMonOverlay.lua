@@ -330,10 +330,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			local keep = SCREEN.Data.ViewedMon and SCREEN.Data.ViewedMon:getKeep() or 0
 			if keep == 1 then
 				self.image = Constants.PixelImages.CHECKMARK
-				self.iconColors = { SCREEN.Colors.positive }
+				self.getText = function() return "In Collection" end
 			else
-				self.image = Constants.PixelImages.CROSS
-				self.iconColors = { SCREEN.Colors.text }
+				self.image = nil
+				self.getText = function() return "" end
 			end
 		end,
 		onClick = function(self)
@@ -352,6 +352,12 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local keep = SCREEN.Data.ViewedMon and SCREEN.Data.ViewedMon:getKeep() or 0
+			if keep ~= 1 then
+				local text = "Add to Collection"
+				local color = Theme.COLORS[SCREEN.Colors.text]
+				Drawing.drawText(x + 4, y + 2, text, color, shadowcolor)
+			end
 			-- Draw single shadow line
 			gui.drawLine(x + 1, y + h + 1, x + w - 1, y + h + 1, shadowcolor)
 		end,
@@ -1012,6 +1018,7 @@ function GachaMonOverlay.createTabsAndButtons()
 	startY = CANVAS.Y + 48
 	local optionKeyMap = {
 		{ "Hide Pokemon stats until GachaMon viewed", "OptionHideStatsUntilViewed", },
+		{ "Show GachaMon stars on main Tracker Screen", "OptionShowGachaMonStarsOnTracker", },
 		{ "Show GachaMon catch info in Carousel box", "OptionShowGachaMonInCarouselBox", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
 		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },
@@ -1511,6 +1518,44 @@ function GachaMonOverlay.openCleanupCollectionWindow()
 	end, 80, 25)
 end
 
+---comment
+---@param numStars number
+---@param x number
+---@param y number
+function GachaMonOverlay.drawGachaMonStars(numStars, x, y)
+	if numStars < 1 then
+		return
+	end
+	local needsTwoLines = (numStars >= 5)
+	local icon = Constants.PixelImages.STAR
+	local iconColors = icon:getColors()
+	iconColors[4] = Drawing.ColorEffects.DARKEN * 2
+	local iconSize = 9
+	-- Use Platinum colors for highest rarity (5+ stars)
+	if numStars > 5 then
+		iconColors[1] = 0xFFEEEEEE
+		iconColors[2] = 0xFFCCCCCC
+		numStars = 5
+	end
+	if numStars == 5 then
+		iconSize = iconSize + 1
+	end
+	if needsTwoLines then
+		x = x + 3
+	end
+	-- Draw the stars
+	for i = 1, numStars, 1 do
+		local iX = x + 1 + iconSize * (i - 1)
+		local iY = y + 1
+		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
+		if i >= 4 and needsTwoLines then
+			iX = iX + 5 - 3 * iconSize
+			iY = iY + iconSize - 4
+		end
+		Drawing.drawImageAsPixels(icon, iX, iY, iconColors)
+	end
+end
+
 ---Draws a GachaMon card
 ---@param card table
 ---@param borderPadding? number Optional, defaults to 3 pixel border padding
@@ -1569,32 +1614,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
 
 	-- STARS
-	if numStars > 0 then
-		local needsTwoLines = (numStars >= 5)
-		local starIcon = Constants.PixelImages.STAR
-		local starIconColors = starIcon:getColors()
-		starIconColors[4] = Drawing.ColorEffects.DARKEN * 2
-		local starSize = 9
-		-- Use Platinum colors for highest rarity (5+ stars)
-		if numStars > 5 then
-			starIconColors[1] = 0xFFEEEEEE
-			starIconColors[2] = 0xFFCCCCCC
-			numStars = 5
-		end
-		if numStars == 5 then
-			starSize = starSize + 1
-		end
-		for i = 1, numStars, 1 do
-			local iX = x + 1 + starSize * (i - 1)
-			local iY = y + 1
-			-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
-			if i >= 4 and needsTwoLines then
-				iX = iX + 5 - 3 * starSize
-				iY = iY + starSize - 4
-			end
-			Drawing.drawImageAsPixels(starIcon, iX, iY, starIconColors)
-		end
-	end
+	GachaMonOverlay.drawGachaMonStars(numStars, x, y)
 
 	-- CARD FRAME
 	-- left-half
