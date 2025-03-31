@@ -231,8 +231,9 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	-- TODO: Add in nature bonus since calc was using base stats for now
 	-- What else should be considered for stars? STAB? Ruleset?
 
-	Utils.printDebug("[RATINGS] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s",
-		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating)
+	Utils.printDebug("[RATINGS] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Total: %s",
+		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating,
+		math.floor(abilityRating + moveRating + offensiveRating + defensiveRating + speedRating))
 
 	return math.floor(ratingTotal + 0.5)
 end

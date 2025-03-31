@@ -9,6 +9,14 @@ GachaMonFileManager = {
 -- When adding new versions, don't use function shortcuts for binary/data conversion. Each must be written out per-version.
 GachaMonFileManager.BinaryStreams = {}
 
+function GachaMonFileManager.initialize()
+	-- Create the empty GachaMon folder in the Tracker folder if it doesn't already exist (1st time use)
+	local gachamonFolder = FileManager.prependDir(FileManager.Folders.GachaMon)
+	if not FileManager.folderExists(gachamonFolder) then
+		FileManager.createFolder(gachamonFolder)
+	end
+end
+
 ---@return string filepath
 function GachaMonFileManager.getRatingSystemFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
