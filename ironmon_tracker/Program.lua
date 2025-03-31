@@ -532,6 +532,14 @@ function Program.update()
 				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.STEPS)
 			end
 
+			-- Check if a new GachaMon has been captured and create an animation for the pack opening
+			local APO = TrackerScreen.Animations.GachaMonPackOpening
+			local ACD = TrackerScreen.Animations.GachaMonCardDisplay
+			if not APO and not ACD and Options["Show card pack on screen after capturing a GachaMon"] and GachaMonData.hasNewestMonToShow() then
+				local x, y = Constants.SCREEN.WIDTH + 43, 32
+				TrackerScreen.Animations.GachaMonPackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
+			end
+
 			Program.AutoSaver:checkForNextSave()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end

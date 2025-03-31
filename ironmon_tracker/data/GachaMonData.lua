@@ -27,18 +27,23 @@ TESTING LIST
 - [Test] Deleting stuff from collection
 - [Test] Nat Dex capture then swap to non-nat dex
 - [Test] Playing a few normal games and catching 7+ pokemon in each
-- [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think)
+- [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think, j/k it should actually)
 ]]
 
 --[[
 TODO LIST
+- [Card] Add Badges to a Gachamon
+- [Card] Add Nickname; research how many bytes it takes up
+- [Ruleset] Change ratings based on ruleset being played
+   - Expose option to choose which ruleset to play by ("auto" is an option)
 - [UI] Create a tiny GachaMon logo icon
 - [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
 - [Animation] Shiny has a rainbow / animated frame border
-- [Animation] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
-- Optional: Show collection completion status somehow.
+   - 1000 vs 4000 is a 4:1 odds
+- Show collection completion status somehow. The PokeDex!
+   - Add a "NEW" flair to mons not in your PokeDex collection.
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
 ]]
@@ -166,6 +171,12 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon)
 	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
 
+	-- Always make 5-star or higher GachaMon's shiny
+	if gachamon.Temp.IsShiny ~= 1 and gachamon.Temp.Stars >= 5 then
+		gachamon.Temp.IsShiny = 1
+		gachamon:compressShinyGenderNature()
+	end
+
 	return gachamon
 end
 
@@ -177,15 +188,25 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
+	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
+
+	Utils.printDebug("--- RATINGS CALC FOR %s ---", Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"))
+
 	-- ABILITY
 	local abilityRating = RS.Abilities[gachamon.AbilityId or 0] or 0
 	ratingTotal = ratingTotal + abilityRating
 
 	-- MOVES
 	local moveRating = 0
-	for _, id in ipairs(gachamon.Temp.MoveIds or {}) do
-		if RS.Moves[id] then
-			moveRating = moveRating + RS.Moves[id]
+	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
+		local thisRating = RS.Moves[id]
+		if thisRating then
+			local move = MoveData.Moves[id]
+			if Utils.isSTAB(move, move.type, pokemonInternal.types) then
+				thisRating = thisRating * 0.5
+			end
+			moveRating = moveRating + thisRating
+			Utils.printDebug("- Move %s: %s %s", i, move.name, thisRating)
 		end
 	end
 	ratingTotal = ratingTotal + moveRating
@@ -227,13 +248,24 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	end
 	ratingTotal = ratingTotal + speedRating
 
+	-- MATCHING NATURE
+	local natureRating = 0
+	local stats = gachamon:getStats()
+	local statKey = (stats.atk or 0 > stats.spa or 0) and "atk" or "spa"
+	local multiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
+	local natureBonus = math.floor(multiplier * 10 - 10)
+	if natureBonus > 1 then
+		-- TODO: 2 is a guess, eventually move this to the RatingsSystem JSON
+		natureRating = 2
+	end
+	ratingTotal = ratingTotal + natureRating
+
 	-- OTHER
-	-- TODO: Add in nature bonus since calc was using base stats for now
 	-- What else should be considered for stars? STAB? Ruleset?
 
-	Utils.printDebug("[RATINGS] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Total: %s",
-		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating,
-		math.floor(abilityRating + moveRating + offensiveRating + defensiveRating + speedRating))
+	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
+		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating, natureRating)
+	Utils.printDebug("- Rating Total: %s", math.floor(ratingTotal + 0.5))
 
 	return math.floor(ratingTotal + 0.5)
 end
@@ -273,11 +305,12 @@ function GachaMonData.calculateBattlePower(gachamon)
 	local natureBonus = math.floor(multiplier * 10 - 10) * 1000
 	power = power + natureBonus
 
-	Utils.printDebug("[BATTLE POWER] Stars: %s, Moves: %s, STAB: %s, Nature: %s",
+	Utils.printDebug("- [Battle Power] Stars: %s, Moves: %s, STAB: %s, Nature: %s, Total: %s",
 		starsBonus,
 		movePowerBonus,
 		hasStab and 1000 or 0,
-		natureBonus
+		natureBonus,
+		math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
 	)
 
 	return math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
@@ -377,7 +410,6 @@ function GachaMonData.tryAddToRecentMons(pokemon)
 	if GachaMonData.RecentMons[pokemon.personality] then
 		return false
 	end
-	Utils.printDebug("[tryAddToRecentMons] Adding New Mon, Personality: %s", tostring(pokemon.personality))
 
 	-- Create the GachaMon from the IPokemon data, then add it
 	local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
@@ -401,7 +433,6 @@ function GachaMonData.tryAutoKeepInCollection(mon)
 		return false
 	end
 
-	Utils.printDebug("[tryKeepInCollection] Keeping this mon, Personality: %s", tostring(gachamon.Personality))
 
 	-- Flag this GachaMon as something to keep in collection
 	GachaMonData.updateGachaMonAndSave(gachamon, nil, true)

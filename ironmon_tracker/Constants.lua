@@ -181,7 +181,7 @@ Constants.OrderedLists = {
 		"AlertNewOptionLR",
 		"Hide Pokemon stats until GachaMon viewed",
 		"Show GachaMon stars on main Tracker Screen",
-		"Show GachaMon catch info in Carousel box",
+		"Show card pack on screen after capturing a GachaMon",
 		"Animate GachaMon pack opening",
 		"Add GachaMon to collection after defeating a trainer",
 	},

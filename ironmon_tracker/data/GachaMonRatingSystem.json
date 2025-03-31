@@ -443,7 +443,7 @@
 	"Stats": {
 		"Offensive": [
 			{
-				"BaseStat": 120,
+				"BaseStat": 110,
 				"Percentage": 0.22,
 				"Rating": 15
 			},
@@ -484,11 +484,11 @@
 			"Stars": 6
 		},
 		{
-			"Rating": 70,
+			"Rating": 67,
 			"Stars": 5
 		},
 		{
-			"Rating": 55,
+			"Rating": 54,
 			"Stars": 4
 		},
 		{

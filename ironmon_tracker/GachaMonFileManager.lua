@@ -1,5 +1,5 @@
 GachaMonFileManager = {
-	-- The current version of the binary stream transform. If the format changes, this version must be incremented.
+	-- The current version of the binary stream transform. If the format changes, this version must be incremented. (0-255)
 	Version = 1,
 	-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
 	RomHashSize = 64,
@@ -28,6 +28,11 @@ end
 ---@return string filepath
 function GachaMonFileManager.getCollectionFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_COLLECTION)
+end
+---@return string filepath
+function GachaMonFileManager.getCardPackFilePath()
+	-- TODO: set as variables
+	return FileManager.buildImagePath("gachamon", "cardpack", ".png")
 end
 
 ---Imports all GachaMon Ratings data from a JSON file

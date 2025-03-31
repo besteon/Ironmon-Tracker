@@ -8,78 +8,115 @@ function AnimationManager.initialize()
 	AnimationManager.ActiveAnimations = {}
 end
 
+-- Helper Functions
+
+local _coverScreenInDarkness = function()
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local y = Constants.SCREEN.MARGIN
+	local w = Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2
+	local h = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN * 2
+	local border = Theme.COLORS["Upper box border"]
+	local color = 0xF0000000
+	gui.drawRectangle(x, y, w, h, border, color)
+end
+
 ---Creates a new IAnimation for a GachaMon Pack Opening
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@return IAnimation
 function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
+	local cardOffsetX, cardOffsetY = -6, 4
+
 	local animation = AnimationManager.IAnimation:new({
 		X = x,
 		Y = y,
 		KeyFrames = {},
+		OnExpire = function(self)
+			self:stop()
+			TrackerScreen.Animations.GachaMonPackOpening = nil
+			TrackerScreen.Animations.GachaMonCardDisplay = AnimationManager.createGachaMonCardDisplay(
+				self.X + cardOffsetX,
+				self.Y + cardOffsetY,
+				self.Temp.GachaMon
+			)
+		end,
+		Temp = {
+			GachaMon = gachamon,
+		},
 	})
 
-	Utils.printDebug("--- Animation Created: %s", animation.GUID)
-
 	-- Gachamon Card Display Data
-	local card = gachamon:getCardDisplayData()
+	local cardpackFilePath = GachaMonFileManager.getCardPackFilePath()
+	local cardpackW, cardpackH = 64, 96
 
-	-- Pack Dimensions
-	local PACK = { w = 100, h = 200, top_h = 10, bot_h = 10 }
-	-- All Colors
-	local COLORS = {
-		blackBG = 0xE0000000,
-		bg1 = Drawing.Colors.DARKGRAY,
-		bg2 = Drawing.Colors.MAGENTA,
-		border = Drawing.Colors.WHITE,
-		tearLine = Drawing.Colors.CYAN,
-		brighten = 0x40FFFFFF,
-		darken = 0x40000000,
-	}
-
-	-- [Animation] Design UI and animation for capturing a new GachaMon
-	-- (click to open: fade to black, animate pack, animate opening, show mon)
-
-	local drawPack = function(x2, y2)
-		local PAD, DENT = 4, 4
-		x2 = x2 + PAD
-		y2 = y2 + PAD
-		-- Backgrounds
-		gui.drawRectangle(x2 - PAD, y2 - PAD, PACK.w + PAD * 2, PACK.h + PAD * 2, COLORS.blackBG, COLORS.blackBG)
-		gui.drawRectangle(x2, y2, PACK.w, PACK.top_h, COLORS.bg2, COLORS.bg2)
-		gui.drawRectangle(x2, y2 + PACK.top_h, PACK.w, DENT, COLORS.bg1, COLORS.bg1)
-		gui.drawRectangle(x2 + 1, y2 + PACK.top_h + DENT, PACK.w - 2, PACK.h - PACK.top_h - PACK.bot_h - (DENT * 2), COLORS.bg1, COLORS.bg1)
-		-- Curved edges
-		gui.drawRectangle(x2 + 1, y2 + PACK.top_h + DENT, DENT, PACK.h - PACK.top_h - PACK.bot_h - (DENT * 2), COLORS.brighten, COLORS.brighten)
-		gui.drawRectangle(x2 + PACK.w - DENT - 2, y2 + PACK.top_h + DENT, DENT, PACK.h - PACK.top_h - PACK.bot_h - (DENT * 2), COLORS.darken, COLORS.darken)
-		-- gui.drawRectangle(x2, y2 + PACK.h - PACK.bot_h - DENT, PACK.w, DENT, COLORS.bg1, COLORS.bg1)
-		-- Top line
-		gui.drawLine(x2, y2, x2 + PACK.w, y2, COLORS.border)
-		-- Top tear line
-		gui.drawLine(x2, y2 + PACK.top_h, x2 + PACK.w, y2 + PACK.top_h, COLORS.tearLine)
-		-- Top left/right line
-		gui.drawLine(x2, y2, x2, y2 + PACK.top_h + DENT, COLORS.border)
-		gui.drawLine(x2 + PACK.w, y2, x2 + PACK.w, y2 + PACK.top_h + DENT, COLORS.border)
-		-- Left/Right dented line
-		gui.drawLine(x2 + 1, y2 + PACK.top_h + DENT, x2 + 1, y2 + PACK.h - PACK.bot_h - DENT, COLORS.border)
-		gui.drawLine(x2 + PACK.w - 1, y2 + PACK.top_h + DENT, x2 + PACK.w - 1, y2 + PACK.h - PACK.bot_h - DENT, COLORS.border)
-		-- Bot left/right line
-		-- gui.drawLine(x2, y2 + PACK.h, x2, y2 + PACK.h - PACK.bot_h - DENT, COLORS.border)
-		-- gui.drawLine(x2 + PACK.w, y2 + PACK.h, x2 + PACK.w, y2 + PACK.h - PACK.bot_h - DENT, COLORS.border)
-
-		-- TODO: Draw large logo
+	local drawCardObfuscationBg = function(_x, _y)
+		local color = 0xFF000000
+		gui.drawRectangle(_x - 5, _y - 5, cardpackW + 10, cardpackH + 10, color, color)
+	end
+	local drawPack = function(_x, _y)
+		Drawing.drawImage(cardpackFilePath, _x, _y)
 	end
 
 	-- Initial drawing, showing the unopened pack; a still image until its clicked on to be animated
 	animation.KeyFrames[1] = AnimationManager.IKeyFrame:new({
-		Duration = 2,
-		Draw = function(self, animationX, animationY)
-			drawPack(animationX, animationY)
+		Duration = 6,
+		Draw = function(self, _x, _y)
+			_coverScreenInDarkness()
+			drawPack(_x, _y)
 		end,
 	})
 
+	local numKeyFramesToDrop = 60
+	for i = 2, numKeyFramesToDrop, 1 do
+		animation.KeyFrames[i] = AnimationManager.IKeyFrame:new({
+			Duration = 3,
+			Draw = function(self, _x, _y)
+				_coverScreenInDarkness()
+				local card = gachamon:getCardDisplayData()
+				GachaMonOverlay.drawGachaCard(card, _x + cardOffsetX, _y + cardOffsetY, 4, false, false)
+				local iY = _y + (i-1) * 2
+				drawCardObfuscationBg(_x, iY)
+				drawPack(_x, iY)
+			end,
+		})
+	end
+
 	animation:buildAnimation()
+
+	return animation
+end
+
+---Creates a new IAnimation for a GachaMon Pack Opening
+---@param x number Location of the animation to be drawn
+---@param y number Location of the animation to be drawn
+---@param gachamon IGachaMon The GachaMon data used to display the card
+---@return IAnimation
+function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
+	local animation = AnimationManager.IAnimation:new({
+		X = x,
+		Y = y,
+		ShouldLoop = true,
+		KeyFrames = {
+			AnimationManager.IKeyFrame:new({
+				Duration = 600,
+				Draw = function(self, _x, _y)
+					_coverScreenInDarkness()
+					local card = gachamon:getCardDisplayData()
+					GachaMonOverlay.drawGachaCard(card, _x, _y, 4, false, false)
+				end,
+			})
+		},
+		OnExpire = function(self)
+			self:stop()
+			TrackerScreen.Animations.GachaMonCardDisplay = nil
+			GachaMonData.clearNewestMonToShow()
+			Program.redraw(true)
+		end,
+		Temp = {
+			GachaMon = gachamon,
+		},
+	})
 
 	return animation
 end
@@ -125,7 +162,7 @@ function AnimationManager.tryAddAnimationToActive(animation)
 end
 
 ---Draws a specific animation
----@param animation IAnimation
+---@param animation? IAnimation
 function AnimationManager.drawAnimation(animation)
 	if animation and animation:IsVisible() then
 		animation:draw()
@@ -149,12 +186,18 @@ AnimationManager.IAnimation = {
 	Y = 0,
 	-- When a new keyframe is reached, use the new drawing method and request a draw action by the Tracker (outside normal 30 fps cadence)
 	KeyFrames = {}, ---@type table<number, IKeyFrame>
+	-- The current key frame index this animation is on (dictates what is drawn)
+	CurrentKeyFrameIndex = 0,
 	-- To determine if animation frames need to be calculated
 	IsActive = false,
 	-- Should the animation loop indefinitely; default; false
 	ShouldLoop = false,
 	-- For some animations, it should only animate if the animation would actually be visible (on appropriate screen or tab)
 	IsVisible = function(self) return true end,
+	-- An optional function to call when this animation fully ends (won't apply if looping)
+	OnExpire = function(self) end,
+	-- Temporary data
+	Temp = {},
 
 	-- Internal attributes
 
@@ -162,8 +205,6 @@ AnimationManager.IAnimation = {
 	_FramesElapsed = 0, ---@protected
 	-- Internal tracking for total animation frames
 	_TotalDuration = 0, ---@protected
-	-- Internal, the current key frame index this animation is on (dictates what is drawn)
-	_CurrentKeyFrameIndex = 0, ---@protected
 	-- Internal index reference to determine which keyframe is currently being drawn
 	_KeyFrameIndexes = {}, ---@protected
 
@@ -178,7 +219,7 @@ AnimationManager.IAnimation = {
 			end
 			self._TotalDuration = self._TotalDuration + (keyframe.Duration or 0)
 		end
-		self._CurrentKeyFrameIndex = self._KeyFrameIndexes[0]
+		self.CurrentKeyFrameIndex = self._KeyFrameIndexes[0]
 	end,
 	start = function(self)
 		self.IsActive = true
@@ -196,18 +237,27 @@ AnimationManager.IAnimation = {
 		self._FramesElapsed = (self._FramesElapsed + delta) % self._TotalDuration
 		-- If exceeded total duration
 		if not self.ShouldLoop and self._FramesElapsed < prevFramesElapsed then
+			local keyframe = self.KeyFrames[self.CurrentKeyFrameIndex or false]
+			if keyframe then
+				keyframe:OnExpire()
+			end
+			self:OnExpire()
 			self:stop()
 			return
 		end
 		-- Check if key frame index has changed. If so, trigger a screen redraw
-		local prevIndex = self._CurrentKeyFrameIndex
-		self._CurrentKeyFrameIndex = self._KeyFrameIndexes[math.floor(self._FramesElapsed)] or 1
-		if self._CurrentKeyFrameIndex ~= prevIndex then
+		local prevIndex = self.CurrentKeyFrameIndex
+		self.CurrentKeyFrameIndex = self._KeyFrameIndexes[math.floor(self._FramesElapsed)] or 1
+		if self.CurrentKeyFrameIndex ~= prevIndex then
+			local keyframe = self.KeyFrames[prevIndex]
+			if keyframe then
+				keyframe:OnExpire()
+			end
 			Program.Frames.waitToDraw = 0
 		end
 	end,
 	draw = function(self)
-		local keyframe = self.KeyFrames[self._CurrentKeyFrameIndex or false]
+		local keyframe = self.KeyFrames[self.CurrentKeyFrameIndex or false]
 		if keyframe and type(keyframe.Draw) == "function" then
 			keyframe:Draw(self.X, self.Y)
 		end
@@ -222,17 +272,19 @@ function AnimationManager.IAnimation:new(o)
 	o.X = o.X or 0
 	o.Y = o.Y or 0
 	o.KeyFrames = o.KeyFrames or {} ---@type table<number, IKeyFrame>
+	o.CurrentKeyFrameIndex = 0
 	o.ShouldLoop = (o.ShouldLoop == true)
 	o.IsVisible = o.IsVisible or function() return true end
+	o.OnExpire = o.OnExpire or function() return true end
+	o.Temp = o.Temp or {}
 
 	o.IsActive = false
 	o._FramesElapsed = 0
 	o._TotalDuration = 0
-	o._CurrentKeyFrameIndex = 0
 	o._KeyFrameIndexes = {}
 
 	if #o.KeyFrames > 0 then
-		o:buildAnimation()
+		AnimationManager.IAnimation.buildAnimation(o)
 	end
 
 	setmetatable(o, self)
@@ -246,6 +298,8 @@ AnimationManager.IKeyFrame = {
 	Duration = 0,
 	-- The draw function to perform during this key frame animation segment
 	Draw = function(self, x, y) end,
+	-- An optional function to call when this frame expires (completes its duration)
+	OnExpire = function(self) end,
 }
 ---Creates and returns a new IKeyFrame object
 ---@param o? table Optional initial object table
@@ -254,6 +308,7 @@ function AnimationManager.IKeyFrame:new(o)
 	o = o or {}
 	o.Duration = o.Duration or 0
 	o.Draw = o.Draw or function(this, x, y) end
+	o.OnExpire = o.OnExpire or function(this) end
 	setmetatable(o, self)
 	self.__index = self
 	return o
