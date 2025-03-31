@@ -204,7 +204,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		if thisRating then
 			local move = MoveData.Moves[id]
 			if Utils.isSTAB(move, move.type, pokemonInternal.types) then
-				thisRating = thisRating * 0.5
+				thisRating = thisRating * 1.5
 			end
 			moveRating = moveRating + thisRating
 			Utils.printDebug("- Move %s: %s %s", i, move.name, thisRating)
