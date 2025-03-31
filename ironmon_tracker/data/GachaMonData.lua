@@ -213,6 +213,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	ratingTotal = ratingTotal + moveRating
 
 	-- STATS
+	local OFFENSIVE_MAX = 20 -- TODO: move this to RatingsSystem JSON
 	-- Offensive Stats (Atk & Spa separately)
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
@@ -227,7 +228,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			offensiveSpa = 0
 		end
 	end
-	ratingTotal = ratingTotal + offensiveRating
+	ratingTotal = ratingTotal + math.min(offensiveRating, OFFENSIVE_MAX) -- max of 20 boost
 	-- Defensives Stat (HP, Def, SpDef)
 	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
 	local defensiveRating = 0
