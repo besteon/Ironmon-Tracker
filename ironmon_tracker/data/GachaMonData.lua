@@ -34,6 +34,7 @@ TESTING LIST
 TODO LIST
 - [Card] Add Badges to a Gachamon
 - [Card] Add Nickname; research how many bytes it takes up
+- [Card] Evos should roll a new GachaMon card. EVs are okay to use.
 - [Ruleset] Change ratings based on ruleset being played
    - Expose option to choose which ruleset to play by ("auto" is an option)
 - [UI] Create a tiny GachaMon logo icon
@@ -203,7 +204,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		if thisRating then
 			local move = MoveData.Moves[id]
 			if Utils.isSTAB(move, move.type, pokemonInternal.types) then
-				thisRating = thisRating * 0.5
+				thisRating = thisRating * 1.5
 			end
 			moveRating = moveRating + thisRating
 			Utils.printDebug("- Move %s: %s %s", i, move.name, thisRating)

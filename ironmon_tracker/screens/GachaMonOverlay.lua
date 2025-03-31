@@ -246,12 +246,13 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		originalGachaMon = nil,
 		isVisible = function(self)
 			local V = SCREEN.Data.View
-			if not V.GachaMon then
+			local gachamon = V.OriginalGachaMon or V.GachaMon
+			if not gachamon then
 				return false
 			end
 			local pokemon = TrackerAPI.getPlayerPokemon() or {}
-			local monMatches = pokemon.personality == V.GachaMon.Personality and pokemon.pokemonID == V.GachaMon.PokemonId
-			local diffLevel = pokemon.level ~= V.GachaMon.Level
+			local monMatches = pokemon.personality == gachamon.Personality and pokemon.pokemonID == gachamon.PokemonId
+			local diffLevel = pokemon.level ~= gachamon.Level
 			return monMatches and diffLevel
 		end,
 		onClick = function(self)
