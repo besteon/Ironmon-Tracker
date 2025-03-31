@@ -241,13 +241,18 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		end,
 	},
 	RecalculateAsTemp = {
-		box = { CANVAS.X + 125, CANVAS.Y + 81, 14, 12, },
+		box = { CANVAS.X + 126, CANVAS.Y + 3, 14, 12, },
 		tempGachaMon = nil,
 		originalGachaMon = nil,
 		isVisible = function(self)
 			local V = SCREEN.Data.View
+			if not V.GachaMon then
+				return false
+			end
 			local pokemon = TrackerAPI.getPlayerPokemon() or {}
-			return V.GachaMon ~= nil and pokemon.personality == V.GachaMon.Personality and pokemon.pokemonID == V.GachaMon.PokemonId
+			local monMatches = pokemon.personality == V.GachaMon.Personality and pokemon.pokemonID == V.GachaMon.PokemonId
+			local diffLevel = pokemon.level ~= V.GachaMon.Level
+			return monMatches and diffLevel
 		end,
 		onClick = function(self)
 			local V = SCREEN.Data.View
@@ -1061,7 +1066,7 @@ function GachaMonOverlay.createTabsAndButtons()
 	local optionKeyMap = {
 		{ "Hide Pokemon stats until GachaMon viewed", "OptionHideStatsUntilViewed", },
 		{ "Show GachaMon stars on main Tracker Screen", "OptionShowGachaMonStarsOnTracker", },
-		{ "Show GachaMon catch info in Carousel box", "OptionShowGachaMonInCarouselBox", },
+		{ "Show card pack on screen after capturing a GachaMon", "OptionShowCardPackOnScreen", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
 		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },
 	}

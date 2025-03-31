@@ -722,7 +722,7 @@ ScreenResources{
 		TabAbout = "(?)",
 		OptionHideStatsUntilViewed = "Hide Pokémon stats until GachaMon viewed",
 		OptionShowGachaMonStarsOnTracker = "Show GachaMon stars on main Tracker Screen",
-		OptionShowGachaMonInCarouselBox = "Show new GachaMons in bottom box",
+		OptionShowCardPackOnScreen = "Show card pack on screen after capturing a GachaMon",
 		OptionAutoAddGachaMonToCollection = "Auto save to collection after defeating 2 trainers",
 		OptionAnimateGachaMonPackOpening = "Animate GachaMon pack opening",
 	},

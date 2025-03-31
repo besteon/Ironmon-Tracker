@@ -39,7 +39,6 @@ TODO LIST
 - [UI] Create a tiny GachaMon logo icon
 - [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
 - [Animation] Shiny has a rainbow / animated frame border
-- [Animation] Design UI and animation for capturing a new GachaMon (click to open: fade to black, animate pack, animate opening, show mon)
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
@@ -85,15 +84,15 @@ function GachaMonData.test()
 	-- end
 
 	-- OPEN THE OVERLAY
-	Program.openOverlayScreen(GachaMonOverlay)
-	GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Options
-	GachaMonOverlay.refreshButtons()
-	Program.redraw(true)
+	-- Program.openOverlayScreen(GachaMonOverlay)
+	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Options
+	-- GachaMonOverlay.refreshButtons()
+	-- Program.redraw(true)
 
-	local k, v = next(GachaMonData.RecentMons)
-	if v then
-		GachaMonData.newestRecentMon = v
-	end
+	-- local k, v = next(GachaMonData.RecentMons)
+	-- if v then
+	-- 	GachaMonData.newestRecentMon = v
+	-- end
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -191,6 +190,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
 
+	Utils.printDebug("--- RATINGS CALC FOR %s ---", Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"))
+
 	-- ABILITY
 	local abilityRating = RS.Abilities[gachamon.AbilityId or 0] or 0
 	ratingTotal = ratingTotal + abilityRating
@@ -205,7 +206,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 				thisRating = thisRating * 0.5
 			end
 			moveRating = moveRating + thisRating
-			Utils.printDebug("[Move %s Rating] %s %s", i, move.name, thisRating)
+			Utils.printDebug("- Move %s: %s %s", i, move.name, thisRating)
 		end
 	end
 	ratingTotal = ratingTotal + moveRating
@@ -248,21 +249,23 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	ratingTotal = ratingTotal + speedRating
 
 	-- MATCHING NATURE
+	local natureRating = 0
 	local stats = gachamon:getStats()
 	local statKey = (stats.atk or 0 > stats.spa or 0) and "atk" or "spa"
 	local multiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
 	local natureBonus = math.floor(multiplier * 10 - 10)
 	if natureBonus > 1 then
-		-- TODO: 2 is a guess
-		ratingTotal = ratingTotal + 2
+		-- TODO: 2 is a guess, eventually move this to the RatingsSystem JSON
+		natureRating = 2
 	end
+	ratingTotal = ratingTotal + natureRating
 
 	-- OTHER
 	-- What else should be considered for stars? STAB? Ruleset?
 
-	Utils.printDebug("[RATINGS] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Total: %s",
-		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating,
-		math.floor(abilityRating + moveRating + offensiveRating + defensiveRating + speedRating))
+	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
+		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating, natureRating)
+	Utils.printDebug("- Rating Total: %s", math.floor(ratingTotal + 0.5))
 
 	return math.floor(ratingTotal + 0.5)
 end
@@ -302,11 +305,12 @@ function GachaMonData.calculateBattlePower(gachamon)
 	local natureBonus = math.floor(multiplier * 10 - 10) * 1000
 	power = power + natureBonus
 
-	Utils.printDebug("[BATTLE POWER] Stars: %s, Moves: %s, STAB: %s, Nature: %s",
+	Utils.printDebug("- [Battle Power] Stars: %s, Moves: %s, STAB: %s, Nature: %s, Total: %s",
 		starsBonus,
 		movePowerBonus,
 		hasStab and 1000 or 0,
-		natureBonus
+		natureBonus,
+		math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
 	)
 
 	return math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)

@@ -162,7 +162,7 @@ TrackerScreen.Buttons = {
 			local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
 			if gachamon then
 				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
-				GachaMonOverlay.Data.ViewedMon = gachamon
+				GachaMonOverlay.Data.View.GachaMon = gachamon
 				GachaMonOverlay.refreshButtons()
 			end
 			Program.redraw(true)
@@ -502,23 +502,25 @@ TrackerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.GACHAMON end,
+		clearAnimation = function(self)
+			TrackerScreen.Animations.GachaMonPackOpening = nil
+		end,
 		onClick = function(self)
-			-- if not self.animation and GachaMonData.hasNewestMonToShow() then
-			-- 	Utils.printDebug("--- Clicked #1")
-			-- 	local x, y = Constants.SCREEN.WIDTH + 20, 30
-			-- 	self.animation = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
-			-- elseif self.animation and not self.animation.IsActive then
-			-- 	Utils.printDebug("--- Clicked #2")
-			-- 	AnimationManager.tryAddAnimationToActive(self.animation)
-			-- -- elseif -- TODO: ? skip the animation by clicking again
-			-- end
-			Program.openOverlayScreen(GachaMonOverlay)
+			local APO = TrackerScreen.Animations.GachaMonPackOpening
+			if not APO and GachaMonData.hasNewestMonToShow() then
+				local x, y = Constants.SCREEN.WIDTH + 43, 32
+				TrackerScreen.Animations.GachaMonPackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
+				APO = TrackerScreen.Animations.GachaMonPackOpening
+			end
 			Program.redraw(true)
-			-- Delay revealing the stats for just a second
-			GachaMonData.clearNewestMonToShow()
-			Program.Frames.waitToDraw = 60
 		end,
 	},
+}
+
+---Holds relevant animations that occasionally get displayed on the main tracker screen
+TrackerScreen.Animations = { ---@type table<string, IAnimation>
+	-- GachaMonPackOpening = nil,
+	-- GachaMonCardDisplay = nil,
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -896,9 +898,10 @@ function TrackerScreen.buildCarousel()
 	--  GACHAMON
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.GACHAMON] = {
 		type = TrackerScreen.CarouselTypes.GACHAMON,
-		framesToShow = 420,
+		framesToShow = 210,
 		canShow = function(self)
-			if not Options["Show GachaMon catch info in Carousel box"] then
+			-- Showing the card pack overrides the need to show the info in the Carousel box
+			if Options["Show card pack on screen after capturing a GachaMon"] then
 				return false
 			end
 			return GachaMonData.hasNewestMonToShow()
@@ -1101,9 +1104,10 @@ function TrackerScreen.drawScreen()
 		TrackerScreen.drawMovesArea(displayData)
 	end
 
-	local packAnimation = TrackerScreen.Buttons.GachaMonSummary.animation
-	if packAnimation then
-		AnimationManager.drawAnimation(packAnimation)
+	if TrackerScreen.Animations.GachaMonPackOpening then
+		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonPackOpening)
+	elseif TrackerScreen.Animations.GachaMonCardDisplay then
+		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonCardDisplay)
 	end
 end
 
