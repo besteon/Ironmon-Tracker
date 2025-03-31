@@ -52,6 +52,7 @@ Options = {
 	["Allow sprites to walk"] = true,
 	["Active Profile"] = "",
 	["Hide Pokemon stats until GachaMon viewed"] = false,
+	["Show GachaMon stars on main Tracker Screen"] = true,
 	["Show GachaMon catch info in Carousel box"] = true,
 	["Animate GachaMon pack opening"] = true,
 	["Add GachaMon to collection after defeating a trainer"] = true,
