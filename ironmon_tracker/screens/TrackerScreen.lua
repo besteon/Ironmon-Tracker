@@ -146,7 +146,11 @@ TrackerScreen.Buttons = {
 	},
 	GachaMonStars = {
 		box = { Constants.SCREEN.WIDTH + 61, 58, 38, 21 },
-		isVisible = function() return Battle.isViewingOwn and Options["Show GachaMon stars on main Tracker Screen"] and not Options["Track PC Heals"] and Tracker.getViewedPokemon() ~= nil end,
+		isVisible = function()
+			local allowedToShow = Battle.isViewingOwn and Options["Show GachaMon stars on main Tracker Screen"]
+			local hasConflict = Options["Track PC Heals"] or Tracker.getViewedPokemon() == nil or GachaMonData.hasNewestMonToShow()
+			return allowedToShow and not hasConflict
+		end,
 		onClick = function(self)
 			if Program.isScreenOverlayOpen() and Program.currentOverlay ~= GachaMonOverlay then
 				Program.closeScreenOverlay()
@@ -159,6 +163,7 @@ TrackerScreen.Buttons = {
 			if gachamon then
 				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
 				GachaMonOverlay.Data.ViewedMon = gachamon
+				GachaMonOverlay.refreshButtons()
 			end
 			Program.redraw(true)
 		end,
