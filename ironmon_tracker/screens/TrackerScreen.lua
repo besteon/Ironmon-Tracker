@@ -152,10 +152,13 @@ TrackerScreen.Buttons = {
 			return allowedToShow and not hasConflict
 		end,
 		onClick = function(self)
-			if Program.isScreenOverlayOpen() and Program.currentOverlay ~= GachaMonOverlay then
+			if Program.currentOverlay == GachaMonOverlay then
 				Program.closeScreenOverlay()
-			elseif Program.currentOverlay == GachaMonOverlay then
 				return
+			end
+			-- If another overlay is open, close that first
+			if Program.isScreenOverlayOpen() then
+				Program.closeScreenOverlay()
 			end
 			Program.openOverlayScreen(GachaMonOverlay)
 			local pokemon = Tracker.getViewedPokemon() or {}
@@ -1300,8 +1303,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	end
 
 	-- POKEMON ICON (draw last to overlap anything else, if necessary)
-	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
-	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
+	if not data.x.infoIsHidden then
+		SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
+		SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
+	end
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
 
 	-- Temporary process to refresh the icon before it's first drawn

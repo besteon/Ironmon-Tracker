@@ -52,7 +52,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 
 	local drawCardObfuscationBg = function(_x, _y)
 		local color = 0xFF000000
-		gui.drawRectangle(_x - 5, _y - 5, cardpackW + 10, cardpackH + 10, color, color)
+		gui.drawRectangle(_x - 6, _y - 6, cardpackW + 12, cardpackH + 12, color, color)
 	end
 	local drawPack = function(_x, _y)
 		Drawing.drawImage(cardpackFilePath, _x, _y)
@@ -67,7 +67,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		end,
 	})
 
-	local numKeyFramesToDrop = 60
+	local numKeyFramesToDrop = 64
 	for i = 2, numKeyFramesToDrop, 1 do
 		animation.KeyFrames[i] = AnimationManager.IKeyFrame:new({
 			Duration = 3,

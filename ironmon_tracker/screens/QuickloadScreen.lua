@@ -272,6 +272,7 @@ function QuickloadScreen.initialize()
 	SCREEN.loadProfiles()
 	SCREEN.checkForActiveProfileChanges()
 	SCREEN.buildProfileButtons()
+	GachaMonData.autoDetermineIronmonRuleset()
 
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then

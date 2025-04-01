@@ -416,6 +416,7 @@ function PokemonData.getEffectiveness(pokemonID)
 	end
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
+	local isPlayingNatDex = CustomCode.RomHacks.isPlayingNatDex()
 
 	for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
 		local total = 1
@@ -425,7 +426,9 @@ function PokemonData.getEffectiveness(pokemonID)
 		if pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
 			total = total * typeMultiplier[pokemon.types[2]]
 		end
-		if effectiveness[total] ~= nil then
+		-- Only calculate fairy type effectiveness if nat dex is being playing
+		local fairyOkay = moveType ~= PokemonData.Types.FAIRY or isPlayingNatDex
+		if effectiveness[total] ~= nil and fairyOkay then
 			table.insert(effectiveness[total], moveType)
 		end
 	end

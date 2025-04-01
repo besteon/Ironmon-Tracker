@@ -42,6 +42,17 @@ Constants.STAT_STATES = {
 	[3] = { text = "=", textColor = "Default text" },
 }
 
+---A table of supported IronMON rulesets for the Tracker. Rulesets details available at https://ironmon.gg
+---@type table<string, string>
+Constants.IronmonRulesets = {
+	Standard = "Standard",
+	Ultimate = "Ultimate",
+	Kaizo = "Kaizo",
+	Survival = "Survival",
+	SuperKaizo = "Super Kaizo",
+	-- TODO: consider Subpar and NatDex and Doubles
+}
+
 -- Holds information about looking up badge icon files and kerning offsets to draw onto screen
 Constants.Badges = {
 	-- Ruby/Sapphire

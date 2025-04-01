@@ -1753,7 +1753,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 		-- Question mark icon
 		pokemonImageId = 252
 	end
-	Drawing.drawPokemonIcon(pokemonImageId, pX, pY, nil, nil, SpriteData.Types.Idle)
+	Drawing.drawPokemonIcon(pokemonImageId, pX, pY)
 
 	-- FAVORITE ICON
 	if card.Favorite == 1 or showFavoriteOverride then

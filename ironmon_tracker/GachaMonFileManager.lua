@@ -57,23 +57,51 @@ function GachaMonFileManager.importRatingSystem(filepath)
 	GachaMonData.RatingsSystem = {
 		Abilities = {},
 		Moves = {},
+		Natures = {},
 		Stats = {},
+		CategoryMaximums = {},
+		OtherAdjustments = {},
 		RatingToStars = {},
+		Rulesets = {}
 	}
 	local RS = GachaMonData.RatingsSystem
 
+	-- Abilities
 	for idStr, rating in pairs(data.Abilities or {}) do
 		local id = tonumber(idStr)
 		if id then
 			RS.Abilities[id] = rating
 		end
 	end
+	-- Moves
 	for idStr, rating in pairs(data.Moves or {}) do
 		local id = tonumber(idStr)
 		if id then
 			RS.Moves[id] = rating
 		end
 	end
+	-- Natures
+	RS.Natures.Beneficial = {}
+	RS.Natures.Detrimental = {}
+	for _, natureId in ipairs(data.Natures.BeneficialOffensive.NatureIds or {}) do
+		RS.Natures.Beneficial[natureId] = data.Natures.BeneficialOffensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.BeneficialDefensive.NatureIds or {}) do
+		RS.Natures.Beneficial[natureId] = data.Natures.BeneficialDefensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.BeneficialSpeed.NatureIds or {}) do
+		RS.Natures.Beneficial[natureId] = data.Natures.BeneficialSpeed.Points
+	end
+	for _, natureId in ipairs(data.Natures.DetrimentalOffensive.NatureIds or {}) do
+		RS.Natures.Detrimental[natureId] = data.Natures.DetrimentalOffensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.DetrimentalDefensive.NatureIds or {}) do
+		RS.Natures.Detrimental[natureId] = data.Natures.DetrimentalDefensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.DetrimentalSpeed.NatureIds or {}) do
+		RS.Natures.Detrimental[natureId] = data.Natures.DetrimentalSpeed.Points
+	end
+	-- Stats
 	for statCategory, list in pairs(data.Stats or {}) do
 		RS.Stats[statCategory] = {}
 		local statTable = RS.Stats[statCategory]
@@ -81,8 +109,39 @@ function GachaMonFileManager.importRatingSystem(filepath)
 			table.insert(statTable, ratingPair)
 		end
 	end
+	-- CategoryMaximums
+	for category, maximum in pairs(data.CategoryMaximums or {}) do
+		RS.CategoryMaximums[category] = maximum
+	end
+	-- OtherAdjustments
+	for key, val in pairs(data.OtherAdjustments or {}) do
+		RS.OtherAdjustments[key] = val
+	end
+	-- RatingToStars
 	for _, ratingPair in ipairs(data.RatingToStars or {}) do
 		table.insert(RS.RatingToStars, ratingPair)
+	end
+	-- Rulesets
+	for rulesetName, rulesetData in pairs(data.Rulesets or {}) do
+		RS.Rulesets[rulesetName] = {
+			BannedAbilities = {},
+			BannedAbilityExceptions = {},
+			BannedMoves = {},
+			AdjustedMoves = {},
+		}
+		local R = RS.Rulesets[rulesetName]
+		for _, id in pairs(rulesetData.BannedAbilities or {}) do
+			R.BannedAbilities[id] = true
+		end
+		for _, id in pairs(rulesetData.BannedMoves or {}) do
+			R.BannedMoves[id] = true
+		end
+		for _, id in pairs(rulesetData.AdjustedMoves or {}) do
+			R.AdjustedMoves[id] = true
+		end
+		for _, exceptionPair in pairs(rulesetData.BannedAbilityExceptions or {}) do
+			table.insert(R.BannedAbilityExceptions, exceptionPair)
+		end
 	end
 
 	return true
@@ -326,6 +385,39 @@ GachaMonFileManager.BinaryStreams[1] = {
 	Size = 29, -- Number of bytes per GachaMon stored
 }
 
+---@param gachamon IGachaMon
+---@return string binaryStream compact binary stream of data
+GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
+	local BS = GachaMonFileManager.BinaryStreams[1]
+	local battlePower = math.floor(gachamon.BattlePower / 1000)
+	-- Compress into a 2-byte value
+	local idPowerFavorite = gachamon.PokemonId + Utils.bit_lshift(battlePower, 11) + Utils.bit_lshift(gachamon.Favorite, 15)
+	-- Compress stats into two 4-byte pairs
+	local stats1 = gachamon:compressStatsHpAtkDef()
+	local stats2 = gachamon:compressStatsSpaSpdSpe()
+	-- Compress various other values together into two 4-byte pairs
+	local c1 = gachamon:compressMoveIdsGameVersionKeep() -- 40 bits
+	local c2 = gachamon:compressShinyGenderNature() -- 8 bits
+	local c3 = gachamon:compressDateObtained() -- 16 bits
+	local movepair1 = Utils.getbits(c1, 0, 32)
+	local movepair2 = Utils.getbits(c1, 32, 8) + Utils.bit_lshift(c2, 8) + Utils.bit_lshift(c3, 16)
+	return StructEncoder.binaryPack(BS.Format,
+		-- Ordered set of data to pack into binary
+		gachamon.Version,
+		gachamon.Personality,
+		idPowerFavorite,
+		gachamon.Level,
+		gachamon.AbilityId,
+		gachamon.RatingScore,
+		gachamon.SeedNumber,
+		gachamon.Badges,
+		stats1,
+		stats2,
+		movepair1,
+		movepair2
+	)
+end
+
 ---@param binaryStream string compact binary stream of data
 ---@return IGachaMon|nil gachamon
 ---@return number size
@@ -359,37 +451,4 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
 	gachamon.Temp.IsShiny = Utils.getbits(gachamon.C_ShinyGenderNature, 0, 1)
 	return gachamon, BS.Size
-end
-
----@param gachamon IGachaMon
----@return string binaryStream compact binary stream of data
-GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
-	local BS = GachaMonFileManager.BinaryStreams[1]
-	local battlePower = math.floor(gachamon.BattlePower / 1000)
-	-- Compress into a 2-byte value
-	local idPowerFavorite = gachamon.PokemonId + Utils.bit_lshift(battlePower, 11) + Utils.bit_lshift(gachamon.Favorite, 15)
-	-- Compress stats into two 4-byte pairs
-	local stats1 = gachamon:compressStatsHpAtkDef()
-	local stats2 = gachamon:compressStatsSpaSpdSpe()
-	-- Compress various other values together into two 4-byte pairs
-	local c1 = gachamon:compressMoveIdsGameVersionKeep() -- 40 bits
-	local c2 = gachamon:compressShinyGenderNature() -- 8 bits
-	local c3 = gachamon:compressDateObtained() -- 16 bits
-	local movepair1 = Utils.getbits(c1, 0, 32)
-	local movepair2 = Utils.getbits(c1, 32, 8) + Utils.bit_lshift(c2, 8) + Utils.bit_lshift(c3, 16)
-	return StructEncoder.binaryPack(BS.Format,
-		-- Ordered set of data to pack into binary
-		gachamon.Version,
-		gachamon.Personality,
-		idPowerFavorite,
-		gachamon.Level,
-		gachamon.AbilityId,
-		gachamon.RatingScore,
-		gachamon.SeedNumber,
-		gachamon.Badges,
-		stats1,
-		stats2,
-		movepair1,
-		movepair2
-	)
 end

@@ -137,12 +137,14 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
+		data.x.infoIsHidden = true
 	elseif not Tracker.Data.hasCheckedSummary or gachaMonViewOverride then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
 		local defaultPokemon = Tracker.getDefaultPokemon()
 		defaultPokemon.pokemonID = viewedPokemon.pokemonID
 		defaultPokemon.level = viewedPokemon.level
 		viewedPokemon = defaultPokemon
+		data.x.infoIsHidden = true
 	end
 
 	local pokemonInternal = PokemonData.Pokemon[viewedPokemon.pokemonID] or PokemonData.BlankPokemon
@@ -367,7 +369,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- MISC DATA (data.x)
-	if viewedPokemon.personality and viewedPokemon.personality ~= 0 then
+	if data.x.infoIsHidden then
 		data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
 		data.x.healvalue = math.min(99999, Program.GameData.Items.healingValue or 0) -- Max of 99999
 		data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
@@ -379,7 +381,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.x.pcheals = Tracker.Data.centerHeals
 
 	local gachamon = viewedPokemon.personality and GachaMonData.RecentMons[viewedPokemon.personality]
-	if gachamon then
+	if gachamon and not data.x.infoIsHidden then
 		data.x.gachamonStars = gachamon:getStars()
 	else
 		data.x.gachamonStars = 0
