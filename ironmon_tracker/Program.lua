@@ -332,7 +332,6 @@ end
 
 function Program.delayedStartup()
 	Options.alertImportantChanges()
-	-- GachaMonData.test()
 end
 
 function Program.mainLoop()
@@ -554,7 +553,10 @@ function Program.update()
 	if Program.Frames.three_sec_update == 0 or Program.updateRequired then
 		Program.updateBagItems()
 		Program.updatePCHeals()
-		Program.updateBadgesObtained()
+		local newBadgeObtained = Program.updateBadgesObtained()
+		if newBadgeObtained then
+			GachaMonData.markTeamForGymBadgeObtained(newBadgeObtained)
+		end
 		CrashRecoveryScreen.trySaveBackup()
 
 		if not Input.joypadUsedRecently then
@@ -1141,30 +1143,46 @@ function Program.updatePCHeals()
 	end
 end
 
+---Returns a byte such that each badge is a bit packed into the byte. 1st badge is least-significant bit (position 0)
+---@return number badgeBits
+function Program.readBadgeBits()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isValidMapLocation() then
+		return 0
+	end
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	if GameSettings.game == 1 then -- Ruby/Sapphire
+		return Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
+	elseif GameSettings.game == 2 then -- Emerald
+		return Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
+	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
+		return Memory.readbyte(saveblock1Addr + GameSettings.badgeOffset)
+	end
+	return 0
+end
+
+---Updates the Badge buttons on Tracker Screen. Also returns the gym number of any badge obtained since last update; 0 if none
+---@return number newBadgeObtained
 function Program.updateBadgesObtained()
 	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
 	if not Program.isValidMapLocation() then
-		return
+		return 0
 	end
 
-	local badgeBits = nil
-	local saveblock1Addr = Utils.getSaveBlock1Addr()
-	if GameSettings.game == 1 then -- Ruby/Sapphire
-		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
-	elseif GameSettings.game == 2 then -- Emerald
-		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
-	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
-		badgeBits = Memory.readbyte(saveblock1Addr + GameSettings.badgeOffset)
-	end
-
-	if badgeBits ~= nil then
-		for index = 1, 8, 1 do
-			local badgeName = "badge" .. index
-			local badgeButton = TrackerScreen.Buttons[badgeName]
-			local badgeState = Utils.getbits(badgeBits, index - 1, 1)
+	local badgeBits = Program.readBadgeBits()
+	local newBadgeObtained = 0
+	for index = 1, 8, 1 do
+		local badgeName = "badge" .. index
+		local badgeButton = TrackerScreen.Buttons[badgeName]
+		local badgeState = Utils.getbits(badgeBits, index - 1, 1)
+		if badgeButton then
+			if badgeButton.badgeState ~= badgeState then
+				newBadgeObtained = index
+			end
 			badgeButton:updateState(badgeState)
 		end
 	end
+	return newBadgeObtained
 end
 
 function Program.updateMapLocation()

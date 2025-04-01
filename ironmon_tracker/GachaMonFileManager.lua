@@ -3,6 +3,8 @@ GachaMonFileManager = {
 	Version = 1,
 	-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
 	RomHashSize = 64,
+	-- Current number of card pack image files that exist
+	NUMBER_CARDPACKS = 10,
 }
 
 -- A historical record of ALL binary data readers/writers and their storage size, such that any stream of binary data can be transformed into a GachaMon object
@@ -29,10 +31,12 @@ end
 function GachaMonFileManager.getCollectionFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_COLLECTION)
 end
+---@param packNumberOverride? number Which pack number to get the filepath for, currently packs are numbered 1-10
 ---@return string filepath
-function GachaMonFileManager.getCardPackFilePath()
-	-- TODO: set as variables
-	return FileManager.buildImagePath("gachamon", "cardpack", ".png")
+function GachaMonFileManager.getRandomCardPackFilePath(packNumberOverride)
+	local packNumber = packNumberOverride or math.random(1, GachaMonFileManager.NUMBER_CARDPACKS)
+	local filename = string.format("%s%s", FileManager.PreFixes.CARDPACK, packNumber)
+	return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, filename, FileManager.Extensions.PNG)
 end
 
 ---Imports all GachaMon Ratings data from a JSON file
@@ -318,8 +322,8 @@ end
 
 --Version 1 Binary Stream
 GachaMonFileManager.BinaryStreams[1] = {
-	Format = "BIHBBBHIIII", -- The packing format (version # always occupies the 1st byte)
-	Size = 28, -- Number of bytes per GachaMon stored
+	Format = "BIHBBBHBIIII", -- The packing format (version # always occupies the 1st byte)
+	Size = 29, -- Number of bytes per GachaMon stored
 }
 
 ---@param binaryStream string compact binary stream of data
@@ -339,15 +343,16 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 		AbilityId = data[5],
 		RatingScore = data[6],
 		SeedNumber = data[7],
-		C_StatsHpAtkDef = data[8],
-		C_StatsSpaSpdSpe = data[9],
+		Badges = data[8],
+		C_StatsHpAtkDef = data[9],
+		C_StatsSpaSpdSpe = data[10],
 	})
 	local idPowerFavorite = data[3]
 	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
 	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000
 	gachamon.Favorite = Utils.getbits(idPowerFavorite, 15, 1)
-	local movepair1 = data[10]
-	local movepair2 = data[11]
+	local movepair1 = data[11]
+	local movepair2 = data[12]
 	-- Utils.printDebug("Unpack: %x as %s", Utils.getbits(last8bytes, 0, 40), Utils.getbits(Utils.getbits(last8bytes, 0, 40), 0, 9))
 	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
 	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
@@ -381,6 +386,7 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 		gachamon.AbilityId,
 		gachamon.RatingScore,
 		gachamon.SeedNumber,
+		gachamon.Badges,
 		stats1,
 		stats2,
 		movepair1,

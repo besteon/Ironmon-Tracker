@@ -47,7 +47,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	})
 
 	-- Gachamon Card Display Data
-	local cardpackFilePath = GachaMonFileManager.getCardPackFilePath()
+	local cardpackFilePath = GachaMonFileManager.getRandomCardPackFilePath()
 	local cardpackW, cardpackH = 64, 96
 
 	local drawCardObfuscationBg = function(_x, _y)

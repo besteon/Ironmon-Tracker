@@ -142,7 +142,8 @@ function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, d
 	end
 end
 
-function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
+---@param animType? string Optional, a SpriteData.Types
+function Drawing.drawPokemonIcon(pokemonID, x, y, width, height, animType)
 	if not PokemonData.isImageIDValid(pokemonID) then
 		return
 	end
@@ -153,7 +154,7 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	height = height or 32
 
 	if iconset.isAnimated then
-		Drawing.drawSpriteIcon(x, y, pokemonID)
+		Drawing.drawSpriteIcon(x, y, pokemonID, animType)
 	else
 		local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))
 		if imagePath then

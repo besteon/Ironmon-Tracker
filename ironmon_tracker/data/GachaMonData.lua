@@ -26,18 +26,16 @@ GachaMonData = {
 TESTING LIST
 - [Test] Deleting stuff from collection
 - [Test] Nat Dex capture then swap to non-nat dex
-- [Test] Playing a few normal games and catching 7+ pokemon in each
 - [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think, j/k it should actually)
 ]]
 
 --[[
 TODO LIST
-- [Card] Add Badges to a Gachamon
-- [Card] Add Nickname; research how many bytes it takes up
-- [Card] Evos should roll a new GachaMon card. EVs are okay to use.
+- [RatingsSystem] Move Nature Bonus and Max Offensive Score to JSON. Also add the dupe move-type 20% deduction
 - [Ruleset] Change ratings based on ruleset being played
    - Expose option to choose which ruleset to play by ("auto" is an option)
-- [UI] Create a tiny GachaMon logo icon
+- [Card] Add Nickname; research how many bytes it takes up
+- [Card] Evos should roll a new GachaMon card. EVs are okay to use.
 - [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
 - [Animation] Shiny has a rainbow / animated frame border
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
@@ -61,39 +59,6 @@ function GachaMonData.initialize()
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
 	GachaMonFileManager.importRecentGachaMons()
-end
-
-function GachaMonData.test()
-	-- local pokemon = TrackerAPI.getPlayerPokemon()
-	-- if pokemon then
-	-- 	-- Test converting 1st mon in party to GachaMon
-	-- 	local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
-	-- 	Utils.printDebug("[GACHAMON] %s >>> Rating: %s | Stars: %s <<<",
-	-- 		PokemonData.Pokemon[gachamon.PokemonId].name,
-	-- 		gachamon.RatingScore,
-	-- 		gachamon:getStars()
-	-- 	)
-
-	-- 	-- Test to-and-from binary
-	-- 	local binaryStream = GachaMonFileManager.monToBinary(gachamon)
-	-- 	local mon = GachaMonFileManager.binaryToMon(binaryStream)
-	-- 	Utils.printDebug("Binary Transform Success: %s - %s", tostring(mon ~= nil), mon ~= nil and mon.PokemonId or "N/A")
-
-	-- 	-- Test base-64 encoding of data
-	-- 	local b64string = GachaMonData.getShareablyCode(gachamon)
-	-- 	Utils.printDebug("Share Code: %s", b64string)
-	-- end
-
-	-- OPEN THE OVERLAY
-	-- Program.openOverlayScreen(GachaMonOverlay)
-	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Options
-	-- GachaMonOverlay.refreshButtons()
-	-- Program.redraw(true)
-
-	-- local k, v = next(GachaMonData.RecentMons)
-	-- if v then
-	-- 	GachaMonData.newestRecentMon = v
-	-- end
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -405,6 +370,26 @@ function GachaMonData.clearNewestMonToShow()
 	GachaMonData.newestRecentMon = nil
 end
 
+function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
+	if badgeNumber < 1 or badgeNumber > 8 then
+		return
+	end
+	local badgeBitToSet = Utils.bit_lshift(1, badgeNumber - 1)
+	local anyChanged = false
+	-- Check each Pokémon in the player's party. For the ones with GachaMon cards, update their badge data
+	for i = 1, 6, 1 do
+		local pokemon = TrackerAPI.getPlayerPokemon(i) or {}
+		local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+		if gachamon then
+			gachamon.Badges = Utils.bit_or(gachamon.Badges or 0, badgeBitToSet)
+			anyChanged = true
+		end
+	end
+	if anyChanged then
+		GachaMonFileManager.saveRecentMonsToFile()
+	end
+end
+
 ---Called when a new Pokémon is viewed on the Tracker, to create a GachaMon from it
 ---@param pokemon IPokemon
 ---@return boolean success
@@ -595,6 +580,8 @@ GachaMonData.IGachaMon = {
 	Favorite = 0,
 	-- 2 Bytes (16 bits); The seed number at the time this mon was collected
 	SeedNumber = 0,
+	-- 1 Byte (8 bits); which of the 8 badges this Pokémon was involved in helping acquire
+	Badges = 0,
 	-- 4 Bytes (10 bits x3); Ordered as:
 	-- 00DDDDDD DDDDAAAA AAAAAAHH HHHHHHHH
 	C_StatsHpAtkDef = 0,
@@ -704,7 +691,7 @@ GachaMonData.IGachaMon = {
 		return self.C_DateObtained
 	end,
 
-	---Use `GachaMonData.updateAndSaveGachaMon()` to properly make saved changes to GachaMons
+	---Use `GachaMonData.updateGachaMonAndSave()` to properly make saved changes to GachaMons
 	---@param favoriteBit number
 	---@return boolean dataChanged
 	setFavorite = function(self, favoriteBit)
@@ -716,7 +703,7 @@ GachaMonData.IGachaMon = {
 		end
 		return dataChanged
 	end,
-	---Use `GachaMonData.updateAndSaveGachaMon()` to properly make saved changes to GachaMons
+	---Use `GachaMonData.updateGachaMonAndSave()` to properly make saved changes to GachaMons
 	---@param keepBit number
 	---@return boolean dataChanged
 	setKeep = function(self, keepBit)
@@ -831,6 +818,7 @@ function GachaMonData.IGachaMon:new(o)
 	o.BattlePower = o.BattlePower or 0
 	o.Favorite = o.Favorite or 0
 	o.SeedNumber = o.SeedNumber or 0
+	o.Badges = o.Badges or 0
 	o.C_StatsHpAtkDef = o.C_StatsHpAtkDef or 0
 	o.C_StatsSpaSpdSpe = o.C_StatsSpaSpdSpe or 0
 	o.C_MoveIdsGameVersionKeep = o.C_MoveIdsGameVersionKeep or 0
