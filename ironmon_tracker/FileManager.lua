@@ -26,6 +26,7 @@ FileManager.Folders = {
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
 	GachaMon = "gachamon",
+	GachaMonImages = "gachamon",
 }
 
 FileManager.Files = {
@@ -59,6 +60,10 @@ FileManager.Files = {
 	}
 }
 
+FileManager.PreFixes = {
+	CARDPACK = "cardpack",
+}
+
 FileManager.PostFixes = {
 	ATTEMPTS_FILE = "Attempts",
 	AUTORANDOMIZED = "AutoRandomized",
@@ -79,6 +84,7 @@ FileManager.Extensions = {
 	MGBA_SAVESTATE = ".ss0", -- ".ss0" through ".ss9" are okay to use
 	LUA_CODE = ".lua",
 	TAR_GZ = ".tar.gz",
+	PNG = ".png",
 }
 
 FileManager.Urls = {

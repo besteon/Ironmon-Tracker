@@ -42,6 +42,17 @@ Constants.STAT_STATES = {
 	[3] = { text = "=", textColor = "Default text" },
 }
 
+---A table of supported IronMON rulesets for the Tracker. Rulesets details available at https://ironmon.gg
+---@type table<string, string>
+Constants.IronmonRulesets = {
+	Standard = "Standard",
+	Ultimate = "Ultimate",
+	Kaizo = "Kaizo",
+	Survival = "Survival",
+	SuperKaizo = "Super Kaizo",
+	-- TODO: consider Subpar and NatDex and Doubles
+}
+
 -- Holds information about looking up badge icon files and kerning offsets to draw onto screen
 Constants.Badges = {
 	-- Ruby/Sapphire
@@ -787,6 +798,20 @@ Constants.PixelImages = {
 		{1,1,1,0,0},
 		{1,1,0,0,0},
 		{1,0,0,0,0},
+	},
+	GACHAMON_CARD = {
+		{1,1,1,1,1,1,1,1,0,0,0,0,0},
+		{1,2,2,2,2,2,2,2,1,0,0,0,0},
+		{1,2,2,2,2,2,2,2,2,1,1,1,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
 	},
 	FILTER_SETTINGS = { -- 14x11
 		{0,0,0,0,0,0,0,0,0,1,1,1,0,0,0},

@@ -20,24 +20,23 @@ GachaMonData = {
 	newestRecentMon = nil,
 	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
 	requiresNatDex = false,
+	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
+	ruleset = Constants.IronmonRulesets.Kaizo,
 }
 
 --[[
 TESTING LIST
 - [Test] Deleting stuff from collection
 - [Test] Nat Dex capture then swap to non-nat dex
-- [Test] Playing a few normal games and catching 7+ pokemon in each
 - [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think, j/k it should actually)
 ]]
 
 --[[
 TODO LIST
-- [Card] Add Badges to a Gachamon
+- [UI] Consider "Rainbow Stars" instead of "Platinum" for shiny
+- [Ruleset] Expose option to choose which ruleset to play by ("auto" is an option)
 - [Card] Add Nickname; research how many bytes it takes up
 - [Card] Evos should roll a new GachaMon card. EVs are okay to use.
-- [Ruleset] Change ratings based on ruleset being played
-   - Expose option to choose which ruleset to play by ("auto" is an option)
-- [UI] Create a tiny GachaMon logo icon
 - [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
 - [Animation] Shiny has a rainbow / animated frame border
 - [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
@@ -57,43 +56,11 @@ function GachaMonData.initialize()
 	GachaMonData.collectionRequiresSaving = false
 	GachaMonData.requiresNatDex = false
 	GachaMonData.clearNewestMonToShow()
+	-- GachaMonData.ruleset = Constants.IronmonRulesets.Kaizo -- Don't actually reset this, since the New Run profile initialize is doing it instead
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
 	GachaMonFileManager.importRecentGachaMons()
-end
-
-function GachaMonData.test()
-	-- local pokemon = TrackerAPI.getPlayerPokemon()
-	-- if pokemon then
-	-- 	-- Test converting 1st mon in party to GachaMon
-	-- 	local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
-	-- 	Utils.printDebug("[GACHAMON] %s >>> Rating: %s | Stars: %s <<<",
-	-- 		PokemonData.Pokemon[gachamon.PokemonId].name,
-	-- 		gachamon.RatingScore,
-	-- 		gachamon:getStars()
-	-- 	)
-
-	-- 	-- Test to-and-from binary
-	-- 	local binaryStream = GachaMonFileManager.monToBinary(gachamon)
-	-- 	local mon = GachaMonFileManager.binaryToMon(binaryStream)
-	-- 	Utils.printDebug("Binary Transform Success: %s - %s", tostring(mon ~= nil), mon ~= nil and mon.PokemonId or "N/A")
-
-	-- 	-- Test base-64 encoding of data
-	-- 	local b64string = GachaMonData.getShareablyCode(gachamon)
-	-- 	Utils.printDebug("Share Code: %s", b64string)
-	-- end
-
-	-- OPEN THE OVERLAY
-	-- Program.openOverlayScreen(GachaMonOverlay)
-	-- GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.Options
-	-- GachaMonOverlay.refreshButtons()
-	-- Program.redraw(true)
-
-	-- local k, v = next(GachaMonData.RecentMons)
-	-- if v then
-	-- 	GachaMonData.newestRecentMon = v
-	-- end
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -191,29 +158,79 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
 
-	Utils.printDebug("--- RATINGS CALC FOR %s ---", Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"))
+	Utils.printDebug("--- %s'S RATING | RULESET: %s ---",
+		Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"),
+		Utils.toUpperUTF8(GachaMonData.ruleset or "N/A")
+	)
+
+	-- RULESET
+	local RulesetChanges = RS.Rulesets[GachaMonData.ruleset] or RS.Rulesets[Constants.IronmonRulesets.Standard]
 
 	-- ABILITY
 	local abilityRating = RS.Abilities[gachamon.AbilityId or 0] or 0
-	ratingTotal = ratingTotal + abilityRating
-
-	-- MOVES
-	local moveRating = 0
-	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
-		local thisRating = RS.Moves[id]
-		if thisRating then
-			local move = MoveData.Moves[id]
-			if Utils.isSTAB(move, move.type, pokemonInternal.types) then
-				thisRating = thisRating * 1.5
+	-- Remove rating if banned ability, unless it qualifies for an exception
+	if RulesetChanges.BannedAbilities[gachamon.AbilityId or 0] then
+		local bannedAbilityException = false
+		for _, bae in pairs(RulesetChanges.BannedAbilityExceptions or {}) do
+			local bstOkay = pokemonInternal.bst < (bae.BSTLessThan or 0)
+			local evoOkay = not bae.MustEvo or pokemonInternal.evolution ~= PokemonData.Evolutions.NONE
+			local natdexOkay = not CustomCode.RomHacks.isPlayingNatDex() or bae.NatDexOnly
+			if bstOkay and evoOkay and natdexOkay then
+				bannedAbilityException = true
+				break
 			end
-			moveRating = moveRating + thisRating
-			Utils.printDebug("- Move %s: %s %s", i, move.name, thisRating)
+		end
+		if not bannedAbilityException then
+			abilityRating = 0
 		end
 	end
-	ratingTotal = ratingTotal + moveRating
+	ratingTotal = ratingTotal + math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
+
+	-- MOVES
+	local iMoves = {}
+	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
+		iMoves[i] = {
+			id = id,
+			move = MoveData.Moves[id] or MoveData.BlankMove,
+			ePower = MoveData.getExpectedPower(id),
+			rating = RS.Moves[id] or 0,
+		}
+		-- Remove rating if banned move
+		if RulesetChanges.BannedMoves[id or 0] then
+			iMoves[i].rating = 0
+		-- "Adjusted moves" for now means to reduce rating by 50%
+		elseif RulesetChanges.AdjustedMoves[id or 0] then
+			iMoves[i].rating = iMoves[i].rating * 0.5
+		end
+		if iMoves[i].rating ~= 0 then
+			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonInternal.types) then
+				iMoves[i].rating = iMoves[i].rating * 1.5
+			end
+		end
+	end
+	local movesRating = 0
+	for i, iMove in pairs(iMoves) do
+		local debugPenalty = false -- TODO: Remove
+		-- Check for duplicate offensive move types; redundant typing coverage applies penalty to the move with the lower rating
+		for _, cMove in pairs(iMoves) do
+			-- If this iMoves rating is lower than compared-move, and compared-move matches type, and they both deal damage, adjust the iMove rating
+			if cMove and iMove.rating < cMove.rating and cMove.move.type == iMove.move.type and cMove.id ~= iMove.id and cMove.ePower > 0 and iMove.ePower > 0 then
+				iMove.rating = iMove.rating * (RS.OtherAdjustments.RepeatedMovePentalty or 1)
+				debugPenalty = true
+				break
+			end
+		end
+		movesRating = movesRating + iMove.rating
+		local extraInfo = string.format("%s%s%s",
+			RulesetChanges.BannedMoves[iMove.id] and "(Banned) " or "",
+			RulesetChanges.AdjustedMoves[iMove.id] and "(Halved) " or "",
+			debugPenalty and "(Penalty: Duplicate) " or ""
+		)
+		Utils.printDebug("- Move %s: %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
+	end
+	ratingTotal = ratingTotal + math.min(movesRating, RS.CategoryMaximums.Moves or 999)
 
 	-- STATS
-	local OFFENSIVE_MAX = 20 -- TODO: move this to RatingsSystem JSON
 	-- Offensive Stats (Atk & Spa separately)
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
@@ -228,7 +245,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			offensiveSpa = 0
 		end
 	end
-	ratingTotal = ratingTotal + math.min(offensiveRating, OFFENSIVE_MAX) -- max of 20 boost
+	ratingTotal = ratingTotal + math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
 	-- Defensives Stat (HP, Def, SpDef)
 	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
 	local defensiveRating = 0
@@ -238,7 +255,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			break
 		end
 	end
-	ratingTotal = ratingTotal + defensiveRating
+	ratingTotal = ratingTotal + math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
 	-- Speed Stat (Spe)
 	local speedStat = (baseStats.spe or 0)
 	local speedRating = 0
@@ -248,25 +265,25 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			break
 		end
 	end
-	ratingTotal = ratingTotal + speedRating
+	ratingTotal = ratingTotal + math.min(speedRating, RS.CategoryMaximums.SpeedStats or 999)
 
-	-- MATCHING NATURE
+	-- NATURE
 	local natureRating = 0
+	local nature = gachamon:getNature()
 	local stats = gachamon:getStats()
-	local statKey = (stats.atk or 0 > stats.spa or 0) and "atk" or "spa"
-	local multiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
-	local natureBonus = math.floor(multiplier * 10 - 10)
-	if natureBonus > 1 then
-		-- TODO: 2 is a guess, eventually move this to the RatingsSystem JSON
-		natureRating = 2
+	-- For now, only apply nature points to the best offensive stat
+	local statKey = ((stats.atk or 0) > (stats.spa or 0)) and "atk" or "spa"
+	local multiplier = Utils.getNatureMultiplier(statKey, nature)
+	-- Utils.printDebug("Nature: %s, Stat: %s, Multiplier: %s", nature, statKey, multiplier)
+	if multiplier > 1 then
+		natureRating = RS.Natures.Beneficial[nature] or 0
+	elseif multiplier < 1 then
+		natureRating = RS.Natures.Detrimental[nature] or 0
 	end
 	ratingTotal = ratingTotal + natureRating
 
-	-- OTHER
-	-- What else should be considered for stars? STAB? Ruleset?
-
 	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
-		abilityRating, moveRating, offensiveRating, defensiveRating, speedRating, natureRating)
+		abilityRating, movesRating, offensiveRating, defensiveRating, speedRating, natureRating)
 	Utils.printDebug("- Rating Total: %s", math.floor(ratingTotal + 0.5))
 
 	return math.floor(ratingTotal + 0.5)
@@ -403,6 +420,59 @@ end
 ---Clears out any new GachaMon temporarily stored for viewing (after its opened or when a new battle starts)
 function GachaMonData.clearNewestMonToShow()
 	GachaMonData.newestRecentMon = nil
+end
+
+---Automatically tries to determine the IronMON ruleset being used for the current game and remembers it. Defaults to Kaizo if no proper match
+---@return string ruleset A value from Constants.IronmonRulesets
+function GachaMonData.autoDetermineIronmonRuleset()
+	local ruleset = nil
+
+	-- Ordered list for which ruleset text to check for first; e.g. check "super kaizo" before "kaizo"
+	local rulesetNamesOrdered = {
+		Constants.IronmonRulesets.Standard,
+		Constants.IronmonRulesets.Ultimate,
+		Constants.IronmonRulesets.Survival,
+		Constants.IronmonRulesets.SuperKaizo,
+		Constants.IronmonRulesets.Kaizo,
+	}
+
+	-- First check if an exact ruleset name exists in the settings file of the New Run profile
+	local profile = QuickloadScreen.getActiveProfile()
+	if not ruleset and profile then
+		for _, rulesetName in ipairs(rulesetNamesOrdered) do
+			-- Check the settings file used (typically the premade Tracker one), then check the profile name itself
+			if Utils.containsText(profile.Paths.Settings or "", rulesetName, true) then
+				ruleset = rulesetName
+				break
+			elseif Utils.containsText(profile.Name or "", rulesetName, true) then
+				ruleset = rulesetName
+				break
+			end
+		end
+	end
+
+	GachaMonData.ruleset = ruleset or Constants.IronmonRulesets.Kaizo
+	return GachaMonData.ruleset
+end
+
+function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
+	if badgeNumber < 1 or badgeNumber > 8 then
+		return
+	end
+	local badgeBitToSet = Utils.bit_lshift(1, badgeNumber - 1)
+	local anyChanged = false
+	-- Check each Pokémon in the player's party. For the ones with GachaMon cards, update their badge data
+	for i = 1, 6, 1 do
+		local pokemon = TrackerAPI.getPlayerPokemon(i) or {}
+		local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+		if gachamon then
+			gachamon.Badges = Utils.bit_or(gachamon.Badges or 0, badgeBitToSet)
+			anyChanged = true
+		end
+	end
+	if anyChanged then
+		GachaMonFileManager.saveRecentMonsToFile()
+	end
 end
 
 ---Called when a new Pokémon is viewed on the Tracker, to create a GachaMon from it
@@ -595,6 +665,8 @@ GachaMonData.IGachaMon = {
 	Favorite = 0,
 	-- 2 Bytes (16 bits); The seed number at the time this mon was collected
 	SeedNumber = 0,
+	-- 1 Byte (8 bits); which of the 8 badges this Pokémon was involved in helping acquire
+	Badges = 0,
 	-- 4 Bytes (10 bits x3); Ordered as:
 	-- 00DDDDDD DDDDAAAA AAAAAAHH HHHHHHHH
 	C_StatsHpAtkDef = 0,
@@ -704,7 +776,7 @@ GachaMonData.IGachaMon = {
 		return self.C_DateObtained
 	end,
 
-	---Use `GachaMonData.updateAndSaveGachaMon()` to properly make saved changes to GachaMons
+	---Use `GachaMonData.updateGachaMonAndSave()` to properly make saved changes to GachaMons
 	---@param favoriteBit number
 	---@return boolean dataChanged
 	setFavorite = function(self, favoriteBit)
@@ -716,7 +788,7 @@ GachaMonData.IGachaMon = {
 		end
 		return dataChanged
 	end,
-	---Use `GachaMonData.updateAndSaveGachaMon()` to properly make saved changes to GachaMons
+	---Use `GachaMonData.updateGachaMonAndSave()` to properly make saved changes to GachaMons
 	---@param keepBit number
 	---@return boolean dataChanged
 	setKeep = function(self, keepBit)
@@ -831,6 +903,7 @@ function GachaMonData.IGachaMon:new(o)
 	o.BattlePower = o.BattlePower or 0
 	o.Favorite = o.Favorite or 0
 	o.SeedNumber = o.SeedNumber or 0
+	o.Badges = o.Badges or 0
 	o.C_StatsHpAtkDef = o.C_StatsHpAtkDef or 0
 	o.C_StatsSpaSpdSpe = o.C_StatsSpaSpdSpe or 0
 	o.C_MoveIdsGameVersionKeep = o.C_MoveIdsGameVersionKeep or 0

@@ -3,6 +3,8 @@ GachaMonFileManager = {
 	Version = 1,
 	-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
 	RomHashSize = 64,
+	-- Current number of card pack image files that exist
+	NUMBER_CARDPACKS = 10,
 }
 
 -- A historical record of ALL binary data readers/writers and their storage size, such that any stream of binary data can be transformed into a GachaMon object
@@ -29,10 +31,12 @@ end
 function GachaMonFileManager.getCollectionFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_COLLECTION)
 end
+---@param packNumberOverride? number Which pack number to get the filepath for, currently packs are numbered 1-10
 ---@return string filepath
-function GachaMonFileManager.getCardPackFilePath()
-	-- TODO: set as variables
-	return FileManager.buildImagePath("gachamon", "cardpack", ".png")
+function GachaMonFileManager.getRandomCardPackFilePath(packNumberOverride)
+	local packNumber = packNumberOverride or math.random(1, GachaMonFileManager.NUMBER_CARDPACKS)
+	local filename = string.format("%s%s", FileManager.PreFixes.CARDPACK, packNumber)
+	return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, filename, FileManager.Extensions.PNG)
 end
 
 ---Imports all GachaMon Ratings data from a JSON file
@@ -53,23 +57,51 @@ function GachaMonFileManager.importRatingSystem(filepath)
 	GachaMonData.RatingsSystem = {
 		Abilities = {},
 		Moves = {},
+		Natures = {},
 		Stats = {},
+		CategoryMaximums = {},
+		OtherAdjustments = {},
 		RatingToStars = {},
+		Rulesets = {}
 	}
 	local RS = GachaMonData.RatingsSystem
 
+	-- Abilities
 	for idStr, rating in pairs(data.Abilities or {}) do
 		local id = tonumber(idStr)
 		if id then
 			RS.Abilities[id] = rating
 		end
 	end
+	-- Moves
 	for idStr, rating in pairs(data.Moves or {}) do
 		local id = tonumber(idStr)
 		if id then
 			RS.Moves[id] = rating
 		end
 	end
+	-- Natures
+	RS.Natures.Beneficial = {}
+	RS.Natures.Detrimental = {}
+	for _, natureId in ipairs(data.Natures.BeneficialOffensive.NatureIds or {}) do
+		RS.Natures.Beneficial[natureId] = data.Natures.BeneficialOffensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.BeneficialDefensive.NatureIds or {}) do
+		RS.Natures.Beneficial[natureId] = data.Natures.BeneficialDefensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.BeneficialSpeed.NatureIds or {}) do
+		RS.Natures.Beneficial[natureId] = data.Natures.BeneficialSpeed.Points
+	end
+	for _, natureId in ipairs(data.Natures.DetrimentalOffensive.NatureIds or {}) do
+		RS.Natures.Detrimental[natureId] = data.Natures.DetrimentalOffensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.DetrimentalDefensive.NatureIds or {}) do
+		RS.Natures.Detrimental[natureId] = data.Natures.DetrimentalDefensive.Points
+	end
+	for _, natureId in ipairs(data.Natures.DetrimentalSpeed.NatureIds or {}) do
+		RS.Natures.Detrimental[natureId] = data.Natures.DetrimentalSpeed.Points
+	end
+	-- Stats
 	for statCategory, list in pairs(data.Stats or {}) do
 		RS.Stats[statCategory] = {}
 		local statTable = RS.Stats[statCategory]
@@ -77,8 +109,39 @@ function GachaMonFileManager.importRatingSystem(filepath)
 			table.insert(statTable, ratingPair)
 		end
 	end
+	-- CategoryMaximums
+	for category, maximum in pairs(data.CategoryMaximums or {}) do
+		RS.CategoryMaximums[category] = maximum
+	end
+	-- OtherAdjustments
+	for key, val in pairs(data.OtherAdjustments or {}) do
+		RS.OtherAdjustments[key] = val
+	end
+	-- RatingToStars
 	for _, ratingPair in ipairs(data.RatingToStars or {}) do
 		table.insert(RS.RatingToStars, ratingPair)
+	end
+	-- Rulesets
+	for rulesetName, rulesetData in pairs(data.Rulesets or {}) do
+		RS.Rulesets[rulesetName] = {
+			BannedAbilities = {},
+			BannedAbilityExceptions = {},
+			BannedMoves = {},
+			AdjustedMoves = {},
+		}
+		local R = RS.Rulesets[rulesetName]
+		for _, id in pairs(rulesetData.BannedAbilities or {}) do
+			R.BannedAbilities[id] = true
+		end
+		for _, id in pairs(rulesetData.BannedMoves or {}) do
+			R.BannedMoves[id] = true
+		end
+		for _, id in pairs(rulesetData.AdjustedMoves or {}) do
+			R.AdjustedMoves[id] = true
+		end
+		for _, exceptionPair in pairs(rulesetData.BannedAbilityExceptions or {}) do
+			table.insert(R.BannedAbilityExceptions, exceptionPair)
+		end
 	end
 
 	return true
@@ -318,43 +381,9 @@ end
 
 --Version 1 Binary Stream
 GachaMonFileManager.BinaryStreams[1] = {
-	Format = "BIHBBBHIIII", -- The packing format (version # always occupies the 1st byte)
-	Size = 28, -- Number of bytes per GachaMon stored
+	Format = "BIHBBBHBIIII", -- The packing format (version # always occupies the 1st byte)
+	Size = 29, -- Number of bytes per GachaMon stored
 }
-
----@param binaryStream string compact binary stream of data
----@return IGachaMon|nil gachamon
----@return number size
-GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
-	local BS = GachaMonFileManager.BinaryStreams[1]
-	if Utils.isNilOrEmpty(binaryStream) then
-		return nil, 0
-	end
-	-- Unpack binary data into a table
-	local data = { StructEncoder.binaryUnpack(BS.Format, binaryStream, position) }
-	local gachamon = GachaMonData.IGachaMon:new({
-		Version = data[1],
-		Personality = data[2],
-		Level = data[4],
-		AbilityId = data[5],
-		RatingScore = data[6],
-		SeedNumber = data[7],
-		C_StatsHpAtkDef = data[8],
-		C_StatsSpaSpdSpe = data[9],
-	})
-	local idPowerFavorite = data[3]
-	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
-	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000
-	gachamon.Favorite = Utils.getbits(idPowerFavorite, 15, 1)
-	local movepair1 = data[10]
-	local movepair2 = data[11]
-	-- Utils.printDebug("Unpack: %x as %s", Utils.getbits(last8bytes, 0, 40), Utils.getbits(Utils.getbits(last8bytes, 0, 40), 0, 9))
-	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
-	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
-	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
-	gachamon.Temp.IsShiny = Utils.getbits(gachamon.C_ShinyGenderNature, 0, 1)
-	return gachamon, BS.Size
-end
 
 ---@param gachamon IGachaMon
 ---@return string binaryStream compact binary stream of data
@@ -381,9 +410,45 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 		gachamon.AbilityId,
 		gachamon.RatingScore,
 		gachamon.SeedNumber,
+		gachamon.Badges,
 		stats1,
 		stats2,
 		movepair1,
 		movepair2
 	)
+end
+
+---@param binaryStream string compact binary stream of data
+---@return IGachaMon|nil gachamon
+---@return number size
+GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
+	local BS = GachaMonFileManager.BinaryStreams[1]
+	if Utils.isNilOrEmpty(binaryStream) then
+		return nil, 0
+	end
+	-- Unpack binary data into a table
+	local data = { StructEncoder.binaryUnpack(BS.Format, binaryStream, position) }
+	local gachamon = GachaMonData.IGachaMon:new({
+		Version = data[1],
+		Personality = data[2],
+		Level = data[4],
+		AbilityId = data[5],
+		RatingScore = data[6],
+		SeedNumber = data[7],
+		Badges = data[8],
+		C_StatsHpAtkDef = data[9],
+		C_StatsSpaSpdSpe = data[10],
+	})
+	local idPowerFavorite = data[3]
+	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
+	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000
+	gachamon.Favorite = Utils.getbits(idPowerFavorite, 15, 1)
+	local movepair1 = data[11]
+	local movepair2 = data[12]
+	-- Utils.printDebug("Unpack: %x as %s", Utils.getbits(last8bytes, 0, 40), Utils.getbits(Utils.getbits(last8bytes, 0, 40), 0, 9))
+	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
+	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
+	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
+	gachamon.Temp.IsShiny = Utils.getbits(gachamon.C_ShinyGenderNature, 0, 1)
+	return gachamon, BS.Size
 end

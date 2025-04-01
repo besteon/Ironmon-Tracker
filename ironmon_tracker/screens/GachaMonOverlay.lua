@@ -115,7 +115,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			if not V.GachaMon then
 				return
 			end
-			local x, y, x2 = self.box[1], self.box[2], self.box[1] + 63
+			local x, y, x2 = self.box[1], self.box[2], self.box[1] + 61
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 			-- NAME & GENDER
@@ -209,7 +209,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 	Moves = {
 		getText = function(self) return string.format("%s", Resources.TrackerScreen.HeaderMoves) end,
 		textColor = SCREEN.Colors.highlight,
-		box = { CANVAS.X + 57, CANVAS.Y + 88, 83, 11, },
+		box = { CANVAS.X + 55, CANVAS.Y + 88, 83, 11, },
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		onClick = function(self)
 			-- local moveIds = SCREEN.Data.View.GachaMon:getMoveIds()
@@ -302,6 +302,51 @@ GachaMonOverlay.Tabs.View.Buttons = {
 				local versionText = string.format("v%s", SCREEN.Data.View.GachaMon.Version)
 				local versionTextW = 5 + Utils.calcWordPixelLength(versionText)
 				Drawing.drawText(x - versionTextW, y - 1, versionText, color, shadowcolor)
+			end
+		end,
+	},
+	Badges = {
+		box = { CANVAS.X + CANVAS.W - 95, CANVAS.Y + 12, 25, 72, },
+		badgeImages = {},
+		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
+		updateSelf = function(self)
+			if not SCREEN.Data.View.GachaMon then
+				return
+			end
+			-- Setup image paths and kerning for corresponding game badges
+			self.badgeImages = {}
+			local gameNumber = SCREEN.Data.View.GachaMon:getGameVersionNumber()
+			if gameNumber == 4 then
+				gameNumber = 1 -- 1:Ruby/Sapphire
+			elseif gameNumber == 5 then
+				gameNumber = 3 -- 3:FireRed/LeafGreen
+			end
+			local badgeInfoTable = Constants.Badges[gameNumber] or {}
+			local badgePrefix = badgeInfoTable.Prefix or "FRLG" -- just picked a default
+			local kerningOffsets = badgeInfoTable.IconOffsets or {}
+			for i = 1, 8, 1 do
+				local filename = badgePrefix .. "_badge" .. i
+				self.badgeImages[i] = {
+					Path = FileManager.buildImagePath(FileManager.Folders.Badges, filename, FileManager.Extensions.BADGE),
+					Kerning = kerningOffsets[i] or 0, -- Not currently used (For FRLG at least)
+				}
+			end
+		end,
+		draw = function(self, shadowcolor)
+			if not SCREEN.Data.View.GachaMon then
+				return
+			end
+			if not self.badgeImages[1] or not self.badgeImages[1].Path then
+				self:updateSelf()
+			end
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			for i = 1, 8, 1 do
+				local badgeState = Utils.getbits(SCREEN.Data.View.GachaMon.Badges or 0, i - 1, 1)
+				if badgeState == 1 and self.badgeImages[i] and self.badgeImages[i].Path then
+					local ix = x
+					local iy = y + (i-1) * 16
+					Drawing.drawImage(self.badgeImages[i].Path, ix, iy)
+				end
 			end
 		end,
 	},
@@ -1062,7 +1107,7 @@ function GachaMonOverlay.createTabsAndButtons()
 	end
 
 	-- CREATE OPTIONS CHECKBOXES
-	startX = CANVAS.X + 4
+	startX = CANVAS.X + 5
 	startY = CANVAS.Y + 48
 	local optionKeyMap = {
 		{ "Hide Pokemon stats until GachaMon viewed", "OptionHideStatsUntilViewed", },
