@@ -184,7 +184,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = 0
 		end
 	end
-	ratingTotal = ratingTotal + math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
+	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
+	ratingTotal = ratingTotal + abilityRating
 
 	-- MOVES
 	local iMoves = {}
@@ -228,7 +229,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		)
 		Utils.printDebug("- Move %s: %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
 	end
-	ratingTotal = ratingTotal + math.min(movesRating, RS.CategoryMaximums.Moves or 999)
+	movesRating = math.min(movesRating, RS.CategoryMaximums.Moves or 999)
+	ratingTotal = ratingTotal + movesRating
 
 	-- STATS
 	-- Offensive Stats (Atk & Spa separately)
@@ -245,7 +247,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			offensiveSpa = 0
 		end
 	end
-	ratingTotal = ratingTotal + math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
+	offensiveRating = math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
+	ratingTotal = ratingTotal + offensiveRating
 	-- Defensives Stat (HP, Def, SpDef)
 	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
 	local defensiveRating = 0
@@ -255,7 +258,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			break
 		end
 	end
-	ratingTotal = ratingTotal + math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
+	defensiveRating = math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
+	ratingTotal = ratingTotal + defensiveRating
 	-- Speed Stat (Spe)
 	local speedStat = (baseStats.spe or 0)
 	local speedRating = 0
@@ -265,7 +269,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			break
 		end
 	end
-	ratingTotal = ratingTotal + math.min(speedRating, RS.CategoryMaximums.SpeedStats or 999)
+	speedRating = math.min(speedRating, RS.CategoryMaximums.SpeedStats or 999)
+	ratingTotal = ratingTotal + speedRating
 
 	-- NATURE
 	local natureRating = 0
@@ -280,6 +285,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	elseif multiplier < 1 then
 		natureRating = RS.Natures.Detrimental[nature] or 0
 	end
+	natureRating = math.min(natureRating, RS.CategoryMaximums.Nature or 999)
 	ratingTotal = ratingTotal + natureRating
 
 	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
