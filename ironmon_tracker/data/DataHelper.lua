@@ -370,13 +370,13 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	-- MISC DATA (data.x)
 	if data.x.infoIsHidden then
-		data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
-		data.x.healvalue = math.min(99999, Program.GameData.Items.healingValue or 0) -- Max of 99999
-		data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
-	else
 		data.x.healperc = 0
 		data.x.healvalue = 0
 		data.x.healnum = 0
+	else
+		data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
+		data.x.healvalue = math.min(99999, Program.GameData.Items.healingValue or 0) -- Max of 99999
+		data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
 	end
 	data.x.pcheals = Tracker.Data.centerHeals
 
