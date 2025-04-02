@@ -32,10 +32,9 @@ TESTING LIST
 
 --[[
 TODO LIST
+- [Card] Evos should roll a new GachaMon card. EVs are okay to use.
 - [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
 - [Card] Add Nickname; research how many bytes it takes up
-- [Card] Evos should roll a new GachaMon card. EVs are okay to use.
-- [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
@@ -186,6 +185,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	ratingTotal = ratingTotal + abilityRating
 
 	-- MOVES
+	local anyPhysicalDamagingMoves, anySpecialDamaingMoves = false, false
 	local iMoves = {}
 	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
 		iMoves[i] = {
@@ -202,6 +202,14 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			iMoves[i].rating = iMoves[i].rating * 0.5
 		end
 		if iMoves[i].rating ~= 0 then
+			if iMoves[i].ePower > 0 then
+				if not anyPhysicalDamagingMoves and iMoves[i].move.category == MoveData.Categories.PHYSICAL then
+					anyPhysicalDamagingMoves = true
+				end
+				if not anySpecialDamaingMoves and iMoves[i].move.category == MoveData.Categories.SPECIAL then
+					anySpecialDamaingMoves = true
+				end
+			end
 			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonInternal.types) then
 				iMoves[i].rating = iMoves[i].rating * 1.5
 			end
@@ -230,24 +238,36 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	movesRating = math.min(movesRating, RS.CategoryMaximums.Moves or 999)
 	ratingTotal = ratingTotal + movesRating
 
-	-- STATS
-	-- Offensive Stats (Atk & Spa separately)
+	-- STATS (OFFENSIVE)
+	local penaltyNoMoveCategory = 0.20
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
 	local offensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
 		if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
-			offensiveRating = offensiveRating + ratingPair.Rating
+			-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
+			if anyPhysicalDamagingMoves then
+				offensiveRating = offensiveRating + ratingPair.Rating
+			else
+				offensiveRating = offensiveRating + (ratingPair.Rating * penaltyNoMoveCategory)
+			end
+			-- Rating found, exclude from future threshold checks
 			offensiveAtk = 0
 		end
-		if offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
-			offensiveRating = offensiveRating + ratingPair.Rating
+		if anySpecialDamaingMoves and offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
+			-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
+			if anySpecialDamaingMoves then
+				offensiveRating = offensiveRating + ratingPair.Rating
+			else
+				offensiveRating = offensiveRating + (ratingPair.Rating * penaltyNoMoveCategory)
+			end
+			-- Rating found, exclude from future threshold checks
 			offensiveSpa = 0
 		end
 	end
 	offensiveRating = math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
 	ratingTotal = ratingTotal + offensiveRating
-	-- Defensives Stat (HP, Def, SpDef)
+	-- STATS (DEFENSIVE)
 	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
 	local defensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Defensive or {}) do
@@ -258,7 +278,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	end
 	defensiveRating = math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
 	ratingTotal = ratingTotal + defensiveRating
-	-- Speed Stat (Spe)
+	-- STATS (SPEED)
 	local speedStat = (baseStats.spe or 0)
 	local speedRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Speed or {}) do
@@ -323,7 +343,7 @@ function GachaMonData.calculateBattlePower(gachamon)
 
 	-- Add matching nature bonus
 	local stats = gachamon:getStats()
-	local statKey = (stats.atk or 0 > stats.spa or 0) and "atk" or "spa"
+	local statKey = ((stats.atk or 0) > (stats.spa or 0)) and "atk" or "spa"
 	local multiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
 	local natureBonus = math.floor(multiplier * 10 - 10) * 1000
 	power = power + natureBonus
@@ -808,7 +828,7 @@ GachaMonData.IGachaMon = {
 		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
 		return pokemonInternal.name
 	end,
-	---@return table stats
+	---@return table<string, number> stats
 	getStats = function(self)
 		if self.Temp.Stats == nil then
 			self.Temp.Stats = {
@@ -849,7 +869,7 @@ GachaMonData.IGachaMon = {
 		end
 		return self.Temp.GameVersionName
 	end,
-	---@return table moveIds
+	---@return table<number, number> moveIds
 	getMoveIds = function(self)
 		if self.Temp.MoveIds == nil then
 			self.Temp.MoveIds = {
@@ -882,7 +902,7 @@ GachaMonData.IGachaMon = {
 		end
 		return self.Temp.Nature
 	end,
-	---@return table datetable { year=#, month=#, day=# }
+	---@return table<string, number> datetable { year=#, month=#, day=# }
 	getDateObtainedTable = function(self)
 		return {
 			day = Utils.getbits(self.C_DateObtained, 0, 5),
