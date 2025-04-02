@@ -1290,16 +1290,56 @@ end
 ---@param params string?
 ---@return string response
 function EventData.getGachamon(params)
-	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
+	local gachamon ---@type IGachaMon
+	if not Utils.isNilOrEmpty(params, true) then
+		local id = DataHelper.findPokemonId(params)
+		local pokemon = PokemonData.Pokemon[id or false]
+		-- Check Recent GachaMons for any matching names, just get "first" one doesn't matter really
+		if pokemon then
+			for _, gmon in pairs(GachaMonData.RecentMons or {}) do
+				if gmon.PokemonId == id then
+					gachamon = gmon
+					break
+				end
+			end
+		end
+	else
+		local pokemon = TrackerAPI.getPlayerPokemon() or {}
+		gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+	end
+	if not gachamon then
+		return buildDefaultResponse(params)
+	end
 
+	-- EXAMPLE OUTPUT
+	-- GachaMon > Milotic - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
+
+	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
 	local info = {}
 
-	-- params should be either a pokemon name or something else to unique identify
+	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0] or PokemonData.BlankPokemon
+	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility
+	local nameAndAbility = string.format("%s - %s", pokemonInternal.name, abilityInternal.name)
+	table.insert(info, nameAndAbility)
 
-	-- !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
+	local numStars = gachamon:getStars() or 0
+	local starsAndBP = string.format("%s Stars, %s BP", numStars > 5 and "5+" or numStars, gachamon.BattlePower or 0)
+	table.insert(info, starsAndBP)
 
-	-- TODO: Build out a proper data response, showing relevant info about the card
-	-- table.insert(info, string.format("%s: %s/%s", "Gym badges", badgesObtained, maxBadges))
+	local stats = gachamon:getStats()
+	local statValues = string.format("%s/%s/%s/%s/%s/%s", stats.hp or 0, stats.atk or 0, stats.def or 0, stats.spa or 0, stats.spd or 0, stats.spe or 0)
+	local levelAndStats = string.format("%s.%s Stats: %s", Resources.TrackerScreen.LevelAbbreviation, gachamon.Level, statValues)
+	table.insert(info, levelAndStats)
+
+	local moveNames = {}
+	local moveIds = gachamon:getMoveIds()
+	for _, moveId in ipairs(moveIds or {}) do
+		if MoveData.isValid(moveId) then
+			table.insert(moveNames, MoveData.Moves[moveId].name)
+		end
+	end
+	local moveList = table.concat(moveNames, ", ")
+	table.insert(info, moveList)
 
 	return buildResponse(prefix, info)
 end
