@@ -17,7 +17,11 @@ GachaMonData = {
 	-- Anytime Collection changes, flag this as true; Collection is saved to file sparingly, typically when the Overlay or Tracker closes
 	collectionRequiresSaving = false,
 	-- When a new GachaMon is caught/created, this will temporarily store that mon's data
-	newestRecentMon = nil,
+	newestRecentMon = nil, ---@type IGachaMon|nil
+	-- For recalculating the stars of the viewed Pokémon/GachaMon
+	playerViewedMon = nil, ---@type IGachaMon|nil
+	-- The initial star rating for the viewed mon (won't change); used to compare to recalculated stars
+	playerViewedInitialStars = 0,
 	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
 	requiresNatDex = false,
 	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
@@ -52,8 +56,12 @@ function GachaMonData.initialize()
 	GachaMonData.initialCollectionLoad = false
 	GachaMonData.collectionRequiresSaving = false
 	GachaMonData.requiresNatDex = false
+	GachaMonData.playerViewedMon = nil
+	GachaMonData.playerViewedInitialStars = 0
 	GachaMonData.clearNewestMonToShow()
-	-- GachaMonData.ruleset = Constants.IronmonRulesets.Kaizo -- Don't actually reset this, since the New Run profile initialize is doing it instead
+
+	-- Don't actually reset this, since the New Run profile initialize is doing it instead
+	-- GachaMonData.ruleset = Constants.IronmonRulesets.Kaizo
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
@@ -82,8 +90,9 @@ function GachaMonData.findInCollection(gachamon)
 end
 
 ---@param pokemonData IPokemon
+---@param DEBUG_SUPPRESS_MSGS? boolean TODO: Remove this on release
 ---@return IGachaMon gachamon
-function GachaMonData.convertPokemonToGachaMon(pokemonData)
+function GachaMonData.convertPokemonToGachaMon(pokemonData, DEBUG_SUPPRESS_MSGS)
 	local gachamon = GachaMonData.IGachaMon:new({
 		Version = GachaMonFileManager.Version,
 		Personality = pokemonData.personality or 0,
@@ -132,8 +141,8 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	local pokemonInternal = PokemonData.Pokemon[pokemonData.pokemonID or 0]
 	local baseStats = pokemonInternal and pokemonInternal.baseStats or {}
 
-	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon, baseStats)
-	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon)
+	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_MSGS)
+	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon, DEBUG_SUPPRESS_MSGS)
 	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
 
 	-- Always make 5-star or higher GachaMon's shiny
@@ -149,16 +158,18 @@ end
 ---@param gachamon IGachaMon
 ---@param baseStats table
 ---@return number rating Value between 0 and 100
-function GachaMonData.calculateRatingScore(gachamon, baseStats)
+function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_MSGS)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
 
-	Utils.printDebug("--- %s'S RATING | RULESET: %s ---",
-		Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"),
-		Utils.toUpperUTF8(GachaMonData.ruleset or "N/A")
-	)
+	if not DEBUG_SUPPRESS_MSGS then
+		Utils.printDebug("--- %s'S RATING | RULESET: %s ---",
+			Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"),
+			Utils.toUpperUTF8(GachaMonData.ruleset or "N/A")
+		)
+	end
 
 	-- RULESET
 	local RulesetChanges = RS.Rulesets[GachaMonData.ruleset] or RS.Rulesets[Constants.IronmonRulesets.Standard]
@@ -233,7 +244,9 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			RulesetChanges.AdjustedMoves[iMove.id] and "(Halved) " or "",
 			debugPenalty and "(Penalty: Duplicate) " or ""
 		)
-		Utils.printDebug("- Move %s: %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
+		if not DEBUG_SUPPRESS_MSGS then
+			Utils.printDebug("- Move %s: %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
+		end
 	end
 	movesRating = math.min(movesRating, RS.CategoryMaximums.Moves or 999)
 	ratingTotal = ratingTotal + movesRating
@@ -251,6 +264,9 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			else
 				offensiveRating = offensiveRating + (ratingPair.Rating * penaltyNoMoveCategory)
 			end
+			if not DEBUG_SUPPRESS_MSGS then
+				Utils.printDebug(" - ATK Offensive rating: %s", offensiveRating)
+			end
 			-- Rating found, exclude from future threshold checks
 			offensiveAtk = 0
 		end
@@ -260,6 +276,9 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 				offensiveRating = offensiveRating + ratingPair.Rating
 			else
 				offensiveRating = offensiveRating + (ratingPair.Rating * penaltyNoMoveCategory)
+			end
+			if not DEBUG_SUPPRESS_MSGS then
+				Utils.printDebug(" - SPA Offensive rating: %s", offensiveRating)
 			end
 			-- Rating found, exclude from future threshold checks
 			offensiveSpa = 0
@@ -297,7 +316,6 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	-- For now, only apply nature points to the best offensive stat
 	local statKey = ((stats.atk or 0) > (stats.spa or 0)) and "atk" or "spa"
 	local multiplier = Utils.getNatureMultiplier(statKey, nature)
-	-- Utils.printDebug("Nature: %s, Stat: %s, Multiplier: %s", nature, statKey, multiplier)
 	if multiplier > 1 then
 		natureRating = RS.Natures.Beneficial[nature] or 0
 	elseif multiplier < 1 then
@@ -306,9 +324,11 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	natureRating = math.min(natureRating, RS.CategoryMaximums.Nature or 999)
 	ratingTotal = ratingTotal + natureRating
 
-	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
-		abilityRating, movesRating, offensiveRating, defensiveRating, speedRating, natureRating)
-	Utils.printDebug("- Rating Total: %s", math.floor(ratingTotal + 0.5))
+	if not DEBUG_SUPPRESS_MSGS then
+		Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
+			abilityRating, movesRating, offensiveRating, defensiveRating, speedRating, natureRating)
+		Utils.printDebug("- Rating Total: %s", math.floor(ratingTotal + 0.5))
+	end
 
 	return math.floor(ratingTotal + 0.5)
 end
@@ -316,7 +336,7 @@ end
 ---Calculates the GachaMon's "Battle Power" based on its rating, STAB moves, nature, etc
 ---@param gachamon IGachaMon
 ---@return number power Value between 0 and GachaMonData.MAX_BATTLE_POWER (15000)
-function GachaMonData.calculateBattlePower(gachamon)
+function GachaMonData.calculateBattlePower(gachamon, DEBUG_SUPPRESS_MSGS)
 	local power = 0
 
 	-- Add stars/rating bonus
@@ -348,13 +368,15 @@ function GachaMonData.calculateBattlePower(gachamon)
 	local natureBonus = math.floor(multiplier * 10 - 10) * 1000
 	power = power + natureBonus
 
-	Utils.printDebug("- [Battle Power] Stars: %s, Moves: %s, STAB: %s, Nature: %s, Total: %s",
-		starsBonus,
-		movePowerBonus,
-		hasStab and 1000 or 0,
-		natureBonus,
-		math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
-	)
+	if not DEBUG_SUPPRESS_MSGS then
+		Utils.printDebug("- [Battle Power] Stars: %s, Moves: %s, STAB: %s, Nature: %s, Total: %s",
+			starsBonus,
+			movePowerBonus,
+			hasStab and 1000 or 0,
+			natureBonus,
+			math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
+		)
+	end
 
 	return math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
 end
@@ -444,6 +466,36 @@ end
 ---Clears out any new GachaMon temporarily stored for viewing (after its opened or when a new battle starts)
 function GachaMonData.clearNewestMonToShow()
 	GachaMonData.newestRecentMon = nil
+end
+
+function GachaMonData.updateMainScreenViewedGachaMon()
+	local viewedPokemon = Battle.getViewedPokemon(true)
+	if not viewedPokemon then
+		GachaMonData.playerViewedMon = nil
+		GachaMonData.playerViewedInitialStars = 0
+		return
+	end
+	local prevMon = GachaMonData.playerViewedMon
+	-- If new or different mon or different level, recalc
+	local needsRecalculating = not prevMon or (prevMon.PokemonId ~= viewedPokemon.pokemonID) or (prevMon.Level ~= viewedPokemon.level)
+	-- Otherwise, check if it learned any new moves
+	if not needsRecalculating then
+		local prevMoveIds = prevMon and prevMon:getMoveIds() or {}
+		local currentMoves = viewedPokemon.moves or {}
+		for i = 1, 4, 1 do
+			if currentMoves[i] and currentMoves[i].id ~= prevMoveIds[i] then
+				needsRecalculating = true
+				break
+			end
+		end
+	end
+	-- Suppress debug messages when re-calculating here
+	if needsRecalculating then
+		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon, true)
+		-- Always reset the initial stars to original card; do this every time the mon gets rerolled (in case the mon changes)
+		local recentMon = GachaMonData.RecentMons[GachaMonData.playerViewedMon.Personality or false]
+		GachaMonData.playerViewedInitialStars = recentMon and recentMon:getStars() or 0
+	end
 end
 
 ---Automatically tries to determine the IronMON ruleset being used for the current game and remembers it. Defaults to Kaizo if no proper match

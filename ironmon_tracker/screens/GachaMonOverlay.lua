@@ -1300,37 +1300,53 @@ end
 ---@param numStars number
 ---@param x number
 ---@param y number
-function GachaMonOverlay.drawGachaMonStars(numStars, x, y)
+---@param initialStars? number The original amount of stars to compare to the new star value. New stars have a different color, missing stars are hollow
+function GachaMonOverlay.drawGachaMonStars(numStars, x, y, initialStars)
 	if numStars < 1 then
 		return
 	end
-	local needsTwoLines = (numStars >= 5)
+	if initialStars and initialStars < 1 then
+		initialStars = nil
+	end
+	local numToDraw = math.max(initialStars or 0, numStars) -- use whichever is larger
+	local needsTwoLines = (numToDraw >= 5)
 	local icon = Constants.PixelImages.STAR
-	local iconColors = icon:getColors()
-	iconColors[4] = Drawing.ColorEffects.DARKEN * 2
+	local iconColors = icon:getColors() -- yellow
+	local newStarColors = icon:getNewStarColors() -- orange (new)
+	local emptyStarColors = icon:getEmptyStarColors() -- faded (missing)
 	local iconSize = 9
 	-- Use Platinum colors for highest rarity (5+ stars)
-	if numStars > 5 then
+	if numToDraw > 5 then
 		iconColors[1] = 0xFFEEEEEE
 		iconColors[2] = 0xFFCCCCCC
-		numStars = 5
+		numToDraw = 5
 	end
-	if numStars == 5 then
+	if numToDraw == 5 then
 		iconSize = iconSize + 1
 	end
 	if needsTwoLines then
 		x = x + 3
 	end
 	-- Draw the stars
-	for i = 1, numStars, 1 do
+	for i = 1, numToDraw, 1 do
 		local iX = x + 1 + iconSize * (i - 1)
 		local iY = y + 1
+		local colors = iconColors
+		if initialStars then
+			-- Gained these new stars
+			if i > initialStars and i <= numStars then
+				colors = newStarColors
+			-- Lost some stars
+			elseif i > numStars and i <= initialStars then
+				colors = emptyStarColors
+			end
+		end
 		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
 		if i >= 4 and needsTwoLines then
 			iX = iX + 5 - 3 * iconSize
 			iY = iY + iconSize - 4
 		end
-		Drawing.drawImageAsPixels(icon, iX, iY, iconColors)
+		Drawing.drawImageAsPixels(icon, iX, iY, colors)
 	end
 end
 
