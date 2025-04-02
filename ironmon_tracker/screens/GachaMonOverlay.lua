@@ -111,17 +111,17 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		box = { CANVAS.X + 4, CANVAS.Y + 2, 100, 11, },
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		draw = function(self, shadowcolor)
-			local V = SCREEN.Data.View
-			if not V.GachaMon then
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
 				return
 			end
 			local x, y, x2 = self.box[1], self.box[2], self.box[1] + 61
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 			-- NAME & GENDER
-			local nameText = Utils.toUpperUTF8(V.GachaMon:getName())
+			local nameText = Utils.toUpperUTF8(gachamon:getName())
 			Drawing.drawText(x, y, nameText, highlight, shadowcolor)
-			local genderIndex = V.GachaMon:getGender()
+			local genderIndex = gachamon:getGender()
 			local gSymbols = { Constants.PixelImages.MALE_SYMBOL, Constants.PixelImages.FEMALE_SYMBOL }
 			if gSymbols[genderIndex] then
 				local nameTextW = 8 + Utils.calcWordPixelLength(nameText)
@@ -129,8 +129,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 			y = y + Constants.SCREEN.LINESPACING
 			-- LEVEL & NATURE
-			local levelText = string.format("%s. %s", Resources.TrackerScreen.LevelAbbreviation, V.GachaMon.Level or 0)
-			local nature = V.GachaMon:getNature()
+			local levelText = string.format("%s. %s", Resources.TrackerScreen.LevelAbbreviation, gachamon.Level or 0)
+			local nature = gachamon:getNature()
 			local natureText = Resources.Game.NatureNames[nature + 1]
 			if natureText then
 				Drawing.drawText(x, y, natureText, color, shadowcolor)
@@ -138,23 +138,23 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			Drawing.drawText(x2, y, levelText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- RATING & STARS
-			local stars = tostring(V.GachaMon:getStars())
+			local stars = tostring(gachamon:getStars())
 			if tonumber(stars) > 5 then
 				stars = "5+"
 			end
-			local ratingText = string.format("%s %s  (%s %s)", V.GachaMon.RatingScore or 0, "points", stars, "stars")
+			local ratingText = string.format("%s %s  (%s %s)", gachamon.RatingScore or 0, "points", stars, "stars")
 			Drawing.drawText(x, y, string.format("%s:", "Rating"), color, shadowcolor)
 			Drawing.drawText(x2, y, ratingText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- BATTLE POWER
-			local bpText = string.format("%s %s", V.GachaMon.BattlePower or 0, "BP")
+			local bpText = string.format("%s %s", gachamon.BattlePower or 0, "BP")
 			Drawing.drawText(x, y, string.format("%s:", "Battle Power"), color, shadowcolor)
 			Drawing.drawText(x2, y, bpText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- COLLECTED ON INFO: DATE, SEED, GAME VERSION
-			local dateText = os.date("%x", os.time(V.GachaMon:getDateObtainedTable()))
-			local seedText = Utils.formatNumberWithCommas(V.GachaMon.SeedNumber or 0)
-			local versionText = V.GachaMon:getGameVersionName()
+			local dateText = os.date("%x", os.time(gachamon:getDateObtainedTable()))
+			local seedText = Utils.formatNumberWithCommas(gachamon.SeedNumber or 0)
+			local versionText = gachamon:getGameVersionName()
 			Drawing.drawText(x, y, string.format("%s:", "Collected on"), color, shadowcolor)
 			Drawing.drawText(x2, y, dateText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
@@ -170,6 +170,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		box = { CANVAS.X + 3, CANVAS.Y + 69, 44, 11, },
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		draw = function(self, shadowcolor)
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
+				return
+			end
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			gui.drawLine(x + 1, y + h, x + w, y + h, Theme.COLORS[SCREEN.Colors.border])
 			y = y + 2
@@ -179,12 +183,12 @@ GachaMonOverlay.Tabs.View.Buttons = {
 				Resources.TrackerScreen.StatHP, Resources.TrackerScreen.StatATK, Resources.TrackerScreen.StatDEF,
 				Resources.TrackerScreen.StatSPA, Resources.TrackerScreen.StatSPD, Resources.TrackerScreen.StatSPE,
 			}
-			local stats = SCREEN.Data.View.GachaMon:getStats()
+			local stats = gachamon:getStats()
 			for i, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 				local iy = y + 10 * i
 				local color = Theme.COLORS[SCREEN.Colors.text]
 				local natureSymbol
-				local natureMultiplier = Utils.getNatureMultiplier(statKey, SCREEN.Data.View.GachaMon:getNature())
+				local natureMultiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
 				if natureMultiplier == 1.1 then
 					color = Theme.COLORS[SCREEN.Colors.positive]
 					natureSymbol = "+"
@@ -218,11 +222,15 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			-- end
 		end,
 		draw = function(self, shadowcolor)
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
+				return
+			end
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			gui.drawLine(x + 1, y + h, x + w, y + h, Theme.COLORS[SCREEN.Colors.border])
 			y = y + 2
 
-			local moveIds = SCREEN.Data.View.GachaMon:getMoveIds()
+			local moveIds = gachamon:getMoveIds()
 			for i, moveId in ipairs(moveIds or {}) do
 				local name, power = Constants.BLANKLINE, ""
 				if MoveData.isValid(moveId) then
@@ -288,18 +296,22 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 1, 76, 76, },
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		draw = function(self, shadowcolor)
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
+				return
+			end
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local border = Theme.COLORS[SCREEN.Colors.border]
 			-- Draw containment border
 			gui.drawRectangle(x - 1, y - 1, w + 2, h + 2, border, Drawing.Colors.BLACK)
 			gui.drawLine(x, y + h + 2, x + w, y + h + 2, shadowcolor)
 			-- Draw card
-			local card = SCREEN.Data.View.GachaMon:getCardDisplayData()
+			local card = gachamon:getCardDisplayData()
 			GachaMonOverlay.drawGachaCard(card, x, y, 4)
 			-- Draw card version number
-			if SCREEN.Data.View.GachaMon.Version or 0 > 0 then
+			if gachamon.Version or 0 > 0 then
 				local color =  Theme.COLORS[SCREEN.Colors.text]
-				local versionText = string.format("v%s", SCREEN.Data.View.GachaMon.Version)
+				local versionText = string.format("v%s", gachamon.Version)
 				local versionTextW = 5 + Utils.calcWordPixelLength(versionText)
 				Drawing.drawText(x - versionTextW, y - 1, versionText, color, shadowcolor)
 			end
@@ -310,12 +322,13 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		badgeImages = {},
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		updateSelf = function(self)
-			if not SCREEN.Data.View.GachaMon then
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
 				return
 			end
 			-- Setup image paths and kerning for corresponding game badges
 			self.badgeImages = {}
-			local gameNumber = SCREEN.Data.View.GachaMon:getGameVersionNumber()
+			local gameNumber = gachamon:getGameVersionNumber()
 			if gameNumber == 4 then
 				gameNumber = 1 -- 1:Ruby/Sapphire
 			elseif gameNumber == 5 then
@@ -325,7 +338,9 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			local badgePrefix = badgeInfoTable.Prefix or "FRLG" -- just picked a default
 			local kerningOffsets = badgeInfoTable.IconOffsets or {}
 			for i = 1, 8, 1 do
-				local filename = badgePrefix .. "_badge" .. i
+				local badgeState = Utils.getbits(gachamon.Badges or 0, i - 1, 1)
+				local badgeOff = (badgeState == 0 and "_OFF") or ""
+				local filename = badgePrefix .. "_badge" .. i .. badgeOff
 				self.badgeImages[i] = {
 					Path = FileManager.buildImagePath(FileManager.Folders.Badges, filename, FileManager.Extensions.BADGE),
 					Kerning = kerningOffsets[i] or 0, -- Not currently used (For FRLG at least)
@@ -333,7 +348,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 		end,
 		draw = function(self, shadowcolor)
-			if not SCREEN.Data.View.GachaMon then
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
 				return
 			end
 			if not self.badgeImages[1] or not self.badgeImages[1].Path then
@@ -341,8 +357,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			for i = 1, 8, 1 do
-				local badgeState = Utils.getbits(SCREEN.Data.View.GachaMon.Badges or 0, i - 1, 1)
-				if badgeState == 1 and self.badgeImages[i] and self.badgeImages[i].Path then
+				-- local badgeState = Utils.getbits(gachamon.Badges or 0, i - 1, 1)
+				if self.badgeImages[i] and self.badgeImages[i].Path then
 					local ix = x
 					local iy = y + (i-1) * 16
 					Drawing.drawImage(self.badgeImages[i].Path, ix, iy)
@@ -384,7 +400,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		noShadowBorder = true,
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil and SCREEN.Data.View.TemporaryGachaMon == nil end,
 		updateSelf = function(self)
-			local favorite = SCREEN.Data.View.GachaMon and SCREEN.Data.View.GachaMon.Favorite or 0
+			local gachamon = SCREEN.Data.View.GachaMon
+			local favorite = gachamon and gachamon.Favorite or 0
 			if favorite == 1 then
 				self.iconColors = { 0xFFF04037, Drawing.Colors.RED, Drawing.Colors.WHITE }
 			else
@@ -392,13 +409,14 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			if not SCREEN.Data.View.GachaMon then
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
 				return
 			end
-			local isNowFave = SCREEN.Data.View.GachaMon.Favorite ~= 1 -- invert
+			local isNowFave = gachamon.Favorite ~= 1 -- invert
 			-- If favorited but not currently in collection, mark to save it in collection
 			local alsoSaveInCollection = isNowFave or nil
-			GachaMonData.updateGachaMonAndSave(SCREEN.Data.View.GachaMon, isNowFave, alsoSaveInCollection)
+			GachaMonData.updateGachaMonAndSave(gachamon, isNowFave, alsoSaveInCollection)
 			self:updateSelf()
 			if alsoSaveInCollection then
 				GachaMonOverlay.Tabs.View.Buttons.KeepInCollection:updateSelf()
@@ -420,7 +438,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		noShadowBorder = true,
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil and SCREEN.Data.View.TemporaryGachaMon == nil end,
 		updateSelf = function(self)
-			local keep = SCREEN.Data.View.GachaMon and SCREEN.Data.View.GachaMon:getKeep() or 0
+			local gachamon = SCREEN.Data.View.GachaMon
+			local keep = gachamon and gachamon:getKeep() or 0
 			if keep == 1 then
 				self.image = Constants.PixelImages.CHECKMARK
 				self.getText = function() return "In Collection" end
@@ -430,14 +449,15 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			if not SCREEN.Data.View.GachaMon then
+			local gachamon = SCREEN.Data.View.GachaMon
+			if not gachamon then
 				return
 			end
-			local isNowKeep = SCREEN.Data.View.GachaMon:getKeep() ~= 1 -- invert
+			local isNowKeep = gachamon:getKeep() ~= 1 -- invert
 			if isNowKeep then
-				GachaMonData.updateGachaMonAndSave(SCREEN.Data.View.GachaMon, nil, true)
+				GachaMonData.updateGachaMonAndSave(gachamon, nil, true)
 			else
-				GachaMonData.tryRemoveFromCollection(SCREEN.Data.View.GachaMon)
+				GachaMonData.tryRemoveFromCollection(gachamon)
 				GachaMonOverlay.Tabs.View.Buttons.Favorite:updateSelf()
 			end
 			self:updateSelf()
@@ -445,7 +465,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			local keep = SCREEN.Data.View.GachaMon and SCREEN.Data.View.GachaMon:getKeep() or 0
+			local gachamon = SCREEN.Data.View.GachaMon
+			local keep = gachamon and gachamon:getKeep() or 0
 			if keep ~= 1 then
 				local text = "Add to Collection"
 				local color = Theme.COLORS[SCREEN.Colors.text]
@@ -1153,10 +1174,11 @@ function GachaMonOverlay.buildData()
 	SCREEN.Data.View.GachaMon = GachaMonData.newestRecentMon
 
 	-- Create the display card for the lead pokemon
-	local leadPokemon = TrackerAPI.getPlayerPokemon(1)
-	if not SCREEN.Data.View.GachaMon and leadPokemon then
-		GachaMonData.tryAddToRecentMons(leadPokemon)
-		SCREEN.Data.View.GachaMon = GachaMonData.RecentMons[leadPokemon.personality or false]
+	if not SCREEN.Data.View.GachaMon then
+		local leadPokemon = TrackerAPI.getPlayerPokemon(1)
+		if leadPokemon and GachaMonData.tryAddToRecentMons(leadPokemon) then
+			SCREEN.Data.View.GachaMon = GachaMonData.RecentMons[leadPokemon.personality or false]
+		end
 	end
 
 	if not SCREEN.Data.View.GachaMon then
@@ -1234,6 +1256,326 @@ function GachaMonOverlay.tryLoadCollection()
 	GachaMonFileManager.importCollection()
 	GachaMonData.checkForNatDexRequirement()
 end
+
+---comment
+---@param gachamon IGachaMon
+function GachaMonOverlay.openShareCodeWindow(gachamon)
+	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
+	local form = ExternalUI.BizForms.createForm("GachaMon Share Code", 450, 160)
+	form:createLabel("Show off your GachaMon by sharing this code.", 19, 10)
+	form:createLabel(string.format("%s:", "Copy the shareable code below with Ctrl+C"), 19, 30)
+	form:createTextBox(shareCode, 20, 55, 400, 22, nil, false, true)
+	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+		form:destroy()
+	end, 80, 25)
+end
+
+---comment
+---@param onImportFunc? function
+function GachaMonOverlay.openImportCodeWindow(onImportFunc)
+	local form = ExternalUI.BizForms.createForm("GachaMon Import Code", 450, 160)
+	form:createLabel("Battle against someone else's GachaMon by importing its Share Code here.", 19, 10)
+	form:createLabel(string.format("%s:", "Paste the code below Ctrl+V"), 19, 30)
+	form.Controls.code = form:createTextBox("", 20, 55, 400, 22, nil, false, true)
+	form:createButton(Resources.AllScreens.Import, 80, 85, function()
+		local b64string = ExternalUI.BizForms.getText(form.Controls.code) or ""
+		-- Trim whitespace
+		b64string = b64string:match("^%s*(.-)%s*$") or ""
+		local gachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
+		if gachamon then
+			gachamon.Favorite = 0
+			-- TODO: remove attributes like "Favorite"
+		end
+		if type(onImportFunc) == "function" then
+			onImportFunc(gachamon)
+		end
+		form:destroy()
+	end, 80, 25)
+	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+		form:destroy()
+	end, 80, 25)
+end
+
+---comment
+---@param numStars number
+---@param x number
+---@param y number
+function GachaMonOverlay.drawGachaMonStars(numStars, x, y)
+	if numStars < 1 then
+		return
+	end
+	local needsTwoLines = (numStars >= 5)
+	local icon = Constants.PixelImages.STAR
+	local iconColors = icon:getColors()
+	iconColors[4] = Drawing.ColorEffects.DARKEN * 2
+	local iconSize = 9
+	-- Use Platinum colors for highest rarity (5+ stars)
+	if numStars > 5 then
+		iconColors[1] = 0xFFEEEEEE
+		iconColors[2] = 0xFFCCCCCC
+		numStars = 5
+	end
+	if numStars == 5 then
+		iconSize = iconSize + 1
+	end
+	if needsTwoLines then
+		x = x + 3
+	end
+	-- Draw the stars
+	for i = 1, numStars, 1 do
+		local iX = x + 1 + iconSize * (i - 1)
+		local iY = y + 1
+		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
+		if i >= 4 and needsTwoLines then
+			iX = iX + 5 - 3 * iconSize
+			iY = iY + iconSize - 4
+		end
+		Drawing.drawImageAsPixels(icon, iX, iY, iconColors)
+	end
+end
+
+---Draws a GachaMon card
+---@param card table
+---@param borderPadding? number Optional, defaults to 3 pixel border padding
+---@param showFavoriteOverride? boolean Optional, displays the heart (empty or full); default: only if actually favorited
+---@param showCollectionOverride? boolean Optional, displays the checkmark (empty or full); default: never shows
+function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOverride, showCollectionOverride)
+	card = card or {}
+	borderPadding = borderPadding or 3
+	local numStars = card.Stars or 0
+	local W, H, TOP_W, TOP_H, BOT_H = 68, 68, 40, 10, 15
+	local COLORS = {
+		bg = Drawing.Colors.BLACK,
+		-- border = Drawing.Colors.WHITE,
+		border1 = card.FrameColors and card.FrameColors[1] or Drawing.Colors.WHITE,
+		border2 = card.FrameColors and card.FrameColors[2] or Drawing.Colors.WHITE,
+		shiny = Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN,
+		shiny2 = Drawing.Colors.WHITE - (Drawing.ColorEffects.DARKEN * 3),
+		shiny3 = Drawing.Colors.WHITE - (Drawing.ColorEffects.DARKEN * 5),
+		power = Drawing.Colors.WHITE,
+		checkmark = Drawing.Colors.GREEN,
+		text = 0xFFFCED86 or Drawing.Colors.YELLOW - Drawing.ColorEffects.DARKEN,
+		name = Drawing.Colors.WHITE,
+		shadow = Drawing.ColorEffects.DARKEN * 3,
+	}
+	COLORS.bg1 = COLORS.border1 - 0xD0000000
+	COLORS.bg2 = COLORS.border2 - 0xD0000000
+	COLORS.bg1bot = COLORS.border1 - 0xB9000000
+	COLORS.bg2bot = COLORS.border2 - 0xB9000000
+
+	-- BLACK BACKGROUND
+	gui.drawRectangle(x, y, W + borderPadding * 2, H + borderPadding * 2, COLORS.bg, COLORS.bg)
+	x = x + borderPadding
+	y = y + borderPadding
+
+	-- CARD BACKGROUND
+	-- This is the "im mad and just want it to work, sorry future me/ anyone else" section of the code
+	gui.drawRectangle(x+1, y+1, W/2-1, H-2-BOT_H, COLORS.bg1, COLORS.bg1)
+	gui.drawRectangle(x+1+W/2, y+2, 7, 8, COLORS.bg2, COLORS.bg2)
+	gui.drawRectangle(x+1+W/2, y+1+TOP_H, W/2-2, H-TOP_H-2-BOT_H, COLORS.bg2, COLORS.bg2)
+	gui.drawPixel(x+W/2+8, y+2, COLORS.bg)
+	gui.drawPixel(x+W/2+9, y+TOP_H, COLORS.bg2)
+	gui.drawRectangle(x+1, y+1+H-BOT_H, W/2-1, BOT_H-2, COLORS.bg1bot, COLORS.bg1bot)
+	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
+
+	-- STARS
+	GachaMonOverlay.drawGachaMonStars(numStars, x, y)
+
+	-- CARD FRAME
+	-- left-half
+	gui.drawLine(x+1, y+1, x+1+TOP_W-7, y+1, COLORS.border1)
+	gui.drawLine(x+1, y+1, x+1, y+H-1, COLORS.border1)
+	gui.drawLine(x+1, y+H-1, x+W/2, y+H-1, COLORS.border1)
+	local botBarY = y+H-BOT_H
+	local angleW = 4
+	gui.drawLine(x+1, botBarY, x+W/2, botBarY, COLORS.border1)
+	gui.drawLine(x+W/2+1, botBarY, x+W-1, botBarY, COLORS.border2)
+	gui.drawLine(x+TOP_W, y+1, x+TOP_W+angleW, y+1+TOP_H, COLORS.border2)
+	gui.drawLine(x+TOP_W+1, y+1, x+TOP_W+1+angleW, y+1+TOP_H, COLORS.border2)
+	-- right-half
+	gui.drawLine(x+1+TOP_W-6, y+1, x+1+TOP_W, y+1, COLORS.border2)
+	gui.drawLine(x+1+TOP_W+angleW, y+1+TOP_H, x+W-1, y+1+TOP_H, COLORS.border2)
+	gui.drawLine(x+W-1, y+H-1, x+W-1, y+1+TOP_H, COLORS.border2)
+	gui.drawLine(x+W/2+1, y+H-1, x+W-1, y+H-1, COLORS.border2)
+
+	-- POWER
+	if (card.BattlePower or 0) > 0 then
+		local powerRightAlign = 3 + Utils.calcWordPixelLength(tostring(card.BattlePower))
+		if card.BattlePower > 9999 then
+			powerRightAlign = powerRightAlign - 1
+		end
+		Drawing.drawText(x + W - powerRightAlign, y, card.BattlePower or Constants.BLANKLINE, COLORS.power)
+	end
+
+	-- POKEMON ICON
+	local pX, pY = (x + W / 2 - 16), (y + 8)
+	local pokemonImageId = card.PokemonId
+	if PokemonData.isImageIDValid(pokemonImageId) and pokemonImageId ~= 0 then
+		-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
+		if GachaMonData.requiresNatDex and card.PokemonId >= 412 then
+			local iconset = Options.getIconSet()
+			local natdexIconSet = Options.IconSetMap[3]
+			if iconset and iconset ~= natdexIconSet then
+				pX = pX - (iconset.xOffset or 0) + (natdexIconSet.xOffset or 0)
+				pY = pY - (iconset.yOffset or 0) + (natdexIconSet.yOffset or 0)
+			end
+		end
+	else
+		-- Question mark icon
+		pokemonImageId = 252
+	end
+	Drawing.drawPokemonIcon(pokemonImageId, pX, pY)
+
+	-- FAVORITE ICON
+	if card.Favorite == 1 or showFavoriteOverride then
+		local heartFill = Constants.PixelImages.HEART.iconColors
+		if card.Favorite ~= 1 then
+			heartFill = { COLORS.border2, COLORS.bg, COLORS.bg }
+		end
+		Drawing.drawImageAsPixels(Constants.PixelImages.HEART, x+W-14, y+TOP_H+4, heartFill)
+	end
+
+	-- IN COLLECTION ICON (only if requested)
+	if showCollectionOverride then
+		local checkmarkIcon = Constants.PixelImages.CHECKMARK
+		local checkmarkFill = { COLORS.checkmark }
+		if not card.InCollection then
+			checkmarkIcon = Constants.PixelImages.CROSS
+			checkmarkFill = { Drawing.colors.WHITE }
+		end
+		Drawing.drawImageAsPixels(checkmarkIcon, x+W-14, y+TOP_H+16, checkmarkFill)
+	end
+
+	-- ABILITY TEXT
+	local abilityName = Constants.BLANKLINE
+	if AbilityData.isValid(card.AbilityId) then
+		abilityName = AbilityData.Abilities[card.AbilityId].name
+	end
+	local abilityX = Utils.getCenteredTextX(abilityName, W) - 1
+	Drawing.drawText(x + abilityX + 1, y + H - 26, abilityName, COLORS.shadow)
+	Drawing.drawText(x + abilityX, y + H - 27, abilityName, COLORS.text)
+
+	-- NAME TEXT
+	local monName = Constants.BLANKLINE
+	if PokemonData.isValid(card.PokemonId) then
+		monName = PokemonData.Pokemon[card.PokemonId].name
+	end
+	local monX = Utils.getCenteredTextX(monName, W) - 1
+	Drawing.drawText(x + monX + 1, y + H - 13, monName, COLORS.shadow)
+	Drawing.drawText(x + monX, y + H - 14, monName, COLORS.name)
+
+	-- STAT BARS
+	if type(card.StatBars) == "table" then
+		for i, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+			local statY = botBarY + 2 * i
+			local statW = card.StatBars[statKey] or 0
+			gui.drawLine(x+1, statY, x+1+statW, statY, COLORS.border1)
+			gui.drawLine(x+W-1-statW, statY, x+W-1, statY, COLORS.border2)
+		end
+	end
+
+	-- SHINY
+	if card.IsShiny then
+		if not card.ShinyAnimations then
+			card.ShinyAnimations = AnimationManager.createGachaMonShinySparkles(x, y, 15)
+		end
+		for _, shinyAnim in pairs(card.ShinyAnimations or {}) do
+			-- Since it still needs to be drawn, reactivate the animation if it became inactive
+			if not shinyAnim.IsActive then
+				AnimationManager.tryAddAnimationToActive(shinyAnim)
+			end
+			-- If the card moved around, update it's associated animation locations
+			if shinyAnim.X ~= x or shinyAnim.Y ~= y then
+				shinyAnim.X = x
+				shinyAnim.Y = y
+			end
+			AnimationManager.drawAnimation(shinyAnim)
+		end
+	end
+end
+
+-- OVERLAY OPEN
+function GachaMonOverlay.open()
+	SCREEN.hasShinyToDraw = false
+	SCREEN.shinyFrameCounter = 0
+	LogSearchScreen.clearSearch()
+	SCREEN.tryLoadCollection()
+	SCREEN.buildData()
+	SCREEN.currentTab = SCREEN.Tabs.Recent
+	SCREEN.refreshButtons()
+end
+
+-- OVERLAY CLOSE
+function GachaMonOverlay.close()
+	SCREEN.hasShinyToDraw = false
+	LogSearchScreen.clearSearch()
+	GachaMonFileManager.trySaveCollectionOnClose()
+	if SCREEN.Data then
+		SCREEN.Data.View.GachaMon = nil
+		if SCREEN.Data.Recent then
+			SCREEN.Data.Recent.currentPage = 1
+		end
+		if SCREEN.Data.Collection then
+			SCREEN.Data.Collection.currentPage = 1
+		end
+	end
+	-- If the game hasn't started yet
+	if not Program.isValidMapLocation() then
+		Program.currentScreen = StartupScreen
+	else
+		Program.currentScreen = TrackerScreen
+	end
+end
+
+-- USER INPUT FUNCTIONS
+function SCREEN.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.TabButtons)
+	Input.checkButtonsClicked(xmouse, ymouse, _getCurrentTabButtons())
+end
+
+-- DRAWING FUNCTIONS
+function SCREEN.drawScreen()
+	Drawing.drawBackgroundAndMargins(0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT)
+
+	local canvas = {
+		x = CANVAS.X,
+		y = CANVAS.Y,
+		width = CANVAS.W,
+		height = CANVAS.H,
+		text = Theme.COLORS[SCREEN.Colors.text],
+		border = Theme.COLORS[SCREEN.Colors.border],
+		fill = Theme.COLORS[SCREEN.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
+	}
+
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawButton(SCREEN.TabButtons.XIcon, headerShadow)
+
+	-- Draw surrounding border box
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
+
+	-- Draw card background
+	if SCREEN.currentTab == SCREEN.Tabs.Recent or SCREEN.currentTab == SCREEN.Tabs.Collection then
+		gui.drawRectangle(canvas.x + 1, canvas.y + 1, 210, 141, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
+		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
+	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
+		gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
+		-- Draw a divider and center ball
+	end
+
+	-- Draw all buttons
+	for _, button in pairs(SCREEN.TabButtons) do
+		if button ~= SCREEN.TabButtons.XIcon then
+			Drawing.drawButton(button, canvas.shadow)
+		end
+	end
+	for _, button in pairs(_getCurrentTabButtons()) do
+		Drawing.drawButton(button, canvas.shadow)
+	end
+
+end
+
+-- FILTER / CLEANUP
 
 GachaMonOverlay.FilterOptions = {
 	Stars1 = { id = "stars1", getLabel = function() return "1 Star" end, value = 1, },
@@ -1430,45 +1772,6 @@ local function _buildRemovalFilterFunc(form)
 	end
 end
 
----comment
----@param gachamon IGachaMon
-function GachaMonOverlay.openShareCodeWindow(gachamon)
-	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
-	local form = ExternalUI.BizForms.createForm("GachaMon Share Code", 450, 160)
-	form:createLabel("Show off your GachaMon by sharing this code.", 19, 10)
-	form:createLabel(string.format("%s:", "Copy the shareable code below with Ctrl+C"), 19, 30)
-	form:createTextBox(shareCode, 20, 55, 400, 22, nil, false, true)
-	form:createButton(Resources.AllScreens.Close, 200, 85, function()
-		form:destroy()
-	end, 80, 25)
-end
-
----comment
----@param onImportFunc? function
-function GachaMonOverlay.openImportCodeWindow(onImportFunc)
-	local form = ExternalUI.BizForms.createForm("GachaMon Import Code", 450, 160)
-	form:createLabel("Battle against someone else's GachaMon by importing its Share Code here.", 19, 10)
-	form:createLabel(string.format("%s:", "Paste the code below Ctrl+V"), 19, 30)
-	form.Controls.code = form:createTextBox("", 20, 55, 400, 22, nil, false, true)
-	form:createButton(Resources.AllScreens.Import, 80, 85, function()
-		local b64string = ExternalUI.BizForms.getText(form.Controls.code) or ""
-		-- Trim whitespace
-		b64string = b64string:match("^%s*(.-)%s*$") or ""
-		local gachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
-		if gachamon then
-			gachamon.Favorite = 0
-			-- TODO: remove attributes like "Favorite"
-		end
-		if type(onImportFunc) == "function" then
-			onImportFunc(gachamon)
-		end
-		form:destroy()
-	end, 80, 25)
-	form:createButton(Resources.AllScreens.Close, 200, 85, function()
-		form:destroy()
-	end, 80, 25)
-end
-
 function GachaMonOverlay.openFilterSettingsWindow(tabKey)
 	local formTitle = string.format("%s: %s", "Filter GachaMon", tostring(tabKey))
 	local form = ExternalUI.BizForms.createForm(formTitle, 430, 320)
@@ -1610,277 +1913,4 @@ function GachaMonOverlay.openCleanupCollectionWindow()
 	form.Controls.btnCancel = form:createButton(Resources.AllScreens.Cancel, 240, nextLineY, function()
 		form:destroy()
 	end, 80, 25)
-end
-
----comment
----@param numStars number
----@param x number
----@param y number
-function GachaMonOverlay.drawGachaMonStars(numStars, x, y)
-	if numStars < 1 then
-		return
-	end
-	local needsTwoLines = (numStars >= 5)
-	local icon = Constants.PixelImages.STAR
-	local iconColors = icon:getColors()
-	iconColors[4] = Drawing.ColorEffects.DARKEN * 2
-	local iconSize = 9
-	-- Use Platinum colors for highest rarity (5+ stars)
-	if numStars > 5 then
-		iconColors[1] = 0xFFEEEEEE
-		iconColors[2] = 0xFFCCCCCC
-		numStars = 5
-	end
-	if numStars == 5 then
-		iconSize = iconSize + 1
-	end
-	if needsTwoLines then
-		x = x + 3
-	end
-	-- Draw the stars
-	for i = 1, numStars, 1 do
-		local iX = x + 1 + iconSize * (i - 1)
-		local iY = y + 1
-		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
-		if i >= 4 and needsTwoLines then
-			iX = iX + 5 - 3 * iconSize
-			iY = iY + iconSize - 4
-		end
-		Drawing.drawImageAsPixels(icon, iX, iY, iconColors)
-	end
-end
-
----Draws a GachaMon card
----@param card table
----@param borderPadding? number Optional, defaults to 3 pixel border padding
----@param showFavoriteOverride? boolean Optional, displays the heart (empty or full); default: only if actually favorited
----@param showCollectionOverride? boolean Optional, displays the checkmark (empty or full); default: never shows
-function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOverride, showCollectionOverride)
-	card = card or {}
-	borderPadding = borderPadding or 3
-	local numStars = card.Stars or 0
-	local W, H, TOP_W, TOP_H, BOT_H = 68, 68, 40, 10, 15
-	local COLORS = {
-		bg = Drawing.Colors.BLACK,
-		-- border = Drawing.Colors.WHITE,
-		border1 = card.FrameColors and card.FrameColors[1] or Drawing.Colors.WHITE,
-		border2 = card.FrameColors and card.FrameColors[2] or Drawing.Colors.WHITE,
-		shiny = Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN,
-		shiny2 = Drawing.Colors.WHITE - (Drawing.ColorEffects.DARKEN * 3),
-		shiny3 = Drawing.Colors.WHITE - (Drawing.ColorEffects.DARKEN * 5),
-		power = Drawing.Colors.WHITE,
-		checkmark = Drawing.Colors.GREEN,
-		text = 0xFFFCED86 or Drawing.Colors.YELLOW - Drawing.ColorEffects.DARKEN,
-		name = Drawing.Colors.WHITE,
-		shadow = Drawing.ColorEffects.DARKEN * 3,
-	}
-	COLORS.bg1 = COLORS.border1 - 0xD0000000
-	COLORS.bg2 = COLORS.border2 - 0xD0000000
-	COLORS.bg1bot = COLORS.border1 - 0xB9000000
-	COLORS.bg2bot = COLORS.border2 - 0xB9000000
-
-	-- BLACK BACKGROUND
-	gui.drawRectangle(x, y, W + borderPadding * 2, H + borderPadding * 2, COLORS.bg, COLORS.bg)
-	x = x + borderPadding
-	y = y + borderPadding
-
-	-- SHINY
-	if card.ShinyAnimationFrame then
-		-- Start the shiny frame counter
-		-- if not SCREEN.hasShinyToDraw then
-		-- 	SCREEN.hasShinyToDraw = true
-		-- end
-		-- for _, pt in ipairs(SCREEN.ShinyStars or {}) do
-		-- 	-- TODO: Find a better way to do this. create individual star objects; draw all, once every 15 frames; fade in and out
-		-- 	Drawing.drawImageAsPixels(Constants.PixelImages.SPARKLES, x + pt.x, y + pt.y, {COLORS.shiny})
-		-- end
-		Drawing.drawImageAsPixels(Constants.PixelImages.SPARKLES, x + 3, y+TOP_H+13, {COLORS.shiny})
-	end
-
-	-- CARD BACKGROUND
-	-- This is the "im mad and just want it to work, sorry future me/ anyone else" section of the code
-	gui.drawRectangle(x+1, y+1, W/2-1, H-2-BOT_H, COLORS.bg1, COLORS.bg1)
-	gui.drawRectangle(x+1+W/2, y+2, 7, 8, COLORS.bg2, COLORS.bg2)
-	gui.drawRectangle(x+1+W/2, y+1+TOP_H, W/2-2, H-TOP_H-2-BOT_H, COLORS.bg2, COLORS.bg2)
-	gui.drawPixel(x+W/2+8, y+2, COLORS.bg)
-	gui.drawPixel(x+W/2+9, y+TOP_H, COLORS.bg2)
-	gui.drawRectangle(x+1, y+1+H-BOT_H, W/2-1, BOT_H-2, COLORS.bg1bot, COLORS.bg1bot)
-	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
-
-	-- STARS
-	GachaMonOverlay.drawGachaMonStars(numStars, x, y)
-
-	-- CARD FRAME
-	-- left-half
-	gui.drawLine(x+1, y+1, x+1+TOP_W-7, y+1, COLORS.border1)
-	gui.drawLine(x+1, y+1, x+1, y+H-1, COLORS.border1)
-	gui.drawLine(x+1, y+H-1, x+W/2, y+H-1, COLORS.border1)
-	local botBarY = y+H-BOT_H
-	local angleW = 4
-	gui.drawLine(x+1, botBarY, x+W/2, botBarY, COLORS.border1)
-	gui.drawLine(x+W/2+1, botBarY, x+W-1, botBarY, COLORS.border2)
-	gui.drawLine(x+TOP_W, y+1, x+TOP_W+angleW, y+1+TOP_H, COLORS.border2)
-	gui.drawLine(x+TOP_W+1, y+1, x+TOP_W+1+angleW, y+1+TOP_H, COLORS.border2)
-	-- right-half
-	gui.drawLine(x+1+TOP_W-6, y+1, x+1+TOP_W, y+1, COLORS.border2)
-	gui.drawLine(x+1+TOP_W+angleW, y+1+TOP_H, x+W-1, y+1+TOP_H, COLORS.border2)
-	gui.drawLine(x+W-1, y+H-1, x+W-1, y+1+TOP_H, COLORS.border2)
-	gui.drawLine(x+W/2+1, y+H-1, x+W-1, y+H-1, COLORS.border2)
-
-	-- POWER
-	if (card.BattlePower or 0) > 0 then
-		local powerRightAlign = 3 + Utils.calcWordPixelLength(tostring(card.BattlePower))
-		if card.BattlePower > 9999 then
-			powerRightAlign = powerRightAlign - 1
-		end
-		Drawing.drawText(x + W - powerRightAlign, y, card.BattlePower or Constants.BLANKLINE, COLORS.power)
-	end
-
-	-- POKEMON ICON
-	local pX, pY = (x + W / 2 - 16), (y + 8)
-	local pokemonImageId = card.PokemonId
-	if PokemonData.isImageIDValid(pokemonImageId) and pokemonImageId ~= 0 then
-		-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
-		if GachaMonData.requiresNatDex and card.PokemonId >= 412 then
-			local iconset = Options.getIconSet()
-			local natdexIconSet = Options.IconSetMap[3]
-			if iconset and iconset ~= natdexIconSet then
-				pX = pX - (iconset.xOffset or 0) + (natdexIconSet.xOffset or 0)
-				pY = pY - (iconset.yOffset or 0) + (natdexIconSet.yOffset or 0)
-			end
-		end
-	else
-		-- Question mark icon
-		pokemonImageId = 252
-	end
-	Drawing.drawPokemonIcon(pokemonImageId, pX, pY)
-
-	-- FAVORITE ICON
-	if card.Favorite == 1 or showFavoriteOverride then
-		local heartFill = Constants.PixelImages.HEART.iconColors
-		if card.Favorite ~= 1 then
-			heartFill = { COLORS.border2, COLORS.bg, COLORS.bg }
-		end
-		Drawing.drawImageAsPixels(Constants.PixelImages.HEART, x+W-14, y+TOP_H+4, heartFill)
-	end
-
-	-- IN COLLECTION ICON (only if requested)
-	if showCollectionOverride then
-		local checkmarkIcon = Constants.PixelImages.CHECKMARK
-		local checkmarkFill = { COLORS.checkmark }
-		if not card.InCollection then
-			checkmarkIcon = Constants.PixelImages.CROSS
-			checkmarkFill = { Drawing.colors.WHITE }
-		end
-		Drawing.drawImageAsPixels(checkmarkIcon, x+W-14, y+TOP_H+16, checkmarkFill)
-	end
-
-	-- ABILITY TEXT
-	local abilityName = Constants.BLANKLINE
-	if AbilityData.isValid(card.AbilityId) then
-		abilityName = AbilityData.Abilities[card.AbilityId].name
-	end
-	local abilityX = Utils.getCenteredTextX(abilityName, W) - 1
-	Drawing.drawText(x + abilityX + 1, y + H - 26, abilityName, COLORS.shadow)
-	Drawing.drawText(x + abilityX, y + H - 27, abilityName, COLORS.text)
-
-	-- NAME TEXT
-	local monName = Constants.BLANKLINE
-	if PokemonData.isValid(card.PokemonId) then
-		monName = PokemonData.Pokemon[card.PokemonId].name
-	end
-	local monX = Utils.getCenteredTextX(monName, W) - 1
-	Drawing.drawText(x + monX + 1, y + H - 13, monName, COLORS.shadow)
-	Drawing.drawText(x + monX, y + H - 14, monName, COLORS.name)
-
-	-- STAT BARS
-	if type(card.StatBars) == "table" then
-		for i, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			local statY = botBarY + 2 * i
-			local statW = card.StatBars[statKey] or 0
-			gui.drawLine(x+1, statY, x+1+statW, statY, COLORS.border1)
-			gui.drawLine(x+W-1-statW, statY, x+W-1, statY, COLORS.border2)
-		end
-	end
-end
-
--- OVERLAY OPEN
-function GachaMonOverlay.open()
-	SCREEN.hasShinyToDraw = false
-	SCREEN.shinyFrameCounter = 0
-	LogSearchScreen.clearSearch()
-	SCREEN.tryLoadCollection()
-	SCREEN.buildData()
-	SCREEN.currentTab = SCREEN.Tabs.Recent
-	SCREEN.refreshButtons()
-end
-
--- OVERLAY CLOSE
-function GachaMonOverlay.close()
-	SCREEN.hasShinyToDraw = false
-	LogSearchScreen.clearSearch()
-	GachaMonFileManager.trySaveCollectionOnClose()
-	if SCREEN.Data then
-		SCREEN.Data.View.GachaMon = nil
-		if SCREEN.Data.Recent then
-			SCREEN.Data.Recent.currentPage = 1
-		end
-		if SCREEN.Data.Collection then
-			SCREEN.Data.Collection.currentPage = 1
-		end
-	end
-	-- If the game hasn't started yet
-	if not Program.isValidMapLocation() then
-		Program.currentScreen = StartupScreen
-	else
-		Program.currentScreen = TrackerScreen
-	end
-end
-
--- USER INPUT FUNCTIONS
-function SCREEN.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.TabButtons)
-	Input.checkButtonsClicked(xmouse, ymouse, _getCurrentTabButtons())
-end
-
--- DRAWING FUNCTIONS
-function SCREEN.drawScreen()
-	Drawing.drawBackgroundAndMargins(0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT)
-
-	local canvas = {
-		x = CANVAS.X,
-		y = CANVAS.Y,
-		width = CANVAS.W,
-		height = CANVAS.H,
-		text = Theme.COLORS[SCREEN.Colors.text],
-		border = Theme.COLORS[SCREEN.Colors.border],
-		fill = Theme.COLORS[SCREEN.Colors.boxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
-	}
-
-	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawButton(SCREEN.TabButtons.XIcon, headerShadow)
-
-	-- Draw surrounding border box
-	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
-
-	-- Draw card background
-	if SCREEN.currentTab == SCREEN.Tabs.Recent or SCREEN.currentTab == SCREEN.Tabs.Collection then
-		gui.drawRectangle(canvas.x + 1, canvas.y + 1, 210, 141, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
-		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
-	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
-		gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
-		-- Draw a divider and center ball
-	end
-
-	-- Draw all buttons
-	for _, button in pairs(SCREEN.TabButtons) do
-		if button ~= SCREEN.TabButtons.XIcon then
-			Drawing.drawButton(button, canvas.shadow)
-		end
-	end
-	for _, button in pairs(_getCurrentTabButtons()) do
-		Drawing.drawButton(button, canvas.shadow)
-	end
-
 end

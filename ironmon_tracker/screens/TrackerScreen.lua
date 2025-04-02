@@ -154,6 +154,7 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if Program.currentOverlay == GachaMonOverlay then
 				Program.closeScreenOverlay()
+				Program.redraw(true)
 				return
 			end
 			-- If another overlay is open, close that first
