@@ -26,24 +26,22 @@ GachaMonData = {
 
 --[[
 TESTING LIST
-- [Test] Deleting stuff from collection
 - [Test] Nat Dex capture then swap to non-nat dex
 - [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think, j/k it should actually)
 ]]
 
 --[[
 TODO LIST
-- [UI] Consider "Rainbow Stars" instead of "Platinum" for shiny
-- [Ruleset] Expose option to choose which ruleset to play by ("auto" is an option)
+- [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
 - [Card] Add Nickname; research how many bytes it takes up
 - [Card] Evos should roll a new GachaMon card. EVs are okay to use.
 - [Stream Connect] Add a !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
-- [Animation] Shiny has a rainbow / animated frame border
-- [Animation] Battle: animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
+- [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
 - Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
+
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
 ]]
@@ -184,7 +182,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = 0
 		end
 	end
-	ratingTotal = ratingTotal + math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
+	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
+	ratingTotal = ratingTotal + abilityRating
 
 	-- MOVES
 	local iMoves = {}
@@ -228,7 +227,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		)
 		Utils.printDebug("- Move %s: %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
 	end
-	ratingTotal = ratingTotal + math.min(movesRating, RS.CategoryMaximums.Moves or 999)
+	movesRating = math.min(movesRating, RS.CategoryMaximums.Moves or 999)
+	ratingTotal = ratingTotal + movesRating
 
 	-- STATS
 	-- Offensive Stats (Atk & Spa separately)
@@ -245,7 +245,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			offensiveSpa = 0
 		end
 	end
-	ratingTotal = ratingTotal + math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
+	offensiveRating = math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
+	ratingTotal = ratingTotal + offensiveRating
 	-- Defensives Stat (HP, Def, SpDef)
 	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
 	local defensiveRating = 0
@@ -255,7 +256,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			break
 		end
 	end
-	ratingTotal = ratingTotal + math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
+	defensiveRating = math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
+	ratingTotal = ratingTotal + defensiveRating
 	-- Speed Stat (Spe)
 	local speedStat = (baseStats.spe or 0)
 	local speedRating = 0
@@ -265,7 +267,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			break
 		end
 	end
-	ratingTotal = ratingTotal + math.min(speedRating, RS.CategoryMaximums.SpeedStats or 999)
+	speedRating = math.min(speedRating, RS.CategoryMaximums.SpeedStats or 999)
+	ratingTotal = ratingTotal + speedRating
 
 	-- NATURE
 	local natureRating = 0
@@ -280,6 +283,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	elseif multiplier < 1 then
 		natureRating = RS.Natures.Detrimental[nature] or 0
 	end
+	natureRating = math.min(natureRating, RS.CategoryMaximums.Nature or 999)
 	ratingTotal = ratingTotal + natureRating
 
 	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
@@ -479,7 +483,7 @@ end
 ---@param pokemon IPokemon
 ---@return boolean success
 function GachaMonData.tryAddToRecentMons(pokemon)
-	if GachaMonData.RecentMons[pokemon.personality] then
+	if GachaMonData.RecentMons[pokemon.personality or false] then
 		return false
 	end
 
@@ -700,6 +704,7 @@ GachaMonData.IGachaMon = {
 		C.Stars = self:getStars()
 		C.BattlePower = self.BattlePower or 0
 		C.Favorite = self.Favorite or 0
+		C.IsShiny = self:getIsShiny() == 1
 		C.InCollection = self:getKeep() == 1
 		C.PokemonId = self.PokemonId -- Icon
 		C.AbilityId = self.AbilityId -- Rules Text
@@ -714,9 +719,6 @@ GachaMonData.IGachaMon = {
 				statValue = 0
 			end
 			C.StatBars[statKey] = math.min(math.floor(statValue / self.Level), 5) -- max of 5
-		end
-		if self:getIsShiny() == 1 then
-			C.ShinyAnimationFrame = math.random(1, 120)
 		end
 		C.FrameColors = {}
 		C.FrameColors[1] = Constants.MoveTypeColors[pokemonInternal.types[1] or PokemonData.Types.UNKNOWN]

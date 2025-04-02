@@ -601,6 +601,11 @@ EventHandler.DefaultEvents = {
 			Main.SaveSettings(true)
 		end,
 	},
+	CMD_Gachamon = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!gachamon",
+		Fulfill = function(self, request) return EventData.getGachamon(request.SanitizedInput) end,
+	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!about",

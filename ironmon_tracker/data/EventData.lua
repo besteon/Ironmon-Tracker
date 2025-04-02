@@ -1289,6 +1289,23 @@ end
 
 ---@param params string?
 ---@return string response
+function EventData.getGachamon(params)
+	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
+
+	local info = {}
+
+	-- params should be either a pokemon name or something else to unique identify
+
+	-- !gachamon command to show most recently viewed mon (name, ability, stars, BP, stats, moves, collected on)
+
+	-- TODO: Build out a proper data response, showing relevant info about the card
+	-- table.insert(info, string.format("%s: %s/%s", "Gym badges", badgesObtained, maxBadges))
+
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
 function EventData.getAbout(params)
 	local info = {}
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Version, Main.TrackerVersion))

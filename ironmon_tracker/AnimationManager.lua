@@ -20,6 +20,92 @@ local _coverScreenInDarkness = function()
 	gui.drawRectangle(x, y, w, h, border, color)
 end
 
+---Creates new IAnimations for a GachaMon card shiny / holographic foil (paired sparkle animations)
+---@param x number Location of the animation to be drawn
+---@param y number Location of the animation to be drawn
+---@param timeToExpire number Number of seconds before this animation expires
+---@return table<number, IAnimation> animations
+function AnimationManager.createGachaMonShinySparkles(x, y, timeToExpire)
+	-- TODO: consider different types of shiny animation or holographic foil
+
+	local animations = {
+		AnimationManager.IAnimation:new({
+			X = x,
+			Y = y,
+			ShouldLoop = true,
+			KeyFrames = {},
+			Temp = {
+				StartTime = os.time(),
+				EndTime = os.time() + (timeToExpire or 0)
+			}
+		}),
+		AnimationManager.IAnimation:new({
+			X = x,
+			Y = y,
+			ShouldLoop = true,
+			KeyFrames = {},
+			Temp = {
+				StartTime = os.time(),
+				EndTime = os.time() + (timeToExpire or 0)
+			}
+		}),
+	}
+
+	local SPARKLE_ICON = Constants.PixelImages.SPARKLES
+	local W, H = 68, 68
+	local COLORS = {
+		fade1 = 0x44FFFFFF,
+		fade2 = 0x88FFFFFF,
+		full = 0xFFFFFFFF,
+	}
+
+	-- Creation functions
+	local createKeyFrame = function(_anim, xOffset, yOffset, duration, color)
+		return AnimationManager.IKeyFrame:new({
+			Duration = duration,
+			Draw = function(self, _x, _y)
+				Drawing.drawImageAsPixels(SPARKLE_ICON, _x + xOffset, _y + yOffset, color)
+			end,
+			OnExpire = function(self)
+				if os.time() >= _anim.Temp.EndTime then
+					_anim:stop()
+				end
+			end,
+		})
+	end
+
+	local createSparkle = function(_anim, delayFrames)
+		local xOffset, yOffset = math.random(-1, W - 10), math.random(-1, H - 10)
+		-- Startup Delay
+		table.insert(_anim.KeyFrames, AnimationManager.IKeyFrame:new({ Duration = delayFrames }))
+		-- Startup sparkle
+		table.insert(_anim.KeyFrames, createKeyFrame(_anim, xOffset, yOffset, 10, COLORS.fade1))
+		table.insert(_anim.KeyFrames, createKeyFrame(_anim, xOffset, yOffset, 10, COLORS.fade2))
+		-- Bright sparkle
+		table.insert(_anim.KeyFrames, createKeyFrame(_anim, xOffset, yOffset, 30, COLORS.full))
+		-- Fade sparkle
+		table.insert(_anim.KeyFrames, createKeyFrame(_anim, xOffset, yOffset, 10, COLORS.fade2))
+		table.insert(_anim.KeyFrames, createKeyFrame(_anim, xOffset, yOffset, 10, COLORS.fade1))
+	end
+
+	-- Creation N different sparkles, sometimes with a paired sparkle
+	local numSparklePairs = math.random(8, 12)
+	local delayFrames = 0
+	for _ = 1, numSparklePairs, 1 do
+		createSparkle(animations[1], delayFrames)
+		if math.random(3) == 1 then
+			createSparkle(animations[2], delayFrames + 25)
+		end
+		delayFrames = 4 * math.random(0, 4)
+	end
+
+	for _, animation in pairs(animations) do
+		animation:buildAnimation()
+	end
+
+	return animations
+end
+
 ---Creates a new IAnimation for a GachaMon Pack Opening
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
