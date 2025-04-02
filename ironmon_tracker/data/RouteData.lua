@@ -62,7 +62,7 @@ RouteData.Rods = {
 -- Allows the Tracker to verify if data can be updated based on the location of the player
 RouteData.Locations = {
 	CanPCHeal = {},
-	CanObtainBadge = {}, -- Currently unused for the time being
+	CanObtainBadge = {},
 	IsInLab = {},
 	IsInHallOfFame = {},
 	IsInSafariZone = {},

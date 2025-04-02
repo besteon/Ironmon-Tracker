@@ -531,6 +531,8 @@ function Program.update()
 				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.STEPS)
 			end
 
+			GachaMonData.updateMainScreenViewedGachaMon()
+
 			-- Check if a new GachaMon has been captured and create an animation for the pack opening
 			local APO = TrackerScreen.Animations.GachaMonPackOpening
 			local ACD = TrackerScreen.Animations.GachaMonCardDisplay
@@ -554,7 +556,7 @@ function Program.update()
 		Program.updateBagItems()
 		Program.updatePCHeals()
 		local newBadgeObtained = Program.updateBadgesObtained()
-		if newBadgeObtained then
+		if newBadgeObtained and RouteData.Locations.CanObtainBadge[TrackerAPI.getMapId() or 0] then
 			GachaMonData.markTeamForGymBadgeObtained(newBadgeObtained)
 		end
 		CrashRecoveryScreen.trySaveBackup()

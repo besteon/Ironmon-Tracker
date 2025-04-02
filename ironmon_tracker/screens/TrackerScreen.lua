@@ -148,10 +148,13 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 61, 58, 38, 21 },
 		isVisible = function()
 			local allowedToShow = Battle.isViewingOwn and Options["Show GachaMon stars on main Tracker Screen"]
-			local hasConflict = Options["Track PC Heals"] or Tracker.getViewedPokemon() == nil or GachaMonData.hasNewestMonToShow()
+			local hasConflict = Options["Track PC Heals"] or GachaMonData.playerViewedMon == nil or GachaMonData.hasNewestMonToShow()
 			return allowedToShow and not hasConflict
 		end,
 		onClick = function(self)
+			if not GachaMonData.playerViewedMon then
+				return
+			end
 			if Program.currentOverlay == GachaMonOverlay then
 				Program.closeScreenOverlay()
 				Program.redraw(true)
@@ -162,8 +165,7 @@ TrackerScreen.Buttons = {
 				Program.closeScreenOverlay()
 			end
 			Program.openOverlayScreen(GachaMonOverlay)
-			local pokemon = Tracker.getViewedPokemon() or {}
-			local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+			local gachamon = GachaMonData.RecentMons[GachaMonData.playerViewedMon.Personality or false]
 			if gachamon then
 				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
 				GachaMonOverlay.Data.View.GachaMon = gachamon
@@ -172,16 +174,23 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end,
 		draw = function(self, shadowcolor)
-			local pokemon = Tracker.getViewedPokemon() or {}
-			local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
-			if gachamon then
-				local x, y = self.box[1], self.box[2]
-				local numStars = gachamon:getStars() or 0
-				if numStars < 5 then
-					y = y + 3
-				end
-				GachaMonOverlay.drawGachaMonStars(numStars, x, y + 1)
+			if not GachaMonData.playerViewedMon then
+				return
 			end
+			local x, y = self.box[1], self.box[2]
+			local numStars = GachaMonData.playerViewedMon:getStars() or 0
+			local numStarsToDraw = math.max(numStars, GachaMonData.playerViewedInitialStars or 0) -- use the larger amount
+			if numStarsToDraw < 5 then
+				y = y + 3
+			end
+			if numStarsToDraw < 3 then
+				x = x + 10
+			end
+			local initialStars = nil
+			if (GachaMonData.playerViewedInitialStars or 0) > 0 then
+				initialStars = GachaMonData.playerViewedInitialStars
+			end
+			GachaMonOverlay.drawGachaMonStars(numStars, x, y + 1, initialStars)
 		end,
 	},
 	LogViewerQuickAccess = {
