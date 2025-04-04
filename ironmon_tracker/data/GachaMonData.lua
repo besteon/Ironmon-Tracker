@@ -27,18 +27,17 @@ GachaMonData = {
 	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
 	requiresNatDex = false,
 	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
-	ruleset = Constants.IronmonRulesets.Kaizo,
+	ruleset = Constants.IronmonRulesets.Standard,
 }
 
 --[[
 TESTING LIST
-- [Test] Nat Dex capture then swap to non-nat dex
-- [Test] Evo a GachaMon, does it make a new card? (it shouldnt, i think, j/k it should actually)
+-
 ]]
 
 --[[
 TODO LIST
-- [Card] Evos should roll a new GachaMon card. EVs are okay to use.
+- [Card] Evos should roll a new GachaMon card (cant rely on personality values as uniqueID). EVs are okay to use.
 - [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
 - [Card] Add Nickname; research how many bytes it takes up
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
@@ -46,6 +45,7 @@ TODO LIST
    - 1000 vs 4000 is a 4:1 odds
 - [GachaDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
+   - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
 
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
@@ -64,7 +64,7 @@ function GachaMonData.initialize()
 	GachaMonData.clearNewestMonToShow()
 
 	-- Don't actually reset this here, since the New Run profile initialize is doing it instead
-	-- GachaMonData.ruleset = Constants.IronmonRulesets.Kaizo
+	-- GachaMonData.ruleset = Constants.IronmonRulesets.Standard
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
@@ -575,7 +575,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 		end
 	end
 
-	GachaMonData.ruleset = ruleset or Constants.IronmonRulesets.Kaizo
+	GachaMonData.ruleset = ruleset or Constants.IronmonRulesets.Standard
 	return GachaMonData.ruleset
 end
 
