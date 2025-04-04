@@ -1,12 +1,17 @@
 AbilityData = {}
 
 AbilityData.Values = {
+	DrizzleId = 2,
+	VoltAbsorbId = 10,
+	WaterAbsorbId = 11,
+	FlashFireId = 18,
 	LevitateId = 26,
 	TraceId = 36,
 	HugePowerId = 37,
 	ThickFatId = 47,
 	TruantId = 54,
 	HustleId = 55,
+	DroughtId = 70,
 	PurePowerId = 74,
 	CacophonyId = 76,
 }
@@ -16,17 +21,18 @@ function AbilityData.initialize()
 end
 
 function AbilityData.updateResources()
-	for i, val in ipairs(AbilityData.Abilities) do
-		if Resources.Game.AbilityNames[i] then
-			val.name = Resources.Game.AbilityNames[i]
+	for id = 1, AbilityData.getTotal(), 1 do
+		local ability = AbilityData.Abilities[id] or {}
+		if Resources.Game.AbilityNames[id] then
+			ability.name = Resources.Game.AbilityNames[id]
 		end
 
-		local descTable = Resources.Game.AbilityDescriptions[i] or {}
+		local descTable = Resources.Game.AbilityDescriptions[id] or {}
 		if descTable.Description then
-			val.description = descTable.Description
+			ability.description = descTable.Description
 		end
 		if descTable.DescriptionEmerald then
-			val.descriptionEmerald = descTable.DescriptionEmerald
+			ability.descriptionEmerald = descTable.DescriptionEmerald
 		end
 	end
 end
@@ -45,16 +51,45 @@ end
 ---@param abilityId number
 ---@return boolean
 function AbilityData.isValid(abilityId)
-	return abilityId ~= nil and abilityId >= 1 and abilityId <= #AbilityData.Abilities
+	return abilityId ~= nil and abilityId >= 1 and abilityId <= AbilityData.getTotal()
+end
+
+---Gets the total count of known Abilities for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---@return number
+function AbilityData.getTotal()
+	if AbilityData.knownTotal then
+		return AbilityData.knownTotal
+	end
+	if CustomCode.RomHacks.isPlayingNatDex() then
+		AbilityData.knownTotal = #AbilityData.Abilities
+	else
+		AbilityData.knownTotal = 77
+	end
+	return AbilityData.knownTotal
 end
 
 function AbilityData.populateAbilityDropdown(abilityList)
-	for _, ability in ipairs(AbilityData.Abilities) do
+	for id = 1, AbilityData.getTotal(), 1 do
+		local ability = AbilityData.Abilities[id] or {}
 		if ability.id ~= AbilityData.Values.CacophonyId then
 			table.insert(abilityList, ability.name)
 		end
 	end
 	return abilityList
+end
+
+---Returns a lookup table for checking what types a certain ability offers defenses for (Levitate improves Ground defense)
+---@return table<number, table<string, boolean>>
+function AbilityData.getTypeDefensiveAbilities()
+	return {
+		[AbilityData.Values.DrizzleId or 2] = { [PokemonData.Types.FIRE] = true },
+		[AbilityData.Values.VoltAbsorbId or 10] = { [PokemonData.Types.ELECTRIC] = true },
+		[AbilityData.Values.WaterAbsorbId or 11] = { [PokemonData.Types.WATER] = true },
+		[AbilityData.Values.FlashFireId or 18] = { [PokemonData.Types.FIRE] = true },
+		[AbilityData.Values.LevitateId or 26] = { [PokemonData.Types.GROUND] = true },
+		[AbilityData.Values.ThickFatId or 47] = { [PokemonData.Types.FIRE] = true, [PokemonData.Types.ICE] = true },
+		[AbilityData.Values.DroughtId or 70] = { [PokemonData.Types.WATER] = true },
+	}
 end
 
 AbilityData.DefaultAbility = {

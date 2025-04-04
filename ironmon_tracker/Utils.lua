@@ -395,7 +395,7 @@ end
 ---@param maxPokemonId? number Optional, if provided the random pokemonID will not exceed this number
 ---@return number pokemonID
 function Utils.randomPokemonID(maxPokemonId)
-	maxPokemonId = math.min(#PokemonData.Pokemon, maxPokemonId or 99999) -- max
+	maxPokemonId = math.min(PokemonData.getTotal(), maxPokemonId or 99999) -- max
 	local pokemonID = math.random(maxPokemonId - 25)
 	if pokemonID > 251 then
 		pokemonID = pokemonID + 25

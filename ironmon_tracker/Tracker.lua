@@ -423,7 +423,8 @@ function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
 	end
 
 	-- Lookup ability id's from the master list of ability pokemon data
-	for id, ability in pairs(AbilityData.Abilities) do
+	for id = 1, AbilityData.getTotal(), 1 do
+		local ability = AbilityData.Abilities[id] or {}
 		if abilityOneText == ability.name then
 			abilityOneId = id
 		elseif abilityTwoText == ability.name then

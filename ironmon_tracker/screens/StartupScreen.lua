@@ -106,7 +106,7 @@ function StartupScreen.setPokemonIcon(displayOption)
 		Options["Startup Pokemon displayed"] = Options.StartupIcon.random
 	elseif displayOption == Options.StartupIcon.attempts then
 		-- Show a Pokemon with a Gen 3 Pokedex number equal to the Attempts count
-		pokemonID = (Main.currentSeed - 1) % (#PokemonData.Pokemon - 25) + 1
+		pokemonID = (Main.currentSeed - 1) % (PokemonData.getTotal() - 25) + 1
 		if pokemonID > 251 then
 			pokemonID = pokemonID + 25
 		end

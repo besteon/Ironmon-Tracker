@@ -44,7 +44,7 @@ TODO LIST
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
-- [PokeDex] Show collection completion status somehow. The PokeDex!
+- [GachaDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
 
 TODO LATER:
@@ -202,6 +202,31 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 		if not bannedAbilityException then
 			abilityRating = 0
 		end
+	end
+	-- Check if the ability helps improves the Pokémon's weakness(es)
+	local typeDefensiveAbilities = AbilityData.getTypeDefensiveAbilities()
+	local defensiveTypings = typeDefensiveAbilities[gachamon.AbilityId or 0]
+	local hasDefensiveAbility = false
+	if abilityRating > 0 and defensiveTypings then
+		local pokemonDefenses = PokemonData.getEffectiveness(gachamon.PokemonId)
+		-- Check if any x2 weaknesses are improved
+		for _, monType in pairs(pokemonDefenses[2] or {}) do
+			if not hasDefensiveAbility and defensiveTypings[monType] then
+				hasDefensiveAbility = true
+				break
+			end
+		end
+		-- Check if any x4 weaknesses are improved
+		for _, monType in pairs(pokemonDefenses[4] or {}) do
+			if not hasDefensiveAbility and defensiveTypings[monType] then
+				hasDefensiveAbility = true
+				break
+			end
+		end
+	end
+	if hasDefensiveAbility then
+		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
+		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%)", AbilityData.Abilities[gachamon.AbilityId].name)
 	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
 	ratingTotal = ratingTotal + abilityRating
@@ -417,15 +442,15 @@ function GachaMonData.createRandomGachaMon()
 		Version = GachaMonFileManager.Version,
 		Personality = -1,
 		Level = math.random(1, 100),
-		AbilityId = math.random(1, #AbilityData.Abilities),
+		AbilityId = math.random(1, AbilityData.getTotal()),
 		SeedNumber = math.random(1, 29999),
 		Temp = {
 			Stats = {},
 			MoveIds = {
-				math.random(1, #MoveData.Moves),
-				math.random(1, #MoveData.Moves),
-				math.random(1, #MoveData.Moves),
-				math.random(1, #MoveData.Moves),
+				math.random(1, MoveData.getTotal()),
+				math.random(1, MoveData.getTotal()),
+				math.random(1, MoveData.getTotal()),
+				math.random(1, MoveData.getTotal()),
 			},
 			GameVersion = math.random(1, 5),
 			IsShiny = 0,
@@ -435,13 +460,7 @@ function GachaMonData.createRandomGachaMon()
 		},
 	})
 
-	local maxPokemonId
-	if GachaMonData.requiresNatDex and CustomCode.RomHacks.isPlayingNatDex() then
-		maxPokemonId = #PokemonData.Pokemon
-	else
-		maxPokemonId = 411
-	end
-	gachamon.PokemonId = Utils.randomPokemonID(maxPokemonId)
+	gachamon.PokemonId = Utils.randomPokemonID()
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
 	local pokemonTypes = pokemonInternal.types or {}

@@ -385,10 +385,10 @@ function InfoScreen.showNextPokemon(delta)
 	local nextPokemonId = InfoScreen.infoLookup + delta
 
 	if nextPokemonId < 1 then
-		nextPokemonId = #PokemonData.Pokemon
+		nextPokemonId = PokemonData.getTotal()
 	elseif nextPokemonId > 251 and nextPokemonId < 277 then
 		nextPokemonId = Utils.inlineIf(delta > 0, 277, 251)
-	elseif nextPokemonId > #PokemonData.Pokemon then
+	elseif nextPokemonId > PokemonData.getTotal() then
 		nextPokemonId = 1
 	end
 
@@ -401,9 +401,10 @@ function InfoScreen.openMoveInfoWindow()
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
-	for _, data in pairs(MoveData.Moves) do
-		if data.name ~= Constants.BLANKLINE then
-			table.insert(allmovesData, data.name)
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
+		if move.name ~= Constants.BLANKLINE then
+			table.insert(allmovesData, move.name)
 		end
 	end
 
@@ -413,8 +414,9 @@ function InfoScreen.openMoveInfoWindow()
 		local moveNameFromForm = ExternalUI.BizForms.getText(moveDropdown)
 		local moveId
 
-		for id, data in pairs(MoveData.Moves) do
-			if data.name == moveNameFromForm then
+		for id = 1, MoveData.getTotal(), 1 do
+			local move = MoveData.Moves[id] or MoveData.BlankMove
+			if move.name == moveNameFromForm then
 				moveId = id
 				break
 			end
@@ -446,8 +448,9 @@ function InfoScreen.openAbilityInfoWindow()
 		local abilityNameFromForm = ExternalUI.BizForms.getText(abilityDropdown)
 		local abilityId
 
-		for id, data in pairs(AbilityData.Abilities) do
-			if data.name == abilityNameFromForm then
+		for id = 1, AbilityData.getTotal(), 1 do
+			local ability = AbilityData.Abilities[id] or {}
+			if ability.name == abilityNameFromForm then
 				abilityId = id
 				break
 			end
@@ -702,7 +705,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON TYPES
 	local type1, type2 = data.p.types[1], data.p.types[2]
 	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Pokemon[pokemonID] then
-		type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.EMPTY
+		type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.UNKNOWN
 		type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
 	end
 	offsetY = offsetY - 7

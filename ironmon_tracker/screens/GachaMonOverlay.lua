@@ -232,10 +232,11 @@ GachaMonOverlay.Tabs.View.Buttons = {
 
 			local moveIds = gachamon:getMoveIds()
 			for i, moveId in ipairs(moveIds or {}) do
+				local move = MoveData.Moves[moveId] or MoveData.BlankMove
 				local name, power = Constants.BLANKLINE, ""
-				if MoveData.isValid(moveId) then
-					name = MoveData.Moves[moveId].name
-					power = MoveData.Moves[moveId].power
+				if MoveData.isValid(moveId) or (GachaMonData.requiresNatDex and moveId > 354) then
+					name = move.name
+					power = move.power
 					if power == "0" then
 						power = Constants.BLANKLINE
 					end
@@ -320,7 +321,11 @@ GachaMonOverlay.Tabs.View.Buttons = {
 	Badges = {
 		box = { CANVAS.X + CANVAS.W - 95, CANVAS.Y + 12, 25, 72, },
 		badgeImages = {},
-		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
+		isVisible = function(self)
+			-- Only draw the badges if the GachaMon has any (just leave empty otherwise)
+			local gachamon = SCREEN.Data.View.GachaMon
+			return gachamon and gachamon.Badges > 0
+		end,
 		updateSelf = function(self)
 			local gachamon = SCREEN.Data.View.GachaMon
 			if not gachamon then
@@ -1303,7 +1308,7 @@ end
 ---@param x number
 ---@param y number
 ---@param initialStars? number The original amount of stars to compare to the new star value. New stars have a different color, missing stars are hollow
-function GachaMonOverlay.drawGachaMonStars(numStars, x, y, initialStars)
+function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars)
 	if numStars < 1 then
 		return
 	end
@@ -1397,7 +1402,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
 
 	-- STARS
-	GachaMonOverlay.drawGachaMonStars(numStars, x, y)
+	GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y)
 
 	-- CARD FRAME
 	-- left-half
@@ -1429,23 +1434,32 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	local pX, pY = (x + W / 2 - 16), (y + 8)
 	local pW, pH = 32, 32
 	local pokemonImageId = card.PokemonId
-	local animationOff -- If left nil, will use default animation sprite; just turn it off for Nat. Dex
-	if PokemonData.isImageIDValid(pokemonImageId) and pokemonImageId ~= 0 then
-		-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
-		if GachaMonData.requiresNatDex and card.PokemonId >= 412 then
-			animationOff = "none"
-			local iconset = Options.getIconSet()
-			local natdexIconSet = Options.IconSetMap[3]
-			if iconset and iconset ~= natdexIconSet then
-				pX = pX - (iconset.xOffset or 0) + (natdexIconSet.xOffset or 0)
-				pY = pY - (iconset.yOffset or 0) + (natdexIconSet.yOffset or 0)
-			end
+	local animationOn = true -- If left nil, will use default animation sprite; just turn it off for Nat. Dex
+	-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
+	if GachaMonData.requiresNatDex and (card.PokemonId or 0) >= 412 then
+		animationOn = false
+		local iconset = Options.getIconSet()
+		local natdexIconSet = Options.IconSetMap[3]
+		if iconset and iconset ~= natdexIconSet then
+			pX = pX - (iconset.xOffset or 0) + (natdexIconSet.xOffset or 0)
+			pY = pY - (iconset.yOffset or 0) + (natdexIconSet.yOffset or 0)
 		end
-	else
+	elseif not PokemonData.isImageIDValid(pokemonImageId) then
 		-- Question mark icon
 		pokemonImageId = 252
 	end
-	Drawing.drawPokemonIcon(pokemonImageId, pX, pY, pW, pH, animationOff)
+	-- Duplicate draw pokemon icon code to bypass limitations for drawing Nat. Dex mons
+	local iconset = Options.getIconSet()
+	pX = pX + (iconset.xOffset or 0)
+	pY = pY + (iconset.yOffset or 0)
+	if iconset.isAnimated and animationOn then
+		Drawing.drawSpriteIcon(pX, pY, pokemonImageId, SpriteData.Types.Idle)
+	else
+		local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonImageId))
+		if imagePath then
+			Drawing.drawImage(imagePath, pX, pY, pW, pH)
+		end
+	end
 
 	-- FAVORITE ICON
 	if card.Favorite == 1 or showFavoriteOverride then
@@ -1478,7 +1492,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 
 	-- NAME TEXT
 	local monName = Constants.BLANKLINE
-	if PokemonData.isValid(card.PokemonId) then
+	if PokemonData.isValid(card.PokemonId) or (GachaMonData.requiresNatDex and (card.PokemonId or 0) > 412) then
 		monName = PokemonData.Pokemon[card.PokemonId].name
 	end
 	local monX = Utils.getCenteredTextX(monName, W) - 1

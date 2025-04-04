@@ -1227,10 +1227,11 @@ function EventData.getProgress(params)
 		totalDefeated / totalTrainers * 100))
 	local fullyEvolvedSeen, fullyEvolvedTotal = 0, 0
 	-- local legendarySeen, legendaryTotal = 0, 0
-	for pokemonID, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if pokemon.evolution == PokemonData.Evolutions.NONE then
 			fullyEvolvedTotal = fullyEvolvedTotal + 1
-			local trackedPokemon = Tracker.Data.allPokemon[pokemonID] or {}
+			local trackedPokemon = Tracker.Data.allPokemon[id] or {}
 			if (trackedPokemon.eT or 0) > 0 then
 				fullyEvolvedSeen = fullyEvolvedSeen + 1
 			end

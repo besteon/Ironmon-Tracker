@@ -509,7 +509,8 @@
 	},
 	"OtherAdjustments": {
 		"PenaltyRepeatedMove": 0.65,
-		"PenaltyNoMoveInCategory": 0.20
+		"PenaltyNoMoveInCategory": 0.20,
+		"BonusAbilityImprovesWeakness":  1.50
 	},
 	"RatingToStars": [
 		{

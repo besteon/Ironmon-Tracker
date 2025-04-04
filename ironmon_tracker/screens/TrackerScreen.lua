@@ -190,7 +190,7 @@ TrackerScreen.Buttons = {
 			if (GachaMonData.playerViewedInitialStars or 0) > 0 then
 				initialStars = GachaMonData.playerViewedInitialStars
 			end
-			GachaMonOverlay.drawGachaMonStars(numStars, x, y + 1, initialStars)
+			GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y + 1, initialStars)
 		end,
 	},
 	LogViewerQuickAccess = {
