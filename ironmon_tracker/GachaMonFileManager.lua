@@ -20,7 +20,7 @@ function GachaMonFileManager.getRatingSystemFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
 end
 ---@return string filepath
-function GachaMonFileManager.getRecentGachaMonsFilePath()
+function GachaMonFileManager.getRecentMonsFilePath()
 	local profile = QuickloadScreen.getActiveProfile()
 	if not profile then
 		return FileManager.prependDir(FileManager.Files.GACHAMON_RECENT_DEFAULT)
@@ -154,13 +154,13 @@ end
 ---Imports any existing Recent GachaMons (when resuming a game session)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 ---@param filepathOverride? string
-function GachaMonFileManager.importRecentGachaMons(forceImportAndUse, filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath() or ""
+function GachaMonFileManager.importRecentMons(forceImportAndUse, filepathOverride)
+	local filepath = filepathOverride or GachaMonFileManager.getRecentMonsFilePath() or ""
 	if not FileManager.fileExists(filepath) then
 		return
 	end
 	-- If no ROM hash found, then there is also no RecentMons data to import
-	local importedRomHash = GachaMonFileManager.getRomHashFromFile(filepath)
+	local importedRomHash = GachaMonFileManager.readRomHashFromRecentMonsFile(filepath)
 	if not importedRomHash then
 		return
 	end
@@ -204,8 +204,8 @@ end
 ---Reads the RomHash value from the start of the RecentMons data file
 ---@param filepathOverride? string
 ---@return string|nil
-function GachaMonFileManager.getRomHashFromFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath()
+function GachaMonFileManager.readRomHashFromRecentMonsFile(filepathOverride)
+	local filepath = filepathOverride or GachaMonFileManager.getRecentMonsFilePath()
 	if not FileManager.fileExists(filepath) then
 		return nil
 	end
@@ -260,7 +260,7 @@ end
 ---@param filepathOverride? string
 ---@return boolean success
 function GachaMonFileManager.saveRecentMonsToFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath()
+	local filepath = filepathOverride or GachaMonFileManager.getRecentMonsFilePath()
 	if not filepath then
 		return false
 	end

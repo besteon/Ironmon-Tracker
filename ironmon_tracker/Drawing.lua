@@ -142,7 +142,7 @@ function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, d
 	end
 end
 
----@param animType? string Optional, a SpriteData.Types
+---@param animType? string Optional, a SpriteData.Types; set to "none" to disable any animated sprite drawing (useful for Nat. Dex)
 function Drawing.drawPokemonIcon(pokemonID, x, y, width, height, animType)
 	if not PokemonData.isImageIDValid(pokemonID) then
 		return
@@ -153,7 +153,7 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height, animType)
 	width = width or 32
 	height = height or 32
 
-	if iconset.isAnimated then
+	if iconset.isAnimated and animType ~= "none" then
 		Drawing.drawSpriteIcon(x, y, pokemonID, animType)
 	else
 		local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))

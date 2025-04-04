@@ -508,7 +508,8 @@
 		"OffensiveStats": 20
 	},
 	"OtherAdjustments": {
-		"RepeatedMovePentalty": 0.65
+		"PenaltyRepeatedMove": 0.65,
+		"PenaltyNoMoveInCategory": 0.20
 	},
 	"RatingToStars": [
 		{

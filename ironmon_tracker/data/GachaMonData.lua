@@ -44,7 +44,7 @@ TODO LIST
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
-- Show collection completion status somehow. The PokeDex!
+- [PokeDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
 
 TODO LATER:
@@ -76,9 +76,8 @@ end
 ---@param gachamon IGachaMon
 ---@return boolean isRecentMon True if belongs to the RecentMons, False if belongs to the collection (or not found)
 function GachaMonData.isRecentMon(gachamon)
-	local recentMon = GachaMonData.RecentMons[gachamon.Personality] or {}
-	local isRecentMon = recentMon.PokemonId == gachamon.PokemonId and recentMon.SeedNumber == gachamon.SeedNumber
-	return isRecentMon
+	local recentMon = GachaMonData.RecentMons[gachamon.Personality or false] or {}
+	return (recentMon.PokemonId == gachamon.PokemonId) and (recentMon.SeedNumber == gachamon.SeedNumber)
 end
 
 ---Helper function to look up the index of a GachaMon in the collection (returns -1 if not found)
@@ -231,13 +230,14 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 		end
 	end
 	local movesRating = 0
+	local penaltyRepeatedMove = RS.OtherAdjustments.PenaltyRepeatedMove or 1
 	for i, iMove in pairs(iMoves) do
 		local debugPenalty = false -- TODO: Remove
 		-- Check for duplicate offensive move types; redundant typing coverage applies penalty to the move with the lower rating
 		for _, cMove in pairs(iMoves) do
 			-- If this iMoves rating is lower than compared-move, and compared-move matches type, and they both deal damage, adjust the iMove rating
 			if cMove and iMove.rating < cMove.rating and cMove.move.type == iMove.move.type and cMove.id ~= iMove.id and cMove.ePower > 0 and iMove.ePower > 0 then
-				iMove.rating = iMove.rating * (RS.OtherAdjustments.RepeatedMovePentalty or 1)
+				iMove.rating = iMove.rating * penaltyRepeatedMove
 				debugPenalty = true
 				break
 			end
@@ -256,33 +256,35 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	ratingTotal = ratingTotal + movesRating
 
 	-- STATS (OFFENSIVE)
-	local penaltyNoMoveCategory = 0.20
+	local penaltyNoMoveInCategory = RS.OtherAdjustments.PenaltyNoMoveInCategory or 1
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
 	local offensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
 		if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
 			-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
-			if anyPhysicalDamagingMoves then
-				offensiveRating = offensiveRating + ratingPair.Rating
-			else
-				offensiveRating = offensiveRating + (ratingPair.Rating * penaltyNoMoveCategory)
+			local movePenalty = 1
+			if not anyPhysicalDamagingMoves then
+				movePenalty = penaltyNoMoveInCategory
 			end
+			offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
 			if not DEBUG_SUPPRESS_MSGS then
-				Utils.printDebug(" - ATK Offensive rating: %s", offensiveRating)
+				local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
+				Utils.printDebug(" - ATK offensive rating: %s %s", ratingPair.Rating * movePenalty, penaltyText)
 			end
 			-- Rating found, exclude from future threshold checks
 			offensiveAtk = 0
 		end
-		if anySpecialDamaingMoves and offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
+		if offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
 			-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
-			if anySpecialDamaingMoves then
-				offensiveRating = offensiveRating + ratingPair.Rating
-			else
-				offensiveRating = offensiveRating + (ratingPair.Rating * penaltyNoMoveCategory)
+			local movePenalty = 1
+			if not anySpecialDamaingMoves then
+				movePenalty = penaltyNoMoveInCategory
 			end
+			offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
 			if not DEBUG_SUPPRESS_MSGS then
-				Utils.printDebug(" - SPA Offensive rating: %s", offensiveRating)
+				local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
+				Utils.printDebug(" - SPA offensive rating: %s %s", ratingPair.Rating * movePenalty, penaltyText)
 			end
 			-- Rating found, exclude from future threshold checks
 			offensiveSpa = 0
@@ -565,14 +567,14 @@ function GachaMonData.tryImportMatchingROMRecentMons(forceImportAndUse)
 	end
 
 	GachaMonData.initialRecentMonsLoaded = true
-	GachaMonFileManager.importRecentGachaMons(forceImportAndUse)
+	GachaMonFileManager.importRecentMons(forceImportAndUse)
 end
 
 ---Called when a new Pokémon is viewed on the Tracker, to create a GachaMon from it
 ---@param pokemon IPokemon
 ---@return boolean success
 function GachaMonData.tryAddToRecentMons(pokemon)
-	if GachaMonData.RecentMons[pokemon.personality or false] then
+	if not GachaMonData.initialRecentMonsLoaded or GachaMonData.RecentMons[pokemon.personality or false] then
 		return false
 	end
 
@@ -810,8 +812,9 @@ GachaMonData.IGachaMon = {
 			C.StatBars[statKey] = math.min(math.floor(statValue / self.Level), 5) -- max of 5
 		end
 		C.FrameColors = {}
-		C.FrameColors[1] = Constants.MoveTypeColors[pokemonInternal.types[1] or PokemonData.Types.UNKNOWN]
-		C.FrameColors[2] = Constants.MoveTypeColors[pokemonInternal.types[2] or false] or C.FrameColors[1]
+		local monTypes = pokemonInternal.types or {}
+		C.FrameColors[1] = Constants.MoveTypeColors[monTypes[1] or PokemonData.Types.UNKNOWN]
+		C.FrameColors[2] = Constants.MoveTypeColors[monTypes[2] or false] or C.FrameColors[1]
 		return C
 	end,
 
@@ -874,7 +877,7 @@ GachaMonData.IGachaMon = {
 		local dataChanged = self.Favorite ~= favoriteBit
 		self.Favorite = favoriteBit
 		if dataChanged then
-			-- TODO: re-save recent mon collection
+			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding
 		end
 		return dataChanged
@@ -886,7 +889,7 @@ GachaMonData.IGachaMon = {
 		local dataChanged = self:getKeep() ~= keepBit
 		self.C_MoveIdsGameVersionKeep = Utils.getbits(self.C_MoveIdsGameVersionKeep, 0, 39) + Utils.bit_lshift(keepBit, 39)
 		if dataChanged then
-			-- TODO: re-save recent mon collection
+			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding
 		end
 		return dataChanged
