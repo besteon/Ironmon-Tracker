@@ -591,6 +591,28 @@ PokemonData.TypeIndexMap = {
 	[0x0F] = PokemonData.Types.ICE,
 	[0x10] = PokemonData.Types.DRAGON,
 	[0x11] = PokemonData.Types.DARK,
+	[0x12] = PokemonData.Types.FAIRY,
+}
+PokemonData.TypeNameToIndexMap = {
+	[PokemonData.Types.NORMAL] = 0x00,
+	[PokemonData.Types.FIGHTING] = 0x01,
+	[PokemonData.Types.FLYING] = 0x02,
+	[PokemonData.Types.POISON] = 0x03,
+	[PokemonData.Types.GROUND] = 0x04,
+	[PokemonData.Types.ROCK] = 0x05,
+	[PokemonData.Types.BUG] = 0x06,
+	[PokemonData.Types.GHOST] = 0x07,
+	[PokemonData.Types.STEEL] = 0x08,
+	[PokemonData.Types.UNKNOWN] = 0x09, -- MYSTERY
+	[PokemonData.Types.FIRE] = 0x0A,
+	[PokemonData.Types.WATER] = 0x0B,
+	[PokemonData.Types.GRASS] = 0x0C,
+	[PokemonData.Types.ELECTRIC] = 0x0D,
+	[PokemonData.Types.PSYCHIC] = 0x0E,
+	[PokemonData.Types.ICE] = 0x0F,
+	[PokemonData.Types.DRAGON] = 0x10,
+	[PokemonData.Types.DARK] = 0x11,
+	[PokemonData.Types.FAIRY] = 0x12,
 }
 
 PokemonData.BlankPokemon = {

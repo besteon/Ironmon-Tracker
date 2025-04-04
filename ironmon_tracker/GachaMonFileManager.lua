@@ -387,8 +387,8 @@ end
 
 --Version 1 Binary Stream
 GachaMonFileManager.BinaryStreams[1] = {
-	Format = "BIHBBBHBIIII", -- The packing format (version # always occupies the 1st byte)
-	Size = 29, -- Number of bytes per GachaMon stored
+	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
+	Size = 31, -- Number of bytes per GachaMon stored
 }
 
 ---@param gachamon IGachaMon
@@ -417,6 +417,8 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 		gachamon.RatingScore,
 		gachamon.SeedNumber,
 		gachamon.Badges,
+		gachamon.Type1,
+		gachamon.Type2,
 		stats1,
 		stats2,
 		movepair1,
@@ -442,16 +444,17 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 		RatingScore = data[6],
 		SeedNumber = data[7],
 		Badges = data[8],
-		C_StatsHpAtkDef = data[9],
-		C_StatsSpaSpdSpe = data[10],
+		Type1 = data[9],
+		Type2 = data[10],
+		C_StatsHpAtkDef = data[11],
+		C_StatsSpaSpdSpe = data[12],
 	})
 	local idPowerFavorite = data[3]
 	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
 	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000
 	gachamon.Favorite = Utils.getbits(idPowerFavorite, 15, 1)
-	local movepair1 = data[11]
-	local movepair2 = data[12]
-	-- Utils.printDebug("Unpack: %x as %s", Utils.getbits(last8bytes, 0, 40), Utils.getbits(Utils.getbits(last8bytes, 0, 40), 0, 9))
+	local movepair1 = data[13]
+	local movepair2 = data[14]
 	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
 	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
 	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)

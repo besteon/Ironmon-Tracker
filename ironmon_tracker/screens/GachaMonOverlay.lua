@@ -798,6 +798,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 			SCREEN.drawGachaCard(card, x, y, 1)
 		end,
 	},
+	-- TODO: Allow clicking on to temporarily view the GachaMon (dont allow favorite/saving)
 	OpponentGachaMonCard = {
 		box = { CANVAS.X + 130, CANVAS.Y + 30, 76, 76, },
 		draw = function(self, shadowcolor)

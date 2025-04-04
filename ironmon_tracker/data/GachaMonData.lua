@@ -114,6 +114,14 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData, DEBUG_SUPPRESS_MSGS)
 
 	gachamon.AbilityId = PokemonData.getAbilityId(pokemonData.pokemonID, pokemonData.abilityNum)
 
+	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
+	local pokemonTypes = pokemonInternal.types or {}
+	gachamon.Type1 = PokemonData.TypeNameToIndexMap[pokemonTypes[1] or PokemonData.Types.UNKNOWN]
+	if not gachamon.Type1 then
+		gachamon.Type1 = PokemonData.TypeNameToIndexMap[PokemonData.Types.UNKNOWN]
+	end
+	gachamon.Type2 = PokemonData.TypeNameToIndexMap[pokemonTypes[2] or false] or gachamon.Type1
+
 	for statKey, statValue in pairs(pokemonData.stats or {}) do
 		gachamon.Temp.Stats[statKey] = statValue
 	end
@@ -249,7 +257,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 			debugPenalty and "(Penalty: Duplicate) " or ""
 		)
 		if not DEBUG_SUPPRESS_MSGS then
-			Utils.printDebug("- Move %s: %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
+			Utils.printDebug("%s. %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
 		end
 	end
 	movesRating = math.min(movesRating, RS.CategoryMaximums.Moves or 999)
@@ -270,7 +278,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 			offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
 			if not DEBUG_SUPPRESS_MSGS then
 				local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
-				Utils.printDebug(" - ATK offensive rating: %s %s", ratingPair.Rating * movePenalty, penaltyText)
+				Utils.printDebug("- Offensive rating (ATK): %s %s", ratingPair.Rating * movePenalty, penaltyText)
 			end
 			-- Rating found, exclude from future threshold checks
 			offensiveAtk = 0
@@ -284,7 +292,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 			offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
 			if not DEBUG_SUPPRESS_MSGS then
 				local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
-				Utils.printDebug(" - SPA offensive rating: %s %s", ratingPair.Rating * movePenalty, penaltyText)
+				Utils.printDebug("- Offensive rating (SPA): %s %s", ratingPair.Rating * movePenalty, penaltyText)
 			end
 			-- Rating found, exclude from future threshold checks
 			offensiveSpa = 0
@@ -427,6 +435,14 @@ function GachaMonData.createRandomGachaMon()
 			DateTimeObtained = os.time(),
 		},
 	})
+
+	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
+	local pokemonTypes = pokemonInternal.types or {}
+	gachamon.Type1 = PokemonData.TypeNameToIndexMap[pokemonTypes[1] or PokemonData.Types.UNKNOWN]
+	if not gachamon.Type1 then
+		gachamon.Type1 = PokemonData.TypeNameToIndexMap[PokemonData.Types.UNKNOWN]
+	end
+	gachamon.Type2 = PokemonData.TypeNameToIndexMap[pokemonTypes[2] or false] or gachamon.Type1
 
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES or {}) do
 		gachamon.Temp.Stats[statKey] = gachamon.Level * math.random(1, 4)
@@ -762,6 +778,10 @@ GachaMonData.IGachaMon = {
 	SeedNumber = 0,
 	-- 1 Byte (8 bits); which of the 8 badges this Pokémon was involved in helping acquire
 	Badges = 0,
+	-- 1 Byte (8 bits); the first type of the Pokémon; need to record this for Nat. Dex or random-type randomizer
+	Type1 = 0,
+	-- 1 Byte (8 bits); the first type of the Pokémon
+	Type2 = 0,
 	-- 4 Bytes (10 bits x3); Ordered as:
 	-- 00DDDDDD DDDDAAAA AAAAAAHH HHHHHHHH
 	C_StatsHpAtkDef = 0,
@@ -790,7 +810,6 @@ GachaMonData.IGachaMon = {
 		self.Temp.Card = {}
 		local C = self.Temp.Card
 		local stats = self:getStats()
-		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
 
 		C.Stars = self:getStars()
 		C.BattlePower = self.BattlePower or 0
@@ -812,9 +831,11 @@ GachaMonData.IGachaMon = {
 			C.StatBars[statKey] = math.min(math.floor(statValue / self.Level), 5) -- max of 5
 		end
 		C.FrameColors = {}
-		local monTypes = pokemonInternal.types or {}
-		C.FrameColors[1] = Constants.MoveTypeColors[monTypes[1] or PokemonData.Types.UNKNOWN]
-		C.FrameColors[2] = Constants.MoveTypeColors[monTypes[2] or false] or C.FrameColors[1]
+		-- Always try to use the first type. If the second isn't there, copy the first typing
+		local type1 = PokemonData.TypeIndexMap[self.Type1] or PokemonData.Types.UNKNOWN
+		local type2 = PokemonData.TypeIndexMap[self.Type2]
+		C.FrameColors[1] = Constants.MoveTypeColors[type1]
+		C.FrameColors[2] = Constants.MoveTypeColors[type2 or false] or C.FrameColors[1]
 		return C
 	end,
 
@@ -998,6 +1019,8 @@ function GachaMonData.IGachaMon:new(o)
 	o.Favorite = o.Favorite or 0
 	o.SeedNumber = o.SeedNumber or 0
 	o.Badges = o.Badges or 0
+	o.Type1 = o.Type1 or 0
+	o.Type2 = o.Type2 or 0
 	o.C_StatsHpAtkDef = o.C_StatsHpAtkDef or 0
 	o.C_StatsSpaSpdSpe = o.C_StatsSpaSpdSpe or 0
 	o.C_MoveIdsGameVersionKeep = o.C_MoveIdsGameVersionKeep or 0
