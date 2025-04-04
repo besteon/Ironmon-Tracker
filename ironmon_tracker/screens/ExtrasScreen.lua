@@ -59,7 +59,7 @@ ExtrasScreen.Buttons = {
 	},
 	GachaMonCollection = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.POKEBALL,
+		image = Constants.PixelImages.GACHAMON_CARD,
 		getText = function(self) return "GachaMon Collection" or Resources.ExtrasScreen.ButtonGachaMonCollection end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 101, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,

@@ -803,7 +803,7 @@ function Tracker.AutoSave.loadFromFile()
 
 	local _finalizeLoadTrackerData = function(forceImportAndUse)
 		Tracker.AutoSave.HasSaveConflict = false
-		GachaMonData.tryImportMatchingROMRecentMons(forceImportAndUse)
+		GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
 
 		-- Output to console the Tracker data load status to help with troubleshooting
 		local loadStatusMessage = Resources.StartupScreen[Tracker.LoadStatus or false]
@@ -813,7 +813,7 @@ function Tracker.AutoSave.loadFromFile()
 	end
 
 	-- Check if the game loaded is different than the game last played (remembered by the tracker notes)
-	if not Utils.isNilOrEmpty(romHashFromFile) and romHashFromFile ~= GameSettings.getRomHash() then
+	if not Tracker.AutoSave.checkIfRomsMatch(GameSettings.getRomHash(), romHashFromFile) then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ROM_MISMATCH
 		Tracker.AutoSave.HasSaveConflict = true
 		Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, _finalizeLoadTrackerData)
@@ -826,6 +826,26 @@ function Tracker.AutoSave.loadFromFile()
 		-- No issues, just complete the remaining actions
 		_finalizeLoadTrackerData()
 	end
+end
+
+---Checks if the currently played ROM matches the last played ROM (using it's hash from tracker notes & name from profile).
+---Ignore check if the rom filenames are the same (rare case that shouldn't happen, but also no way to quickly auto-fix)
+---@param currentRomHash? string
+---@param lastPlayedRomHash? string
+---@return boolean isMatch
+function Tracker.AutoSave.checkIfRomsMatch(currentRomHash, lastPlayedRomHash)
+	currentRomHash = currentRomHash or GameSettings.getRomHash()
+	local profile = QuickloadScreen.getActiveProfile()
+	local lastPlayedRomPath
+	if profile and not Utils.isNilOrEmpty(profile.Paths.CurrentRom) then
+		lastPlayedRomPath = profile.Paths.CurrentRom
+	end
+	local currentRomName = Utils.toLowerUTF8(GameSettings.getRomName())
+	local lastPlayedRomName = Utils.toLowerUTF8(FileManager.extractFileNameFromPath(lastPlayedRomPath or "") or "")
+	local romNameMatch = Utils.isNilOrEmpty(lastPlayedRomName) or currentRomName == lastPlayedRomName
+	local romHashMatch = Utils.isNilOrEmpty(lastPlayedRomHash) or currentRomHash == lastPlayedRomHash
+	-- Disregard rom hash mismatch for this check if the names are different
+	return romNameMatch or romHashMatch
 end
 
 ---Mandatory action by user to fix or dismiss mismatch warning. The loaded ROM is mismatched with last played ROM.
@@ -842,13 +862,13 @@ function Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, callbackFunc)
 	local _failSafeDisableConflict = function ()
 		Tracker.AutoSave.HasSaveConflict = false
 	end
-	local form = ExternalUI.BizForms.createForm("WARNING! Incorrect ROM file loaded.", 430, 272, nil, nil, _failSafeDisableConflict)
+	local form = ExternalUI.BizForms.createForm("WARNING! Incorrect ROM file loaded.", 430, 280, 100, 20, _failSafeDisableConflict)
 
 	local x, x2 = 15, 135
 	local iy = 10
 	form:createLabel("The ROM file that is open now is NOT the same ROM file that was last played.", x, iy)
 	iy = iy + 22
-	form.Controls.labelOkayToIgnoreIf = form:createLabel("(Note: If you intend to create a NEW ROM anyway, simply dismiss this warning.)", x, iy)
+	form.Controls.labelOkayToIgnoreIf = form:createLabel("(Note: If you intend to create a NEW ROM anyway, simply dismiss this warning)", x, iy)
 	ExternalUI.BizForms.setProperty(form.Controls.labelOkayToIgnoreIf, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
 	iy = iy + 28
 	form:createLabel("*  Currently open ROM:", x, iy)
@@ -867,20 +887,20 @@ function Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, callbackFunc)
 	iy = iy + 22
 	form:createLabel("   ROM Hash:", x, iy)
 	form.Controls.labelLastPlayedRomHash = form:createLabel(romHashFromFile or Constants.BLANKLINE, x2, iy)
+	iy = iy + 45
+	form:createLabel("The Tracker can load your most recently played ROM for this New Run profile:", x, iy)
 	iy = iy + 30
-	form:createLabel("Quick Fix: The Tracker can load your most recently played ROM:", x, iy)
-	iy = iy + 34
 
 	-- FIX IT/IGNORE WARNING/DISMISS
 	if lastPlayedRomPath then
-		form.Controls.buttonFixIt = form:createButton("Fix it for me", x + 80, iy, function()
+		form.Controls.buttonFixIt = form:createButton("Fix it for me", x + 90, iy, function()
 			_failSafeDisableConflict()
 			-- This will force the Tracker to load this rom on the next available frame
 			Main.loadDifferentRom = lastPlayedRomPath
 			form:destroy()
 		end, 105, 25)
 	else
-		form.Controls.buttonIgnoreWarning = form:createButton("Ignore warning (!)", x + 80, iy, function()
+		form.Controls.buttonIgnoreWarning = form:createButton("Ignore warning (!)", x + 90, iy, function()
 			_failSafeDisableConflict()
 			if type(callbackFunc) == "function" then
 				callbackFunc(true)
@@ -888,7 +908,7 @@ function Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, callbackFunc)
 			form:destroy()
 		end, 105, 25)
 	end
-	form.Controls.buttonDismiss = form:createButton("Dismiss", x + 210, iy, function()
+	form.Controls.buttonDismiss = form:createButton("Dismiss", x + 220, iy, function()
 		_failSafeDisableConflict()
 		local denialMsg = string.format("> %s: %s",
 			"Action Taken",
