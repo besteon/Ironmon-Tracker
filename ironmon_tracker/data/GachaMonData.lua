@@ -577,7 +577,7 @@ end
 
 ---Only once the Tracker notes are loaded, check for recent GachaMon saved for this exact rom file (rom hash match)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
-function GachaMonData.tryImportMatchingROMRecentMons(forceImportAndUse)
+function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
 	if GachaMonData.initialRecentMonsLoaded then
 		return
 	end
