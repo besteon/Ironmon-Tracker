@@ -23,7 +23,8 @@ function DataHelper.findPokemonId(name, threshold)
 
 	-- Format list of Pokemon as id, name pairs
 	local pokemonNames = {}
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if (pokemon.bst ~= Constants.BLANKLINE) then
 			pokemonNames[id] = Utils.toLowerUTF8(pokemon.name)
 		end
@@ -46,7 +47,8 @@ function DataHelper.findMoveId(name, threshold)
 
 	-- Format list of Moves as id, name pairs
 	local moveNames = {}
-	for id, move in ipairs(MoveData.Moves) do
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
 		moveNames[id] = Utils.toLowerUTF8(move.name)
 	end
 
@@ -67,7 +69,8 @@ function DataHelper.findAbilityId(name, threshold)
 
 	-- Format list of Abilities as id, name pairs
 	local abilityNames = {}
-	for id, ability in ipairs(AbilityData.Abilities) do
+	for id = 1, AbilityData.getTotal(), 1 do
+		local ability = AbilityData.Abilities[id] or {}
 		abilityNames[id] = Utils.toLowerUTF8(ability.name)
 	end
 
@@ -428,7 +431,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
-	if not PokemonData.IsRand.types or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
+	if pokemon.types and (not PokemonData.IsRand.types or Options["Reveal info if randomized"] or pokemon.pokemonID == ownLeadPokemon.pokemonID) then
 		data.p.types = { pokemon.types[1], pokemon.types[2] }
 	else
 		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
@@ -465,7 +468,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	end
 
 	-- Experience yield
-	if matchedPokemon and matchedPokemon.level > 0 then
+	if matchedPokemon and (matchedPokemon.level or 0) > 0 then
 		local yield = PokemonData.Pokemon[matchedPokemon.pokemonID].expYield or 0
 		local ratio = Battle.isWildEncounter and (matchedPokemon.level / 7) or (matchedPokemon.level * 3 / 14)
 		data.p.expYield = math.floor(yield * ratio)

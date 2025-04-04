@@ -395,7 +395,7 @@ function Battle.updateTrackedInfo()
 
 			if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 and currentAction == 0 then
 				-- 0 = MOVE_USED
-				if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
+				if lastMoveByAttacker > 0 and lastMoveByAttacker < MoveData.getTotal() + 1 then
 					if Battle.AbilityChangeData.prevAction ~= actionCount then
 						Battle.AbilityChangeData.recordNextMove = true
 						Battle.AbilityChangeData.prevAction = actionCount

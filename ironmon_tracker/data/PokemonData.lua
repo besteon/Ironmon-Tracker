@@ -156,14 +156,16 @@ PokemonData.Evolutions = {
 }
 
 function PokemonData.initialize()
+	PokemonData.knownTotal = nil
 	PokemonData.buildData()
 	PokemonData.checkIfDataIsRandomized()
 end
 
 function PokemonData.updateResources()
-	for i, val in ipairs(PokemonData.Pokemon) do
-		if Resources.Game.PokemonNames[i] then
-			val.name = Resources.Game.PokemonNames[i]
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
+		if Resources.Game.PokemonNames[id] then
+			pokemon.name = Resources.Game.PokemonNames[id]
 		end
 	end
 
@@ -218,7 +220,8 @@ function PokemonData.buildData(forced)
 	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
 	-- 	return
 	-- end
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		pokemon.pokemonID = id
 
 		if id < 252 or id > 276 then -- Skip fake Pokemon
@@ -322,7 +325,7 @@ end
 ---@param pokemonID number
 ---@return boolean
 function PokemonData.isValid(pokemonID)
-	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= #PokemonData.Pokemon
+	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.getTotal()
 end
 
 ---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
@@ -331,6 +334,20 @@ end
 function PokemonData.isImageIDValid(pokemonID)
 	-- 0 is a valid placeholder id
 	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
+end
+
+---Gets the total count of known Pokémon for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---@return number
+function PokemonData.getTotal()
+	if PokemonData.knownTotal then
+		return PokemonData.knownTotal
+	end
+	if CustomCode.RomHacks.isPlayingNatDex() then
+		PokemonData.knownTotal = #PokemonData.Pokemon
+	else
+		PokemonData.knownTotal = 411
+	end
+	return PokemonData.knownTotal
 end
 
 local idInternalToNat = {
@@ -381,7 +398,8 @@ function PokemonData.dexMapNationalToInternal(pokemonID)
 end
 
 function PokemonData.getIdFromName(pokemonName)
-	for id, pokemon in pairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if pokemon.name == pokemonName then
 			return id
 		end
@@ -392,7 +410,8 @@ end
 
 function PokemonData.namesToList()
 	local pokemonNames = {}
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if id < 252 or id > 276 then -- Skip fake Pokemon
 			table.insert(pokemonNames, pokemon.name)
 		end
@@ -420,10 +439,10 @@ function PokemonData.getEffectiveness(pokemonID)
 
 	for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
 		local total = 1
-		if typeMultiplier[pokemon.types[1]] ~= nil then
+		if pokemon.types and typeMultiplier[pokemon.types[1]] ~= nil then
 			total = total * typeMultiplier[pokemon.types[1]]
 		end
-		if pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
+		if pokemon.types and pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
 			total = total * typeMultiplier[pokemon.types[2]]
 		end
 		-- Only calculate fairy type effectiveness if nat dex is being playing

@@ -251,6 +251,8 @@ MoveData.IsOHKOMove = {
 }
 
 function MoveData.initialize()
+	MoveData.knownTotal = nil
+
 	-- For easier category lookups
 	MoveData.Categories[1] = MoveData.Categories.PHYSICAL
 	MoveData.Categories[2] = MoveData.Categories.SPECIAL
@@ -260,13 +262,14 @@ function MoveData.initialize()
 end
 
 function MoveData.updateResources()
-	for i, val in ipairs(MoveData.Moves) do
-		if Resources.Game.MoveNames[i] then
-			val.name = Resources.Game.MoveNames[i]
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
+		if Resources.Game.MoveNames[id] then
+			move.name = Resources.Game.MoveNames[id]
 		end
-		local descTable = Resources.Game.MoveDescriptions[i] or {}
+		local descTable = Resources.Game.MoveDescriptions[id] or {}
 		if descTable and descTable.Description then
-			val.summary = descTable.Description
+			move.summary = descTable.Description
 		end
 	end
 end
@@ -279,7 +282,7 @@ function MoveData.buildData(forced)
 		return
 	end
 
-	for moveId = 1, #MoveData.Moves, 1 do
+	for moveId = 1, MoveData.getTotal(), 1 do
 		local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
 		if moveInfo ~= nil then
 			local moveInternal = MoveData.Moves[moveId]
@@ -381,7 +384,21 @@ end
 ---@param moveId number
 ---@return boolean
 function MoveData.isValid(moveId)
-	return moveId ~= nil and moveId >= 1 and moveId <= #MoveData.Moves
+	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.getTotal()
+end
+
+---Gets the total count of known Moves for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---@return number
+function MoveData.getTotal()
+	if MoveData.knownTotal then
+		return MoveData.knownTotal
+	end
+	if CustomCode.RomHacks.isPlayingNatDex() then
+		MoveData.knownTotal = #MoveData.Moves
+	else
+		MoveData.knownTotal = 354
+	end
+	return MoveData.knownTotal
 end
 
 ---Returns true if the move is a One-Hit KO move (i.e. Sheer Cold)
