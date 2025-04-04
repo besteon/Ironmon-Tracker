@@ -20,7 +20,7 @@ function GachaMonFileManager.getRatingSystemFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
 end
 ---@return string filepath
-function GachaMonFileManager.getRecentGachaMonsFilePath()
+function GachaMonFileManager.getRecentMonsFilePath()
 	local profile = QuickloadScreen.getActiveProfile()
 	if not profile then
 		return FileManager.prependDir(FileManager.Files.GACHAMON_RECENT_DEFAULT)
@@ -154,13 +154,13 @@ end
 ---Imports any existing Recent GachaMons (when resuming a game session)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 ---@param filepathOverride? string
-function GachaMonFileManager.importRecentGachaMons(forceImportAndUse, filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath() or ""
+function GachaMonFileManager.importRecentMons(forceImportAndUse, filepathOverride)
+	local filepath = filepathOverride or GachaMonFileManager.getRecentMonsFilePath() or ""
 	if not FileManager.fileExists(filepath) then
 		return
 	end
 	-- If no ROM hash found, then there is also no RecentMons data to import
-	local importedRomHash = GachaMonFileManager.getRomHashFromFile(filepath)
+	local importedRomHash = GachaMonFileManager.readRomHashFromRecentMonsFile(filepath)
 	if not importedRomHash then
 		return
 	end
@@ -204,8 +204,8 @@ end
 ---Reads the RomHash value from the start of the RecentMons data file
 ---@param filepathOverride? string
 ---@return string|nil
-function GachaMonFileManager.getRomHashFromFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath()
+function GachaMonFileManager.readRomHashFromRecentMonsFile(filepathOverride)
+	local filepath = filepathOverride or GachaMonFileManager.getRecentMonsFilePath()
 	if not FileManager.fileExists(filepath) then
 		return nil
 	end
@@ -260,7 +260,7 @@ end
 ---@param filepathOverride? string
 ---@return boolean success
 function GachaMonFileManager.saveRecentMonsToFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath()
+	local filepath = filepathOverride or GachaMonFileManager.getRecentMonsFilePath()
 	if not filepath then
 		return false
 	end
@@ -387,8 +387,8 @@ end
 
 --Version 1 Binary Stream
 GachaMonFileManager.BinaryStreams[1] = {
-	Format = "BIHBBBHBIIII", -- The packing format (version # always occupies the 1st byte)
-	Size = 29, -- Number of bytes per GachaMon stored
+	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
+	Size = 31, -- Number of bytes per GachaMon stored
 }
 
 ---@param gachamon IGachaMon
@@ -417,6 +417,8 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 		gachamon.RatingScore,
 		gachamon.SeedNumber,
 		gachamon.Badges,
+		gachamon.Type1,
+		gachamon.Type2,
 		stats1,
 		stats2,
 		movepair1,
@@ -442,16 +444,17 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 		RatingScore = data[6],
 		SeedNumber = data[7],
 		Badges = data[8],
-		C_StatsHpAtkDef = data[9],
-		C_StatsSpaSpdSpe = data[10],
+		Type1 = data[9],
+		Type2 = data[10],
+		C_StatsHpAtkDef = data[11],
+		C_StatsSpaSpdSpe = data[12],
 	})
 	local idPowerFavorite = data[3]
 	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
 	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000
 	gachamon.Favorite = Utils.getbits(idPowerFavorite, 15, 1)
-	local movepair1 = data[11]
-	local movepair2 = data[12]
-	-- Utils.printDebug("Unpack: %x as %s", Utils.getbits(last8bytes, 0, 40), Utils.getbits(Utils.getbits(last8bytes, 0, 40), 0, 9))
+	local movepair1 = data[13]
+	local movepair2 = data[14]
 	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
 	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
 	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)

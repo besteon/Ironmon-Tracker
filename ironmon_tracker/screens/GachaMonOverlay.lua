@@ -798,6 +798,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 			SCREEN.drawGachaCard(card, x, y, 1)
 		end,
 	},
+	-- TODO: Allow clicking on to temporarily view the GachaMon (dont allow favorite/saving)
 	OpponentGachaMonCard = {
 		box = { CANVAS.X + 130, CANVAS.Y + 30, 76, 76, },
 		draw = function(self, shadowcolor)
@@ -1257,7 +1258,7 @@ function GachaMonOverlay.tryLoadCollection()
 	GachaMonData.checkForNatDexRequirement()
 end
 
----comment
+---Opens a form popup displaying a Gachamon's shareable code (base-64 string)
 ---@param gachamon IGachaMon
 function GachaMonOverlay.openShareCodeWindow(gachamon)
 	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
@@ -1270,7 +1271,8 @@ function GachaMonOverlay.openShareCodeWindow(gachamon)
 	end, 80, 25)
 end
 
----comment
+-- TODO: Merge the above into this popup, similar to Randomizer's Setting Strings
+---Opens a form popup for importing a Gachamon's shareable code (base-64 string)
 ---@param onImportFunc? function
 function GachaMonOverlay.openImportCodeWindow(onImportFunc)
 	local form = ExternalUI.BizForms.createForm("GachaMon Import Code", 450, 160)
@@ -1296,7 +1298,7 @@ function GachaMonOverlay.openImportCodeWindow(onImportFunc)
 	end, 80, 25)
 end
 
----comment
+---Draws GachaMon stars at the specified location. Use `initialStars` to show growth/decay of a change in star count
 ---@param numStars number
 ---@param x number
 ---@param y number
@@ -1350,7 +1352,7 @@ function GachaMonOverlay.drawGachaMonStars(numStars, x, y, initialStars)
 	end
 end
 
----Draws a GachaMon card
+---Draws the card representing a GachaMon, including any speciel effects like shiny sparkles.
 ---@param card table
 ---@param borderPadding? number Optional, defaults to 3 pixel border padding
 ---@param showFavoriteOverride? boolean Optional, displays the heart (empty or full); default: only if actually favorited
@@ -1425,10 +1427,13 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 
 	-- POKEMON ICON
 	local pX, pY = (x + W / 2 - 16), (y + 8)
+	local pW, pH = 32, 32
 	local pokemonImageId = card.PokemonId
+	local animationOff -- If left nil, will use default animation sprite; just turn it off for Nat. Dex
 	if PokemonData.isImageIDValid(pokemonImageId) and pokemonImageId ~= 0 then
 		-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
 		if GachaMonData.requiresNatDex and card.PokemonId >= 412 then
+			animationOff = "none"
 			local iconset = Options.getIconSet()
 			local natdexIconSet = Options.IconSetMap[3]
 			if iconset and iconset ~= natdexIconSet then
@@ -1440,7 +1445,7 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 		-- Question mark icon
 		pokemonImageId = 252
 	end
-	Drawing.drawPokemonIcon(pokemonImageId, pX, pY)
+	Drawing.drawPokemonIcon(pokemonImageId, pX, pY, pW, pH, animationOff)
 
 	-- FAVORITE ICON
 	if card.Favorite == 1 or showFavoriteOverride then
@@ -1672,7 +1677,7 @@ local function _createFilterControls(form, x, y, allChecked, allClickFunc)
 	return nextLineY
 end
 
----comment
+---Creates a common filter function, to apply to a list of GachaMons to filter them out
 ---@param form IBizhawkForm
 ---@return function
 local function _buildFilterFunc(form)
@@ -1714,7 +1719,7 @@ local function _buildFilterFunc(form)
 	end
 end
 
----comment
+---Creates a removal-only filter function, to apply to a GachaMon collection for permanent deletion
 ---@param form IBizhawkForm
 ---@return function
 local function _buildRemovalFilterFunc(form)
