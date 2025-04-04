@@ -416,7 +416,6 @@ function GachaMonData.createRandomGachaMon()
 	local gachamon = GachaMonData.IGachaMon:new({
 		Version = GachaMonFileManager.Version,
 		Personality = -1,
-		PokemonId = Utils.randomPokemonID(),
 		Level = math.random(1, 100),
 		AbilityId = math.random(1, #AbilityData.Abilities),
 		SeedNumber = math.random(1, 29999),
@@ -435,6 +434,14 @@ function GachaMonData.createRandomGachaMon()
 			DateTimeObtained = os.time(),
 		},
 	})
+
+	local maxPokemonId
+	if GachaMonData.requiresNatDex and CustomCode.RomHacks.isPlayingNatDex() then
+		maxPokemonId = #PokemonData.Pokemon
+	else
+		maxPokemonId = 411
+	end
+	gachamon.PokemonId = Utils.randomPokemonID(maxPokemonId)
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
 	local pokemonTypes = pokemonInternal.types or {}
