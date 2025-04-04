@@ -1249,10 +1249,10 @@ function GachaMonOverlay.getMonForCollectionScreenSlot(slotNumber)
 end
 
 function GachaMonOverlay.tryLoadCollection()
-	if GachaMonData.initialCollectionLoad then
+	if GachaMonData.initialCollectionLoaded then
 		return
 	end
-	GachaMonData.initialCollectionLoad = true
+	GachaMonData.initialCollectionLoaded = true
 	GachaMonFileManager.importCollection()
 	GachaMonData.checkForNatDexRequirement()
 end

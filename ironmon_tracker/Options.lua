@@ -102,6 +102,7 @@ Options.Overrides = {
 	["ROMs and Logs"] = "", -- Generated from New Runs (Quickload); @ /..
 	["Theme Presets"] = "", -- All preloaded & user theme codes; @ /..
 	["Tracker Data"] = "", -- Auto saved .TDAT files; @ /..
+	["GachaMon Collection"] = "", -- The GachaMon card collection files; @ /gachamon/..
 }
 
 -- The order of these iconsets cannot change, as user Settings reference them by their index number

@@ -13,7 +13,9 @@ GachaMonData = {
 	RatingsSystem = {}, ---@type table<string, table>
 
 	-- A one-time initial collection load when the Collection is first viewed
-	initialCollectionLoad = false,
+	initialCollectionLoaded = false,
+	-- A one-time initial recent mons load when the game starts (player is in game, on the map)
+	initialRecentMonsLoaded = false,
 	-- Anytime Collection changes, flag this as true; Collection is saved to file sparingly, typically when the Overlay or Tracker closes
 	collectionRequiresSaving = false,
 	-- When a new GachaMon is caught/created, this will temporarily store that mon's data
@@ -53,19 +55,21 @@ function GachaMonData.initialize()
 	-- Reset data variables
 	GachaMonData.RecentMons = {}
 	GachaMonData.Collection = {}
-	GachaMonData.initialCollectionLoad = false
+	GachaMonData.initialCollectionLoaded = false
+	GachaMonData.initialRecentMonsLoaded = false
 	GachaMonData.collectionRequiresSaving = false
 	GachaMonData.requiresNatDex = false
 	GachaMonData.playerViewedMon = nil
 	GachaMonData.playerViewedInitialStars = 0
 	GachaMonData.clearNewestMonToShow()
 
-	-- Don't actually reset this, since the New Run profile initialize is doing it instead
+	-- Don't actually reset this here, since the New Run profile initialize is doing it instead
 	-- GachaMonData.ruleset = Constants.IronmonRulesets.Kaizo
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
-	GachaMonFileManager.importRecentGachaMons()
+	-- Imported later, after New Run profiles and Tracker notes data are loade (for comparing ROM hashes)
+	-- GachaMonFileManager.importRecentGachaMons()
 end
 
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
@@ -531,6 +535,8 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	return GachaMonData.ruleset
 end
 
+---For each Pokémon in the player's party, mark their corresponding GachaMon card that a badge has been obtained
+---@param badgeNumber number The badge number, must be between 1 and 8 inclusive
 function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
 	if badgeNumber < 1 or badgeNumber > 8 then
 		return
@@ -549,6 +555,17 @@ function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
 	if anyChanged then
 		GachaMonFileManager.saveRecentMonsToFile()
 	end
+end
+
+---Only once the Tracker notes are loaded, check for recent GachaMon saved for this exact rom file (rom hash match)
+---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
+function GachaMonData.tryImportMatchingROMRecentMons(forceImportAndUse)
+	if GachaMonData.initialRecentMonsLoaded then
+		return
+	end
+
+	GachaMonData.initialRecentMonsLoaded = true
+	GachaMonFileManager.importRecentGachaMons(forceImportAndUse)
 end
 
 ---Called when a new Pokémon is viewed on the Tracker, to create a GachaMon from it
@@ -684,7 +701,7 @@ end
 ---In some cases, the player's collection might contain Pokémon from a Nat. Dex. game,
 ---but the current ROM/Tracker settigns wouldn't otherwise be able to display them.
 function GachaMonData.checkForNatDexRequirement()
-	if not GachaMonData.initialCollectionLoad or CustomCode.RomHacks.isPlayingNatDex() then
+	if not GachaMonData.initialCollectionLoaded or CustomCode.RomHacks.isPlayingNatDex() then
 		return
 	end
 

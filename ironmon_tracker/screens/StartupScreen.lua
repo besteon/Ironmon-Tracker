@@ -237,7 +237,7 @@ function StartupScreen.drawScreen()
 		local messageColor
 		if Tracker.LoadStatus == Tracker.LoadStatusKeys.LOAD_SUCCESS then
 			messageColor = Theme.COLORS["Positive text"]
-		elseif Tracker.LoadStatus == Tracker.LoadStatusKeys.ERROR then
+		elseif Tracker.LoadStatus == Tracker.LoadStatusKeys.ERROR or Tracker.LoadStatus == Tracker.LoadStatusKeys.ROM_MISMATCH then
 			messageColor = Theme.COLORS["Negative text"]
 		else
 			messageColor = topBox.text

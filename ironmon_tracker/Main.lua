@@ -548,6 +548,7 @@ function Main.LoadNextRom()
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 		QuickloadScreen.afterNewRunProfileCheckup(nextRomInfo.filePath)
+		Tracker.clearTrackerNotesAndFile()
 
 		local success = Main.LoadRom(nextRomInfo.filePath)
 		if success then

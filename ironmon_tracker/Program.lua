@@ -326,7 +326,7 @@ function Program.initialize()
 	Program.GameTimer:initialize()
 	Program.AutoSaver:updateSaveCount()
 
-	Program.addFrameCounter("Tracker:AutoLoadData", 1, Tracker.AutoSave.loadFromFile, 1, true)
+	Program.addFrameCounter("Tracker:AutoSave.loadFromFile", 1, Tracker.AutoSave.loadFromFile, 1, true)
 	Program.addFrameCounter("Program:DelayedStartup", 60, Program.delayedStartup, 1, true)
 end
 
@@ -484,17 +484,15 @@ function Program.update()
 			Program.updatePokemonTeams()
 			TeamViewArea.buildOutPartyScreen()
 
-			if Program.isValidMapLocation() then
-				if Program.currentScreen == StartupScreen then
-					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-					Program.currentScreen = TrackerScreen
-				elseif Options["Show starter ball info"] and RouteData.Locations.IsInLab[TrackerAPI.getMapId()] then
-					Program.checkForStarterSelection()
-				end
+			if Program.currentScreen == StartupScreen then
+				-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+				Program.currentScreen = TrackerScreen
+			elseif Options["Show starter ball info"] and RouteData.Locations.IsInLab[TrackerAPI.getMapId()] then
+				Program.checkForStarterSelection()
+			end
 
-				if Network.isConnected() then
-					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
-				end
+			if Network.isConnected() then
+				EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
 			end
 
 			if not Program.hasCheckedGameSettings then

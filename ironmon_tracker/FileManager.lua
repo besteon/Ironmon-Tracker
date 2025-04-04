@@ -45,7 +45,7 @@ FileManager.Files = {
 	NEWRUN_PROFILES = FileManager.Folders.TrackerCode .. FileManager.slash .. "NewRunProfiles.json",
 	ADDRESS_OVERRIDES = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses .. FileManager.slash .. "TrackerOverrides.json",
 	GACHAMON_COLLECTION = FileManager.Folders.GachaMon .. FileManager.slash .. "FullCollection.gccg",
-	GACHAMON_RECENT = FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gccg",
+	GACHAMON_RECENT_DEFAULT = FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gccg", -- Default filepath if no New Run Profile is in use
 	GACHAMON_RATING_SYSTEM = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonRatingSystem.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
@@ -70,12 +70,14 @@ FileManager.PostFixes = {
 	PREVIOUSATTEMPT = "PreviousAttempt",
 	AUTOSAVE = "AutoSave",
 	BACKUPSAVE = "BackupSave",
+	GACHAMON_RECENT = "RecentGachaMons",
 }
 
 FileManager.Extensions = {
 	GBA_ROM = ".gba",
 	RANDOMIZER_LOGFILE = ".log",
 	TRACKED_DATA = ".tdat",
+	GACHAMON = ".gccg",
 	ATTEMPTS = ".txt",
 	ANIMATED_POKEMON = ".gif",
 	TRAINER = ".png",
@@ -192,8 +194,11 @@ FileManager.LuaCode = {
 }
 
 function FileManager.setupFolders()
-	if not FileManager.getPathOverride("Tracker Data") then
-		local folder = FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+	local foldersToCheck = {
+		FileManager.getTdatFolderPath(),
+		FileManager.getGachaMonFolderPath(),
+	}
+	for _, folder in ipairs(foldersToCheck) do
 		if not FileManager.folderExists(folder) then
 			FileManager.createFolder(folder)
 		end
@@ -552,6 +557,11 @@ end
 ---@return string folderpath
 function FileManager.getTdatFolderPath()
 	return FileManager.getPathOverride("Tracker Data") or FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+end
+
+---@return string folderpath
+function FileManager.getGachaMonFolderPath()
+	return FileManager.getPathOverride("GachaMon Collection") or FileManager.prependDir(FileManager.Folders.GachaMon, true)
 end
 
 ---@return string filepath
