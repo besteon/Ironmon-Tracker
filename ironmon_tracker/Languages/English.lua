@@ -165,6 +165,7 @@ ScreenResources{
 		TrackedDataMsgLoadSuccess = "Loaded from last play session.",
 		TrackedDataMsgNewGame = "New game started.",
 		TrackedDataMsgAutoDisabled = "Auto saving / loading is OFF.",
+		TrackedDataMsgRomMismatch = "Incorrect ROM file loaded.",
 		TrackedDataMsgError = "Error loading file.",
 		HeaderFavorites = "Favorite Pokémon",
 		HeaderControls = "GBA Controls",

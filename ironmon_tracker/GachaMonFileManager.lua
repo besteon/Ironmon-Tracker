@@ -11,13 +11,9 @@ GachaMonFileManager = {
 -- When adding new versions, don't use function shortcuts for binary/data conversion. Each must be written out per-version.
 GachaMonFileManager.BinaryStreams = {}
 
-function GachaMonFileManager.initialize()
-	-- Create the empty GachaMon folder in the Tracker folder if it doesn't already exist (1st time use)
-	local gachamonFolder = FileManager.prependDir(FileManager.Folders.GachaMon)
-	if not FileManager.folderExists(gachamonFolder) then
-		FileManager.createFolder(gachamonFolder)
-	end
-end
+-- function GachaMonFileManager.initialize()
+	-- Currently unused
+-- end
 
 ---@return string filepath
 function GachaMonFileManager.getRatingSystemFilePath()
@@ -25,7 +21,15 @@ function GachaMonFileManager.getRatingSystemFilePath()
 end
 ---@return string filepath
 function GachaMonFileManager.getRecentGachaMonsFilePath()
-	return FileManager.prependDir(FileManager.Files.GACHAMON_RECENT)
+	local profile = QuickloadScreen.getActiveProfile()
+	if not profile then
+		return FileManager.prependDir(FileManager.Files.GACHAMON_RECENT_DEFAULT)
+	end
+	-- Create path if hasn't been set yet
+	if Utils.isNilOrEmpty(profile.Paths.GachaMon) then
+		profile.Paths.GachaMon = QuickloadScreen.generateGachaMonFilePath(profile)
+	end
+	return profile.Paths.GachaMon
 end
 ---@return string filepath
 function GachaMonFileManager.getCollectionFilePath()
@@ -148,12 +152,14 @@ function GachaMonFileManager.importRatingSystem(filepath)
 end
 
 ---Imports any existing Recent GachaMons (when resuming a game session)
+---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 ---@param filepathOverride? string
-function GachaMonFileManager.importRecentGachaMons(filepathOverride)
+function GachaMonFileManager.importRecentGachaMons(forceImportAndUse, filepathOverride)
 	local filepath = filepathOverride or GachaMonFileManager.getRecentGachaMonsFilePath() or ""
 	if not FileManager.fileExists(filepath) then
 		return
 	end
+	-- If no ROM hash found, then there is also no RecentMons data to import
 	local importedRomHash = GachaMonFileManager.getRomHashFromFile(filepath)
 	if not importedRomHash then
 		return
@@ -161,7 +167,7 @@ function GachaMonFileManager.importRecentGachaMons(filepathOverride)
 
 	-- If the RecentMons on file match this ROM, use them
 	local recentMonsOrdered = GachaMonFileManager.getCollectionFromFile(filepath, GachaMonFileManager.RomHashSize + 1)
-	if importedRomHash == GameSettings.getRomHash() then
+	if forceImportAndUse or importedRomHash == GameSettings.getRomHash() then
 		for _, gachamon in ipairs(recentMonsOrdered) do
 			GachaMonData.RecentMons[gachamon.Personality] = gachamon
 		end

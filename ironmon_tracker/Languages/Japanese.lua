@@ -165,6 +165,7 @@ ScreenResources{
 		TrackedDataMsgLoadSuccess = "Loaded from last play session.", -- NEEDS TRANSLATION
 		TrackedDataMsgNewGame = "New game started.", -- NEEDS TRANSLATION
 		TrackedDataMsgAutoDisabled = "Auto saving / loading is OFF.", -- NEEDS TRANSLATION
+		TrackedDataMsgRomMismatch = "Incorrect ROM file loaded.", -- NEEDS TRANSLATION
 		TrackedDataMsgError = "Error loading file.", -- NEEDS TRANSLATION
 		HeaderFavorites = "気に入りポケモン",
 		HeaderControls = "コントロール",

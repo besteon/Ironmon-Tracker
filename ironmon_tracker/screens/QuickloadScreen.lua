@@ -272,6 +272,8 @@ function QuickloadScreen.initialize()
 	SCREEN.loadProfiles()
 	SCREEN.checkForActiveProfileChanges()
 	SCREEN.buildProfileButtons()
+
+	-- After New Run profile is loaded, use that to determine the active ruleset for GachaMon calculations
 	GachaMonData.autoDetermineIronmonRuleset()
 
 	for _, button in pairs(SCREEN.Buttons) do
@@ -1227,6 +1229,18 @@ end
 ---@return string filepath
 function QuickloadScreen.generateTdatFilePath(profile)
 	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
+end
+
+---Builds a full filepath to the GachaMon RecentMons file that will be used by the specified `profile`
+---@param profile IProfile
+---@return string filepath
+function QuickloadScreen.generateGachaMonFilePath(profile)
+	return string.format("%s%s %s%s",
+		FileManager.getGachaMonFolderPath(),
+		profile.Name,
+		FileManager.PostFixes.GACHAMON_RECENT,
+		FileManager.Extensions.GACHAMON
+	)
 end
 
 function QuickloadScreen.refreshButtons()
