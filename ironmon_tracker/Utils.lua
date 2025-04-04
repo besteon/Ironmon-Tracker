@@ -391,8 +391,12 @@ function Utils.closeBizhawkForm(form)
 	ExternalUI.BizForms.destroyForm(form)
 end
 
-function Utils.randomPokemonID()
-	local pokemonID = math.random(#PokemonData.Pokemon - 25)
+---Returns a random pokemonID number, useful for sampling different Pokémon
+---@param maxPokemonId? number Optional, if provided the random pokemonID will not exceed this number
+---@return number pokemonID
+function Utils.randomPokemonID(maxPokemonId)
+	maxPokemonId = math.min(#PokemonData.Pokemon, maxPokemonId or 99999) -- max
+	local pokemonID = math.random(maxPokemonId - 25)
 	if pokemonID > 251 then
 		pokemonID = pokemonID + 25
 	end

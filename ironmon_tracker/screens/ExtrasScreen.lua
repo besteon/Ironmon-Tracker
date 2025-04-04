@@ -36,11 +36,21 @@ ExtrasScreen.Buttons = {
 			Program.changeScreenView(CoverageCalcScreen)
 		end
 	},
+	GachaMonCollection = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.GACHAMON_CARD,
+		getText = function(self) return "GachaMon Collection" or Resources.ExtrasScreen.ButtonGachaMonCollection end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 63, 132, 16 },
+		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
+		onClick = function(self)
+			Program.openOverlayScreen(GachaMonOverlay, true)
+		end
+	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonTimeMachine end,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 63, 132, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 82, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
@@ -51,20 +61,10 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.WARNING,
 		getText = function(self) return Resources.ExtrasScreen.ButtonCrashRecovery end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 82, 132, 16 },
-		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
-		onClick = function(self)
-			Program.changeScreenView(CrashRecoveryScreen)
-		end
-	},
-	GachaMonCollection = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.GACHAMON_CARD,
-		getText = function(self) return "GachaMon Collection" or Resources.ExtrasScreen.ButtonGachaMonCollection end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 101, 132, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function(self)
-			Program.openOverlayScreen(GachaMonOverlay, true)
+			Program.changeScreenView(CrashRecoveryScreen)
 		end
 	},
 	EstimateIVs = {
