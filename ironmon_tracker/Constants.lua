@@ -50,7 +50,10 @@ Constants.IronmonRulesets = {
 	Kaizo = "Kaizo",
 	Survival = "Survival",
 	SuperKaizo = "Super Kaizo",
-	-- TODO: consider Subpar and NatDex and Doubles
+	Subpar = "Subpar",
+	Ascension1 = "Ascension 1", -- A RogueMon ruleset
+	Ascension2 = "Ascension 2", -- A RogueMon ruleset
+	Ascension3 = "Ascension 3", -- A RogueMon ruleset
 }
 
 -- Holds information about looking up badge icon files and kerning offsets to draw onto screen

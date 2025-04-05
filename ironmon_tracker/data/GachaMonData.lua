@@ -580,6 +580,10 @@ function GachaMonData.autoDetermineIronmonRuleset()
 		Constants.IronmonRulesets.Ultimate,
 		Constants.IronmonRulesets.Survival,
 		Constants.IronmonRulesets.SuperKaizo,
+		Constants.IronmonRulesets.Subpar,
+		Constants.IronmonRulesets.Ascension1,
+		Constants.IronmonRulesets.Ascension2,
+		Constants.IronmonRulesets.Ascension3,
 		Constants.IronmonRulesets.Kaizo,
 	}
 
