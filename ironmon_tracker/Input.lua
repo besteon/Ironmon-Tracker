@@ -190,7 +190,7 @@ function Input.checkJoypadInput()
 			-- Start pack opening animation
 			AnimationManager.tryAddAnimationToActive(APO)
 			animationSkipOverride = true
-		elseif APO and APO.IsActive and APO:IsVisible() and APO.CurrentKeyFrameIndex < #APO.KeyFrames then
+		elseif APO and APO:IsVisible() and APO.CurrentKeyFrameIndex < #APO.KeyFrames then
 			-- Skip pack opening animation
 			APO:OnExpire()
 			animationSkipOverride = true

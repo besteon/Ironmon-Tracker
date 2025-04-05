@@ -1116,12 +1116,6 @@ function TrackerScreen.drawScreen()
 	else
 		TrackerScreen.drawMovesArea(displayData)
 	end
-
-	if TrackerScreen.Animations.GachaMonPackOpening then
-		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonPackOpening)
-	elseif TrackerScreen.Animations.GachaMonCardDisplay then
-		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonCardDisplay)
-	end
 end
 
 function TrackerScreen.drawPokemonInfoArea(data)

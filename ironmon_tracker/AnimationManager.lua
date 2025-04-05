@@ -126,6 +126,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 				self.Y + cardOffsetY,
 				self.Temp.GachaMon
 			)
+			Program.redraw(true)
 		end,
 		Temp = {
 			GachaMon = gachamon,
