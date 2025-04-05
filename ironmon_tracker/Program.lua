@@ -9,6 +9,7 @@ Program = {
 	isViewingStarter = false,
 	activeFormId = 0,
 	lastActiveTimestamp = 0,
+	overridePackAnimationDraw = false,
 	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -305,6 +306,7 @@ function Program.initialize()
 	Program.hasCompletedTutorial = false
 	Program.isViewingStarter = false
 	Program.lastActiveTimestamp = os.time()
+	Program.overridePackAnimationDraw = false
 	Program.Frames.waitToDraw = 1
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
@@ -383,7 +385,26 @@ function Program.redraw(forced)
 		MGBA.ScreenUtils.updateTextBuffers()
 	end
 
-	CustomCode.afterRedraw()
+	local _drawGachaMonPackAnimations = function()
+		if not Program.currentScreen == TrackerScreen then
+			return
+		end
+		if TrackerScreen.Animations.GachaMonPackOpening then
+			AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonPackOpening)
+		elseif TrackerScreen.Animations.GachaMonCardDisplay then
+			AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonCardDisplay)
+		end
+	end
+
+	if Program.overridePackAnimationDraw then
+		_drawGachaMonPackAnimations()
+		CustomCode.afterRedraw()
+	else
+		-- Default to drawing on top of any drawings that extensions do
+		CustomCode.afterRedraw()
+		_drawGachaMonPackAnimations()
+	end
+
 	SpriteData.cleanupActiveIcons()
 end
 

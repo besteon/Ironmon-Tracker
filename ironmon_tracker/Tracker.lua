@@ -845,7 +845,7 @@ function Tracker.AutoSave.checkIfRomsMatch(currentRomHash, lastPlayedRomHash)
 	local lastPlayedRomName = Utils.toLowerUTF8(FileManager.extractFileNameFromPath(lastPlayedRomPath or "") or "")
 	local romNameMatch = Utils.isNilOrEmpty(lastPlayedRomName) or currentRomName == lastPlayedRomName
 	local romHashMatch = Utils.isNilOrEmpty(lastPlayedRomHash) or currentRomHash == lastPlayedRomHash
-	-- Disregard rom hash mismatch for this check if the names are different
+	-- Disregard rom hash mismatch for this check if the names are identical
 	return romNameMatch or romHashMatch
 end
 

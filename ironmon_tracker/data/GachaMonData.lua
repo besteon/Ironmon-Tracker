@@ -37,6 +37,7 @@ TESTING LIST
 
 --[[
 TODO LIST
+- [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
 - [Card] Evos should roll a new GachaMon card (cant rely on personality values as uniqueID). EVs are okay to use.
 - [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
 - [Card] Add Nickname; research how many bytes it takes up
@@ -226,7 +227,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	end
 	if hasDefensiveAbility then
 		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
-		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%)", AbilityData.Abilities[gachamon.AbilityId].name)
+		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%)", AbilityData.Abilities[gachamon.AbilityId].name or "Ability")
 	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
 	ratingTotal = ratingTotal + abilityRating

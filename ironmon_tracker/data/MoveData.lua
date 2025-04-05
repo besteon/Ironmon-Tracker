@@ -390,9 +390,9 @@ end
 ---Gets the total count of known Moves for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
 ---@return number
 function MoveData.getTotal()
-	if MoveData.knownTotal then
-		return MoveData.knownTotal
-	end
+	-- if MoveData.knownTotal then
+	-- 	return MoveData.knownTotal
+	-- end
 	if CustomCode.RomHacks.isPlayingNatDex() then
 		MoveData.knownTotal = #MoveData.Moves
 	else

@@ -1557,8 +1557,6 @@ function GachaMonOverlay.close()
 	-- If the game hasn't started yet
 	if not Program.isValidMapLocation() then
 		Program.currentScreen = StartupScreen
-	else
-		Program.currentScreen = TrackerScreen
 	end
 end
 

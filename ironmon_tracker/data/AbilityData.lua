@@ -57,9 +57,9 @@ end
 ---Gets the total count of known Abilities for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
 ---@return number
 function AbilityData.getTotal()
-	if AbilityData.knownTotal then
-		return AbilityData.knownTotal
-	end
+	-- if AbilityData.knownTotal then
+	-- 	return AbilityData.knownTotal
+	-- end
 	if CustomCode.RomHacks.isPlayingNatDex() then
 		AbilityData.knownTotal = #AbilityData.Abilities
 	else

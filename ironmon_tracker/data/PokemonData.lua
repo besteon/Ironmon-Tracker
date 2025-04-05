@@ -339,9 +339,9 @@ end
 ---Gets the total count of known Pokémon for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
 ---@return number
 function PokemonData.getTotal()
-	if PokemonData.knownTotal then
-		return PokemonData.knownTotal
-	end
+	-- if PokemonData.knownTotal then
+	-- 	return PokemonData.knownTotal
+	-- end
 	if CustomCode.RomHacks.isPlayingNatDex() then
 		PokemonData.knownTotal = #PokemonData.Pokemon
 	else
