@@ -383,7 +383,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 	data.x.pcheals = Tracker.Data.centerHeals
 
-	local gachamon = viewedPokemon.personality and GachaMonData.RecentMons[viewedPokemon.personality]
+	local gachamon = viewedPokemon and GachaMonData.getAssociatedRecentMon(viewedPokemon)
 	if gachamon and not data.x.infoIsHidden then
 		data.x.gachamonStars = gachamon:getStars()
 	else

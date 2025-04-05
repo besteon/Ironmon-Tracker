@@ -169,7 +169,8 @@ function GachaMonFileManager.importRecentMons(forceImportAndUse, filepathOverrid
 	local recentMonsOrdered = GachaMonFileManager.getCollectionFromFile(filepath, GachaMonFileManager.RomHashSize + 1)
 	if forceImportAndUse or importedRomHash == GameSettings.getRomHash() then
 		for _, gachamon in ipairs(recentMonsOrdered) do
-			GachaMonData.RecentMons[gachamon.Personality] = gachamon
+			local pidIndex = gachamon.Personality + gachamon.PokemonId
+			GachaMonData.RecentMons[pidIndex] = gachamon
 		end
 		return
 	end
@@ -458,6 +459,6 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 	gachamon.C_MoveIdsGameVersionKeep = movepair1 + Utils.bit_lshift(Utils.getbits(movepair2, 0, 8), 32)
 	gachamon.C_ShinyGenderNature = Utils.getbits(movepair2, 8, 8)
 	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
-	gachamon.Temp.IsShiny = Utils.getbits(gachamon.C_ShinyGenderNature, 0, 1)
+	gachamon.Temp.IsShiny = gachamon:getIsShiny()
 	return gachamon, BS.Size
 end

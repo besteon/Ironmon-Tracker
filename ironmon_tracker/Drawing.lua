@@ -124,6 +124,7 @@ function Drawing.drawImage(filepath, x, y, width, height)
 	end
 end
 
+---Draws part of the image file (source parameters) to a destination location on screen (desttination parameters)
 ---@param filepath string The absolute filepath to the image file; see FileManager.buildImagePath()
 ---@param sourceX number The x-coordinate from the source image file
 ---@param sourceY number The y-coordinate from the source image file

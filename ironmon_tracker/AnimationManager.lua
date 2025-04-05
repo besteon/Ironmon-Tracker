@@ -112,7 +112,7 @@ end
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@return IAnimation
 function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
-	local cardOffsetX, cardOffsetY = -6, 4
+	local cardOffsetX, cardOffsetY = -1, 13
 
 	local animation = AnimationManager.IAnimation:new({
 		X = x,
@@ -133,40 +133,116 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		},
 	})
 
+	local rightEdgeCutoff = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+	local bottomEdgeCutoff = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 1
+
 	-- Gachamon Card Display Data
 	local cardpackFilePath = GachaMonFileManager.getRandomCardPackFilePath()
 	local cardpackW, cardpackH = 64, 96
+	local colorPopOpen = 0xFFFFFFFF
+	local colorObfuscation = 0xFF000000
 
-	local drawCardObfuscationBg = function(_x, _y)
-		local color = 0xFF000000
-		gui.drawRectangle(_x - 6, _y - 6, cardpackW + 12, cardpackH + 12, color, color)
-	end
 	local drawPack = function(_x, _y)
 		Drawing.drawImage(cardpackFilePath, _x, _y)
 	end
+	local drawCardObfuscationBg = function(_x, _y)
+		_x = _x - 2
+		_y = _y + 12
+		local botH = cardpackH - 2
+		if _y + botH >= bottomEdgeCutoff then
+			botH = bottomEdgeCutoff - _y
+		end
+		if botH > 0 then
+			gui.drawRectangle(_x, _y, cardpackW + 4, botH, colorObfuscation, colorObfuscation)
+		end
+	end
+	local drawPackTopPiece = function(_x, _y)
+		local topW = cardpackW
+		if _x + topW >= rightEdgeCutoff then
+			topW = rightEdgeCutoff - _x
+		end
+		if topW > 0 then
+			Drawing.drawImageRegion(cardpackFilePath, 0, 0, topW, 14, _x, _y)
+		end
+	end
+	local drawPackCutPiece = function(_x, _y, _cutW)
+		local uncutW = cardpackW - _cutW
+		if uncutW > 0 then
+			-- _x = _x + _chunkW
+			_y = _y + 14
+			Drawing.drawImageRegion(cardpackFilePath, 0, 14, uncutW, 3, _x, _y)
+		end
+	end
+	local drawPackBottomPiece = function(_x, _y)
+		local botH = 79
+		_y = _y + 17
+		if _y + botH >= bottomEdgeCutoff then
+			botH = bottomEdgeCutoff - _y
+		end
+		if botH > 0 then
+			Drawing.drawImageRegion(cardpackFilePath, 0, 17, cardpackW, botH, _x, _y)
+		end
+	end
+
+	-- TODO: special animation if card stars are 5+
 
 	-- Initial drawing, showing the unopened pack; a still image until its clicked on to be animated
-	animation.KeyFrames[1] = AnimationManager.IKeyFrame:new({
-		Duration = 6,
-		Draw = function(self, _x, _y)
-			_coverScreenInDarkness()
-			drawPack(_x, _y)
-		end,
-	})
+	animation:addKeyFrame(1, function(self, _x, _y)
+		_coverScreenInDarkness()
+		drawPack(_x, _y)
+	end)
 
-	local numKeyFramesToDrop = 64
-	for i = 2, numKeyFramesToDrop, 1 do
-		animation.KeyFrames[i] = AnimationManager.IKeyFrame:new({
-			Duration = 3,
-			Draw = function(self, _x, _y)
-				_coverScreenInDarkness()
-				local card = gachamon:getCardDisplayData()
-				GachaMonOverlay.drawGachaCard(card, _x + cardOffsetX, _y + cardOffsetY, 4, false, false)
-				local iY = _y + (i-1) * 2
-				drawCardObfuscationBg(_x, iY)
-				drawPack(_x, iY)
-			end,
-		})
+	local cutSpeed = 4
+	local numKeyFramesToCutOpen = cardpackW / cutSpeed
+	for i = 1, numKeyFramesToCutOpen - 1, 1 do
+		animation:addKeyFrame(1, function(self, _x, _y)
+			_coverScreenInDarkness()
+			drawPackTopPiece(_x, _y)
+			local cutW = i * cutSpeed
+			drawPackCutPiece(_x, _y, cutW)
+			drawPackBottomPiece(_x, _y)
+		end)
+	end
+
+	-- Frame: Pop off the top of the pack
+	animation:addKeyFrame(15, function(self, _x, _y)
+		_coverScreenInDarkness()
+		drawPackTopPiece(_x, _y)
+		drawPackBottomPiece(_x, _y)
+		-- top right
+		_x = _x + cardpackW
+		gui.drawLine(_x - 1, _y - 2, _x + 1, _y - 6, colorPopOpen)
+		gui.drawLine(_x - 4, _y - 2, _x - 6, _y - 6, colorPopOpen)
+		gui.drawLine(_x + 1, _y + 0, _x + 5, _y - 2, colorPopOpen)
+		gui.drawLine(_x + 1, _y + 3, _x + 5, _y + 5, colorPopOpen)
+	end)
+
+	-- If want slower, set to: frames 32 and speed 3
+	local numKeyFramesToSlideAway = 24
+	for i = 1, numKeyFramesToSlideAway, 1 do
+		animation:addKeyFrame(1, function(self, _x, _y)
+			_coverScreenInDarkness()
+			local iX = _x + (i-1) * 4
+			drawPackTopPiece(iX, _y)
+			drawPackBottomPiece(_x, _y)
+		end)
+	end
+
+	animation:addKeyFrame(8, function(self, _x, _y)
+		_coverScreenInDarkness()
+		drawPackBottomPiece(_x, _y)
+	end)
+
+	local numKeyFramesToDropDown = 30
+	for i = 1, numKeyFramesToDropDown, 1 do
+		animation:addKeyFrame(1, function(self, _x, _y)
+			_coverScreenInDarkness()
+			local card = gachamon:getCardDisplayData()
+			GachaMonOverlay.drawGachaCard(card, _x + cardOffsetX, _y + cardOffsetY, 0, false, false)
+			local iY = _y + (i-1) * 4
+			drawCardObfuscationBg(_x, iY)
+			drawPackBottomPiece(_x, iY)
+		end)
 	end
 
 	animation:buildAnimation()
@@ -190,7 +266,7 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
 				Draw = function(self, _x, _y)
 					_coverScreenInDarkness()
 					local card = gachamon:getCardDisplayData()
-					GachaMonOverlay.drawGachaCard(card, _x, _y, 4, false, false)
+					GachaMonOverlay.drawGachaCard(card, _x, _y, 0, false, false)
 				end,
 			})
 		},
@@ -297,6 +373,17 @@ AnimationManager.IAnimation = {
 
 	-- Functions
 
+	---comment
+	---@param duration number
+	---@param drawFunc? function
+	---@param onExpireFunc? function
+	addKeyFrame = function(self, duration, drawFunc, onExpireFunc)
+		table.insert(self.KeyFrames, AnimationManager.IKeyFrame:new({
+			Duration = duration,
+			Draw = drawFunc,
+			OnExpire = onExpireFunc,
+		}))
+	end,
 	-- Calculates the values and indexes needed for a proper animation; call after all KeyFrames are added
 	buildAnimation = function(self)
 		-- Assign each active frame to its corresponding sprite index (which image from left-to-right to draw)

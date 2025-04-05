@@ -1291,7 +1291,7 @@ end
 ---@param params string?
 ---@return string response
 function EventData.getGachamon(params)
-	local gachamon ---@type IGachaMon
+	local gachamon ---@type IGachaMon|nil
 	if not Utils.isNilOrEmpty(params, true) then
 		local id = DataHelper.findPokemonId(params)
 		local pokemon = PokemonData.Pokemon[id or false]
@@ -1306,7 +1306,7 @@ function EventData.getGachamon(params)
 		end
 	else
 		local pokemon = TrackerAPI.getPlayerPokemon() or {}
-		gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+		gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
 	end
 	if not gachamon then
 		return buildDefaultResponse(params)
@@ -1320,12 +1320,19 @@ function EventData.getGachamon(params)
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0] or PokemonData.BlankPokemon
 	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility
-	local nameAndAbility = string.format("%s - %s", pokemonInternal.name, abilityInternal.name)
+	local pokemonName = pokemonInternal.name
+	if gachamon:getIsShiny() == 1 then
+		pokemonName = string.format("* %s *", pokemonName)
+	end
+	local nameAndAbility = string.format("%s %s %s - %s", pokemonName, abilityInternal.name)
 	table.insert(info, nameAndAbility)
 
 	local numStars = gachamon:getStars() or 0
-	local starsAndBP = string.format("%s Stars, %s BP", numStars > 5 and "5+" or numStars, gachamon.BattlePower or 0)
-	table.insert(info, starsAndBP)
+	local starsText = string.format("%s Stars", numStars > 5 and "5+" or numStars)
+	table.insert(info, starsText)
+
+	local bpText = string.format("%s BP", gachamon.BattlePower or 0)
+	table.insert(info, bpText)
 
 	local stats = gachamon:getStats()
 	local statValues = string.format("%s/%s/%s/%s/%s/%s", stats.hp or 0, stats.atk or 0, stats.def or 0, stats.spa or 0, stats.spd or 0, stats.spe or 0)

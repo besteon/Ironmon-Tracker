@@ -165,7 +165,7 @@ TrackerScreen.Buttons = {
 				Program.closeScreenOverlay()
 			end
 			Program.openOverlayScreen(GachaMonOverlay)
-			local gachamon = GachaMonData.RecentMons[GachaMonData.playerViewedMon.Personality or false]
+			local gachamon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
 			if gachamon then
 				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
 				GachaMonOverlay.Data.View.GachaMon = gachamon
@@ -531,9 +531,9 @@ TrackerScreen.Buttons = {
 }
 
 ---Holds relevant animations that occasionally get displayed on the main tracker screen
-TrackerScreen.Animations = { ---@type table<string, IAnimation>
-	-- GachaMonPackOpening = nil,
-	-- GachaMonCardDisplay = nil,
+TrackerScreen.Animations = { ---@type table<string, IAnimation|nil>
+	GachaMonPackOpening = nil,
+	GachaMonCardDisplay = nil,
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -584,6 +584,9 @@ TrackerScreen.PokeBalls = {
 }
 
 function TrackerScreen.initialize()
+	TrackerScreen.Animations.GachaMonPackOpening = nil
+	TrackerScreen.Animations.GachaMonCardDisplay = nil
+
 	-- Buttons for stat markings tracked by the user
 	local heightOffset = 9
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
