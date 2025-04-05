@@ -227,7 +227,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	end
 	if hasDefensiveAbility then
 		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
-		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%)", AbilityData.Abilities[gachamon.AbilityId].name or "Ability")
+		local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%%)", ability.name or "Ability")
 	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
 	ratingTotal = ratingTotal + abilityRating
