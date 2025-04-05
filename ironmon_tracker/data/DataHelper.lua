@@ -136,7 +136,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
 	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- For Low Kick weight calcs and OHKO moves
 	local useOpenBookInfo = not data.x.viewingOwn and Options["Open Book Play Mode"]
-	local gachaMonViewOverride = (Options["Hide Pokemon stats until GachaMon viewed"] and GachaMonData.hasNewestMonToShow())
+	local gachaMonViewOverride = (Options["Show card pack on screen after capturing a GachaMon"] and GachaMonData.hasNewestMonToShow())
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()

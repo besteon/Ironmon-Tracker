@@ -865,17 +865,45 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 GachaMonOverlay.Tabs.Options.Buttons = {
 	-- Option checkboxes are added later in createTabsAndButtons()
 
+	RatingsRuleset = {
+		getText = function(self) return string.format("%s:", "Ruleset used for ratings" or Resources[SCREEN.Key].Label) end,
+		box = { CANVAS.X + 3, CANVAS.Y + 7, CANVAS.W - 20, 14, },
+		-- draw = function(self, shadowcolor)
+		-- 	local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+		-- 	local text = self:getValue()
+		-- 	local color = Theme.COLORS[SCREEN.Colors.text]
+		-- 	Drawing.drawText(x + 135, y, text, color, shadowcolor)
+		-- end,
+	},
+	EditRatingsRuleset = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.TRIANGLE_DOWN,
+		getText = function(self)
+			local rulesetKey = GachaMonData.ruleset or Options["GachaMon Ratings Ruleset"] or false
+			local ruleset = Constants.IronmonRulesets[rulesetKey] or Constants.BLANKLINE
+			if GachaMonData.rulesetAutoDetected then
+				return string.format("%s (%s)", ruleset, "Auto")
+			else
+				return ruleset
+			end
+		end,
+		box = { CANVAS.X + 131, CANVAS.Y + 5, 100, 16, },
+		onClick = function(self)
+			GachaMonOverlay.openEditRulesetWindow()
+		end,
+	},
 	RecentSize = {
 		getText = function(self) return string.format(" %s", "GachaMons caught this game" or Resources[SCREEN.Key].Label) end,
 		getValue = function(self)
 			return SCREEN.Data.Recent and (#SCREEN.Data.Recent.OrderedGachaMons) or Constants.BLANKLINE
 		end,
-		box = { CANVAS.X + 10, CANVAS.Y + 8, CANVAS.W - 20, 14, },
+		box = { CANVAS.X + 10, CANVAS.Y + 85, CANVAS.W - 20, 14, },
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local text = self:getValue()
 			local color = Theme.COLORS[SCREEN.Colors.highlight]
 			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawLine(x + w + 1, y, x + w + 1, y + h, shadowcolor) -- right edge shadow
 			gui.drawRectangle(x, y - 1, w, h, border)
 			gui.drawLine(x + 150, y, x + 150, y + h - 1, border)
 			Drawing.drawNumber(x + 170, y, text, 4, color, shadowcolor)
@@ -886,12 +914,14 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 		getValue = function(self)
 			return SCREEN.Data.Collection and (#SCREEN.Data.Collection.OrderedGachaMons) or Constants.BLANKLINE
 		end,
-		box = { CANVAS.X + 10, CANVAS.Y + 22, CANVAS.W - 20, 14, },
+		box = { CANVAS.X + 10, CANVAS.Y + 99, CANVAS.W - 20, 14, },
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local text = self:getValue()
 			local color = Theme.COLORS[SCREEN.Colors.highlight]
 			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawLine(x + 1, y + h, x + 1 + w, y + h, shadowcolor) -- bottom edge shadow
+			gui.drawLine(x + w + 1, y, x + w + 1, y + h, shadowcolor) -- right edge shadow
 			gui.drawRectangle(x, y - 1, w, h, border)
 			gui.drawLine(x + 150, y, x + 150, y + h - 1, border)
 			Drawing.drawNumber(x + 170, y, text, 4, color, shadowcolor)
@@ -902,7 +932,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 		image = Constants.PixelImages.SPARKLES,
 		iconColors = { SCREEN.Colors.text },
 		getText = function(self) return "Cleanup Collection" end,
-		box = { CANVAS.X + 4, CANVAS.Y + 123, 96, 16, },
+		box = { CANVAS.X + 135, CANVAS.Y + 122, 96, 16, },
 		isVisible = function(self) return #GachaMonData.Collection > 0 end,
 		onClick = function(self)
 			GachaMonOverlay.openCleanupCollectionWindow()
@@ -1135,9 +1165,8 @@ function GachaMonOverlay.createTabsAndButtons()
 
 	-- CREATE OPTIONS CHECKBOXES
 	startX = CANVAS.X + 5
-	startY = CANVAS.Y + 48
+	startY = CANVAS.Y + 30
 	local optionKeyMap = {
-		{ "Hide Pokemon stats until GachaMon viewed", "OptionHideStatsUntilViewed", },
 		{ "Show GachaMon stars on main Tracker Screen", "OptionShowGachaMonStarsOnTracker", },
 		{ "Show card pack on screen after capturing a GachaMon", "OptionShowCardPackOnScreen", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
@@ -1299,6 +1328,72 @@ function GachaMonOverlay.openImportCodeWindow(onImportFunc)
 		form:destroy()
 	end, 80, 25)
 	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+		form:destroy()
+	end, 80, 25)
+end
+
+function GachaMonOverlay.openEditRulesetWindow()
+	local form = ExternalUI.BizForms.createForm("Ratings Ruleset for GachaMon", 345, 170)
+	local x = 15
+	local iY = 15
+
+	local rulesetNamesOrdered = {
+		Constants.IronmonRulesets.Standard,
+		Constants.IronmonRulesets.Ultimate,
+		Constants.IronmonRulesets.Kaizo,
+		Constants.IronmonRulesets.Survival,
+		Constants.IronmonRulesets.SuperKaizo,
+		Constants.IronmonRulesets.Subpar,
+	}
+	if CustomCode.RomHacks.isPlayingNatDex() then
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension1)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension2)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension3)
+	end
+
+	local _refreshAutoDetect = function()
+		local isChecked = form.Controls.checkboxAutoDetect and ExternalUI.BizForms.isChecked(form.Controls.checkboxAutoDetect) or false
+		if form.Controls.dropdownRuleset then
+			ExternalUI.BizForms.setProperty(form.Controls.dropdownRuleset, ExternalUI.BizForms.Properties.ENABLED, isChecked == false)
+		end
+	end
+
+	form:createLabel("Select which ruleset is used for calculating ratings/stars:", x, iY)
+	iY = iY + 22
+	local startChecked = GachaMonData.rulesetAutoDetected == true
+	form.Controls.checkboxAutoDetect = form:createCheckbox("Auto-detect ruleset from New Run profile settings", x + 16, iY, _refreshAutoDetect, startChecked)
+	iY = iY + 25
+	form:createLabel("Ruleset options:", x + 14, iY + 3)
+	local selectedRuleset = Options["GachaMon Ratings Ruleset"]
+	form.Controls.dropdownRuleset = form:createDropdown(rulesetNamesOrdered, x + 116, iY, 150, 30, selectedRuleset or "", false)
+	_refreshAutoDetect()
+	iY = iY + 35
+
+	form:createButton(Resources.AllScreens.Save, 70, iY, function()
+		GachaMonData.rulesetAutoDetected = ExternalUI.BizForms.isChecked(form.Controls.checkboxAutoDetect)
+		if GachaMonData.rulesetAutoDetected then
+			Options["GachaMon Ratings Ruleset"] = "AutoDetect"
+			GachaMonData.autoDetermineIronmonRuleset()
+		else
+			local rulesetSelected = ExternalUI.BizForms.getText(form.Controls.dropdownRuleset)
+			local rulesetKey = nil
+			-- Search for a matching ruleset key based on dropdown selection
+			for key, value in pairs(Constants.IronmonRulesets or {}) do
+				if value == rulesetSelected then
+					rulesetKey = key
+					break
+				end
+			end
+			if not Utils.isNilOrEmpty(rulesetKey) then
+				Options["GachaMon Ratings Ruleset"] = rulesetKey
+				GachaMonData.ruleset = rulesetKey
+			end
+		end
+		Main.SaveSettings(true)
+		Program.redraw(true)
+		form:destroy()
+	end, 80, 25)
+	form:createButton(Resources.AllScreens.Cancel, 180, iY, function()
 		form:destroy()
 	end, 80, 25)
 end
