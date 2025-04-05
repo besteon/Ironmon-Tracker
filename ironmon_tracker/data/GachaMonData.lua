@@ -37,15 +37,15 @@ TESTING LIST
 
 --[[
 TODO LIST
-- [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
-- [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
-- [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
-   - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
-   - 1000 vs 4000 is a 4:1 odds
 - [GachaDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
    - If dex is complete, color it or something around it "gold" or fancy looking
+- [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
+- [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
+   - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
+   - 1000 vs 4000 is a 4:1 odds
+- [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
 
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
