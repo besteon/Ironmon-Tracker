@@ -51,7 +51,8 @@ Options = {
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
 	["Active Profile"] = "",
-	["Hide Pokemon stats until GachaMon viewed"] = false,
+
+	["GachaMon Ratings Ruleset"] = "AutoDetect",
 	["Show GachaMon stars on main Tracker Screen"] = true,
 	["Show card pack on screen after capturing a GachaMon"] = false,
 	["Animate GachaMon pack opening"] = true,

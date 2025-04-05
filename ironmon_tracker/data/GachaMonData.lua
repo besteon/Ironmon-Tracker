@@ -28,6 +28,8 @@ GachaMonData = {
 	requiresNatDex = false,
 	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
 	ruleset = Constants.IronmonRulesets.Standard,
+	-- If the ruleset was automatically determined from the New Run profile settings (mostly used for a UI label in options tab)
+	rulesetAutoDetected = false,
 }
 
 --[[
@@ -41,7 +43,6 @@ TODO LIST
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
    - If dex is complete, color it or something around it "gold" or fancy looking
-- [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
@@ -65,8 +66,9 @@ function GachaMonData.initialize()
 	GachaMonData.playerViewedInitialStars = 0
 	GachaMonData.clearNewestMonToShow()
 
-	-- Don't actually reset this here, since the New Run profile initialize is doing it instead
-	-- GachaMonData.ruleset = Constants.IronmonRulesets.Standard
+	-- Note: the active New Run profile will override this if set to AutoDetect
+	GachaMonData.ruleset = Options["GachaMon Ratings Ruleset"]
+	GachaMonData.rulesetAutoDetected = false
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
@@ -572,8 +574,6 @@ end
 ---Automatically tries to determine the IronMON ruleset being used for the current game and remembers it. Defaults to Kaizo if no proper match
 ---@return string ruleset A value from Constants.IronmonRulesets
 function GachaMonData.autoDetermineIronmonRuleset()
-	local ruleset = nil
-
 	-- Ordered list for which ruleset text to check for first; e.g. check "super kaizo" before "kaizo"
 	local rulesetNamesOrdered = {
 		Constants.IronmonRulesets.Standard,
@@ -581,15 +581,19 @@ function GachaMonData.autoDetermineIronmonRuleset()
 		Constants.IronmonRulesets.Survival,
 		Constants.IronmonRulesets.SuperKaizo,
 		Constants.IronmonRulesets.Subpar,
-		Constants.IronmonRulesets.Ascension1,
-		Constants.IronmonRulesets.Ascension2,
-		Constants.IronmonRulesets.Ascension3,
-		Constants.IronmonRulesets.Kaizo,
 	}
+	if CustomCode.RomHacks.isPlayingNatDex() then
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension1)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension2)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension3)
+	end
+	-- Check generic "Kaizo" ruleset last
+	table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Kaizo)
 
 	-- First check if an exact ruleset name exists in the settings file of the New Run profile
+	local ruleset = nil
 	local profile = QuickloadScreen.getActiveProfile()
-	if not ruleset and profile then
+	if profile then
 		for _, rulesetName in ipairs(rulesetNamesOrdered) do
 			-- Check the settings file used (typically the premade Tracker one), then check the profile name itself
 			if Utils.containsText(profile.Paths.Settings or "", rulesetName, true) then
@@ -603,6 +607,8 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	end
 
 	GachaMonData.ruleset = ruleset or Constants.IronmonRulesets.Standard
+	GachaMonData.rulesetAutoDetected = true
+
 	return GachaMonData.ruleset
 end
 

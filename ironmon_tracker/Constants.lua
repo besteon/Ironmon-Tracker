@@ -193,7 +193,7 @@ Constants.OrderedLists = {
 		"Active Profile",
 		"Has checked carousel battle details",
 		"AlertNewOptionLR",
-		"Hide Pokemon stats until GachaMon viewed",
+		"GachaMon Ratings Ruleset",
 		"Show GachaMon stars on main Tracker Screen",
 		"Show card pack on screen after capturing a GachaMon",
 		"Animate GachaMon pack opening",
