@@ -39,6 +39,7 @@ TESTING LIST
 
 --[[
 TODO LIST
+- [UI] Add instruction on card pack to "Press R or click" (after a short delay, like pokemon pocket)
 - [GachaDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
