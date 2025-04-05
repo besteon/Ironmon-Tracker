@@ -880,11 +880,11 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		getText = function(self)
 			local rulesetKey = GachaMonData.ruleset or Options["GachaMon Ratings Ruleset"] or false
-			local ruleset = Constants.IronmonRulesets[rulesetKey] or Constants.BLANKLINE
-			if GachaMonData.rulesetAutoDetected then
+			local ruleset = Constants.IronmonRulesets[rulesetKey]
+			if ruleset and GachaMonData.rulesetAutoDetected then
 				return string.format("%s (%s)", ruleset, "Auto")
 			else
-				return ruleset
+				return ruleset or Constants.IronmonRulesets.Standard
 			end
 		end,
 		box = { CANVAS.X + 131, CANVAS.Y + 5, 100, 16, },
@@ -1365,6 +1365,9 @@ function GachaMonOverlay.openEditRulesetWindow()
 	iY = iY + 25
 	form:createLabel("Ruleset options:", x + 14, iY + 3)
 	local selectedRuleset = Options["GachaMon Ratings Ruleset"]
+	if not selectedRuleset or selectedRuleset == "AutoDetect" then
+		selectedRuleset = rulesetNamesOrdered[1]
+	end
 	form.Controls.dropdownRuleset = form:createDropdown(rulesetNamesOrdered, x + 116, iY, 150, 30, selectedRuleset or "", false)
 	_refreshAutoDetect()
 	iY = iY + 35

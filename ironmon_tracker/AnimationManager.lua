@@ -112,9 +112,10 @@ end
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@return IAnimation
 function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
+	local SHOW_HELP_FRAME_DELAY = 210
 	local cardOffsetX, cardOffsetY = -1, 13
 
-	local animation = AnimationManager.IAnimation:new({
+	local packAnimation = AnimationManager.IAnimation:new({
 		X = x,
 		Y = y,
 		KeyFrames = {},
@@ -141,6 +142,46 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	local cardpackW, cardpackH = 64, 96
 	local colorPopOpen = 0xFFFFFFFF
 	local colorObfuscation = 0xFF000000
+
+	local _createHelpTextAnimation = function()
+		local openButton = Options.CONTROLS["Next page"] or "R"
+		local helpText = string.format("--  Press (%s) or click  --", openButton)
+		local helpTextX = Utils.getCenteredTextX(helpText, Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2)
+		local helpTextAnimation = AnimationManager.IAnimation:new({
+			X = x + helpTextX - 38,
+			Y = y + cardpackH + 7,
+			ShouldLoop = true,
+			KeyFrames = {},
+		})
+		local _onExpireHelpText = function(self)
+			if packAnimation.IsActive or not packAnimation:IsVisible() then
+				helpTextAnimation:stop()
+				TrackerScreen.Animations.CardPackHelpText = nil
+			end
+		end
+		for i=1, 160, 4 do
+			-- color fade in/out
+			local opacity = 0
+			if i < 50 then
+				opacity = 1 - math.abs(i - 50) / 50
+			elseif i >= 50 and i <= 100 then
+				opacity = 1
+			elseif i > 100 then
+				opacity = 1 - math.min(math.abs(i - 100) / 50, 1) -- max
+			end
+			local opacityFill = math.min(math.floor(0xFF * opacity), 0xFF) -- max
+			local helpTextColor = (0x01000000 * opacityFill) + 0xFFFFFF
+			helpTextAnimation:addKeyFrame(5, function(self, _x, _y)
+				Drawing.drawText(_x, _y, helpText, helpTextColor)
+			end, _onExpireHelpText)
+		end
+		helpTextAnimation:buildAnimation()
+		AnimationManager.tryAddAnimationToActive(helpTextAnimation)
+		TrackerScreen.Animations.CardPackHelpText = helpTextAnimation
+	end
+
+	-- Add another animation to show help text on how to open packs
+	Program.addFrameCounter("AnimationManager:PackOpeningHelpText", SHOW_HELP_FRAME_DELAY, _createHelpTextAnimation, 1, true)
 
 	local drawPack = function(_x, _y)
 		Drawing.drawImage(cardpackFilePath, _x, _y)
@@ -187,7 +228,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	-- TODO: special animation if card stars are 5+
 
 	-- Initial drawing, showing the unopened pack; a still image until its clicked on to be animated
-	animation:addKeyFrame(1, function(self, _x, _y)
+	packAnimation:addKeyFrame(1, function(self, _x, _y)
 		_coverScreenInDarkness()
 		drawPack(_x, _y)
 	end)
@@ -195,7 +236,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	local cutSpeed = 4
 	local numKeyFramesToCutOpen = cardpackW / cutSpeed
 	for i = 1, numKeyFramesToCutOpen - 1, 1 do
-		animation:addKeyFrame(1, function(self, _x, _y)
+		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
 			drawPackTopPiece(_x, _y)
 			local cutW = i * cutSpeed
@@ -205,7 +246,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	end
 
 	-- Frame: Pop off the top of the pack
-	animation:addKeyFrame(15, function(self, _x, _y)
+	packAnimation:addKeyFrame(15, function(self, _x, _y)
 		_coverScreenInDarkness()
 		drawPackTopPiece(_x, _y)
 		drawPackBottomPiece(_x, _y)
@@ -220,7 +261,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	-- If want slower, set to: frames 32 and speed 3
 	local numKeyFramesToSlideAway = 24
 	for i = 1, numKeyFramesToSlideAway, 1 do
-		animation:addKeyFrame(1, function(self, _x, _y)
+		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
 			local iX = _x + (i-1) * 4
 			drawPackTopPiece(iX, _y)
@@ -228,14 +269,14 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		end)
 	end
 
-	animation:addKeyFrame(8, function(self, _x, _y)
+	packAnimation:addKeyFrame(8, function(self, _x, _y)
 		_coverScreenInDarkness()
 		drawPackBottomPiece(_x, _y)
 	end)
 
 	local numKeyFramesToDropDown = 30
 	for i = 1, numKeyFramesToDropDown, 1 do
-		animation:addKeyFrame(1, function(self, _x, _y)
+		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
 			local card = gachamon:getCardDisplayData()
 			GachaMonOverlay.drawGachaCard(card, _x + cardOffsetX, _y + cardOffsetY, 0, false, false)
@@ -245,9 +286,9 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		end)
 	end
 
-	animation:buildAnimation()
+	packAnimation:buildAnimation()
 
-	return animation
+	return packAnimation
 end
 
 ---Creates a new IAnimation for a GachaMon Pack Opening

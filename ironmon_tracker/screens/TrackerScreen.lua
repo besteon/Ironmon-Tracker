@@ -534,6 +534,7 @@ TrackerScreen.Buttons = {
 TrackerScreen.Animations = { ---@type table<string, IAnimation|nil>
 	GachaMonPackOpening = nil,
 	GachaMonCardDisplay = nil,
+	CardPackHelpText = nil,
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -586,6 +587,7 @@ TrackerScreen.PokeBalls = {
 function TrackerScreen.initialize()
 	TrackerScreen.Animations.GachaMonPackOpening = nil
 	TrackerScreen.Animations.GachaMonCardDisplay = nil
+	TrackerScreen.Animations.CardPackHelpText = nil
 
 	-- Buttons for stat markings tracked by the user
 	local heightOffset = 9
@@ -1683,5 +1685,14 @@ function TrackerScreen.drawFavorites()
 		button.box[2] = button.box[2] + shiftY
 		Drawing.drawButton(button)
 		button.box[2] = prevY
+	end
+end
+
+function TrackerScreen.drawAnimations()
+	if TrackerScreen.Animations.GachaMonPackOpening then
+		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonPackOpening)
+		AnimationManager.drawAnimation(TrackerScreen.Animations.CardPackHelpText)
+	elseif TrackerScreen.Animations.GachaMonCardDisplay then
+		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonCardDisplay)
 	end
 end
