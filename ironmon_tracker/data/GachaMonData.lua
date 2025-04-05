@@ -6,7 +6,7 @@ GachaMonData = {
 	-- The user's entire GachaMon collection (ordered list). Populated from file only when the user first goes to view the Collection on the Tracker
 	Collection = {}, ---@type table<number, IGachaMon>
 
-	-- Stores the GachaMons for the current gameplay session only. Table key is the Pokémon's personality value
+	-- Stores the GachaMons for the current gameplay session only. Table key is the sum of the Pokémon's personality value & its pokemon id
 	RecentMons = {}, ---@type table<number, IGachaMon>
 
 	-- Populated on Tracker startup from the ratings data json file
@@ -38,18 +38,19 @@ TESTING LIST
 --[[
 TODO LIST
 - [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
-- [Card] Evos should roll a new GachaMon card (cant rely on personality values as uniqueID). EVs are okay to use.
 - [Ruleset] Expose option to choose which ruleset to play by ("auto DETECT" is an option)
-- [Card] Add Nickname; research how many bytes it takes up
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
 - [GachaDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
+   - If dex is complete, color it or something around it "gold" or fancy looking
 
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
+- [Card] Add Nickname; research how many bytes it takes up
+- [Bug] low-prority; If still viewing a card pack opening and swap to a new mon, no new pack is created for it
 ]]
 
 function GachaMonData.initialize()
@@ -73,11 +74,25 @@ function GachaMonData.initialize()
 	-- GachaMonFileManager.importRecentGachaMons()
 end
 
+---Using either Pokemon data from the game or GachaMon data, looks up its associated GachaMon object
+---@param pokemonOrGachamon IPokemon|IGachaMon
+---@return IGachaMon|nil gachamon
+---@return number pidIndex The table index used to access the GachaMon
+function GachaMonData.getAssociatedRecentMon(pokemonOrGachamon)
+	local personality = pokemonOrGachamon.personality or pokemonOrGachamon.Personality or 0
+	local id = pokemonOrGachamon.pokemonID or pokemonOrGachamon.PokemonId or 0
+	local pidIndex = personality + id
+	if pidIndex > 0 then
+		return GachaMonData.RecentMons[pidIndex], pidIndex
+	end
+	return nil, pidIndex
+end
+
 ---Helper function to check if the GachaMon belongs to the RecentMons, otherwise it can be assumed it's part of the collection
 ---@param gachamon IGachaMon
 ---@return boolean isRecentMon True if belongs to the RecentMons, False if belongs to the collection (or not found)
 function GachaMonData.isRecentMon(gachamon)
-	local recentMon = GachaMonData.RecentMons[gachamon.Personality or false] or {}
+	local recentMon = GachaMonData.getAssociatedRecentMon(gachamon) or {}
 	return (recentMon.PokemonId == gachamon.PokemonId) and (recentMon.SeedNumber == gachamon.SeedNumber)
 end
 
@@ -143,12 +158,16 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData, DEBUG_SUPPRESS_MSGS)
 	if gachamon.Temp.IsShiny ~= 1 and math.random() <= GachaMonData.SHINY_ODDS then
 		gachamon.Temp.IsShiny = 1
 	end
+	-- Always keep shinies in collection
+	if gachamon.Temp.IsShiny == 1 then
+		gachamon.Temp.Keep = 1
+	end
 
-	gachamon:compressStatsHpAtkDef()
-	gachamon:compressStatsSpaSpdSpe()
-	gachamon:compressMoveIdsGameVersionKeep()
-	gachamon:compressShinyGenderNature()
-	gachamon:compressDateObtained()
+	gachamon:compressStatsHpAtkDef(true)
+	gachamon:compressStatsSpaSpdSpe(true)
+	gachamon:compressMoveIdsGameVersionKeep(true)
+	gachamon:compressShinyGenderNature(true)
+	gachamon:compressDateObtained(true)
 
 	local pokemonInternal = PokemonData.Pokemon[pokemonData.pokemonID or 0]
 	local baseStats = pokemonInternal and pokemonInternal.baseStats or {}
@@ -160,7 +179,9 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData, DEBUG_SUPPRESS_MSGS)
 	-- Always make 5-star or higher GachaMon's shiny
 	if gachamon.Temp.IsShiny ~= 1 and gachamon.Temp.Stars >= 5 then
 		gachamon.Temp.IsShiny = 1
-		gachamon:compressShinyGenderNature()
+		gachamon.Temp.Keep = 1
+		gachamon:compressMoveIdsGameVersionKeep(true)
+		gachamon:compressShinyGenderNature(true)
 	end
 
 	return gachamon
@@ -476,11 +497,11 @@ function GachaMonData.createRandomGachaMon()
 		gachamon.Temp.Stats[statKey] = gachamon.Level * math.random(1, 4)
 	end
 
-	gachamon:compressStatsHpAtkDef()
-	gachamon:compressStatsSpaSpdSpe()
-	gachamon:compressMoveIdsGameVersionKeep()
-	gachamon:compressShinyGenderNature()
-	gachamon:compressDateObtained()
+	gachamon:compressStatsHpAtkDef(true)
+	gachamon:compressStatsSpaSpdSpe(true)
+	gachamon:compressMoveIdsGameVersionKeep(true)
+	gachamon:compressShinyGenderNature(true)
+	gachamon:compressDateObtained(true)
 
 	gachamon.RatingScore = math.random(1, 71)
 	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
@@ -543,7 +564,7 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 	if needsRecalculating then
 		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon, true)
 		-- Always reset the initial stars to original card; do this every time the mon gets rerolled (in case the mon changes)
-		local recentMon = GachaMonData.RecentMons[GachaMonData.playerViewedMon.Personality or false]
+		local recentMon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
 		GachaMonData.playerViewedInitialStars = recentMon and recentMon:getStars() or 0
 	end
 end
@@ -592,7 +613,7 @@ function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
 	-- Check each Pokémon in the player's party. For the ones with GachaMon cards, update their badge data
 	for i = 1, 6, 1 do
 		local pokemon = TrackerAPI.getPlayerPokemon(i) or {}
-		local gachamon = GachaMonData.RecentMons[pokemon.personality or false]
+		local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
 		if gachamon then
 			gachamon.Badges = Utils.bit_or(gachamon.Badges or 0, badgeBitToSet)
 			anyChanged = true
@@ -618,13 +639,15 @@ end
 ---@param pokemon IPokemon
 ---@return boolean success
 function GachaMonData.tryAddToRecentMons(pokemon)
-	if not GachaMonData.initialRecentMonsLoaded or GachaMonData.RecentMons[pokemon.personality or false] then
+	local gachamon, pidIndex = GachaMonData.getAssociatedRecentMon(pokemon)
+	-- Don't add if it already exists
+	if not GachaMonData.initialRecentMonsLoaded or gachamon then
 		return false
 	end
 
 	-- Create the GachaMon from the IPokemon data, then add it
-	local gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
-	GachaMonData.RecentMons[pokemon.personality] = gachamon
+	gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
+	GachaMonData.RecentMons[pidIndex] = gachamon
 	GachaMonFileManager.saveRecentMonsToFile()
 	GachaMonData.newestRecentMon = gachamon
 	return true
@@ -634,7 +657,7 @@ end
 ---@param mon IPokemon|IGachaMon It's associated GachaMon from RecentMons will be used
 ---@return boolean success
 function GachaMonData.tryAutoKeepInCollection(mon)
-	local gachamon = GachaMonData.RecentMons[mon.personality or mon.Personality or false]
+	local gachamon = GachaMonData.getAssociatedRecentMon(mon)
 	if not gachamon or gachamon:getKeep() == 1 then
 		return false
 	end
@@ -868,8 +891,8 @@ GachaMonData.IGachaMon = {
 	end,
 
 	-- 00DDDDDD DDDDAAAA AAAAAAHH HHHHHHHH
-	compressStatsHpAtkDef = function(self)
-		if self.C_StatsHpAtkDef == 0 and type(self.Temp.Stats) == "table" then
+	compressStatsHpAtkDef = function(self, ignoreCache)
+		if (ignoreCache or self.C_StatsHpAtkDef == 0) and type(self.Temp.Stats) == "table" then
 			self.C_StatsHpAtkDef = (self.Temp.Stats.hp or 0) -- 10 bits
 				+ Utils.bit_lshift((self.Temp.Stats.atk or 0), 10) -- 10 bits
 				+ Utils.bit_lshift((self.Temp.Stats.def or 0), 20) -- 10 bits
@@ -877,8 +900,8 @@ GachaMonData.IGachaMon = {
 		return self.C_StatsHpAtkDef
 	end,
 	-- 00SSSSSS SSSSDDDD DDDDDDAA AAAAAAAA
-	compressStatsSpaSpdSpe = function(self)
-		if self.C_StatsSpaSpdSpe == 0 and type(self.Temp.Stats) == "table" then
+	compressStatsSpaSpdSpe = function(self, ignoreCache)
+		if (ignoreCache or self.C_StatsSpaSpdSpe == 0) and type(self.Temp.Stats) == "table" then
 			self.C_StatsSpaSpdSpe = (self.Temp.Stats.spa or 0) -- 10 bits
 				+ Utils.bit_lshift((self.Temp.Stats.spd or 0), 10) -- 10 bits
 				+ Utils.bit_lshift((self.Temp.Stats.spe or 0), 20) -- 10 bits
@@ -886,8 +909,8 @@ GachaMonData.IGachaMon = {
 		return self.C_StatsSpaSpdSpe
 	end,
 	-- KVVVMMMM MMMMMMMM MMMMMMMM MMMMMMMM MMMMMMMM
-	compressMoveIdsGameVersionKeep = function(self)
-		if self.C_MoveIdsGameVersionKeep == 0 and type(self.Temp.MoveIds) == "table" then
+	compressMoveIdsGameVersionKeep = function(self, ignoreCache)
+		if (ignoreCache or self.C_MoveIdsGameVersionKeep == 0) and type(self.Temp.MoveIds) == "table" then
 			self.C_MoveIdsGameVersionKeep = (self.Temp.MoveIds[1] or 0) -- 9 bits
 				+ Utils.bit_lshift((self.Temp.MoveIds[2] or 0), 9) -- 9 bits
 				+ Utils.bit_lshift((self.Temp.MoveIds[3] or 0), 18) -- 9 bits
@@ -898,8 +921,8 @@ GachaMonData.IGachaMon = {
 		return self.C_MoveIdsGameVersionKeep
 	end,
 	-- NNNNNGGS
-	compressShinyGenderNature = function(self)
-		if self.C_ShinyGenderNature == 0 then
+	compressShinyGenderNature = function(self, ignoreCache)
+		if ignoreCache or self.C_ShinyGenderNature == 0 then
 			self.C_ShinyGenderNature = (self.Temp.IsShiny or 0) -- 1 bit
 				+ Utils.bit_lshift((self.Temp.Gender or 0), 1) -- 2 bits
 				+ Utils.bit_lshift((self.Temp.Nature or 0), 3) -- 5 bits
@@ -907,8 +930,8 @@ GachaMonData.IGachaMon = {
 		return self.C_ShinyGenderNature
 	end,
 	-- YYYYYYYM MMMDDDDD
-	compressDateObtained = function(self)
-		if self.C_DateObtained == 0 then
+	compressDateObtained = function(self, ignoreCache)
+		if ignoreCache or self.C_DateObtained == 0 then
 			local dt = os.date("*t", self.Temp.DateTimeObtained or os.time())
 			-- save space by assuming after year 2000
 			local year = math.max(dt.year - 2000, 0)

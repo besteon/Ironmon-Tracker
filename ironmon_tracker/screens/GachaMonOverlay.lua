@@ -1183,7 +1183,7 @@ function GachaMonOverlay.buildData()
 	if not SCREEN.Data.View.GachaMon then
 		local leadPokemon = TrackerAPI.getPlayerPokemon(1)
 		if leadPokemon and GachaMonData.tryAddToRecentMons(leadPokemon) then
-			SCREEN.Data.View.GachaMon = GachaMonData.RecentMons[leadPokemon.personality or false]
+			SCREEN.Data.View.GachaMon = GachaMonData.getAssociatedRecentMon(leadPokemon)
 		end
 	end
 
