@@ -1324,7 +1324,7 @@ function EventData.getGachamon(params)
 	if gachamon:getIsShiny() == 1 then
 		pokemonName = string.format("* %s *", pokemonName)
 	end
-	local nameAndAbility = string.format("%s %s %s - %s", pokemonName, abilityInternal.name)
+	local nameAndAbility = string.format("%s - %s", pokemonName, abilityInternal.name)
 	table.insert(info, nameAndAbility)
 
 	local numStars = gachamon:getStars() or 0
