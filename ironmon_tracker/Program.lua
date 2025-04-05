@@ -385,24 +385,19 @@ function Program.redraw(forced)
 		MGBA.ScreenUtils.updateTextBuffers()
 	end
 
-	local _drawGachaMonPackAnimations = function()
-		if not Program.currentScreen == TrackerScreen then
-			return
-		end
-		if TrackerScreen.Animations.GachaMonPackOpening then
-			AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonPackOpening)
-		elseif TrackerScreen.Animations.GachaMonCardDisplay then
-			AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonCardDisplay)
+	local _drawAnimations = function()
+		if Program.currentScreen and type(Program.currentScreen.drawAnimations) == "function" then
+			Program.currentScreen.drawAnimations()
 		end
 	end
 
 	if Program.overridePackAnimationDraw then
-		_drawGachaMonPackAnimations()
+		_drawAnimations()
 		CustomCode.afterRedraw()
 	else
 		-- Default to drawing on top of any drawings that extensions do
 		CustomCode.afterRedraw()
-		_drawGachaMonPackAnimations()
+		_drawAnimations()
 	end
 
 	SpriteData.cleanupActiveIcons()
