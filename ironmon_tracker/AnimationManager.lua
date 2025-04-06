@@ -191,8 +191,8 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	end
 	local drawCardObfuscationBg = function(_x, _y)
 		_x = _x - 2
-		_y = _y + 12
-		local botH = cardpackH - 2
+		_y = _y + 16
+		local botH = cardpackH - 6
 		if _y + botH >= bottomEdgeCutoff then
 			botH = bottomEdgeCutoff - _y
 		end
@@ -277,13 +277,13 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		drawPackBottomPiece(_x, _y)
 	end)
 
-	local numKeyFramesToDropDown = 30
+	local numKeyFramesToDropDown = 150
 	for i = 1, numKeyFramesToDropDown, 1 do
 		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
 			local card = gachamon:getCardDisplayData()
 			GachaMonOverlay.drawGachaCard(card, _x + cardOffsetX, _y + cardOffsetY, 0, false, false)
-			local iY = _y + (i-1) * 4
+			local iY = _y + (i-1) * 1
 			drawCardObfuscationBg(_x, iY)
 			drawPackBottomPiece(_x, iY)
 		end)

@@ -594,16 +594,27 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	-- Check generic "Kaizo" ruleset last
 	table.insert(rulesetsOrdered, { Key = "Kaizo", Name = Constants.IronmonRulesetNames.Kaizo })
 
+	-- Remove all spaces and underscores for simplified comparisons
+	local _removeSpacesUnderscores = function(str)
+		str = (str or ""):gsub(" ", "") or ""
+		str = str:gsub("_", "") or ""
+		return str or ""
+	end
+
 	-- First check if an exact ruleset name exists in the settings file of the New Run profile
 	local rulesetKey = nil
 	local profile = QuickloadScreen.getActiveProfile()
 	if profile then
+		local settingsName = FileManager.extractFileNameFromPath(profile.Paths.Settings or "")
+		settingsName = _removeSpacesUnderscores(settingsName)
+		local profileName = _removeSpacesUnderscores(profile.Name or "")
 		for _, ruleset in ipairs(rulesetsOrdered) do
+			local rulesetName = _removeSpacesUnderscores(ruleset.Name or "")
 			-- Check the settings file used (typically the premade Tracker one), then check the profile name itself
-			if Utils.containsText(profile.Paths.Settings or "", ruleset.Name, true) then
+			if Utils.containsText(settingsName, rulesetName, true) then
 				rulesetKey = ruleset.Key
 				break
-			elseif Utils.containsText(profile.Name or "", ruleset.Name, true) then
+			elseif Utils.containsText(profileName, rulesetName, true) then
 				rulesetKey = ruleset.Key
 				break
 			end
@@ -788,8 +799,12 @@ function GachaMonData.checkForNatDexRequirement()
 		return
 	end
 
-	-- Check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+	if not natdexExt then
+		return
+	end
+
+	-- Check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
 		-- Check if it's a Nat. Dex. Pokémon
 		if gachamon.PokemonId >= 412 then
@@ -797,7 +812,7 @@ function GachaMonData.checkForNatDexRequirement()
 			break
 		end
 	end
-	if not GachaMonData.requiresNatDex or not natdexExt then
+	if not GachaMonData.requiresNatDex then
 		return
 	end
 
