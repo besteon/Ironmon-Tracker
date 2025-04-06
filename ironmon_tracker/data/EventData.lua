@@ -1291,6 +1291,11 @@ end
 ---@param params string?
 ---@return string response
 function EventData.getGachamon(params)
+	if TrackerScreen.Animations.GachaMonPackOpening ~= nil then
+		local defaultResponse = buildDefaultResponse(params)
+		return string.format("%s | Please wait until the GachaMon card pack is opened.", defaultResponse)
+	end
+
 	local gachamon ---@type IGachaMon|nil
 	if not Utils.isNilOrEmpty(params, true) then
 		local id = DataHelper.findPokemonId(params)

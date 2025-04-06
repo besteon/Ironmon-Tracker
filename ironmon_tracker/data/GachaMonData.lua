@@ -39,7 +39,8 @@ TESTING LIST
 
 --[[
 TODO LIST
-- [UI] Add instruction on card pack to "Press R or click" (after a short delay, like pokemon pocket)
+- [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
+- [UI] log file view mon, show stars if tracker notes know its last-level-seen
 - [GachaDex] Show collection completion status somehow. The PokeDex!
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
@@ -47,6 +48,9 @@ TODO LIST
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - 1000 vs 4000 is a 4:1 odds
+   - Don't allow battling self (check for match)
+   - When importing a code, find some what to checksum to confirm the data is correct number of bytes
+- [Stream Connect] Add a !gachadex command to display stats about the users collection and dex completion
 - [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
 
 TODO LATER:
