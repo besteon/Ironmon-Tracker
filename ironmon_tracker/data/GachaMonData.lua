@@ -27,7 +27,7 @@ GachaMonData = {
 	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
 	requiresNatDex = false,
 	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
-	ruleset = Constants.IronmonRulesets.Standard,
+	rulesetKey = "Standard",
 	-- If the ruleset was automatically determined from the New Run profile settings (mostly used for a UI label in options tab)
 	rulesetAutoDetected = false,
 }
@@ -68,7 +68,7 @@ function GachaMonData.initialize()
 	GachaMonData.clearNewestMonToShow()
 
 	-- Note: the active New Run profile will override this if set to AutoDetect
-	GachaMonData.ruleset = Options["GachaMon Ratings Ruleset"]
+	GachaMonData.rulesetKey = Options["GachaMon Ratings Ruleset"]
 	GachaMonData.rulesetAutoDetected = false
 
 	-- Import universally useful data
@@ -201,14 +201,13 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
 
 	if not DEBUG_SUPPRESS_MSGS then
-		Utils.printDebug("--- %s'S RATING | RULESET: %s ---",
-			Utils.toUpperUTF8(pokemonInternal and pokemonInternal.name or "N/A"),
-			Utils.toUpperUTF8(GachaMonData.ruleset or "N/A")
-		)
+		local pokemonName = pokemonInternal and pokemonInternal.name or "N/A"
+		local rulesetName = Constants.IronmonRulesetNames[GachaMonData.rulesetKey or false] or "N/A"
+		Utils.printDebug("--- %s'S RATING | RULESET: %s ---", Utils.toUpperUTF8(pokemonName), Utils.toUpperUTF8(rulesetName))
 	end
 
 	-- RULESET
-	local RulesetChanges = RS.Rulesets[GachaMonData.ruleset] or RS.Rulesets[Constants.IronmonRulesets.Standard]
+	local RulesetChanges = RS.Rulesets[GachaMonData.rulesetKey or false] or RS.Rulesets["Standard"]
 
 	-- ABILITY
 	local abilityRating = RS.Abilities[gachamon.AbilityId or 0] or 0
@@ -573,44 +572,44 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 end
 
 ---Automatically tries to determine the IronMON ruleset being used for the current game and remembers it. Defaults to Kaizo if no proper match
----@return string ruleset A value from Constants.IronmonRulesets
+---@return string rulesetKey A table key for Constants.IronmonRulesets
 function GachaMonData.autoDetermineIronmonRuleset()
 	-- Ordered list for which ruleset text to check for first; e.g. check "super kaizo" before "kaizo"
-	local rulesetNamesOrdered = {
-		Constants.IronmonRulesets.Standard,
-		Constants.IronmonRulesets.Ultimate,
-		Constants.IronmonRulesets.Survival,
-		Constants.IronmonRulesets.SuperKaizo,
-		Constants.IronmonRulesets.Subpar,
+	local rulesetsOrdered = {
+		{ Key = "Standard", Name = Constants.IronmonRulesetNames.Standard },
+		{ Key = "Ultimate", Name = Constants.IronmonRulesetNames.Ultimate },
+		{ Key = "StandSurvivalard", Name = Constants.IronmonRulesetNames.Survival },
+		{ Key = "SuperKaizo", Name = Constants.IronmonRulesetNames.SuperKaizo },
+		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },
 	}
 	if CustomCode.RomHacks.isPlayingNatDex() then
-		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension1)
-		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension2)
-		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension3)
+		table.insert(rulesetsOrdered, { Key = "Ascension1", Name = Constants.IronmonRulesetNames.Subpar })
+		table.insert(rulesetsOrdered, { Key = "Ascension2", Name = Constants.IronmonRulesetNames.Ascension2 })
+		table.insert(rulesetsOrdered, { Key = "Ascension3", Name = Constants.IronmonRulesetNames.Ascension3 })
 	end
 	-- Check generic "Kaizo" ruleset last
-	table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Kaizo)
+	table.insert(rulesetsOrdered, { Key = "Kaizo", Name = Constants.IronmonRulesetNames.Kaizo })
 
 	-- First check if an exact ruleset name exists in the settings file of the New Run profile
-	local ruleset = nil
+	local rulesetKey = nil
 	local profile = QuickloadScreen.getActiveProfile()
 	if profile then
-		for _, rulesetName in ipairs(rulesetNamesOrdered) do
+		for _, ruleset in ipairs(rulesetsOrdered) do
 			-- Check the settings file used (typically the premade Tracker one), then check the profile name itself
-			if Utils.containsText(profile.Paths.Settings or "", rulesetName, true) then
-				ruleset = rulesetName
+			if Utils.containsText(profile.Paths.Settings or "", ruleset.Name, true) then
+				rulesetKey = ruleset.Key
 				break
-			elseif Utils.containsText(profile.Name or "", rulesetName, true) then
-				ruleset = rulesetName
+			elseif Utils.containsText(profile.Name or "", ruleset.Name, true) then
+				rulesetKey = ruleset.Key
 				break
 			end
 		end
 	end
 
-	GachaMonData.ruleset = ruleset or Constants.IronmonRulesets.Standard
+	GachaMonData.rulesetKey = rulesetKey or rulesetsOrdered[1].Key
 	GachaMonData.rulesetAutoDetected = true
 
-	return GachaMonData.ruleset
+	return GachaMonData.rulesetKey
 end
 
 ---For each Pokémon in the player's party, mark their corresponding GachaMon card that a badge has been obtained

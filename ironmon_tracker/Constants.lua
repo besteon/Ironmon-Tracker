@@ -44,7 +44,7 @@ Constants.STAT_STATES = {
 
 ---A table of supported IronMON rulesets for the Tracker. Rulesets details available at https://ironmon.gg
 ---@type table<string, string>
-Constants.IronmonRulesets = {
+Constants.IronmonRulesetNames = {
 	Standard = "Standard",
 	Ultimate = "Ultimate",
 	Kaizo = "Kaizo",
