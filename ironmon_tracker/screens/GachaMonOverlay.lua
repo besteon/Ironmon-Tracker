@@ -929,7 +929,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	},
 	CleanupCollection = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.SPARKLES,
+		image = Constants.PixelImages.NOTEPAD,
 		iconColors = { SCREEN.Colors.text },
 		getText = function(self) return "Cleanup Collection" end,
 		box = { CANVAS.X + 135, CANVAS.Y + 122, 96, 16, },

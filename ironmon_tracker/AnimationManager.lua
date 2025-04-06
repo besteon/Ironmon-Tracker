@@ -152,6 +152,9 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 			Y = y + cardpackH + 7,
 			ShouldLoop = true,
 			KeyFrames = {},
+			IsVisible = function(self)
+				return not packAnimation.IsActive and packAnimation:IsVisible()
+			end,
 		})
 		local _onExpireHelpText = function(self)
 			if packAnimation.IsActive or not packAnimation:IsVisible() then
@@ -443,7 +446,7 @@ AnimationManager.IAnimation = {
 		self.IsActive = false
 	end,
 	stepFrame = function(self)
-		if not self.IsActive or not self:IsVisible() then
+		if not self.IsActive then
 			return
 		end
 		-- Sync with client frame rate (turbo/unthrottle)
