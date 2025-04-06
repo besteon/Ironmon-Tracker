@@ -799,8 +799,12 @@ function GachaMonData.checkForNatDexRequirement()
 		return
 	end
 
-	-- Check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+	if not natdexExt then
+		return
+	end
+
+	-- Check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
 		-- Check if it's a Nat. Dex. Pokémon
 		if gachamon.PokemonId >= 412 then
@@ -808,7 +812,7 @@ function GachaMonData.checkForNatDexRequirement()
 			break
 		end
 	end
-	if not GachaMonData.requiresNatDex or not natdexExt then
+	if not GachaMonData.requiresNatDex then
 		return
 	end
 
