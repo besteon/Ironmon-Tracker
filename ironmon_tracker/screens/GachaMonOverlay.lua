@@ -879,12 +879,12 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		getText = function(self)
-			local rulesetKey = GachaMonData.ruleset or Options["GachaMon Ratings Ruleset"] or false
-			local ruleset = Constants.IronmonRulesets[rulesetKey]
-			if ruleset and GachaMonData.rulesetAutoDetected then
-				return string.format("%s (%s)", ruleset, "Auto")
+			local rulesetKey = GachaMonData.rulesetKey or Options["GachaMon Ratings Ruleset"] or false
+			local rulesetName = Constants.IronmonRulesetNames[rulesetKey]
+			if rulesetName and GachaMonData.rulesetAutoDetected then
+				return string.format("%s (%s)", rulesetName, "Auto")
 			else
-				return ruleset or Constants.IronmonRulesets.Standard
+				return rulesetName or Constants.IronmonRulesetNames.Standard
 			end
 		end,
 		box = { CANVAS.X + 131, CANVAS.Y + 5, 100, 16, },
@@ -1338,23 +1338,23 @@ function GachaMonOverlay.openEditRulesetWindow()
 	local iY = 15
 
 	local rulesetNamesOrdered = {
-		Constants.IronmonRulesets.Standard,
-		Constants.IronmonRulesets.Ultimate,
-		Constants.IronmonRulesets.Kaizo,
-		Constants.IronmonRulesets.Survival,
-		Constants.IronmonRulesets.SuperKaizo,
-		Constants.IronmonRulesets.Subpar,
+		Constants.IronmonRulesetNames.Standard,
+		Constants.IronmonRulesetNames.Ultimate,
+		Constants.IronmonRulesetNames.Kaizo,
+		Constants.IronmonRulesetNames.Survival,
+		Constants.IronmonRulesetNames.SuperKaizo,
+		Constants.IronmonRulesetNames.Subpar,
 	}
 	if CustomCode.RomHacks.isPlayingNatDex() then
-		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension1)
-		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension2)
-		table.insert(rulesetNamesOrdered, Constants.IronmonRulesets.Ascension3)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesetNames.Ascension1)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesetNames.Ascension2)
+		table.insert(rulesetNamesOrdered, Constants.IronmonRulesetNames.Ascension3)
 	end
 
 	local _refreshAutoDetect = function()
 		local isChecked = form.Controls.checkboxAutoDetect and ExternalUI.BizForms.isChecked(form.Controls.checkboxAutoDetect) or false
-		if form.Controls.dropdownRuleset then
-			ExternalUI.BizForms.setProperty(form.Controls.dropdownRuleset, ExternalUI.BizForms.Properties.ENABLED, isChecked == false)
+		if form.Controls.dropdownRulesetNames then
+			ExternalUI.BizForms.setProperty(form.Controls.dropdownRulesetNames, ExternalUI.BizForms.Properties.ENABLED, isChecked == false)
 		end
 	end
 
@@ -1364,11 +1364,11 @@ function GachaMonOverlay.openEditRulesetWindow()
 	form.Controls.checkboxAutoDetect = form:createCheckbox("Auto-detect ruleset from New Run profile settings", x + 16, iY, _refreshAutoDetect, startChecked)
 	iY = iY + 25
 	form:createLabel("Ruleset options:", x + 14, iY + 3)
-	local selectedRuleset = Options["GachaMon Ratings Ruleset"]
-	if not selectedRuleset or selectedRuleset == "AutoDetect" then
-		selectedRuleset = rulesetNamesOrdered[1]
+	local startingRulesetName = Constants.IronmonRulesetNames[Options["GachaMon Ratings Ruleset"] or false]
+	if not startingRulesetName or startingRulesetName == "AutoDetect" then
+		startingRulesetName = rulesetNamesOrdered[1]
 	end
-	form.Controls.dropdownRuleset = form:createDropdown(rulesetNamesOrdered, x + 116, iY, 150, 30, selectedRuleset or "", false)
+	form.Controls.dropdownRulesetNames = form:createDropdown(rulesetNamesOrdered, x + 116, iY, 150, 30, startingRulesetName or "", false)
 	_refreshAutoDetect()
 	iY = iY + 35
 
@@ -1378,18 +1378,18 @@ function GachaMonOverlay.openEditRulesetWindow()
 			Options["GachaMon Ratings Ruleset"] = "AutoDetect"
 			GachaMonData.autoDetermineIronmonRuleset()
 		else
-			local rulesetSelected = ExternalUI.BizForms.getText(form.Controls.dropdownRuleset)
+			local selectedRulesetName = ExternalUI.BizForms.getText(form.Controls.dropdownRulesetNames)
 			local rulesetKey = nil
 			-- Search for a matching ruleset key based on dropdown selection
-			for key, value in pairs(Constants.IronmonRulesets or {}) do
-				if value == rulesetSelected then
+			for key, name in pairs(Constants.IronmonRulesetNames or {}) do
+				if name == selectedRulesetName then
 					rulesetKey = key
 					break
 				end
 			end
 			if not Utils.isNilOrEmpty(rulesetKey) then
 				Options["GachaMon Ratings Ruleset"] = rulesetKey
-				GachaMonData.ruleset = rulesetKey
+				GachaMonData.rulesetKey = rulesetKey
 			end
 		end
 		Main.SaveSettings(true)
