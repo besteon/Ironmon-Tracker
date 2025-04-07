@@ -721,7 +721,7 @@ ScreenResources{
 		TabGachaDex = "Dex",
 		TabBattle = "Battle",
 		TabOptions = "Options",
-		TabAbout = "(?)",
+		TabAbout = "?",
 		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
 		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
 		OptionAnimateGachaMonPackOpening = "Animate card pack opening",

@@ -792,9 +792,34 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 GachaMonOverlay.Tabs.GachaDex.Buttons = {
 	-- Several Mini-GachaMon Buttons added during buildData()
 
+	ToggleSeenIcons = {
+		image = Constants.PixelImages.POKEBALL,
+		box = { CANVAS.X + 217, CANVAS.Y + 4, 14, 14, },
+		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
+		onClick = function(self)
+			if SCREEN.Data.GachaDex.ShowAllSeenIcons then
+				SCREEN.Data.GachaDex.ShowAllSeenIcons = nil
+			else
+				SCREEN.Data.GachaDex.ShowAllSeenIcons = true
+				SCREEN.Data.GachaDex.TempShowPokemon = nil
+			end
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			gui.drawRectangle(x, y, w + 1, h + 1, border)
+			x = x + 2
+			y = y + 2
+			local iconColors = TrackerScreen.PokeBalls.ColorList
+			if SCREEN.Data.GachaDex.ShowAllSeenIcons then
+				iconColors = { Theme.COLORS[SCREEN.Colors.text] }
+			end
+			Drawing.drawImageAsPixels(self.image, x, y, iconColors, shadowcolor)
+		end
+	},
 	LabelPercentage = {
-		image = Constants.PixelImages.GACHAMON_CARD,
-		box = { CANVAS.X + 213, CANVAS.Y + 5, 22, 12, },
+		box = { CANVAS.X + 213, CANVAS.Y + 21, 22, 12, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -809,10 +834,9 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 			Drawing.drawText(x + percentageX, y, percText, color, shadowcolor)
 		end
 	},
-
 	LabelCollectionTotals = {
 		getText = function(self) return string.format("%s", "Coll.") end,
-		box = { CANVAS.X + 214, CANVAS.Y + 21, 22, 16, },
+		box = { CANVAS.X + 214, CANVAS.Y + 36, 22, 16, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -823,22 +847,22 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 				color = Theme.COLORS[SCREEN.Colors.positive]
 			end
 			local numCollectedX = -2 + Utils.getCenteredTextX(tostring(numCollected), w)
-			Drawing.drawText(x + numCollectedX, y + 11, numCollected, color, shadowcolor)
-			gui.drawLine(x + 3, y + 22, x + 18, y + 22, color)
+			Drawing.drawText(x + numCollectedX, y + 10, numCollected, color, shadowcolor)
+			gui.drawLine(x + 3, y + 21, x + 18, y + 21, color)
 			local totalX = -2 + Utils.getCenteredTextX(tostring(total), w)
-			Drawing.drawText(x + totalX, y + 22, total, color, shadowcolor)
+			Drawing.drawText(x + totalX, y + 21, total, color, shadowcolor)
 		end,
 	},
 	LabelSeen = {
 		getText = function(self) return string.format("%s", "Seen") end,
-		box = { CANVAS.X + 212, CANVAS.Y + 67, 22, 16, },
+		box = { CANVAS.X + 212, CANVAS.Y + 68, 22, 16, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local seen = SCREEN.Data.GachaDex.NumSeen or 0
 			local seenX = 0 + Utils.getCenteredTextX(tostring(seen), w)
-			Drawing.drawText(x + seenX, y + 11, seen, color, shadowcolor)
+			Drawing.drawText(x + seenX, y + 10, seen, color, shadowcolor)
 		end,
 	},
 
@@ -1267,29 +1291,6 @@ function GachaMonOverlay.createTabsAndButtons()
 			slotNumber = i,
 			box = { CANVAS.X + 2 + xOffset, CANVAS.Y + 2 + yOffset, W, H, },
 			isVisible = function(self) return SCREEN.getMonForGachaDexScreenSlot(self.slotNumber) ~= nil end,
-			draw = function(self, shadowcolor)
-				local dexData = SCREEN.getMonForGachaDexScreenSlot(self.slotNumber)
-				if not dexData then return end
-				local x, y = self.box[1], self.box[2]
-				local isSelected = SCREEN.Data.GachaDex.TempShowPokemon and SCREEN.Data.GachaDex.TempShowPokemon == dexData.pokemonID
-
-				local hasSeen = dexData.seen or isSelected
-				GachaMonOverlay.drawMiniGachaCard(dexData.pokemonID, x, y, dexData.type1, dexData.type2, hasSeen, dexData.collected)
-
-				-- If not collected or seen (no image), draw the Pokémon species number
-				if not (hasSeen or dexData.collected) then
-					local idText = tostring(dexData.pokemonID or Constants.HIDDEN_INFO)
-					local idTextW = -3 + Utils.getCenteredTextX(idText, W)
-					Drawing.drawText(x + idTextW, y + 11, idText, Drawing.Colors.WHITE, nil, 11)
-				end
-
-				if isSelected then
-					local bg = Drawing.Colors.BLACK
-					local border = Drawing.Colors.WHITE
-					gui.drawRectangle(x + 24, y, 9, 9, bg, bg)
-					Drawing.drawSelectionIndicators(x + 1, y + 1, W - 3, H - 3, border, 1, 6, 0)
-				end
-			end,
 			onClick = function(self)
 				local dexData = SCREEN.getMonForGachaDexScreenSlot(self.slotNumber)
 				if not dexData then return end
@@ -1303,7 +1304,7 @@ function GachaMonOverlay.createTabsAndButtons()
 					SCREEN.refreshButtons()
 					Program.redraw(true)
 				elseif PokemonData.isValid(dexData.pokemonID) then
-					if dexData.seen or dexData.collected then
+					if dexData.seen or dexData.collected or SCREEN.Data.GachaDex.ShowAllSeenIcons then
 						SCREEN.Data.GachaDex.TempShowPokemon = nil
 					else
 						local isSelected = SCREEN.Data.GachaDex.TempShowPokemon and SCREEN.Data.GachaDex.TempShowPokemon == dexData.pokemonID
@@ -1314,6 +1315,29 @@ function GachaMonOverlay.createTabsAndButtons()
 						end
 					end
 					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, dexData.pokemonID)
+				end
+			end,
+			draw = function(self, shadowcolor)
+				local dexData = SCREEN.getMonForGachaDexScreenSlot(self.slotNumber)
+				if not dexData then return end
+				local x, y = self.box[1], self.box[2]
+				local isSelected = SCREEN.Data.GachaDex.TempShowPokemon and SCREEN.Data.GachaDex.TempShowPokemon == dexData.pokemonID
+
+				local canSee = dexData.seen or isSelected or SCREEN.Data.GachaDex.ShowAllSeenIcons
+				GachaMonOverlay.drawMiniGachaCard(dexData.pokemonID, x, y, dexData.type1, dexData.type2, canSee, dexData.collected)
+
+				-- If not collected or seen (no image), draw the Pokémon species number
+				if not SCREEN.Data.GachaDex.ShowAllSeenIcons and not (canSee or dexData.collected) then
+					local idText = tostring(dexData.pokemonID or Constants.HIDDEN_INFO)
+					local idTextW = -3 + Utils.getCenteredTextX(idText, W)
+					Drawing.drawText(x + idTextW, y + 11, idText, Drawing.Colors.WHITE, nil, 11)
+				end
+
+				if isSelected then
+					local bg = Drawing.Colors.BLACK
+					local border = Drawing.Colors.WHITE
+					gui.drawRectangle(x + 24, y, 9, 9, bg, bg)
+					Drawing.drawSelectionIndicators(x + 1, y + 1, W - 3, H - 3, border, 1, 6, 0)
 				end
 			end,
 		}
@@ -1471,6 +1495,25 @@ function GachaMonOverlay.buildGachaDexData()
 		local index = gachamon.PokemonId > 276 and gachamon.PokemonId - 25 or gachamon.PokemonId
 		local dexData = SCREEN.Data.GachaDex.OrderedDexMons[index]
 		if dexData then
+			if not dexData.collected then
+				dexData.collected = true
+				SCREEN.Data.GachaDex.NumCollected = SCREEN.Data.GachaDex.NumCollected + 1
+			end
+			if not dexData.seen then
+				dexData.seen = true
+				SCREEN.Data.GachaDex.NumSeen = SCREEN.Data.GachaDex.NumSeen + 1
+				if not GachaMonData.SeenMons[gachamon.PokemonId] then
+					GachaMonData.SeenMons[gachamon.PokemonId] = true
+					newSeenMonsFound = true
+				end
+			end
+		end
+	end
+	-- Check through Recent Mons for those flagged to be added to collection
+	for _, gachamon in pairs(GachaMonData.RecentMons or {}) do
+		local index = gachamon.PokemonId > 276 and gachamon.PokemonId - 25 or gachamon.PokemonId
+		local dexData = SCREEN.Data.GachaDex.OrderedDexMons[index]
+		if dexData and gachamon:getKeep() == 1 then
 			if not dexData.collected then
 				dexData.collected = true
 				SCREEN.Data.GachaDex.NumCollected = SCREEN.Data.GachaDex.NumCollected + 1
@@ -1904,12 +1947,14 @@ function GachaMonOverlay.drawMiniGachaCard(pokemonID, x, y, type1, type2, seen, 
 		local pX, pY = x + 1, y + 1
 		local pW, pH = 32, 32
 		local pokemonImageId = pokemonID
+		local imagePath = Drawing.getImagePath("GachaDexPokemonIcon", tostring(pokemonImageId))
 		-- If not a valid image id and also not a nat dex id, use question mark image
-		if not PokemonData.isImageIDValid(pokemonImageId) and not (GachaMonData.requiresNatDex and (pokemonID or 0) >= 412) then
+		if GachaMonData.requiresNatDex and (pokemonID or 0) >= 412 then
+			imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonImageId))
+		elseif not PokemonData.isImageIDValid(pokemonImageId) then
 			-- Question mark icon
 			pokemonImageId = 252
 		end
-		local imagePath = Drawing.getImagePath("GachaDexPokemonIcon", tostring(pokemonImageId))
 		if imagePath then
 			Drawing.drawImage(imagePath, pX, pY, pW, pH)
 		end
@@ -1993,6 +2038,8 @@ function GachaMonOverlay.close()
 	-- If the game hasn't started yet
 	if not Program.isValidMapLocation() then
 		Program.currentScreen = StartupScreen
+	elseif Program.currentScreen == InfoScreen then
+		Program.currentScreen = TrackerScreen
 	end
 end
 
@@ -2032,12 +2079,19 @@ function SCREEN.drawScreen()
 	-- Draw surrounding border box
 	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
-	if SCREEN.currentTab == SCREEN.Tabs.Recent or SCREEN.currentTab == SCREEN.Tabs.Collection or SCREEN.currentTab == SCREEN.Tabs.GachaDex then
+	if SCREEN.currentTab == SCREEN.Tabs.Recent or SCREEN.currentTab == SCREEN.Tabs.Collection then
 		-- Draw solid black background for all the cards to be layed out on to
 		gui.drawRectangle(canvas.x + 1, canvas.y + 1, 210, 141, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
 		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
 		gui.drawLine(canvas.x + 213, canvas.y + 20, canvas.x + canvas.width - 1, canvas.y + 20, canvas.border)
 		gui.drawLine(canvas.x + 213, canvas.y + 90, canvas.x + canvas.width - 1, canvas.y + 90, canvas.border)
+	elseif SCREEN.currentTab == SCREEN.Tabs.GachaDex then
+		-- Draw solid black background for all the cards to be layed out on to
+		gui.drawRectangle(canvas.x + 1, canvas.y + 1, 210, 141, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
+		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
+		gui.drawLine(canvas.x + 213, canvas.y + 35, canvas.x + canvas.width - 1, canvas.y + 35, canvas.border)
+		gui.drawLine(canvas.x + 213, canvas.y + 90, canvas.x + canvas.width - 1, canvas.y + 90, canvas.border)
+
 	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
 		-- Draw battleground background
 		gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
