@@ -814,7 +814,7 @@ end
 ---In some cases, the player's collection might contain Pokémon from a Nat. Dex. game,
 ---but the current ROM/Tracker settigns wouldn't otherwise be able to display them.
 function GachaMonData.checkForNatDexRequirement()
-	if not GachaMonData.initialCollectionLoaded or CustomCode.RomHacks.isPlayingNatDex() then
+	if not GachaMonData.initialCollectionLoaded then
 		return
 	end
 
@@ -823,7 +823,13 @@ function GachaMonData.checkForNatDexRequirement()
 		return
 	end
 
-	-- Check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
+	-- If Nat. Dex is being used, then use its required files when necessary for GachaMon
+	if CustomCode.RomHacks.isPlayingNatDex() then
+		GachaMonData.requiresNatDex = true
+		return
+	end
+
+	-- Otherwise, check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
 		-- Check if it's a Nat. Dex. Pokémon
 		if gachamon.PokemonId >= 412 then
