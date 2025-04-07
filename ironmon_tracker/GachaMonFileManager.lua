@@ -328,12 +328,14 @@ function GachaMonFileManager.saveSeenMonsToFile(filepathOverride)
 		return false
 	end
 
-	local seenMonsList = {}
+	local data = {
+		Seen = {}
+	}
 	for id, _ in pairs(GachaMonData.SeenMons or {}) do
-		table.insert(seenMonsList, id)
+		table.insert(data.Seen, id)
 	end
-	table.sort(seenMonsList, function(a, b) return a < b end)
-	local success = FileManager.encodeToJsonFile(filepath, seenMonsList)
+	table.sort(data.Seen, function(a, b) return a < b end)
+	local success = FileManager.encodeToJsonFile(filepath, data)
 
 	return success == true
 end
