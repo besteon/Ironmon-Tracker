@@ -11,6 +11,7 @@ Input = {
 }
 
 Input.NO_KEY_MAPPING = "NOTBOUND"
+Input.MOUSE_SCROLL_THRESHOLD = 100
 
 Input.OrderedControllerInputs = { "A", "B",  "Select",  "Start",  "Right",  "Left",  "Up",  "Down",  "R",  "L" }
 
@@ -94,6 +95,10 @@ function Input.checkForInput()
 				local xmouse = mouseInput["X"]
 				local ymouse = mouseInput["Y"] + Constants.SCREEN.UP_GAP
 				Input.checkMouseInput(xmouse, ymouse)
+			end
+			local wheelChange = (mouseInput["Wheel"] or 0) - (Input.prevMouseInput["Wheel"] or 0)
+			if mouseInput["Wheel"] and wheelChange ~= 0 then
+				Input.checkMouseWheel(wheelChange)
 			end
 			Input.prevMouseInput = mouseInput
 		end
@@ -356,6 +361,16 @@ function Input.checkMouseInput(xmouse, ymouse)
 
 	if Program.currentOverlay and type(Program.currentOverlay.checkInput) == "function" then
 		Program.currentOverlay.checkInput(xmouse, ymouse)
+	end
+end
+
+function Input.checkMouseWheel(wheelChange)
+	if Program.currentScreen and type(Program.currentScreen.checkWheelInput) == "function" then
+		Program.currentScreen.checkWheelInput(wheelChange)
+	end
+
+	if Program.currentOverlay and type(Program.currentOverlay.checkWheelInput) == "function" then
+		Program.currentOverlay.checkWheelInput(wheelChange)
 	end
 end
 

@@ -20,6 +20,10 @@ function GachaMonFileManager.getRatingSystemFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
 end
 ---@return string filepath
+function GachaMonFileManager.getSeenMonsFilePath()
+	return FileManager.prependDir(FileManager.Files.GACHAMON_SEEN_MONS)
+end
+---@return string filepath
 function GachaMonFileManager.getRecentMonsFilePath()
 	local profile = QuickloadScreen.getActiveProfile()
 	if not profile then
@@ -151,6 +155,31 @@ function GachaMonFileManager.importRatingSystem(filepath)
 	return true
 end
 
+---Imports all GachaMon Seen data from a JSON file (Dex tracking for which mons were captured but never collected)
+---@param filepath? string Optional, a custom JSON file
+---@return boolean success
+function GachaMonFileManager.importSeenMons(filepath)
+	filepath = filepath or GachaMonFileManager.getSeenMonsFilePath() or ""
+	if not FileManager.fileExists(filepath) then
+		return false
+	end
+
+	local data = FileManager.decodeJsonFile(filepath)
+	if not (data and data.Seen) then
+		return false
+	end
+
+	-- Copy over the imported data to the gachamon ratings system
+	GachaMonData.SeenMons = {}
+	local SM = GachaMonData.SeenMons
+
+	for _, id in ipairs(data.Seen or {}) do
+		SM[id] = true
+	end
+
+	return true
+end
+
 ---Imports any existing Recent GachaMons (when resuming a game session)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 ---@param filepathOverride? string
@@ -171,6 +200,9 @@ function GachaMonFileManager.importRecentMons(forceImportAndUse, filepathOverrid
 		for _, gachamon in ipairs(recentMonsOrdered) do
 			local pidIndex = gachamon.Personality + gachamon.PokemonId
 			GachaMonData.RecentMons[pidIndex] = gachamon
+			if not GachaMonData.SeenMons[gachamon.PokemonId] then
+				GachaMonData.SeenMons[gachamon.PokemonId] = true
+			end
 		end
 		return
 	end
@@ -257,7 +289,7 @@ function GachaMonFileManager.getCollectionFromFile(filepath, startPosition)
 	return collection
 end
 
----Saves an entire GachaMon collection table to a file, stored as a binary stream
+---Saves a game-specific GachaMon collection table (recent mons captured) to a file, stored as a binary stream, prefixed by the romhash of the game
 ---@param filepathOverride? string
 ---@return boolean success
 function GachaMonFileManager.saveRecentMonsToFile(filepathOverride)
@@ -285,6 +317,25 @@ function GachaMonFileManager.saveRecentMonsToFile(filepathOverride)
 	file:close()
 
 	return true
+end
+
+---Saves the Seen Mons info table to a file, stored as JSON
+---@param filepathOverride? string
+---@return boolean success
+function GachaMonFileManager.saveSeenMonsToFile(filepathOverride)
+	local filepath = filepathOverride or GachaMonFileManager.getSeenMonsFilePath()
+	if not filepath then
+		return false
+	end
+
+	local seenMonsList = {}
+	for id, _ in pairs(GachaMonData.SeenMons or {}) do
+		table.insert(seenMonsList, id)
+	end
+	table.sort(seenMonsList, function(a, b) return a < b end)
+	local success = FileManager.encodeToJsonFile(filepath, seenMonsList)
+
+	return success == true
 end
 
 ---Saves an entire GachaMon collection table to a file, stored as a binary stream
