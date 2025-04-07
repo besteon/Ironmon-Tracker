@@ -47,6 +47,7 @@ FileManager.Files = {
 	GACHAMON_COLLECTION = FileManager.Folders.GachaMon .. FileManager.slash .. "FullCollection.gccg",
 	GACHAMON_RECENT_DEFAULT = FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gccg", -- Default filepath if no New Run Profile is in use
 	GACHAMON_RATING_SYSTEM = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonRatingSystem.json",
+	GACHAMON_SEEN_MONS = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonSeenMons.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",

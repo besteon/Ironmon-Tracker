@@ -1,4 +1,5 @@
 GachaMonData = {
+	MIN_BATTLE_POWER = 1000,
 	MAX_BATTLE_POWER = 15000,
 	SHINY_ODDS = 0.004695, -- 1 in 213 odds. (Pokémon Go and Pokémon Sleep use ~1/500)
 	TRAINERS_TO_DEFEAT = 2, -- The number of trainers a Pokémon needs to defeat to automatically be kept in the player's permanent Collection
@@ -11,6 +12,9 @@ GachaMonData = {
 
 	-- Populated on Tracker startup from the ratings data json file
 	RatingsSystem = {}, ---@type table<string, table>
+
+	-- GachaDex tracking for which mons were captured but never collected (key=pokemonID, value=true if seen)
+	SeenMons = {}, ---@type table<number, boolean>
 
 	-- A one-time initial collection load when the Collection is first viewed
 	initialCollectionLoaded = false,
@@ -34,14 +38,18 @@ GachaMonData = {
 
 --[[
 TESTING LIST
--
+- Play sound while shinies are active in collection
 ]]
 
 --[[
 TODO LIST
+- [Ratings] for sand stream, give +2 points if match type, or -2 points if bad for typing
+- [UI] Extend mouse scroll to other areas of Tracker screens
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
-- [UI] log file view mon, show stars if tracker notes know its last-level-seen
-- [GachaDex] Show collection completion status somehow. The PokeDex!
+   - Careful, multiple shinies right now may lag game
+- [UI] log file view mon, show stars if tracker notes know its last-level-seen; CLICK on stars to see the card itself
+- [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
+- [GachaDex]
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
    - If dex is complete, color it or something around it "gold" or fancy looking
@@ -77,6 +85,7 @@ function GachaMonData.initialize()
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
+	GachaMonFileManager.importSeenMons()
 	-- Imported later, after New Run profiles and Tracker notes data are loade (for comparing ROM hashes)
 	-- GachaMonFileManager.importRecentGachaMons()
 end
@@ -446,7 +455,13 @@ function GachaMonData.calculateBattlePower(gachamon, DEBUG_SUPPRESS_MSGS)
 		)
 	end
 
-	return math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
+	if power > GachaMonData.MAX_BATTLE_POWER then
+		return GachaMonData.MAX_BATTLE_POWER
+	elseif power < GachaMonData.MIN_BATTLE_POWER then
+		return GachaMonData.MIN_BATTLE_POWER
+	else
+		return math.floor(power)
+	end
 end
 
 ---Calculates the GachaMon's "Stars" based on its rating score
@@ -674,6 +689,10 @@ function GachaMonData.tryAddToRecentMons(pokemon)
 	gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
 	GachaMonData.RecentMons[pidIndex] = gachamon
 	GachaMonFileManager.saveRecentMonsToFile()
+	if not GachaMonData.SeenMons[gachamon.PokemonId] then
+		GachaMonData.SeenMons[gachamon.PokemonId] = true
+		GachaMonFileManager.saveSeenMonsToFile()
+	end
 	GachaMonData.newestRecentMon = gachamon
 	return true
 end

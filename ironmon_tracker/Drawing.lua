@@ -72,6 +72,14 @@ Drawing.ImagePaths = {
 		-- shouldUseOverride = function(self, value) return false end,
 		-- getOverridePath = function(self, value) return "" end,
 	},
+	GachaDexPokemonIcon = {
+		getDefaultPath = function(self, value)
+			local iconset = Options.IconSetMap[3]
+			return FileManager.buildImagePath(iconset.folder, tostring(value), iconset.extension)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
 }
 
 function Drawing.initialize()
