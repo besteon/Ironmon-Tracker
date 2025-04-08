@@ -305,9 +305,17 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 
 	local badWeatherTypes = {}
 	if (gachamon.AbilityId or 0) == AbilityData.Values.DrizzleId then
-		badWeatherTypes[PokemonData.Types.FIRE] = RS.OtherAdjustments.PenaltyAbilityWeakensMove
+		badWeatherTypes[PokemonData.Types.FIRE] = RS.OtherAdjustments.PenaltyWeatherAbilityWeakensMove
 	elseif (gachamon.AbilityId or 0) == AbilityData.Values.DroughtId then
-		badWeatherTypes[PokemonData.Types.WATER] = RS.OtherAdjustments.PenaltyAbilityWeakensMove
+		badWeatherTypes[PokemonData.Types.WATER] = RS.OtherAdjustments.PenaltyWeatherAbilityWeakensMove
+	end
+	local compoundeyesBonus = nil
+	if (gachamon.AbilityId or 0) == AbilityData.Values.CompoundeyesId then
+		compoundeyesBonus = RS.OtherAdjustments.BonusAbilityCompoundeyesHelpsMove
+	end
+	local rockheadBonus = nil
+	if (gachamon.AbilityId or 0) == AbilityData.Values.RockHeadId then
+		rockheadBonus = RS.OtherAdjustments.BonusAbilityRockHeadHelpsMove
 	end
 
 	-- MOVES
@@ -339,6 +347,37 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 				if badWeatherTypes[moveType] then
 					local badWeatherPenalty = badWeatherTypes[moveType] or 1
 					iMoves[i].rating = iMoves[i].rating * badWeatherPenalty
+					if not DEBUG_SUPPRESS_MSGS then
+						local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+						Utils.printDebug("[Penalty] %s weakens move power of %s (points * %s)",
+							ability.name or "Ability",
+							iMoves[i].move.name or "Move",
+							badWeatherPenalty)
+					end
+				end
+			end
+			if compoundeyesBonus and not MoveData.isOHKO(id) then
+				-- Check if accuracy of the move benefits from the ability
+				local acc = tonumber(iMoves[i].move.accuracy or "") or 0
+				if acc > 0 and acc < 100 then
+					iMoves[i].rating = iMoves[i].rating * compoundeyesBonus
+				end
+				if not DEBUG_SUPPRESS_MSGS then
+					local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+					Utils.printDebug("[Bonus] %s improves accuracy of %s (points * %s)",
+						ability.name or "Ability",
+						iMoves[i].move.name or "Move",
+						(RS.OtherAdjustments.BonusAbilityCompoundeyesHelpsMove or 0))
+				end
+			end
+			if rockheadBonus and MoveData.isRecoil(id) then
+				iMoves[i].rating = iMoves[i].rating * rockheadBonus
+				if not DEBUG_SUPPRESS_MSGS then
+					local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+					Utils.printDebug("[Bonus] %s negates recoil damage of %s (points * %s)",
+						ability.name or "Ability",
+						iMoves[i].move.name or "Move",
+						(RS.OtherAdjustments.BonusAbilityRockHeadHelpsMove or 0))
 				end
 			end
 			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then

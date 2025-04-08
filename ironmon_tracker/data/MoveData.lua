@@ -250,6 +250,13 @@ MoveData.IsOHKOMove = {
 	["329"] = true, -- Sheer Cold
 }
 
+MoveData.IsRecoilMove = {
+	[ "36"] = true, -- Take Down
+	[ "38"] = true, -- Double-Edge
+	[ "66"] = true, -- Submission
+	["344"] = true, -- Volt Tackle
+}
+
 function MoveData.initialize()
 	MoveData.knownTotal = nil
 
@@ -406,6 +413,13 @@ end
 ---@return boolean
 function MoveData.isOHKO(moveId)
 	return MoveData.IsOHKOMove[tostring(moveId)] ~= nil
+end
+
+---Returns true if the move causes recoil damage (i.e. Take Down); does NOT include Struggle (id=165)
+---@param moveId number|string
+---@return boolean
+function MoveData.isRecoil(moveId)
+	return MoveData.IsRecoilMove[tostring(moveId)] ~= nil
 end
 
 ---Returns the move category of the move, such as Physical, Special, or Status; returns None if move not found
