@@ -365,12 +365,46 @@ function Input.checkMouseInput(xmouse, ymouse)
 end
 
 function Input.checkMouseWheel(wheelChange)
-	if Program.currentScreen and type(Program.currentScreen.checkWheelInput) == "function" then
-		Program.currentScreen.checkWheelInput(wheelChange)
+	-- Overlay
+	if Program.isScreenOverlayOpen() then
+		-- Use any check wheel function first
+		if type(Program.currentOverlay.checkWheelInput) == "function" then
+			Program.currentOverlay.checkWheelInput(wheelChange)
+			return
+		-- Otherwise default to checking if there is a pager to use
+		else
+			local pager = _getPager(Program.currentOverlay)
+			if pager and type(pager.prevPage) == "function" then
+				if type(pager.nextPage) == "function" and wheelChange <= -Input.MOUSE_SCROLL_THRESHOLD then
+					pager:nextPage()
+					return
+				elseif type(pager.prevPage) == "function" and wheelChange > Input.MOUSE_SCROLL_THRESHOLD then
+					pager:prevPage()
+					return
+				end
+			end
+		end
 	end
 
-	if Program.currentOverlay and type(Program.currentOverlay.checkWheelInput) == "function" then
-		Program.currentOverlay.checkWheelInput(wheelChange)
+	-- Primary Tracker Screen
+	if Program.currentScreen then
+		-- Use any check wheel function first
+		if type(Program.currentScreen.checkWheelInput) == "function" then
+			Program.currentScreen.checkWheelInput(wheelChange)
+			return
+		-- Otherwise default to checking if there is a pager to use
+		else
+			local pager = _getPager(Program.currentScreen)
+			if pager and type(pager.prevPage) == "function" then
+				if type(pager.nextPage) == "function" and wheelChange <= -Input.MOUSE_SCROLL_THRESHOLD then
+					pager:nextPage()
+					return
+				elseif type(pager.prevPage) == "function" and wheelChange > Input.MOUSE_SCROLL_THRESHOLD then
+					pager:prevPage()
+					return
+				end
+			end
+		end
 	end
 end
 

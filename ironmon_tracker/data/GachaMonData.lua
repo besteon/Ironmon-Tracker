@@ -48,7 +48,6 @@ TESTING LIST
 
 --[[
 TODO LIST
-- [UI] Extend mouse scroll to other areas of Tracker screens
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
    - Careful, multiple shinies right now may lag game
 - [UI] log file view mon, show stars if tracker notes know its last-level-seen; CLICK on stars to see the card itself
