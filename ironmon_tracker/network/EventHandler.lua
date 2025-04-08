@@ -601,10 +601,15 @@ EventHandler.DefaultEvents = {
 			Main.SaveSettings(true)
 		end,
 	},
-	CMD_Gachamon = {
+	CMD_GachaMon = {
 		Type = EventHandler.EventTypes.Command,
 		Command = "!gachamon",
-		Fulfill = function(self, request) return EventData.getGachamon(request.SanitizedInput) end,
+		Fulfill = function(self, request) return EventData.getGachaMon(request.SanitizedInput) end,
+	},
+	CMD_GachaDex = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!gachadex",
+		Fulfill = function(self, request) return EventData.getGachaDex(request.SanitizedInput) end,
 	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,

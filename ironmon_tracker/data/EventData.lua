@@ -1290,7 +1290,7 @@ end
 
 ---@param params string?
 ---@return string response
-function EventData.getGachamon(params)
+function EventData.getGachaMon(params)
 	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
 	local info = {}
 
@@ -1353,6 +1353,41 @@ function EventData.getGachamon(params)
 	end
 	local moveList = table.concat(moveNames, ", ")
 	table.insert(info, moveList)
+
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
+function EventData.getGachaDex(params)
+	-- TODO: Might add params to do some other fancy lookups later
+	local prefix = string.format("%s %s", "GachaDex", OUTPUT_CHAR)
+	local info = {}
+
+	-- EXAMPLE OUTPUT
+	-- GachaDex > 56% collection complete | GachaMons in collection: 159/386 | Seen: 221
+
+	local DD = GachaMonData.DexData or {}
+
+	local completionText = string.format("%s%% %s",
+	DD.PercentageComplete or 0,
+		"collection complete"
+	)
+	table.insert(info, completionText)
+
+	local totalDex = PokemonData.getTotal() - 25
+	local inCollectionText = string.format("%s: %s/%s",
+		"GachaMons in collection",
+		DD.NumCollected or 0,
+		totalDex
+	)
+	table.insert(info, inCollectionText)
+
+	local seenText = string.format("%s: %s",
+		"Seen",
+		DD.NumSeen or 0
+	)
+	table.insert(info, seenText)
 
 	return buildResponse(prefix, info)
 end

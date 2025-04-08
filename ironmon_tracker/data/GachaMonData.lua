@@ -18,8 +18,8 @@ GachaMonData = {
 		NumCollected = 0,
 		NumSeen = 0,
 		PercentageComplete = 0,
-		SeenMons = {},
-	}, ---@type table
+		SeenMons = {}, ---@type table<number, boolean>
+	}, ---@type table<string, any>
 
 	-- A one-time initial collection load when the Collection is first viewed
 	initialCollectionLoaded = false,
