@@ -43,11 +43,13 @@ GachaMonData = {
 
 --[[
 TESTING LIST
-- Play sound while shinies are active in collection
+- Sound glitches out sometimes. Test by turning on game sound while shinies are active in Collection
 ]]
 
 --[[
 TODO LIST
+- Add TrackerAPI endpoints for retrieving helpful gachamon data
+- [Ratings] deduct points for water hurting moves
 - [Card] fix evo not showing new card right away
 - [UI] Extend mouse scroll to other areas of Tracker screens
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
@@ -56,7 +58,6 @@ TODO LIST
 - [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
 - [GachaDex]
    - Add a "NEW" flair to mons not in your PokeDex collection.
-   - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)" (store this with SeenMons data)
    - If dex is complete, color it or something around it "gold" or fancy looking
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
@@ -352,7 +353,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	ratingTotal = ratingTotal + movesRating
 
 	-- STATS (OFFENSIVE)
-	local checkPoorOffenseMax = RS.OtherAdjustments.PenaltyPoorOffense or 1
+	local checkPoorOffenseMax = RS.OtherAdjustments.CheckPoorOffenseMax or 1
 	local penaltyNoMoveInCategory = RS.OtherAdjustments.PenaltyNoMoveInCategory or 1
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
