@@ -510,7 +510,7 @@
 	"OtherAdjustments": {
 		"CheckPoorOffenseMin": 50,
 		"PenaltyPoorOffense": -5,
-		"CheckPoorDefenseMin": 40,
+		"CheckPoorDefenseMin": 30,
 		"PenaltyPoorDefense": 0,
 		"PenaltyRepeatedMove": 0.65,
 		"PenaltyNoMoveInCategory": 0.20,
