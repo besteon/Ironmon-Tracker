@@ -1456,6 +1456,7 @@ function GachaMonOverlay.buildGachaDexData()
 		return
 	end
 
+	SCREEN.Data.GachaDex.ShowAllSeenIcons = nil
 	SCREEN.Data.GachaDex.TempShowPokemon = nil
 
 	-- local filterFunc = type(SCREEN.Data.GachaDex.FilterFunc) == "function" and SCREEN.Data.GachaDex.FilterFunc or nil
@@ -1465,7 +1466,7 @@ function GachaMonOverlay.buildGachaDexData()
 	local _createDexData = function(id)
 		local pokemonInternal = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		local pokemonTypes = pokemonInternal.types or {}
-		local hasSeen = GachaMonData.SeenMons[id]
+		local hasSeen = GachaMonData.DexData.SeenMons[id]
 		local dexData = {
 			pokemonID = id,
 			seen = hasSeen,
@@ -1489,7 +1490,6 @@ function GachaMonOverlay.buildGachaDexData()
 		end
 	end
 
-	local newSeenMonsFound = false
 	SCREEN.Data.GachaDex.NumCollected = 0
 	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
 		local index = gachamon.PokemonId > 276 and gachamon.PokemonId - 25 or gachamon.PokemonId
@@ -1502,9 +1502,8 @@ function GachaMonOverlay.buildGachaDexData()
 			if not dexData.seen then
 				dexData.seen = true
 				SCREEN.Data.GachaDex.NumSeen = SCREEN.Data.GachaDex.NumSeen + 1
-				if not GachaMonData.SeenMons[gachamon.PokemonId] then
-					GachaMonData.SeenMons[gachamon.PokemonId] = true
-					newSeenMonsFound = true
+				if not GachaMonData.DexData.SeenMons[gachamon.PokemonId] then
+					GachaMonData.DexData.SeenMons[gachamon.PokemonId] = true
 				end
 			end
 		end
@@ -1521,16 +1520,11 @@ function GachaMonOverlay.buildGachaDexData()
 			if not dexData.seen then
 				dexData.seen = true
 				SCREEN.Data.GachaDex.NumSeen = SCREEN.Data.GachaDex.NumSeen + 1
-				if not GachaMonData.SeenMons[gachamon.PokemonId] then
-					GachaMonData.SeenMons[gachamon.PokemonId] = true
-					newSeenMonsFound = true
+				if not GachaMonData.DexData.SeenMons[gachamon.PokemonId] then
+					GachaMonData.DexData.SeenMons[gachamon.PokemonId] = true
 				end
 			end
 		end
-	end
-
-	if newSeenMonsFound then
-		GachaMonFileManager.saveSeenMonsToFile()
 	end
 
 	-- table.sort(SCREEN.Data.GachaDex.OrderedDexMons, sortFunc)
@@ -1541,6 +1535,12 @@ function GachaMonOverlay.buildGachaDexData()
 		local percentage = math.floor(SCREEN.Data.GachaDex.NumCollected / SCREEN.Data.GachaDex.TotalDex * 100)
 		SCREEN.Data.GachaDex.PercentageComplete = math.min(percentage, 100) -- max
 	end
+
+	-- Update GachaDex info and stats, then save
+	GachaMonData.DexData.NumCollected = SCREEN.Data.GachaDex.NumCollected
+	GachaMonData.DexData.NumSeen = SCREEN.Data.GachaDex.NumSeen
+	GachaMonData.DexData.PercentageComplete = SCREEN.Data.GachaDex.PercentageComplete
+	GachaMonFileManager.saveGachaDexInfoToFile()
 
 	SCREEN.Data.GachaDex.currentPage = 1
 	SCREEN.Data.GachaDex.totalPages = math.ceil(SCREEN.Data.GachaDex.TotalDex / SCREEN.MINIMONS_PER_PAGE)

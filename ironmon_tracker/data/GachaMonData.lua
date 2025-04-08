@@ -13,8 +13,13 @@ GachaMonData = {
 	-- Populated on Tracker startup from the ratings data json file
 	RatingsSystem = {}, ---@type table<string, table>
 
-	-- GachaDex tracking for which mons were captured but never collected (key=pokemonID, value=true if seen)
-	SeenMons = {}, ---@type table<number, boolean>
+	-- GachaDex tracking various stats and info about the collection status and seen mons
+	DexData = {
+		NumCollected = 0,
+		NumSeen = 0,
+		PercentageComplete = 0,
+		SeenMons = {},
+	}, ---@type table
 
 	-- A one-time initial collection load when the Collection is first viewed
 	initialCollectionLoaded = false,
@@ -43,7 +48,7 @@ TESTING LIST
 
 --[[
 TODO LIST
-- [Ratings] for sand stream, give +2 points if match type, or -2 points if bad for typing
+- [Card] fix evo not showing new card right away
 - [UI] Extend mouse scroll to other areas of Tracker screens
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
    - Careful, multiple shinies right now may lag game
@@ -51,7 +56,7 @@ TODO LIST
 - [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
 - [GachaDex]
    - Add a "NEW" flair to mons not in your PokeDex collection.
-   - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)"
+   - Display GachaMon count and GachaDex completion percentage on StartupScreen for new seeds. "GachaMons:   65 (19%)" (store this with SeenMons data)
    - If dex is complete, color it or something around it "gold" or fancy looking
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
@@ -71,6 +76,12 @@ function GachaMonData.initialize()
 	-- Reset data variables
 	GachaMonData.RecentMons = {}
 	GachaMonData.Collection = {}
+	GachaMonData.DexData = {
+		NumCollected = 0,
+		NumSeen = 0,
+		PercentageComplete = 0,
+		SeenMons = {},
+	}
 	GachaMonData.initialCollectionLoaded = false
 	GachaMonData.initialRecentMonsLoaded = false
 	GachaMonData.collectionRequiresSaving = false
@@ -85,7 +96,7 @@ function GachaMonData.initialize()
 
 	-- Import universally useful data
 	GachaMonFileManager.importRatingSystem()
-	GachaMonFileManager.importSeenMons()
+	GachaMonFileManager.importGachaDexInfo()
 	-- Imported later, after New Run profiles and Tracker notes data are loade (for comparing ROM hashes)
 	-- GachaMonFileManager.importRecentGachaMons()
 end
@@ -212,6 +223,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	local ratingTotal = 0
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
+	local pokemonTypes = pokemonInternal.types or {}
 
 	if not DEBUG_SUPPRESS_MSGS then
 		local pokemonName = pokemonInternal and pokemonInternal.name or "N/A"
@@ -266,6 +278,19 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 		local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
 		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%%)", ability.name or "Ability")
 	end
+	-- Check specific abilities generic to all rulesets
+	if (gachamon.AbilityId or 0) == AbilityData.Values.SandStreamId then
+		local safeSandTypes = {
+			[PokemonData.Types.GROUND] = true,
+			[PokemonData.Types.ROCK] = true,
+			[PokemonData.Types.STEEL] = true,
+		}
+		if safeSandTypes[pokemonTypes[1] or false] or safeSandTypes[pokemonTypes[2] or false] then
+			abilityRating = abilityRating + (RS.OtherAdjustments.BonusAbilitySandStreamSafe or 0)
+		else
+			abilityRating = abilityRating + (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0)
+		end
+	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
 	ratingTotal = ratingTotal + abilityRating
 
@@ -295,7 +320,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 					anySpecialDamaingMoves = true
 				end
 			end
-			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonInternal.types) then
+			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
 				iMoves[i].rating = iMoves[i].rating * 1.5
 			end
 		end
@@ -327,38 +352,43 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	ratingTotal = ratingTotal + movesRating
 
 	-- STATS (OFFENSIVE)
+	local checkPoorOffenseMax = RS.OtherAdjustments.PenaltyPoorOffense or 1
 	local penaltyNoMoveInCategory = RS.OtherAdjustments.PenaltyNoMoveInCategory or 1
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
 	local offensiveRating = 0
-	for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
-		if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
-			-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
-			local movePenalty = 1
-			if not anyPhysicalDamagingMoves then
-				movePenalty = penaltyNoMoveInCategory
+	if offensiveAtk < checkPoorOffenseMax and offensiveSpa < checkPoorOffenseMax then
+		offensiveRating = offensiveRating + RS.OtherAdjustments.PenaltyPoorOffense
+	else
+		for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
+			if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
+				-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
+				local movePenalty = 1
+				if not anyPhysicalDamagingMoves then
+					movePenalty = penaltyNoMoveInCategory
+				end
+				offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
+				if not DEBUG_SUPPRESS_MSGS then
+					local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
+					Utils.printDebug("- Offensive rating (ATK): %s %s", ratingPair.Rating * movePenalty, penaltyText)
+				end
+				-- Rating found, exclude from future threshold checks
+				offensiveAtk = 0
 			end
-			offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
-			if not DEBUG_SUPPRESS_MSGS then
-				local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
-				Utils.printDebug("- Offensive rating (ATK): %s %s", ratingPair.Rating * movePenalty, penaltyText)
+			if offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
+				-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
+				local movePenalty = 1
+				if not anySpecialDamaingMoves then
+					movePenalty = penaltyNoMoveInCategory
+				end
+				offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
+				if not DEBUG_SUPPRESS_MSGS then
+					local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
+					Utils.printDebug("- Offensive rating (SPA): %s %s", ratingPair.Rating * movePenalty, penaltyText)
+				end
+				-- Rating found, exclude from future threshold checks
+				offensiveSpa = 0
 			end
-			-- Rating found, exclude from future threshold checks
-			offensiveAtk = 0
-		end
-		if offensiveSpa >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
-			-- Full rating if it has a move that takes advantage of this stat, otherwise apply a penalty
-			local movePenalty = 1
-			if not anySpecialDamaingMoves then
-				movePenalty = penaltyNoMoveInCategory
-			end
-			offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
-			if not DEBUG_SUPPRESS_MSGS then
-				local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
-				Utils.printDebug("- Offensive rating (SPA): %s %s", ratingPair.Rating * movePenalty, penaltyText)
-			end
-			-- Rating found, exclude from future threshold checks
-			offensiveSpa = 0
 		end
 	end
 	offensiveRating = math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
@@ -689,9 +719,10 @@ function GachaMonData.tryAddToRecentMons(pokemon)
 	gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
 	GachaMonData.RecentMons[pidIndex] = gachamon
 	GachaMonFileManager.saveRecentMonsToFile()
-	if not GachaMonData.SeenMons[gachamon.PokemonId] then
-		GachaMonData.SeenMons[gachamon.PokemonId] = true
-		GachaMonFileManager.saveSeenMonsToFile()
+	if not GachaMonData.DexData.SeenMons[gachamon.PokemonId] then
+		GachaMonData.DexData.SeenMons[gachamon.PokemonId] = true
+		GachaMonData.DexData.NumSeen = GachaMonData.DexData.NumSeen + 1
+		GachaMonFileManager.saveGachaDexInfoToFile()
 	end
 	GachaMonData.newestRecentMon = gachamon
 	return true
