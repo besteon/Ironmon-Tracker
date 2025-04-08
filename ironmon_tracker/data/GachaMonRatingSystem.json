@@ -508,9 +508,13 @@
 		"OffensiveStats": 20
 	},
 	"OtherAdjustments": {
+		"CheckPoorOffenseMax": 50,
+		"PenaltyPoorOffense": -5,
 		"PenaltyRepeatedMove": 0.65,
 		"PenaltyNoMoveInCategory": 0.20,
-		"BonusAbilityImprovesWeakness":  1.50
+		"PenaltyAbilitySandStreamUnsafe": -2,
+		"BonusAbilityImprovesWeakness": 1.50,
+		"BonusAbilitySandStreamSafe": 2
 	},
 	"RatingToStars": [
 		{

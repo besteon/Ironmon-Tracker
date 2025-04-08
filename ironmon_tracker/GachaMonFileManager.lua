@@ -20,8 +20,8 @@ function GachaMonFileManager.getRatingSystemFilePath()
 	return FileManager.prependDir(FileManager.Files.GACHAMON_RATING_SYSTEM)
 end
 ---@return string filepath
-function GachaMonFileManager.getSeenMonsFilePath()
-	return FileManager.prependDir(FileManager.Files.GACHAMON_SEEN_MONS)
+function GachaMonFileManager.getGachaDexFilePath()
+	return FileManager.prependDir(FileManager.Files.GACHAMON_DEX)
 end
 ---@return string filepath
 function GachaMonFileManager.getRecentMonsFilePath()
@@ -155,26 +155,30 @@ function GachaMonFileManager.importRatingSystem(filepath)
 	return true
 end
 
----Imports all GachaMon Seen data from a JSON file (Dex tracking for which mons were captured but never collected)
+---Imports all GachaDex data from a JSON file
 ---@param filepath? string Optional, a custom JSON file
 ---@return boolean success
-function GachaMonFileManager.importSeenMons(filepath)
-	filepath = filepath or GachaMonFileManager.getSeenMonsFilePath() or ""
+function GachaMonFileManager.importGachaDexInfo(filepath)
+	filepath = filepath or GachaMonFileManager.getGachaDexFilePath() or ""
 	if not FileManager.fileExists(filepath) then
 		return false
 	end
 
 	local data = FileManager.decodeJsonFile(filepath)
-	if not (data and data.Seen) then
+	if not data then
 		return false
 	end
 
-	-- Copy over the imported data to the gachamon ratings system
-	GachaMonData.SeenMons = {}
-	local SM = GachaMonData.SeenMons
+	GachaMonData.DexData = {}
+	DD = GachaMonData.DexData
 
-	for _, id in ipairs(data.Seen or {}) do
-		SM[id] = true
+	-- Copy over the imported data to the gachadex
+	DD.NumCollected = data.NumCollected or 0
+	DD.NumSeen = data.NumSeen or 0
+	DD.PercentageComplete = data.PercentageComplete or 0
+	DD.SeenMons = {}
+	for _, id in ipairs(data.SeenMons or {}) do
+		DD.SeenMons[id] = true
 	end
 
 	return true
@@ -200,8 +204,9 @@ function GachaMonFileManager.importRecentMons(forceImportAndUse, filepathOverrid
 		for _, gachamon in ipairs(recentMonsOrdered) do
 			local pidIndex = gachamon.Personality + gachamon.PokemonId
 			GachaMonData.RecentMons[pidIndex] = gachamon
-			if not GachaMonData.SeenMons[gachamon.PokemonId] then
-				GachaMonData.SeenMons[gachamon.PokemonId] = true
+			if not GachaMonData.DexData.SeenMons[gachamon.PokemonId] then
+				GachaMonData.DexData.SeenMons[gachamon.PokemonId] = true
+				GachaMonData.DexData.NumSeen = GachaMonData.DexData.NumSeen + 1
 			end
 		end
 		return
@@ -322,19 +327,24 @@ end
 ---Saves the Seen Mons info table to a file, stored as JSON
 ---@param filepathOverride? string
 ---@return boolean success
-function GachaMonFileManager.saveSeenMonsToFile(filepathOverride)
-	local filepath = filepathOverride or GachaMonFileManager.getSeenMonsFilePath()
+function GachaMonFileManager.saveGachaDexInfoToFile(filepathOverride)
+	local filepath = filepathOverride or GachaMonFileManager.getGachaDexFilePath()
 	if not filepath then
 		return false
 	end
 
 	local data = {
-		Seen = {}
+		SeenMons = {}
 	}
-	for id, _ in pairs(GachaMonData.SeenMons or {}) do
-		table.insert(data.Seen, id)
+	data.NumCollected = GachaMonData.DexData.NumCollected or 0
+	data.NumSeen = GachaMonData.DexData.NumSeen or 0
+	data.PercentageComplete = GachaMonData.DexData.PercentageComplete or 0
+	for id, _ in pairs(GachaMonData.DexData.SeenMons or {}) do
+		if type(id) == "number" then
+			table.insert(data.SeenMons, id)
+		end
 	end
-	table.sort(data.Seen, function(a, b) return a < b end)
+	table.sort(data.SeenMons, function(a, b) return a < b end)
 	local success = FileManager.encodeToJsonFile(filepath, data)
 
 	return success == true
