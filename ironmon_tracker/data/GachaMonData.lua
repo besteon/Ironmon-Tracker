@@ -48,9 +48,6 @@ TESTING LIST
 
 --[[
 TODO LIST
-- Add TrackerAPI endpoints for retrieving helpful gachamon data
-- [Ratings] deduct points for water hurting moves
-- [Card] fix evo not showing new card right away
 - [UI] Extend mouse scroll to other areas of Tracker screens
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
    - Careful, multiple shinies right now may lag game
@@ -64,13 +61,14 @@ TODO LIST
    - 1000 vs 4000 is a 4:1 odds
    - Don't allow battling self (check for match)
    - When importing a code, find some what to checksum to confirm the data is correct number of bytes
+- [TrackerAPI] Add endpoints for retrieving helpful gachamon data
 - [Stream Connect] Add a !gachadex command to display stats about the users collection and dex completion
 - [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
 
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
 - [Card] Add Nickname; research how many bytes it takes up
-- [Bug] low-prority; If still viewing a card pack opening and swap to a new mon, no new pack is created for it
+- [Bug] low-prority; If still viewing a card pack opening and swap to a new mon, no new pack is created for it (might be as easy as check if recentMon ~= nil)
 ]]
 
 function GachaMonData.initialize()
@@ -295,6 +293,13 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
 	ratingTotal = ratingTotal + abilityRating
 
+	local badWeatherTypes = {}
+	if (gachamon.AbilityId or 0) == AbilityData.Values.DrizzleId then
+		badWeatherTypes[PokemonData.Types.FIRE] = RS.OtherAdjustments.PenaltyAbilityWeakensMove
+	elseif (gachamon.AbilityId or 0) == AbilityData.Values.DroughtId then
+		badWeatherTypes[PokemonData.Types.WATER] = RS.OtherAdjustments.PenaltyAbilityWeakensMove
+	end
+
 	-- MOVES
 	local anyPhysicalDamagingMoves, anySpecialDamaingMoves = false, false
 	local iMoves = {}
@@ -319,6 +324,11 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 				end
 				if not anySpecialDamaingMoves and iMoves[i].move.category == MoveData.Categories.SPECIAL then
 					anySpecialDamaingMoves = true
+				end
+				local moveType = iMoves[i].move.type or PokemonData.Types.UNKNOWN
+				if badWeatherTypes[moveType] then
+					local badWeatherPenalty = badWeatherTypes[moveType] or 1
+					iMoves[i].rating = iMoves[i].rating * badWeatherPenalty
 				end
 			end
 			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
@@ -353,12 +363,12 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	ratingTotal = ratingTotal + movesRating
 
 	-- STATS (OFFENSIVE)
-	local checkPoorOffenseMax = RS.OtherAdjustments.CheckPoorOffenseMax or 1
+	local checkPoorOffenseMin = RS.OtherAdjustments.CheckPoorOffenseMin or 1
 	local penaltyNoMoveInCategory = RS.OtherAdjustments.PenaltyNoMoveInCategory or 1
 	local offensiveAtk = baseStats.atk or 0
 	local offensiveSpa = baseStats.spa or 0
 	local offensiveRating = 0
-	if offensiveAtk < checkPoorOffenseMax and offensiveSpa < checkPoorOffenseMax then
+	if offensiveAtk < checkPoorOffenseMin and offensiveSpa < checkPoorOffenseMin then
 		offensiveRating = offensiveRating + RS.OtherAdjustments.PenaltyPoorOffense
 	else
 		for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
@@ -394,8 +404,14 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	end
 	offensiveRating = math.min(offensiveRating, RS.CategoryMaximums.OffensiveStats or 999)
 	ratingTotal = ratingTotal + offensiveRating
+
 	-- STATS (DEFENSIVE)
-	local defensiveStats = (baseStats.hp or 0) + (baseStats.def or 0) + (baseStats.spd or 0)
+	local checkPoorDefenseMin = RS.OtherAdjustments.CheckPoorDefenseMin or 1
+	local penaltyPoorDefense = RS.OtherAdjustments.PenaltyPoorDefense or 0
+	local hp = (baseStats.hp or 0) < checkPoorDefenseMin and penaltyPoorDefense or baseStats.hp
+	local def = (baseStats.def or 0) < checkPoorDefenseMin and penaltyPoorDefense or baseStats.def
+	local spd = (baseStats.spd or 0) < checkPoorDefenseMin and penaltyPoorDefense or baseStats.spd
+	local defensiveStats = hp + def + spd
 	local defensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Defensive or {}) do
 		if defensiveStats >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
@@ -405,6 +421,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	end
 	defensiveRating = math.min(defensiveRating, RS.CategoryMaximums.DefensiveStats or 999)
 	ratingTotal = ratingTotal + defensiveRating
+
 	-- STATS (SPEED)
 	local speedStat = (baseStats.spe or 0)
 	local speedRating = 0
