@@ -816,11 +816,7 @@ function Program.updatePokemonTeams()
 	-- If the lead Pokémon changed (new mon viewed), then try to turn it into a GachaMon; only for catches, exclude battles
 	local currentLeadMon = Program.GameData.PlayerTeam[1]
 	if currentLeadMon and not Battle.inActiveBattle() then
-		local diffPersonality = previousLeadMon.personality ~= currentLeadMon.personality
-		local diffSpecies = previousLeadMon.pokemonID ~= currentLeadMon.pokemonID
-		if diffPersonality and diffSpecies then
-			GachaMonData.tryAddToRecentMons(currentLeadMon)
-		end
+		GachaMonData.tryAddToRecentMons(currentLeadMon)
 	end
 end
 

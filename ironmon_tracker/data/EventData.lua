@@ -1291,9 +1291,12 @@ end
 ---@param params string?
 ---@return string response
 function EventData.getGachamon(params)
+	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
+	local info = {}
+
 	if TrackerScreen.Animations.GachaMonPackOpening ~= nil then
-		local defaultResponse = buildDefaultResponse(params)
-		return string.format("%s | Please wait until the GachaMon card pack is opened.", defaultResponse)
+		local msg = "Please wait until the GachaMon card pack is opened."
+		return string.format("%s %s", prefix, msg)
 	end
 
 	local gachamon ---@type IGachaMon|nil
@@ -1319,9 +1322,6 @@ function EventData.getGachamon(params)
 
 	-- EXAMPLE OUTPUT
 	-- GachaMon > Milotic - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
-
-	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
-	local info = {}
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0] or PokemonData.BlankPokemon
 	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility
