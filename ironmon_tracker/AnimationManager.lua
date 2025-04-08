@@ -277,7 +277,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		drawPackBottomPiece(_x, _y)
 	end)
 
-	local numKeyFramesToDropDown = 150
+	local numKeyFramesToDropDown = 111
 	for i = 1, numKeyFramesToDropDown, 1 do
 		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
