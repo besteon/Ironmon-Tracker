@@ -52,6 +52,7 @@ TODO LIST
    - Careful, multiple shinies right now may lag game
 - [UI] log file view mon, show stars if tracker notes know its last-level-seen; CLICK on stars to see the card itself
 - [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
+   - Or find some other way to collect legendaries
 - [GachaDex]
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - If dex is complete, color it or something around it "gold" or fancy looking
@@ -273,8 +274,10 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	end
 	if hasDefensiveAbility then
 		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
-		local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-		Utils.printDebug("[Bonus] %s adds defensive boost (points +50%%)", ability.name or "Ability")
+		if not DEBUG_SUPPRESS_MSGS then
+			local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+			Utils.printDebug("[Bonus] %s adds defensive boost (points +50%%)", ability.name or "Ability")
+		end
 	end
 	-- Check specific abilities generic to all rulesets
 	if (gachamon.AbilityId or 0) == AbilityData.Values.SandStreamId then
@@ -285,8 +288,16 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 		}
 		if safeSandTypes[pokemonTypes[1] or false] or safeSandTypes[pokemonTypes[2] or false] then
 			abilityRating = abilityRating + (RS.OtherAdjustments.BonusAbilitySandStreamSafe or 0)
+			if not DEBUG_SUPPRESS_MSGS then
+				local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+				Utils.printDebug("[Bonus] Safe from %s (points %s)", ability.name or "Ability", (RS.OtherAdjustments.BonusAbilitySandStreamSafe or 0))
+			end
 		else
 			abilityRating = abilityRating + (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0)
+			if not DEBUG_SUPPRESS_MSGS then
+				local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
+				Utils.printDebug("[Penalty] Takes damage from from %s (points %s)", ability.name or "Ability", (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0))
+			end
 		end
 	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
@@ -349,12 +360,12 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 			end
 		end
 		movesRating = movesRating + iMove.rating
-		local extraInfo = string.format("%s%s%s",
-			RulesetChanges.BannedMoves[iMove.id] and "(Banned) " or "",
-			RulesetChanges.AdjustedMoves[iMove.id] and "(Halved) " or "",
-			debugPenalty and "(Penalty: Duplicate) " or ""
-		)
 		if not DEBUG_SUPPRESS_MSGS then
+			local extraInfo = string.format("%s%s%s",
+				RulesetChanges.BannedMoves[iMove.id] and "(Banned) " or "",
+				RulesetChanges.AdjustedMoves[iMove.id] and "(Halved) " or "",
+				debugPenalty and "(Penalty: Duplicate) " or ""
+			)
 			Utils.printDebug("%s. %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
 		end
 	end
@@ -368,7 +379,10 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	local offensiveSpa = baseStats.spa or 0
 	local offensiveRating = 0
 	if offensiveAtk < checkPoorOffenseMin and offensiveSpa < checkPoorOffenseMin then
-		offensiveRating = offensiveRating + RS.OtherAdjustments.PenaltyPoorOffense
+		offensiveRating = offensiveRating + (RS.OtherAdjustments.PenaltyPoorOffense or 0)
+		if not DEBUG_SUPPRESS_MSGS then
+			Utils.printDebug("[Penalty] At least one offensive stat too low (points %s)", RS.OtherAdjustments.PenaltyPoorOffense or 0)
+		end
 	else
 		for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
 			if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
@@ -407,9 +421,27 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	-- STATS (DEFENSIVE)
 	local checkPoorDefenseMin = RS.OtherAdjustments.CheckPoorDefenseMin or 1
 	local penaltyPoorDefense = RS.OtherAdjustments.PenaltyPoorDefense or 0
-	local hp = (baseStats.hp or 0) < checkPoorDefenseMin and penaltyPoorDefense or baseStats.hp
-	local def = (baseStats.def or 0) < checkPoorDefenseMin and penaltyPoorDefense or baseStats.def
-	local spd = (baseStats.spd or 0) < checkPoorDefenseMin and penaltyPoorDefense or baseStats.spd
+	local hp = baseStats.hp or 0
+	if hp < checkPoorDefenseMin then
+		hp = penaltyPoorDefense
+		if not DEBUG_SUPPRESS_MSGS then
+			Utils.printDebug("[Penalty] HP defensive stat too low; treating as %s defense.", RS.OtherAdjustments.PenaltyPoorDefense or 0)
+		end
+	end
+	local def = baseStats.def or 0
+	if def < checkPoorDefenseMin then
+		def = penaltyPoorDefense
+		if not DEBUG_SUPPRESS_MSGS then
+			Utils.printDebug("[Penalty] DEF defensive stat too low; treating as %s defense.", RS.OtherAdjustments.PenaltyPoorDefense or 0)
+		end
+	end
+	local spd = baseStats.spd or 0
+	if spd < checkPoorDefenseMin then
+		spd = penaltyPoorDefense
+		if not DEBUG_SUPPRESS_MSGS then
+			Utils.printDebug("[Penalty] SPD defensive stat too low; treating as %s defense.", RS.OtherAdjustments.PenaltyPoorDefense or 0)
+		end
+	end
 	local defensiveStats = hp + def + spd
 	local defensiveRating = 0
 	for _, ratingPair in ipairs(RS.Stats.Defensive or {}) do

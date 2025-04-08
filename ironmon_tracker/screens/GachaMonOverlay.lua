@@ -793,8 +793,8 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 	-- Several Mini-GachaMon Buttons added during buildData()
 
 	ToggleSeenIcons = {
-		image = Constants.PixelImages.POKEBALL,
-		box = { CANVAS.X + 217, CANVAS.Y + 4, 14, 14, },
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		box = { CANVAS.X + 217, CANVAS.Y + 3, 16, 15, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		onClick = function(self)
 			if SCREEN.Data.GachaDex.ShowAllSeenIcons then
@@ -807,19 +807,56 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			local border = Theme.COLORS[SCREEN.Colors.border]
-			gui.drawRectangle(x, y, w + 1, h + 1, border)
-			x = x + 2
-			y = y + 2
-			local iconColors = TrackerScreen.PokeBalls.ColorList
+			x = x + 3
+			y = y + 3
+			local color = Theme.COLORS[SCREEN.Colors.text]
 			if SCREEN.Data.GachaDex.ShowAllSeenIcons then
-				iconColors = { Theme.COLORS[SCREEN.Colors.text] }
+				color = Theme.COLORS[SCREEN.Colors.positive]
 			end
+			local iconColors = { color, color - Drawing.ColorEffects.DARKEN * 4 }
 			Drawing.drawImageAsPixels(self.image, x, y, iconColors, shadowcolor)
 		end
 	},
+	LabelSeen = {
+		getText = function(self) return string.format("%s", "Seen") end,
+		box = { CANVAS.X + 212, CANVAS.Y + 21, 22, 16, },
+		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local color = Theme.COLORS[SCREEN.Colors.text]
+			local seen = SCREEN.Data.GachaDex.NumSeen or 0
+			local seenX = 0 + Utils.getCenteredTextX(tostring(seen), w)
+			Drawing.drawText(x + seenX, y + 10, seen, color, shadowcolor)
+			-- Draw horizontal dotted lines divider
+			local iX = CANVAS.X + 213
+			y = y + 22
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			for offsetX = 1, w, 2 do
+				gui.drawPixel(iX + offsetX, y, border)
+			end
+		end,
+	},
+	LabelCollectionTotals = {
+		getText = function(self) return string.format("%s", "Coll.") end,
+		box = { CANVAS.X + 214, CANVAS.Y + 45, 21, 16, },
+		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local color = Theme.COLORS[SCREEN.Colors.text]
+			local numCollected = SCREEN.Data.GachaDex.NumCollected or 0
+			local total = SCREEN.Data.GachaDex.TotalDex or 0
+			if numCollected >= total then
+				color = Theme.COLORS[SCREEN.Colors.positive]
+			end
+			local numCollectedX = -2 + Utils.getCenteredTextX(tostring(numCollected), w)
+			Drawing.drawText(x + numCollectedX, y + 10, numCollected, color, shadowcolor)
+			gui.drawLine(x + 3, y + 21, x + 18, y + 21, color)
+			local totalX = -2 + Utils.getCenteredTextX(tostring(total), w)
+			Drawing.drawText(x + totalX, y + 21, total, color, shadowcolor)
+		end,
+	},
 	LabelPercentage = {
-		box = { CANVAS.X + 213, CANVAS.Y + 21, 22, 12, },
+		box = { CANVAS.X + 213, CANVAS.Y + 77, 22, 12, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -834,38 +871,6 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 			Drawing.drawText(x + percentageX, y, percText, color, shadowcolor)
 		end
 	},
-	LabelCollectionTotals = {
-		getText = function(self) return string.format("%s", "Coll.") end,
-		box = { CANVAS.X + 214, CANVAS.Y + 36, 22, 16, },
-		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
-		draw = function(self, shadowcolor)
-			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			local color = Theme.COLORS[SCREEN.Colors.highlight]
-			local numCollected = SCREEN.Data.GachaDex.NumCollected or 0
-			local total = SCREEN.Data.GachaDex.TotalDex or 0
-			if numCollected >= total then
-				color = Theme.COLORS[SCREEN.Colors.positive]
-			end
-			local numCollectedX = -2 + Utils.getCenteredTextX(tostring(numCollected), w)
-			Drawing.drawText(x + numCollectedX, y + 10, numCollected, color, shadowcolor)
-			gui.drawLine(x + 3, y + 21, x + 18, y + 21, color)
-			local totalX = -2 + Utils.getCenteredTextX(tostring(total), w)
-			Drawing.drawText(x + totalX, y + 21, total, color, shadowcolor)
-		end,
-	},
-	LabelSeen = {
-		getText = function(self) return string.format("%s", "Seen") end,
-		box = { CANVAS.X + 212, CANVAS.Y + 68, 22, 16, },
-		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
-		draw = function(self, shadowcolor)
-			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			local color = Theme.COLORS[SCREEN.Colors.text]
-			local seen = SCREEN.Data.GachaDex.NumSeen or 0
-			local seenX = 0 + Utils.getCenteredTextX(tostring(seen), w)
-			Drawing.drawText(x + seenX, y + 10, seen, color, shadowcolor)
-		end,
-	},
-
 
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -2089,7 +2094,7 @@ function SCREEN.drawScreen()
 		-- Draw solid black background for all the cards to be layed out on to
 		gui.drawRectangle(canvas.x + 1, canvas.y + 1, 210, 141, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
 		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
-		gui.drawLine(canvas.x + 213, canvas.y + 35, canvas.x + canvas.width - 1, canvas.y + 35, canvas.border)
+		gui.drawLine(canvas.x + 213, canvas.y + 20, canvas.x + canvas.width - 1, canvas.y + 20, canvas.border)
 		gui.drawLine(canvas.x + 213, canvas.y + 90, canvas.x + canvas.width - 1, canvas.y + 90, canvas.border)
 
 	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
