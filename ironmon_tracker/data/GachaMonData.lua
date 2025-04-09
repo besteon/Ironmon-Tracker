@@ -48,6 +48,7 @@ TESTING LIST
 
 --[[
 TODO LIST
+- [GachaMon obj] Store if the mon beat the game and draw a medal on the card if so (left-half)
 - [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
    - Or find some other way to collect legendaries
 - [GachaDex]
@@ -653,9 +654,12 @@ function GachaMonData.createRandomGachaMon()
 end
 
 ---Transforms the GachaMon data into a shareable base-64 string. Example: AeAANkgYMEQkm38tWQAaAEYBKwE=
----@param gachamon IGachaMon
+---@param gachamon? IGachaMon
 ---@return string b64string
 function GachaMonData.getShareablyCode(gachamon)
+	if not gachamon then
+		return ""
+	end
 	local binaryStream = GachaMonFileManager.monToBinary(gachamon)
 	local b64string = StructEncoder.encodeBase64(binaryStream or "")
 	return b64string
@@ -665,6 +669,9 @@ end
 ---@param b64string string
 ---@return IGachaMon|nil gachamon
 function GachaMonData.transformCodeIntoGachaMon(b64string)
+	if Utils.isNilOrEmpty(b64string) then
+		return nil
+	end
 	local binaryStream = StructEncoder.decodeBase64(b64string)
 	local gachamon = GachaMonFileManager.binaryToMon(binaryStream or "")
 	return gachamon
@@ -785,6 +792,23 @@ function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
 	end
 end
 
+---For each Pokémon in the player's party, mark their corresponding GachaMon card as a game winner
+function GachaMonData.markTeamForGameWin()
+	local anyChanged = false
+	-- Check each Pokémon in the player's party. For the ones with GachaMon cards, update their game win status
+	for i = 1, 6, 1 do
+		local pokemon = TrackerAPI.getPlayerPokemon(i) or {}
+		local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+		if gachamon and gachamon.Temp.GameWinner ~= 1 then
+			gachamon.Temp.GameWinner = 1
+			anyChanged = true
+		end
+	end
+	if anyChanged then
+		GachaMonFileManager.saveRecentMonsToFile()
+	end
+end
+
 ---Only once the Tracker notes are loaded, check for recent GachaMon saved for this exact rom file (rom hash match)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
@@ -845,7 +869,8 @@ end
 ---@param gachamon IGachaMon
 ---@param isFave? boolean
 ---@param isKeep? boolean
-function GachaMonData.updateGachaMonAndSave(gachamon, isFave, isKeep)
+---@param isWinner? boolean
+function GachaMonData.updateGachaMonAndSave(gachamon, isFave, isKeep, isWinner)
 	local monHasChanged = false
 
 	if isFave ~= nil then -- if nil, don't make changes
@@ -854,6 +879,10 @@ function GachaMonData.updateGachaMonAndSave(gachamon, isFave, isKeep)
 	end
 	if isKeep ~= nil then -- if nil, don't make changes
 		local changed = gachamon:setKeep(isKeep and 1 or 0)
+		monHasChanged = monHasChanged or changed
+	end
+	if isWinner ~= nil then -- if nil, don't make changes
+		local changed = gachamon:setGameWinner(isWinner and 1 or 0)
 		monHasChanged = monHasChanged or changed
 	end
 
@@ -1043,6 +1072,7 @@ GachaMonData.IGachaMon = {
 		C.Favorite = self.Favorite or 0
 		C.IsShiny = self:getIsShiny() == 1
 		C.InCollection = self:getKeep() == 1
+		C.IsGameWinner = self.Temp.GameWinner == 1
 		C.PokemonId = self.PokemonId -- Icon
 		C.AbilityId = self.AbilityId -- Rules Text
 		C.StatBars = {}
@@ -1136,6 +1166,18 @@ GachaMonData.IGachaMon = {
 	setKeep = function(self, keepBit)
 		local dataChanged = self:getKeep() ~= keepBit
 		self.C_MoveIdsGameVersionKeep = Utils.getbits(self.C_MoveIdsGameVersionKeep, 0, 39) + Utils.bit_lshift(keepBit, 39)
+		if dataChanged then
+			-- TODO: re-save recent mon collection (this might be working already?)
+			self.Temp.Card = nil -- requires rebuilding
+		end
+		return dataChanged
+	end,
+	---Use `GachaMonData.updateGachaMonAndSave()` to properly make saved changes to GachaMons
+	---@param winnerBit number
+	---@return boolean dataChanged
+	setGameWinner = function(self, winnerBit)
+		local dataChanged = self.Temp.GameWinner ~= winnerBit
+		self.Temp.GameWinner = (winnerBit == 1) and 1 or 0
 		if dataChanged then
 			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding

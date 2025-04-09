@@ -914,7 +914,19 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 }
 
 GachaMonOverlay.Tabs.Battle.Buttons = {
-	PlayerGachaMonCard = {
+	BattlefieldAnim = {
+		index = 1,
+		box = { CANVAS.X + 20, CANVAS.Y + 20, 198, 98, },
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local border = Theme.COLORS[SCREEN.Colors.border]
+			local bg = Theme.COLORS[SCREEN.Colors.boxFill]
+			-- Draw card
+			gui.drawRectangle(x, y, w, h, border, bg)
+		end,
+	},
+	PlayerGachaMonAnim = {
+		index = 2,
 		box = { CANVAS.X + 30, CANVAS.Y + 30, 76, 76, },
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -925,7 +937,8 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 		end,
 	},
 	-- TODO: Allow clicking on to temporarily view the GachaMon (dont allow favorite/saving)
-	OpponentGachaMonCard = {
+	OpponentGachaMonAnim = {
+		index = 3,
 		box = { CANVAS.X + 130, CANVAS.Y + 30, 76, 76, },
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
@@ -936,6 +949,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 		end,
 	},
 	ShareCode = {
+		index = 11,
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.POKEBALL,
 		iconColors = TrackerScreen.PokeBalls.ColorList,
@@ -947,10 +961,11 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 			if not gachamon then
 				return
 			end
-			SCREEN.openShareCodeWindow(gachamon)
+			SCREEN.openShareCodeWindow(SCREEN.Data.Battle.PlayerMon)
 		end,
 	},
 	ChooseFighter = {
+		index = 12,
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.BATTLE_BALLS,
 		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
@@ -968,6 +983,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 		end,
 	},
 	AddOpponent = {
+		index = 13,
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.SWORD_ATTACK,
 		iconColors = { SCREEN.Colors.highlight },
@@ -978,7 +994,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 				SCREEN.Data.Battle.OpponentMon = gachamon
 				Program.redraw(true)
 			end
-			SCREEN.openImportCodeWindow(_callbackFunc)
+			SCREEN.openShareCodeWindow(SCREEN.Data.Battle.PlayerMon, _callbackFunc)
 		end,
 	},
 }
@@ -1150,7 +1166,14 @@ GachaMonOverlay.Tabs.About.Buttons = {
 }
 
 local function _getCurrentTabButtons()
-	return SCREEN.currentTab and SCREEN.currentTab.Buttons or {}
+	if not SCREEN.currentTab or not SCREEN.currentTab.Buttons then
+		return {}
+	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
+		-- Sort Battle buttons because the order drawn matters (battlefield first)
+		return Utils.getSortedList(SCREEN.currentTab.Buttons)
+	else
+		return SCREEN.currentTab.Buttons
+	end
 end
 
 function GachaMonOverlay.initialize()
@@ -1391,7 +1414,7 @@ function GachaMonOverlay.buildData()
 	SCREEN.buildRecentData()
 	SCREEN.buildCollectionData()
 	SCREEN.buildGachaDexData()
-	-- TODO: build battle
+	SCREEN.buildBattleData()
 
 	SCREEN.Data.View.GachaMon = GachaMonData.newestRecentMon
 
@@ -1551,6 +1574,19 @@ function GachaMonOverlay.buildGachaDexData()
 	SCREEN.Data.GachaDex.totalPages = math.ceil(SCREEN.Data.GachaDex.TotalDex / SCREEN.MINIMONS_PER_PAGE)
 end
 
+---Builds/Resets the data tables necessary for the battle animations
+function GachaMonOverlay.buildBattleData()
+	if not SCREEN.Data or not SCREEN.Data.Battle then
+		return
+	end
+
+	-- Clear out old battlers
+	SCREEN.Data.Battle.PlayerMon = nil
+	SCREEN.Data.Battle.OpponentMon = nil
+
+	-- Reset animations
+end
+
 function GachaMonOverlay.getMonForRecentScreenSlot(slotNumber)
 	local D = SCREEN.Data.Recent or {}
 	local pageIndex = (D.currentPage or 0) - 1
@@ -1582,42 +1618,45 @@ function GachaMonOverlay.tryLoadCollection()
 	GachaMonData.checkForNatDexRequirement()
 end
 
----Opens a form popup displaying a Gachamon's shareable code (base-64 string)
----@param gachamon IGachaMon
-function GachaMonOverlay.openShareCodeWindow(gachamon)
-	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
-	local form = ExternalUI.BizForms.createForm("GachaMon Share Code", 450, 160)
-	form:createLabel("Show off your GachaMon by sharing this code.", 19, 10)
-	form:createLabel(string.format("%s:", "Copy the shareable code below with Ctrl+C"), 19, 30)
-	form:createTextBox(shareCode, 20, 55, 400, 22, nil, false, true)
-	form:createButton(Resources.AllScreens.Close, 200, 85, function()
-		form:destroy()
-	end, 80, 25)
-end
-
--- TODO: Merge the above into this popup, similar to Randomizer's Setting Strings
----Opens a form popup for importing a Gachamon's shareable code (base-64 string)
+---Opens a form popup for sharing Gachamon codes (base-64 string)
+---@param gachamon? IGachaMon
 ---@param onImportFunc? function
-function GachaMonOverlay.openImportCodeWindow(onImportFunc)
-	local form = ExternalUI.BizForms.createForm("GachaMon Import Code", 450, 160)
-	form:createLabel("Battle against someone else's GachaMon by importing its Share Code here.", 19, 10)
-	form:createLabel(string.format("%s:", "Paste the code below Ctrl+V"), 19, 30)
-	form.Controls.code = form:createTextBox("", 20, 55, 400, 22, nil, false, true)
-	form:createButton(Resources.AllScreens.Import, 80, 85, function()
-		local b64string = ExternalUI.BizForms.getText(form.Controls.code) or ""
+function GachaMonOverlay.openShareCodeWindow(gachamon, onImportFunc)
+	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "(Go back and choose a GachaMon to battle with)"
+
+	local x, y, w, h = 20, 15, 450, 235
+	local iY = y
+	local form = ExternalUI.BizForms.createForm("GachaMon Battle Codes", w, h)
+	form:createLabel("Battle against a friend by exchanging codes for your GachaMon.", x, iY)
+	iY = iY + 30
+
+	form:createLabel(string.format("%s:", "Your GachaMon"), x, iY)
+	form:createLabel("(copy your code below with Ctrl+C to share)", x + 190, iY)
+	iY = iY + 21
+	form.Controls.textboxShareCode = form:createTextBox(shareCode, x + 1, iY, w - x * 2 - 1, 22, nil, false, true)
+	iY = iY + 35
+
+	form:createLabel(string.format("%s:", "Opponent's GachaMon"), x, iY)
+	form:createLabel("(enter/paste your friend's code below Ctrl+V)", x + 190, iY)
+	iY = iY + 21
+	form.Controls.textboxImportCode = form:createTextBox("", x + 1, iY, w - x * 2 - 1, 22, nil, false, true)
+	iY = iY + 35
+
+	form.Controls.buttonLoadOpponent = form:createButton("Load Opponent's GachaMon", 70, iY, function()
+		local b64string = ExternalUI.BizForms.getText(form.Controls.textboxImportCode) or ""
 		-- Trim whitespace
 		b64string = b64string:match("^%s*(.-)%s*$") or ""
-		local gachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
-		if gachamon then
-			gachamon.Favorite = 0
-			-- TODO: remove attributes like "Favorite"
+		local importedGachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
+		-- Remove certain attributes related to collection status
+		if importedGachamon then
+			importedGachamon.Favorite = 0
 		end
 		if type(onImportFunc) == "function" then
-			onImportFunc(gachamon)
+			onImportFunc(importedGachamon)
 		end
 		form:destroy()
-	end, 80, 25)
-	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+	end, 180, 25)
+	form.Controls.buttonCancel = form:createButton(Resources.AllScreens.Cancel, 290, iY, function()
 		form:destroy()
 	end, 80, 25)
 end
@@ -1816,6 +1855,12 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 			powerRightAlign = powerRightAlign - 1
 		end
 		Drawing.drawText(x + W - powerRightAlign, y, card.BattlePower or Constants.BLANKLINE, COLORS.power)
+	end
+
+	-- GAME WINNER ICON
+	if card.IsGameWinner then
+		local winnerRibbon = GachaMonFileManager.getGameWinnerFilePath()
+		Drawing.drawImage(winnerRibbon, x + 4, y + 19)
 	end
 
 	-- POKEMON ICON
@@ -2099,7 +2144,7 @@ function SCREEN.drawScreen()
 
 	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
 		-- Draw battleground background
-		gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
+		-- gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
 		-- TODO: Draw a divider and center ball
 	end
 
