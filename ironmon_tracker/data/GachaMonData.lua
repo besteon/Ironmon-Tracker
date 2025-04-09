@@ -55,6 +55,9 @@ TODO LIST
    - If dex is complete, color it or something around it "gold" or fancy looking; add a cool medal
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
+   - Use new terrain sheet. Fight on grass or mountains unless both are flying type "Sky Battle".
+   - When battle begins: reveal terrain and hide main tracker window and button clicks from it. offer a skip battle button to exit
+   - fade from black to terrain by drawing black ontop of image, fade out from center using vertical lines
    - 1000 vs 4000 is a 4:1 odds
    - Don't allow battling self (check for match)
    - When importing a code, find some what to checksum to confirm the data is correct number of bytes
