@@ -145,6 +145,9 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 
 	local _createHelpTextAnimation = function()
 		local openButton = Options.CONTROLS["Next page"] or "R"
+		if openButton == Input.NO_KEY_MAPPING then
+			openButton = Constants.BLANKLINE
+		end
 		local helpText = string.format("--  Press (%s) or click to open  --", openButton)
 		local helpTextX = Utils.getCenteredTextX(helpText, Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2)
 		local helpTextAnimation = AnimationManager.IAnimation:new({

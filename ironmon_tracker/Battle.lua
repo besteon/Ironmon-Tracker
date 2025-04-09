@@ -789,7 +789,12 @@ function Battle.beginNewBattle()
 	Tracker.resetBattleNotes()
 	Battle.trySwapScreenBackToMain()
 
-	GachaMonData.clearNewestMonToShow()
+	-- Don't clear the mon to show if it's waiting to be viewed
+	local APO = TrackerScreen.Animations.GachaMonPackOpening
+	local ACD = TrackerScreen.Animations.GachaMonCardDisplay
+	if not APO and not ACD then
+		GachaMonData.clearNewestMonToShow()
+	end
 
 	-- If the lead encountered enemy Pokemon is a shiny, trigger a pulsing sparkle effect
 	if (Tracker.getPokemon(1, false) or {}).isShiny then
