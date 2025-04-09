@@ -20,6 +20,57 @@ local _coverScreenInDarkness = function()
 	gui.drawRectangle(x, y, w, h, border, color)
 end
 
+---Creates a new IAnimation for a GachaMon card shiny / holographic foil by drawing an image sprite sheet instead of Bizhawk `gui`
+---@param x number Location of the animation to be drawn
+---@param y number Location of the animation to be drawn
+---@param timeToExpire number Number of seconds before this animation expires
+---@param startFrameIndex? number Optional starting frame index (1-50) to sync up animations; default random
+---@return IAnimation animation
+function AnimationManager.createGachaMonShinySparklesImage(x, y, timeToExpire, startFrameIndex)
+	local W, H = 48, 48
+	-- TODO: Update this to a formal location if this function gets used
+	local SPRITE_SHEET = FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "shiny-sparkles", FileManager.Extensions.PNG)
+	local NUM_FRAMES = 50
+	local FRAME_DURATION = 8
+	local EMPTY_FRAMES = { [49] = true, [50] = true }
+
+	startFrameIndex = startFrameIndex or math.random(NUM_FRAMES)
+
+	local animation = AnimationManager.IAnimation:new({
+		X = x,
+		Y = y,
+		ShouldLoop = true,
+		KeyFrames = {},
+		Temp = {
+			StartTime = os.time(),
+			EndTime = os.time() + (timeToExpire or 0),
+		}
+	})
+
+	for i = startFrameIndex, startFrameIndex + NUM_FRAMES, 1 do
+		if EMPTY_FRAMES[i] then
+			-- Add an empty animation keyframe for sparkle cooldown
+			animation:addKeyFrame(FRAME_DURATION * 2)
+		else
+			local col = i % 10
+			local row = math.floor(i / 10) % 5
+			local sourceX = col * W
+			local sourceY = row * H
+			animation:addKeyFrame(FRAME_DURATION, function(self, _x, _y)
+				Drawing.drawImageRegion(SPRITE_SHEET, sourceX, sourceY, W, H, _x, _y)
+			end, function(self)
+				if os.time() >= animation.Temp.EndTime then
+					animation:stop()
+				end
+			end)
+		end
+	end
+
+	animation:buildAnimation()
+
+	return animation
+end
+
 ---Creates new IAnimations for a GachaMon card shiny / holographic foil (paired sparkle animations)
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
@@ -145,6 +196,9 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 
 	local _createHelpTextAnimation = function()
 		local openButton = Options.CONTROLS["Next page"] or "R"
+		if openButton == Input.NO_KEY_MAPPING then
+			openButton = Constants.BLANKLINE
+		end
 		local helpText = string.format("--  Press (%s) or click to open  --", openButton)
 		local helpTextX = Utils.getCenteredTextX(helpText, Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2)
 		local helpTextAnimation = AnimationManager.IAnimation:new({

@@ -48,25 +48,28 @@ TESTING LIST
 
 --[[
 TODO LIST
-- [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
-   - Careful, multiple shinies right now may lag game
-- [UI] log file view mon, show stars if tracker notes know its last-level-seen; CLICK on stars to see the card itself
 - [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
    - Or find some other way to collect legendaries
 - [GachaDex]
    - Add a "NEW" flair to mons not in your PokeDex collection.
-   - If dex is complete, color it or something around it "gold" or fancy looking
+   - If dex is complete, color it or something around it "gold" or fancy looking; add a cool medal
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
+   - Use new terrain sheet. Fight on grass or mountains unless both are flying type "Sky Battle".
+   - When battle begins: reveal terrain and hide main tracker window and button clicks from it. offer a skip battle button to exit
+   - fade from black to terrain by drawing black ontop of image, fade out from center using vertical lines
    - 1000 vs 4000 is a 4:1 odds
    - Don't allow battling self (check for match)
    - When importing a code, find some what to checksum to confirm the data is correct number of bytes
+   - Winner message: (POKEBALL_SMALL) W I N N E R (POKEBALL_SMALL)
 - [TrackerAPI] Add endpoints for retrieving helpful gachamon data
-- [Stream Connect] Add a !gachadex command to display stats about the users collection and dex completion
 - [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
 
 TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
+- [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
+   - Careful, multiple shinies right now may lag game
+- [UI] log file view mon, show stars if tracker notes know its last-level-seen; CLICK on stars to see the card itself
 - [Card] Add Nickname; research how many bytes it takes up
 - [Bug] low-prority; If still viewing a card pack opening and swap to a new mon, no new pack is created for it (might be as easy as check if recentMon ~= nil)
 ]]
