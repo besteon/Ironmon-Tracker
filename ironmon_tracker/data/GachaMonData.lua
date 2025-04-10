@@ -138,6 +138,30 @@ function GachaMonData.findInCollection(gachamon)
 	return -1
 end
 
+---Returns true if no matching Pokémon species for this `gachamon` already exists in the collection; false if matching species found
+---@param gachamon IGachaMon
+---@return boolean
+function GachaMonData.checkIfNewCollectionSpecies(gachamon)
+	-- Temp store this information
+	if gachamon.Temp.IsNewCollectionSpecies ~= nil then
+		return gachamon.Temp.IsNewCollectionSpecies
+	end
+	-- Check Collection actual
+	for _, mon in ipairs(GachaMonData.Collection or {}) do
+		if mon.PokemonId == gachamon.PokemonId then
+			return false
+		end
+	end
+	-- Also check RecentMons flagged to be added to collection
+	for _, mon in pairs(GachaMonData.RecentMons or {}) do
+		if mon.PokemonId == gachamon.PokemonId and mon:getKeep() == 1 then
+			return false
+		end
+	end
+	gachamon.Temp.IsNewCollectionSpecies = true
+	return gachamon.Temp.IsNewCollectionSpecies
+end
+
 ---@param pokemonData IPokemon
 ---@param DEBUG_SUPPRESS_MSGS? boolean TODO: Remove this on release
 ---@return IGachaMon gachamon
@@ -834,13 +858,23 @@ function GachaMonData.tryAddToRecentMons(pokemon)
 	-- Create the GachaMon from the IPokemon data, then add it
 	gachamon = GachaMonData.convertPokemonToGachaMon(pokemon)
 	GachaMonData.RecentMons[pidIndex] = gachamon
+	GachaMonData.newestRecentMon = gachamon
+
+	-- Auto-add to collection if its Pokémon species hasn't been collected yet
+	if Options["Add GachaMon to collection if its new"] then
+		if GachaMonData.checkIfNewCollectionSpecies(gachamon) then
+			gachamon:setKeep(1)
+		end
+	end
+
+	-- Save changes
 	GachaMonFileManager.saveRecentMonsToFile()
 	if not GachaMonData.DexData.SeenMons[gachamon.PokemonId] then
 		GachaMonData.DexData.SeenMons[gachamon.PokemonId] = true
 		GachaMonData.DexData.NumSeen = GachaMonData.DexData.NumSeen + 1
 		GachaMonFileManager.saveGachaDexInfoToFile()
 	end
-	GachaMonData.newestRecentMon = gachamon
+
 	return true
 end
 

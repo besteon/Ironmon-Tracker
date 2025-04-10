@@ -354,19 +354,35 @@ end
 
 -- Loads carousel settings that may not have existed in a legacy Tracker version
 function SetupScreen.checkForNewCarouselSettings()
-	if Options["Has checked carousel battle details"] then
-		return
-	end
+	local settingsChanged = false
 
 	-- Add in the new carousel setting for Battle Details
-	if Utils.isNilOrEmpty(Options["CarouselItems"]) then
-		Options["CarouselItems"] = "BattleDetails"
-	elseif not Utils.containsText(Options["CarouselItems"], "BattleDetails") then
-		Options["CarouselItems"] = Options["CarouselItems"] .. ",BattleDetails"
+	if not Options["Has checked carousel battle details"] then
+		local carouselKey = "BattleDetails"
+		if Utils.isNilOrEmpty(Options["CarouselItems"]) then
+			Options["CarouselItems"] = carouselKey
+		elseif not Utils.containsText(Options["CarouselItems"], carouselKey) then
+			Options["CarouselItems"] = Options["CarouselItems"] .. "," .. carouselKey
+		end
+		Options["Has checked carousel battle details"] = true
+		settingsChanged = true
 	end
 
-	Options["Has checked carousel battle details"] = true
-	Main.SaveSettings(true)
+	-- Add in the new carousel setting for GachaMon captures
+	if not Options["Has checked carousel GachaMon"] then
+		local carouselKey = "GachaMon"
+		if Utils.isNilOrEmpty(Options["CarouselItems"]) then
+			Options["CarouselItems"] = carouselKey
+		elseif not Utils.containsText(Options["CarouselItems"], carouselKey) then
+			Options["CarouselItems"] = Options["CarouselItems"] .. "," .. carouselKey
+		end
+		Options["Has checked carousel GachaMon"] = true
+		settingsChanged = true
+	end
+
+	if settingsChanged then
+		Main.SaveSettings(true)
+	end
 end
 
 function SetupScreen.refreshButtons()
@@ -471,7 +487,7 @@ function SetupScreen.createButtons()
 
 	-- TAB: CAROUSEL
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	startY = Constants.SCREEN.MARGIN + 38
+	startY = Constants.SCREEN.MARGIN + 36
 
 	SCREEN.Buttons.CarouselSpeedHeader = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -514,7 +530,7 @@ function SetupScreen.createButtons()
 		startX = startX + speedWidth + 4
 	end
 
-	startY = startY + Constants.SCREEN.LINESPACING + 4
+	startY = startY + Constants.SCREEN.LINESPACING
 
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 
@@ -536,6 +552,7 @@ function SetupScreen.createButtons()
 		{ "LastAttack", "CarouselLastAttack", },
 		{ "BattleDetails", "CarouselBattleDetails", },
 		{ "Pedometer", "CarouselPedometer", },
+		{ "GachaMon", "CarouselGachaMon", },
 	}
 
 	local function saveCarouselSettings()

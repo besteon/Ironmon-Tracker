@@ -220,6 +220,7 @@ ScreenResources{
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
 		CarouselBattleDetails = "Additional battle details", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
+		CarouselGachaMon = "GachaMons captured", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
 		LabelCurrentControllerBinding = "Current controller binding", -- NEEDS TRANSLATION

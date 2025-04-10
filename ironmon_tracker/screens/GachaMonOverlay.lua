@@ -1066,15 +1066,40 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 GachaMonOverlay.Tabs.Options.Buttons = {
 	-- Option checkboxes are added later in createTabsAndButtons()
 
-	RatingsRuleset = {
+	LabelOnCatchOptions = {
+		getText = function(self) return string.format("%s ...", "When a new GachaMon is captured" or Resources[SCREEN.Key].Label) end,
+		box = { CANVAS.X + 3, CANVAS.Y + 3, CANVAS.W - 20, 14, },
+	},
+	OptionAutoAddIfNew = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Add GachaMon to collection if its new",
+		getText = function(self) return " " .. Resources[SCREEN.Key]["OptionAutoAddIfNew"] end,
+		clickableArea = { CANVAS.X + 11, CANVAS.Y + 18, 190, 8 },
+		box = {	CANVAS.X + 11, CANVAS.Y + 18, 8, 8 },
+		toggleState = Options["Add GachaMon to collection if its new"],
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end,
+	},
+	OptionAutoAddWhenDefeatTrainers = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Add GachaMon to collection after defeating a trainer",
+		getText = function(self) return " " .. Resources[SCREEN.Key]["OptionAutoAddWhenDefeatTrainers"] end,
+		clickableArea = { CANVAS.X + 11, CANVAS.Y + 31, 190, 8 },
+		box = {	CANVAS.X + 11, CANVAS.Y + 31, 8, 8 },
+		toggleState = Options["Add GachaMon to collection after defeating a trainer"],
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end,
+	},
+
+	LabelRatingsRuleset = {
 		getText = function(self) return string.format("%s:", "Ruleset used for ratings" or Resources[SCREEN.Key].Label) end,
-		box = { CANVAS.X + 3, CANVAS.Y + 7, CANVAS.W - 20, 14, },
-		-- draw = function(self, shadowcolor)
-		-- 	local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-		-- 	local text = self:getValue()
-		-- 	local color = Theme.COLORS[SCREEN.Colors.text]
-		-- 	Drawing.drawText(x + 135, y, text, color, shadowcolor)
-		-- end,
+		box = { CANVAS.X + 3, CANVAS.Y + 48, CANVAS.W - 20, 14, },
 	},
 	EditRatingsRuleset = {
 		type = Constants.ButtonTypes.ICON_BORDER,
@@ -1088,44 +1113,34 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 				return rulesetName or Constants.IronmonRulesetNames.Standard
 			end
 		end,
-		box = { CANVAS.X + 131, CANVAS.Y + 5, 100, 16, },
+		box = { CANVAS.X + 131, CANVAS.Y + 46, 100, 16, },
 		onClick = function(self)
 			GachaMonOverlay.openEditRulesetWindow()
 		end,
 	},
-	RecentSize = {
-		getText = function(self) return string.format(" %s", "GachaMons caught this game" or Resources[SCREEN.Key].Label) end,
-		getValue = function(self)
-			return SCREEN.Data.Recent and (#SCREEN.Data.Recent.OrderedGachaMons) or Constants.BLANKLINE
-		end,
-		box = { CANVAS.X + 10, CANVAS.Y + 85, CANVAS.W - 20, 14, },
+
+	DividerLine = {
+		box = { CANVAS.X + 1, CANVAS.Y + 67, CANVAS.W - 2, 1, },
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
-			local text = self:getValue()
-			local color = Theme.COLORS[SCREEN.Colors.highlight]
 			local border = Theme.COLORS[SCREEN.Colors.border]
-			gui.drawLine(x + w + 1, y, x + w + 1, y + h, shadowcolor) -- right edge shadow
-			gui.drawRectangle(x, y - 1, w, h, border)
-			gui.drawLine(x + 150, y, x + 150, y + h - 1, border)
-			Drawing.drawNumber(x + 170, y, text, 4, color, shadowcolor)
+			gui.drawLine(x, y, x + w, y, border)
 		end,
 	},
+
 	CollectionSize = {
-		getText = function(self) return string.format(" %s", "Total GachaMons in collection" or Resources[SCREEN.Key].Label) end,
+		getText = function(self) return string.format("%s:", "GachaMons in collection" or Resources[SCREEN.Key].Label) end,
 		getValue = function(self)
 			return SCREEN.Data.Collection and (#SCREEN.Data.Collection.OrderedGachaMons) or Constants.BLANKLINE
 		end,
-		box = { CANVAS.X + 10, CANVAS.Y + 99, CANVAS.W - 20, 14, },
+		box = { CANVAS.X + 3, CANVAS.Y + 120, 120, 22, },
 		draw = function(self, shadowcolor)
-			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local x, y = self.box[1], self.box[2]
 			local text = self:getValue()
 			local color = Theme.COLORS[SCREEN.Colors.highlight]
-			local border = Theme.COLORS[SCREEN.Colors.border]
-			gui.drawLine(x + 1, y + h, x + 1 + w, y + h, shadowcolor) -- bottom edge shadow
-			gui.drawLine(x + w + 1, y, x + w + 1, y + h, shadowcolor) -- right edge shadow
-			gui.drawRectangle(x, y - 1, w, h, border)
-			gui.drawLine(x + 150, y, x + 150, y + h - 1, border)
-			Drawing.drawNumber(x + 170, y, text, 4, color, shadowcolor)
+			local mainTextW = Utils.calcWordPixelLength(self:getText())
+			local textX = Utils.getCenteredTextX(tostring(text), mainTextW)
+			Drawing.drawText(x + textX, y + 10, text, color, shadowcolor)
 		end,
 	},
 	CleanupCollection = {
@@ -1440,12 +1455,11 @@ function GachaMonOverlay.createTabsAndButtons()
 
 	-- CREATE OPTIONS CHECKBOXES
 	startX = CANVAS.X + 5
-	startY = CANVAS.Y + 30
+	startY = GachaMonOverlay.Tabs.Options.Buttons.DividerLine.box[2] + 5
 	local optionKeyMap = {
 		{ "Show GachaMon stars on main Tracker Screen", "OptionShowGachaMonStarsOnTracker", },
 		{ "Show card pack on screen after capturing a GachaMon", "OptionShowCardPackOnScreen", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
-		{ "Add GachaMon to collection after defeating a trainer", "OptionAutoAddGachaMonToCollection", },
 	}
 	for _, optionTuple in ipairs(optionKeyMap) do
 		local textWidth = Utils.calcWordPixelLength(" " .. Resources[SCREEN.Key][optionTuple[2]])
