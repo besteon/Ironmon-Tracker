@@ -389,6 +389,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 82, 78, 17, },
 		noShadowBorder = true,
 		isVisible = function(self)
+			-- TODO: for initial release, don't reveal this button, as battle is turned off until next release
+			if true then
+				return false
+			end
 			local gachamon = SCREEN.Data.View.GachaMon
 			return gachamon and not gachamon.Temp.PreventSaving
 		end,
@@ -1069,6 +1073,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	LabelOnCatchOptions = {
 		getText = function(self) return string.format("%s ...", "When a new GachaMon is captured" or Resources[SCREEN.Key].Label) end,
 		box = { CANVAS.X + 3, CANVAS.Y + 3, CANVAS.W - 20, 14, },
+		textColor = SCREEN.Colors.highlight,
 	},
 	OptionAutoAddIfNew = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -1100,6 +1105,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	LabelRatingsRuleset = {
 		getText = function(self) return string.format("%s:", "Ruleset used for ratings" or Resources[SCREEN.Key].Label) end,
 		box = { CANVAS.X + 3, CANVAS.Y + 48, CANVAS.W - 20, 14, },
+		textColor = SCREEN.Colors.highlight,
 	},
 	EditRatingsRuleset = {
 		type = Constants.ButtonTypes.ICON_BORDER,
@@ -1194,7 +1200,8 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			y = y + Constants.SCREEN.LINESPACING + 1
 			Drawing.drawText(x, y, string.format("3.  %s", "Keep cards in your Collection"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("4.  %s", "Battle!"), color, shadowcolor)
+			-- TODO: after adding back in the Battle tab, remove the "coming seen" text
+			Drawing.drawText(x, y, string.format("4.  %s", "Battle!  (coming soon)"), color, shadowcolor)
 		end,
 	},
 	WhatsOnCard = {
@@ -1297,49 +1304,52 @@ function GachaMonOverlay.createTabsAndButtons()
 
 	-- TABS
 	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
-		local tabText = Resources[SCREEN.Key][tab.resourceKey]
-		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
-		SCREEN.TabButtons["Tab" .. tab.tabKey] = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			getCustomText = function(self) return tabText end,
-			tab = SCREEN.Tabs[tab.tabKey],
-			isSelected = false,
-			box = {	startX, startY, tabWidth, TAB_HEIGHT },
-			textColor = tabTextColor,
-			boxColors = { tabBorderColor, tabFillColor },
-			updateSelf = function(self)
-				self.isSelected = (self.tab == SCREEN.currentTab)
-				self.textColor = self.isSelected and tabHighlightColor or tabTextColor
-			end,
-			draw = function(self, shadowcolor)
-				local x, y = self.box[1], self.box[2]
-				local w, h = self.box[3], self.box[4]
-				local color = Theme.COLORS[self.boxColors[1]]
-				local bgColor = Theme.COLORS[self.boxColors[2]]
-				gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, bgColor, bgColor) -- Box fill
-				if not self.isSelected then
-					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, Drawing.ColorEffects.DARKEN, Drawing.ColorEffects.DARKEN)
-				end
-				gui.drawLine(x + 1, y, x + w - 1, y, color) -- Top edge
-				gui.drawLine(x, y + 1, x, y + h - 1, color) -- Left edge
-				gui.drawLine(x + w, y + 1, x + w, y + h - 1, color) -- Right edge
-				if self.isSelected then
-					gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
-				end
-				local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
-				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
-			end,
-			onClick = function(self)
-				-- Don't change screens if a battle is currently in progress
-				if SCREEN.battleInProgress() then
-					return
-				end
-				SCREEN.currentTab = self.tab
-				SCREEN.refreshButtons()
-				Program.redraw(true)
-			end,
-		}
-		startX = startX + tabWidth
+		-- TODO: For initial release, don't reveal the battle tab; not ready yet
+		if tab ~= SCREEN.Tabs.Battle then
+			local tabText = Resources[SCREEN.Key][tab.resourceKey]
+			local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
+			SCREEN.TabButtons["Tab" .. tab.tabKey] = {
+				type = Constants.ButtonTypes.NO_BORDER,
+				getCustomText = function(self) return tabText end,
+				tab = SCREEN.Tabs[tab.tabKey],
+				isSelected = false,
+				box = {	startX, startY, tabWidth, TAB_HEIGHT },
+				textColor = tabTextColor,
+				boxColors = { tabBorderColor, tabFillColor },
+				updateSelf = function(self)
+					self.isSelected = (self.tab == SCREEN.currentTab)
+					self.textColor = self.isSelected and tabHighlightColor or tabTextColor
+				end,
+				draw = function(self, shadowcolor)
+					local x, y = self.box[1], self.box[2]
+					local w, h = self.box[3], self.box[4]
+					local color = Theme.COLORS[self.boxColors[1]]
+					local bgColor = Theme.COLORS[self.boxColors[2]]
+					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, bgColor, bgColor) -- Box fill
+					if not self.isSelected then
+						gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, Drawing.ColorEffects.DARKEN, Drawing.ColorEffects.DARKEN)
+					end
+					gui.drawLine(x + 1, y, x + w - 1, y, color) -- Top edge
+					gui.drawLine(x, y + 1, x, y + h - 1, color) -- Left edge
+					gui.drawLine(x + w, y + 1, x + w, y + h - 1, color) -- Right edge
+					if self.isSelected then
+						gui.drawLine(x + 1, y + h, x + w - 1, y + h, bgColor) -- Remove bottom edge
+					end
+					local centeredOffsetX = Utils.getCenteredTextX(self:getCustomText(), w) - 2
+					Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
+				end,
+				onClick = function(self)
+					-- Don't change screens if a battle is currently in progress
+					if SCREEN.battleInProgress() then
+						return
+					end
+					SCREEN.currentTab = self.tab
+					SCREEN.refreshButtons()
+					Program.redraw(true)
+				end,
+			}
+			startX = startX + tabWidth
+		end
 	end
 
 	-- Recent & Collection GachaMon Buttons
@@ -1694,15 +1704,6 @@ function GachaMonOverlay.getMonForGachaDexScreenSlot(slotNumber)
 	local index = pageIndex * SCREEN.MINIMONS_PER_PAGE + slotNumber
 	-- local pokemonID = index > 276 and (index - 25) or index
 	return D.OrderedDexMons and D.OrderedDexMons[index] or nil
-end
-
-function GachaMonOverlay.tryLoadCollection()
-	if GachaMonData.initialCollectionLoaded then
-		return
-	end
-	GachaMonData.initialCollectionLoaded = true
-	GachaMonFileManager.importCollection()
-	GachaMonData.checkForNatDexRequirement()
 end
 
 ---Opens a form popup for sharing Gachamon codes (base-64 string)
@@ -2148,7 +2149,7 @@ function GachaMonOverlay.open()
 	SCREEN.hasShinyToDraw = false
 	SCREEN.shinyFrameCounter = 0
 	LogSearchScreen.clearSearch()
-	SCREEN.tryLoadCollection()
+	GachaMonData.tryLoadCollection()
 	SCREEN.buildData()
 	if SCREEN.Data.Recent.totalPages == 0 and SCREEN.Data.Collection.totalPages == 0 then
 		SCREEN.currentTab = SCREEN.Tabs.About
@@ -2164,12 +2165,17 @@ function GachaMonOverlay.close()
 	LogSearchScreen.clearSearch()
 	GachaMonFileManager.trySaveCollectionOnClose()
 	if SCREEN.Data then
-		SCREEN.Data.View.GachaMon = nil
+		if SCREEN.Data.View then
+			SCREEN.Data.View.GachaMon = nil
+		end
 		if SCREEN.Data.Recent then
 			SCREEN.Data.Recent.currentPage = 1
 		end
 		if SCREEN.Data.Collection then
 			SCREEN.Data.Collection.currentPage = 1
+		end
+		if SCREEN.Data.GachaDex then
+			SCREEN.Data.GachaDex.currentPage = 1
 		end
 	end
 	-- If the game hasn't started yet

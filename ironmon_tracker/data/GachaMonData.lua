@@ -48,12 +48,15 @@ TESTING LIST
 
 --[[
 TODO LIST
-- [GachaMon obj] Store if the mon beat the game and draw a medal on the card if so (left-half)
 - [Collection] If defeat a gym leader or E4, keep their ace as a card after the game ends (somehow); need a way to collect legendaries
    - Or find some other way to collect legendaries
 - [GachaDex]
    - Add a "NEW" flair to mons not in your PokeDex collection.
    - If dex is complete, color it or something around it "gold" or fancy looking; add a cool medal
+- [TrackerAPI] Add endpoints for retrieving helpful gachamon data
+- [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
+
+TODO LATER:
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - Use new terrain sheet. Fight on grass or mountains unless both are flying type "Sky Battle".
@@ -63,10 +66,6 @@ TODO LIST
    - Don't allow battling self (check for match)
    - When importing a code, find some what to checksum to confirm the data is correct number of bytes
    - Winner message: (POKEBALL_SMALL) W I N N E R (POKEBALL_SMALL)
-- [TrackerAPI] Add endpoints for retrieving helpful gachamon data
-- [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
-
-TODO LATER:
 - [Text UI] Create a basic MGBA viewing interface
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
    - Careful, multiple shinies right now may lag game
@@ -97,11 +96,12 @@ function GachaMonData.initialize()
 	GachaMonData.rulesetKey = Options["GachaMon Ratings Ruleset"]
 	GachaMonData.rulesetAutoDetected = false
 
-	-- Import universally useful data
+	-- Import data from files
 	GachaMonFileManager.importRatingSystem()
 	GachaMonFileManager.importGachaDexInfo()
-	-- Imported later, after New Run profiles and Tracker notes data are loade (for comparing ROM hashes)
-	-- GachaMonFileManager.importRecentGachaMons()
+
+	-- RecentMons are imported after Tracker notes data (and New Run profiles) are loaded, for comparing ROM hashes
+	-- GachaMonFileManager.importRecentMons()
 end
 
 ---Using either Pokemon data from the game or GachaMon data, looks up its associated GachaMon object
@@ -142,10 +142,14 @@ end
 ---@param gachamon IGachaMon
 ---@return boolean
 function GachaMonData.checkIfNewCollectionSpecies(gachamon)
-	-- Temp store this information
+	-- Temp store this information if previously checked for faster lookup
 	if gachamon.Temp.IsNewCollectionSpecies ~= nil then
 		return gachamon.Temp.IsNewCollectionSpecies
 	end
+
+	-- Requires collection is loaded first
+	GachaMonData.tryLoadCollection()
+
 	-- Check Collection actual
 	for _, mon in ipairs(GachaMonData.Collection or {}) do
 		if mon.PokemonId == gachamon.PokemonId then
@@ -158,6 +162,7 @@ function GachaMonData.checkIfNewCollectionSpecies(gachamon)
 			return false
 		end
 	end
+
 	gachamon.Temp.IsNewCollectionSpecies = true
 	return gachamon.Temp.IsNewCollectionSpecies
 end
@@ -843,6 +848,16 @@ function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
 
 	GachaMonData.initialRecentMonsLoaded = true
 	GachaMonFileManager.importRecentMons(forceImportAndUse)
+end
+
+---Only once per game, load the collection. Usually occurs when the Overlay is first opened or if a "NEW" GachaMon is captured
+function GachaMonData.tryLoadCollection()
+	if GachaMonData.initialCollectionLoaded then
+		return
+	end
+	GachaMonData.initialCollectionLoaded = true
+	GachaMonFileManager.importCollection()
+	GachaMonData.checkForNatDexRequirement()
 end
 
 ---Called when a new Pokémon is viewed on the Tracker, to create a GachaMon from it
