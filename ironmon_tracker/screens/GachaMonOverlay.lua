@@ -103,6 +103,9 @@ GachaMonOverlay.TabButtons = {
 			end
 		end,
 		onClick = function(self)
+			if SCREEN.battleInProgress() then
+				-- TODO: cancel any battle animations and exit out
+			end
 			if self.image == Constants.PixelImages.CLOSE then
 				Program.closeScreenOverlay()
 			else -- Constants.PixelImages.LEFT_ARROW
@@ -262,7 +265,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		isVisible = function(self)
 			local V = SCREEN.Data.View
 			local gachamon = V.OriginalGachaMon or V.GachaMon
-			if not gachamon then
+			if not gachamon or gachamon.Temp.PreventSaving then
 				return false
 			end
 			local pokemon = TrackerAPI.getPlayerPokemon() or {}
@@ -278,6 +281,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 				V.GachaMon = V.OriginalGachaMon
 			elseif pokemon then
 				V.TemporaryGachaMon = GachaMonData.convertPokemonToGachaMon(pokemon)
+				V.TemporaryGachaMon.Temp.PreventSaving = true
 				if V.GachaMon:getIsShiny() ~= V.TemporaryGachaMon:getIsShiny() then
 					V.TemporaryGachaMon.Temp.IsShiny = V.GachaMon:getIsShiny()
 				end
@@ -384,7 +388,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		getText = function(self) return "Battle" end,
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 82, 78, 17, },
 		noShadowBorder = true,
-		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil and SCREEN.Data.View.TemporaryGachaMon == nil end,
+		isVisible = function(self)
+			local gachamon = SCREEN.Data.View.GachaMon
+			return gachamon and not gachamon.Temp.PreventSaving
+		end,
 		onClick = function(self)
 			if not SCREEN.Data.View.GachaMon then
 				return
@@ -409,7 +416,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		getText = function(self) return "Favorite" end,
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 103, 78, 16, },
 		noShadowBorder = true,
-		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil and SCREEN.Data.View.TemporaryGachaMon == nil end,
+		isVisible = function(self)
+			local gachamon = SCREEN.Data.View.GachaMon
+			return gachamon and not gachamon.Temp.PreventSaving
+		end,
 		updateSelf = function(self)
 			local gachamon = SCREEN.Data.View.GachaMon
 			local favorite = gachamon and gachamon.Favorite or 0
@@ -447,7 +457,10 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		getText = function(self) return "In Collection" end,
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 123, 78, 16, },
 		noShadowBorder = true,
-		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil and SCREEN.Data.View.TemporaryGachaMon == nil end,
+		isVisible = function(self)
+			local gachamon = SCREEN.Data.View.GachaMon
+			return gachamon and not gachamon.Temp.PreventSaving
+		end,
 		updateSelf = function(self)
 			local gachamon = SCREEN.Data.View.GachaMon
 			local keep = gachamon and gachamon:getKeep() or 0
@@ -914,8 +927,42 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 }
 
 GachaMonOverlay.Tabs.Battle.Buttons = {
-	PlayerGachaMonCard = {
-		box = { CANVAS.X + 30, CANVAS.Y + 30, 76, 76, },
+	BattlefieldAnim = {
+		index = 1,
+		box = { CANVAS.X + 1, CANVAS.Y + 1, CANVAS.W - 2, CANVAS.H - 2, },
+		draw = function(self, shadowcolor)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local BFA = SCREEN.Data.Battle.BattlefieldAnimation
+			if BFA and BFA.IsActive then
+				AnimationManager.drawAnimation(SCREEN.Data.Battle.BattlefieldAnimation)
+			elseif SCREEN.Data.Battle.BattlefieldTerrain then
+				local terrain = SCREEN.Data.Battle.BattlefieldTerrain
+				if not Utils.isNilOrEmpty(terrain.image) then
+					Drawing.drawImageRegion(terrain.image, terrain.sourceX, terrain.sourceY, terrain.w, terrain.h, x, y)
+				end
+			else
+				gui.drawRectangle(x, y, w, h, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
+			end
+		end,
+	},
+	PlayerGachaMonAnim = {
+		index = 2,
+		box = { CANVAS.X + 15, CANVAS.Y + 30, 76, 76, },
+		onClick = function(self)
+			if SCREEN.battleInProgress() then
+				return
+			end
+			if SCREEN.Data.Battle.PlayerMon == nil then
+				SCREEN.currentTab = SCREEN.Tabs.Collection
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			else
+				SCREEN.Data.View.GachaMon = SCREEN.Data.Battle.PlayerMon
+				SCREEN.currentTab = SCREEN.Tabs.View
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end
+		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			-- Draw card
@@ -924,9 +971,29 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 			SCREEN.drawGachaCard(card, x, y, 1)
 		end,
 	},
-	-- TODO: Allow clicking on to temporarily view the GachaMon (dont allow favorite/saving)
-	OpponentGachaMonCard = {
-		box = { CANVAS.X + 130, CANVAS.Y + 30, 76, 76, },
+	OpponentGachaMonAnim = {
+		index = 3,
+		box = { CANVAS.X + 151, CANVAS.Y + 30, 76, 76, },
+		onClick = function(self)
+			if SCREEN.battleInProgress() then
+				return
+			end
+			if SCREEN.Data.Battle.OpponentMon == nil then
+				local _callbackFunc = function(gachamon)
+					SCREEN.Data.Battle.OpponentMon = gachamon
+					SCREEN.refreshButtons()
+					Program.redraw(true)
+				end
+				SCREEN.openShareCodeWindow(SCREEN.Data.Battle.PlayerMon, _callbackFunc)
+			else
+				local gachamon = SCREEN.Data.Battle.OpponentMon
+				gachamon.Temp.PreventSaving = true
+				SCREEN.Data.View.GachaMon = gachamon
+				SCREEN.currentTab = SCREEN.Tabs.View
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end
+		end,
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			-- Draw card
@@ -935,50 +1002,63 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 			SCREEN.drawGachaCard(card, x, y, 1, false, false)
 		end,
 	},
-	ShareCode = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.POKEBALL,
-		iconColors = TrackerScreen.PokeBalls.ColorList,
-		getText = function(self) return "Share Code" end,
-		box = { CANVAS.X + 23, CANVAS.Y + 123, 82, 16, },
-		isVisible = function(self) return SCREEN.Data.Battle and SCREEN.Data.Battle.PlayerMon ~= nil end,
-		onClick = function(self)
-			local gachamon = SCREEN.Data.Battle.PlayerMon
-			if not gachamon then
-				return
-			end
-			SCREEN.openShareCodeWindow(gachamon)
-		end,
-	},
 	ChooseFighter = {
+		index = 11,
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.BATTLE_BALLS,
-		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
+		image = Constants.PixelImages.REFERENCE_RIGHT,
 		getText = function(self) return "Choose Fighter" end,
 		box = { CANVAS.X + 23, CANVAS.Y + 123, 82, 18, },
-		isVisible = function(self) return SCREEN.Data.Battle and SCREEN.Data.Battle.PlayerMon == nil end,
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		noShadowBorder = true,
+		isVisible = function(self) return SCREEN.Data.Battle and not SCREEN.battleInProgress() end,
 		onClick = function(self)
-			local gachamon = SCREEN.Data.Battle.PlayerMon
-			if gachamon then
-				return
-			end
 			SCREEN.currentTab = SCREEN.Tabs.Collection
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end,
 	},
 	AddOpponent = {
+		index = 12,
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.SWORD_ATTACK,
 		iconColors = { SCREEN.Colors.highlight },
 		getText = function(self) return "Add Opponent" end,
 		box = { CANVAS.X + 123, CANVAS.Y + 123, 82, 18, },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		noShadowBorder = true,
+		isVisible = function(self) return SCREEN.Data.Battle and not SCREEN.battleInProgress() end,
 		onClick = function(self)
 			local _callbackFunc = function(gachamon)
 				SCREEN.Data.Battle.OpponentMon = gachamon
+				SCREEN.refreshButtons()
 				Program.redraw(true)
 			end
-			SCREEN.openImportCodeWindow(_callbackFunc)
+			SCREEN.openShareCodeWindow(SCREEN.Data.Battle.PlayerMon, _callbackFunc)
+		end,
+	},
+	StartBattle = {
+		index = 12,
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.BATTLE_BALLS,
+		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
+		getText = function(self) return "Start Battle!" end,
+		box = { CANVAS.X + 73, CANVAS.Y + 2, 82, 18, },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		noShadowBorder = true,
+		isVisible = function(self) return false end, -- TODO: Hide this while it's being worked on
+		-- isVisible = function(self) return SCREEN.Data.Battle and not SCREEN.battleInProgress() end,
+		onClick = function(self)
+			local gachamon1, gachamon2 = SCREEN.Data.Battle.PlayerMon, SCREEN.Data.Battle.OpponentMon
+			if not gachamon1 or not gachamon2 then
+				return
+			end
+			local button = SCREEN.Tabs.Battle.Buttons.BattlefieldAnim or {}
+			local x, y = button.box[1] or CANVAS.X + 1, button.box[2] or CANVAS.Y + 1
+			SCREEN.Data.Battle.InProgress = true
+			SCREEN.Data.Battle.BattlefieldAnimation = AnimationManager.createBattlefieldImageReveal(x, y, gachamon1, gachamon2)
+			AnimationManager.tryAddAnimationToActive(SCREEN.Data.Battle.BattlefieldAnimation)
+			SCREEN.refreshButtons()
+			Program.redraw(true)
 		end,
 	},
 }
@@ -1150,7 +1230,14 @@ GachaMonOverlay.Tabs.About.Buttons = {
 }
 
 local function _getCurrentTabButtons()
-	return SCREEN.currentTab and SCREEN.currentTab.Buttons or {}
+	if not SCREEN.currentTab or not SCREEN.currentTab.Buttons then
+		return {}
+	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
+		-- Sort Battle buttons because the order drawn matters (battlefield first)
+		return Utils.getSortedList(SCREEN.currentTab.Buttons)
+	else
+		return SCREEN.currentTab.Buttons
+	end
 end
 
 function GachaMonOverlay.initialize()
@@ -1228,8 +1315,11 @@ function GachaMonOverlay.createTabsAndButtons()
 				Drawing.drawText(x + centeredOffsetX, y, self:getCustomText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 			onClick = function(self)
+				-- Don't change screens if a battle is currently in progress
+				if SCREEN.battleInProgress() then
+					return
+				end
 				SCREEN.currentTab = self.tab
-				-- SCREEN.Pager.currentPage = 1
 				SCREEN.refreshButtons()
 				Program.redraw(true)
 			end,
@@ -1391,7 +1481,7 @@ function GachaMonOverlay.buildData()
 	SCREEN.buildRecentData()
 	SCREEN.buildCollectionData()
 	SCREEN.buildGachaDexData()
-	-- TODO: build battle
+	SCREEN.buildBattleData()
 
 	SCREEN.Data.View.GachaMon = GachaMonData.newestRecentMon
 
@@ -1551,6 +1641,25 @@ function GachaMonOverlay.buildGachaDexData()
 	SCREEN.Data.GachaDex.totalPages = math.ceil(SCREEN.Data.GachaDex.TotalDex / SCREEN.MINIMONS_PER_PAGE)
 end
 
+---Builds/Resets the data tables necessary for the battle animations
+function GachaMonOverlay.buildBattleData()
+	if not SCREEN.Data or not SCREEN.Data.Battle then
+		return
+	end
+
+	-- Clear out data
+	SCREEN.Data.Battle.InProgress = false
+	SCREEN.Data.Battle.PlayerMon = nil
+	SCREEN.Data.Battle.OpponentMon = nil
+
+	-- Reset animations
+	SCREEN.Data.Battle.BattlefieldAnimation = nil
+end
+
+function GachaMonOverlay.battleInProgress()
+	return SCREEN.Data.Battle and SCREEN.Data.Battle.InProgress == true
+end
+
 function GachaMonOverlay.getMonForRecentScreenSlot(slotNumber)
 	local D = SCREEN.Data.Recent or {}
 	local pageIndex = (D.currentPage or 0) - 1
@@ -1582,42 +1691,45 @@ function GachaMonOverlay.tryLoadCollection()
 	GachaMonData.checkForNatDexRequirement()
 end
 
----Opens a form popup displaying a Gachamon's shareable code (base-64 string)
----@param gachamon IGachaMon
-function GachaMonOverlay.openShareCodeWindow(gachamon)
-	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "N/A"
-	local form = ExternalUI.BizForms.createForm("GachaMon Share Code", 450, 160)
-	form:createLabel("Show off your GachaMon by sharing this code.", 19, 10)
-	form:createLabel(string.format("%s:", "Copy the shareable code below with Ctrl+C"), 19, 30)
-	form:createTextBox(shareCode, 20, 55, 400, 22, nil, false, true)
-	form:createButton(Resources.AllScreens.Close, 200, 85, function()
-		form:destroy()
-	end, 80, 25)
-end
-
--- TODO: Merge the above into this popup, similar to Randomizer's Setting Strings
----Opens a form popup for importing a Gachamon's shareable code (base-64 string)
+---Opens a form popup for sharing Gachamon codes (base-64 string)
+---@param gachamon? IGachaMon
 ---@param onImportFunc? function
-function GachaMonOverlay.openImportCodeWindow(onImportFunc)
-	local form = ExternalUI.BizForms.createForm("GachaMon Import Code", 450, 160)
-	form:createLabel("Battle against someone else's GachaMon by importing its Share Code here.", 19, 10)
-	form:createLabel(string.format("%s:", "Paste the code below Ctrl+V"), 19, 30)
-	form.Controls.code = form:createTextBox("", 20, 55, 400, 22, nil, false, true)
-	form:createButton(Resources.AllScreens.Import, 80, 85, function()
-		local b64string = ExternalUI.BizForms.getText(form.Controls.code) or ""
+function GachaMonOverlay.openShareCodeWindow(gachamon, onImportFunc)
+	local shareCode = gachamon and GachaMonData.getShareablyCode(gachamon) or "(Go back and choose a GachaMon to battle with)"
+
+	local x, y, w, h = 20, 15, 450, 235
+	local iY = y
+	local form = ExternalUI.BizForms.createForm("GachaMon Battle Codes", w, h)
+	form:createLabel("Battle against a friend by exchanging codes for your GachaMon.", x, iY)
+	iY = iY + 30
+
+	form:createLabel(string.format("%s:", "Your GachaMon"), x, iY)
+	form:createLabel("(copy your code below with Ctrl+C to share)", x + 190, iY)
+	iY = iY + 21
+	form.Controls.textboxShareCode = form:createTextBox(shareCode, x + 1, iY, w - x * 2 - 1, 22, nil, false, true)
+	iY = iY + 35
+
+	form:createLabel(string.format("%s:", "Opponent's GachaMon"), x, iY)
+	form:createLabel("(enter/paste your friend's code below Ctrl+V)", x + 190, iY)
+	iY = iY + 21
+	form.Controls.textboxImportCode = form:createTextBox("", x + 1, iY, w - x * 2 - 1, 22, nil, false, true)
+	iY = iY + 35
+
+	form.Controls.buttonLoadOpponent = form:createButton("Load Opponent's GachaMon", 70, iY, function()
+		local b64string = ExternalUI.BizForms.getText(form.Controls.textboxImportCode) or ""
 		-- Trim whitespace
 		b64string = b64string:match("^%s*(.-)%s*$") or ""
-		local gachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
-		if gachamon then
-			gachamon.Favorite = 0
-			-- TODO: remove attributes like "Favorite"
+		local importedGachamon = GachaMonData.transformCodeIntoGachaMon(b64string)
+		-- Remove certain attributes related to collection status
+		if importedGachamon then
+			importedGachamon.Favorite = 0
 		end
 		if type(onImportFunc) == "function" then
-			onImportFunc(gachamon)
+			onImportFunc(importedGachamon)
 		end
 		form:destroy()
-	end, 80, 25)
-	form:createButton(Resources.AllScreens.Close, 200, 85, function()
+	end, 180, 25)
+	form.Controls.buttonCancel = form:createButton(Resources.AllScreens.Cancel, 290, iY, function()
 		form:destroy()
 	end, 80, 25)
 end
@@ -1816,6 +1928,12 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 			powerRightAlign = powerRightAlign - 1
 		end
 		Drawing.drawText(x + W - powerRightAlign, y, card.BattlePower or Constants.BLANKLINE, COLORS.power)
+	end
+
+	-- GAME WINNER ICON
+	if card.IsGameWinner then
+		local winnerRibbon = GachaMonFileManager.getGameWinnerFilePath()
+		Drawing.drawImage(winnerRibbon, x + 4, y + 19)
 	end
 
 	-- POKEMON ICON
@@ -2099,7 +2217,7 @@ function SCREEN.drawScreen()
 
 	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
 		-- Draw battleground background
-		gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
+		-- gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
 		-- TODO: Draw a divider and center ball
 	end
 

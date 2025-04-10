@@ -248,6 +248,7 @@ function GameOverScreen.checkForGameOver(lastBattleStatus, lastTrainerId)
 		lastTrainerId = lastTrainerId or Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 		if Battle.wonFinalBattle(lastBattleStatus, lastTrainerId) then
 			GameOverScreen.status = GameOverScreen.Statuses.WON
+			GachaMonData.markTeamForGameWin()
 		end
 	end
 

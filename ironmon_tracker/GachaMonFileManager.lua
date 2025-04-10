@@ -46,6 +46,10 @@ function GachaMonFileManager.getRandomCardPackFilePath(packNumberOverride)
 	local filename = string.format("%s%s", FileManager.PreFixes.CARDPACK, packNumber)
 	return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, filename, FileManager.Extensions.PNG)
 end
+---@return string filepath
+function GachaMonFileManager.getGameWinnerFilePath()
+	return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "winner-ribbon", FileManager.Extensions.PNG)
+end
 
 ---Imports all GachaMon Ratings data from a JSON file
 ---@param filepath? string Optional, a custom JSON file
@@ -462,6 +466,8 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 	local battlePower = math.floor(gachamon.BattlePower / 1000)
 	-- Compress into a 2-byte value
 	local idPowerFavorite = gachamon.PokemonId + Utils.bit_lshift(battlePower, 11) + Utils.bit_lshift(gachamon.Favorite, 15)
+	-- Compress into a 1-byte value
+	local levelAndWinnerBits = gachamon.Level + Utils.bit_lshift(gachamon.GameWinner or 0, 7)
 	-- Compress stats into two 4-byte pairs
 	local stats1 = gachamon:compressStatsHpAtkDef()
 	local stats2 = gachamon:compressStatsSpaSpdSpe()
@@ -476,7 +482,7 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 		gachamon.Version,
 		gachamon.Personality,
 		idPowerFavorite,
-		gachamon.Level,
+		levelAndWinnerBits,
 		gachamon.AbilityId,
 		gachamon.RatingScore,
 		gachamon.SeedNumber,
@@ -500,10 +506,11 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 	end
 	-- Unpack binary data into a table
 	local data = { StructEncoder.binaryUnpack(BS.Format, binaryStream, position) }
+	local levelAndWinnerBits = data[4]
 	local gachamon = GachaMonData.IGachaMon:new({
 		Version = data[1],
 		Personality = data[2],
-		Level = data[4],
+		Level = Utils.getbits(levelAndWinnerBits, 0, 7),
 		AbilityId = data[5],
 		RatingScore = data[6],
 		SeedNumber = data[7],
@@ -513,6 +520,7 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 		C_StatsHpAtkDef = data[11],
 		C_StatsSpaSpdSpe = data[12],
 	})
+	gachamon.GameWinner = Utils.getbits(levelAndWinnerBits, 7, 1)
 	local idPowerFavorite = data[3]
 	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
 	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000

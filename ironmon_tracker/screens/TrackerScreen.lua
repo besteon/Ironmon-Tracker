@@ -198,7 +198,11 @@ TrackerScreen.Buttons = {
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Intermediate text",
 		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
-		isVisible = function() return Battle.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
+		isVisible = function()
+			local okayToShow = Battle.isViewingOwn and Options["Open Book Play Mode"]
+			local hasConflict = Options["Track PC Heals"] or Options["Show GachaMon stars on main Tracker Screen"]
+			return okayToShow and not hasConflict
+		end,
 		onClick = function(self)
 			-- Default to pulling up the Routes info screen
 			LogOverlay.Windower:changeTab(LogTabRoutes)
