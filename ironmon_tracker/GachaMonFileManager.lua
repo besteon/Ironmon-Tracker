@@ -467,7 +467,7 @@ GachaMonFileManager.BinaryStreams[1].Writer = function(gachamon)
 	-- Compress into a 2-byte value
 	local idPowerFavorite = gachamon.PokemonId + Utils.bit_lshift(battlePower, 11) + Utils.bit_lshift(gachamon.Favorite, 15)
 	-- Compress into a 1-byte value
-	local levelAndWinnerBits = gachamon.Level + Utils.bit_lshift(gachamon.Temp.GameWinner or 0, 7)
+	local levelAndWinnerBits = gachamon.Level + Utils.bit_lshift(gachamon.GameWinner or 0, 7)
 	-- Compress stats into two 4-byte pairs
 	local stats1 = gachamon:compressStatsHpAtkDef()
 	local stats2 = gachamon:compressStatsSpaSpdSpe()
@@ -520,7 +520,7 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 		C_StatsHpAtkDef = data[11],
 		C_StatsSpaSpdSpe = data[12],
 	})
-	gachamon.Temp.GameWinner = Utils.getbits(levelAndWinnerBits, 7, 1)
+	gachamon.GameWinner = Utils.getbits(levelAndWinnerBits, 7, 1)
 	local idPowerFavorite = data[3]
 	gachamon.PokemonId = Utils.getbits(idPowerFavorite, 0, 11)
 	gachamon.BattlePower = Utils.getbits(idPowerFavorite, 11, 4) * 1000

@@ -273,9 +273,9 @@ function QuickloadScreen.initialize()
 	SCREEN.checkForActiveProfileChanges()
 	SCREEN.buildProfileButtons()
 
-	-- After New Run profile is loaded, use that to determine the active ruleset for GachaMon calculations
+	-- After New Run profile and custom extensions are loaded, use that to determine the active ruleset for GachaMon calculations
 	if Options["GachaMon Ratings Ruleset"] == "AutoDetect" then
-		GachaMonData.autoDetermineIronmonRuleset()
+		Program.addFrameCounter("QuickloadScreen:autoDetermineIronmonRuleset", 1, GachaMonData.autoDetermineIronmonRuleset, 1)
 	end
 
 	for _, button in pairs(SCREEN.Buttons) do

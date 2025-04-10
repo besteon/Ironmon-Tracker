@@ -623,6 +623,7 @@ function GachaMonData.createRandomGachaMon()
 			Gender = math.random(1, 2),
 			Nature = math.random(0, 24),
 			DateTimeObtained = os.time(),
+			PreventSaving = true,
 		},
 	})
 
@@ -730,7 +731,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },
 	}
 	if CustomCode.RomHacks.isPlayingNatDex() then
-		table.insert(rulesetsOrdered, { Key = "Ascension1", Name = Constants.IronmonRulesetNames.Subpar })
+		table.insert(rulesetsOrdered, { Key = "Ascension1", Name = Constants.IronmonRulesetNames.Ascension1 })
 		table.insert(rulesetsOrdered, { Key = "Ascension2", Name = Constants.IronmonRulesetNames.Ascension2 })
 		table.insert(rulesetsOrdered, { Key = "Ascension3", Name = Constants.IronmonRulesetNames.Ascension3 })
 	end
@@ -799,8 +800,8 @@ function GachaMonData.markTeamForGameWin()
 	for i = 1, 6, 1 do
 		local pokemon = TrackerAPI.getPlayerPokemon(i) or {}
 		local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
-		if gachamon and gachamon.Temp.GameWinner ~= 1 then
-			gachamon.Temp.GameWinner = 1
+		if gachamon and gachamon.GameWinner ~= 1 then
+			gachamon.GameWinner = 1
 			anyChanged = true
 		end
 	end
@@ -1020,7 +1021,7 @@ GachaMonData.IGachaMon = {
 	Personality = 0,
 	-- 2 Bytes (11- bits)
 	PokemonId = 0,
-	-- 1 Byte (7 bits)
+	-- 1 Byte (7- bits)
 	Level = 0,
 	-- 1 Byte (7 bits)
 	AbilityId = 0,
@@ -1030,6 +1031,8 @@ GachaMonData.IGachaMon = {
 	BattlePower = 0,
 	-- 0 Bytes (1- bit); stored with PokemonId as FBBBBPPP
 	Favorite = 0,
+	-- 0 Bytes (1- bit); stored with Level as GLLLLLLL
+	GameWinner = 0,
 	-- 2 Bytes (16 bits); The seed number at the time this mon was collected
 	SeedNumber = 0,
 	-- 1 Byte (8 bits); which of the 8 badges this Pokémon was involved in helping acquire
@@ -1072,7 +1075,7 @@ GachaMonData.IGachaMon = {
 		C.Favorite = self.Favorite or 0
 		C.IsShiny = self:getIsShiny() == 1
 		C.InCollection = self:getKeep() == 1
-		C.IsGameWinner = self.Temp.GameWinner == 1
+		C.IsGameWinner = self.GameWinner == 1
 		C.PokemonId = self.PokemonId -- Icon
 		C.AbilityId = self.AbilityId -- Rules Text
 		C.StatBars = {}
@@ -1176,8 +1179,8 @@ GachaMonData.IGachaMon = {
 	---@param winnerBit number
 	---@return boolean dataChanged
 	setGameWinner = function(self, winnerBit)
-		local dataChanged = self.Temp.GameWinner ~= winnerBit
-		self.Temp.GameWinner = (winnerBit == 1) and 1 or 0
+		local dataChanged = self.GameWinner ~= winnerBit
+		self.GameWinner = (winnerBit == 1) and 1 or 0
 		if dataChanged then
 			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding
@@ -1286,6 +1289,7 @@ function GachaMonData.IGachaMon:new(o)
 	o.RatingScore = o.RatingScore or 0
 	o.BattlePower = o.BattlePower or 0
 	o.Favorite = o.Favorite or 0
+	o.GameWinner = o.GameWinner or 0
 	o.SeedNumber = o.SeedNumber or 0
 	o.Badges = o.Badges or 0
 	o.Type1 = o.Type1 or 0

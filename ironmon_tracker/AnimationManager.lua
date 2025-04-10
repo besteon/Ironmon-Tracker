@@ -178,7 +178,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 				self.Y + cardOffsetY,
 				self.Temp.GachaMon
 			)
-			Program.redraw(true)
+			Program.Frames.waitToDraw = 0
 		end,
 		Temp = {
 			GachaMon = gachamon,
@@ -378,6 +378,84 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
 			GachaMon = gachamon,
 		},
 	})
+
+	return animation
+end
+
+---Creates a new IAnimation for display the battlefield used for GachaMon card battles
+---@param x number Location of the animation to be drawn
+---@param y number Location of the animation to be drawn
+---@param gachamon1? IGachaMon
+---@param gachamon2? IGachaMon
+---@return IAnimation animation
+function AnimationManager.createBattlefieldImageReveal(x, y, gachamon1, gachamon2)
+	local W, H = 235, 142
+	local FRAME_DURATION = 3
+	local TERRAINS = {
+		Sky = {
+			key = "Sky",
+			getImage = function() return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "battle-terrain", FileManager.Extensions.PNG) end,
+			sourceX = 1,
+			sourceY = 85,
+		},
+		Mountains = { -- Not currently used
+			key = "Mountains",
+			getImage = function() return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "battle-terrain", FileManager.Extensions.PNG) end,
+			sourceX = 1,
+			sourceY = 250,
+		},
+		Grass = {
+			key = "Grass",
+			getImage = function() return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "battle-terrain", FileManager.Extensions.PNG) end,
+			sourceX = 1,
+			sourceY = 400,
+		},
+	}
+
+	-- Determine a random battlefield terrain, or use sky battles for flying Pokémon
+	local terrain
+	if gachamon1 and gachamon2 then
+		local PDTIP, FLYING = PokemonData.TypeIndexMap, PokemonData.Types.FLYING
+		local g1Flies = PDTIP[gachamon1.Type1] == FLYING or PDTIP[gachamon1.Type2] == FLYING
+		local g2Flies = PDTIP[gachamon2.Type1] == FLYING or PDTIP[gachamon2.Type2] == FLYING
+		if g1Flies and g2Flies then
+			terrain = TERRAINS.Sky
+		end
+	end
+	-- Consider other terrain options here to just randomly pick one of them
+	if not terrain then
+		terrain = TERRAINS.Grass
+	end
+	terrain.image = terrain:getImage()
+	terrain.w = W
+	terrain.h = H
+
+	local animation = AnimationManager.IAnimation:new({
+		X = x,
+		Y = y,
+		KeyFrames = {},
+		OnExpire = function(self)
+			GachaMonOverlay.Data.Battle.BattlefieldTerrain = terrain
+			Program.Frames.waitToDraw = 0
+		end,
+	})
+
+	-- TODO: Consider a "BATTLE START!" animation first, put it here
+
+	local totalFrames = 20
+	local sourceX, sourceY = terrain.sourceX, terrain.sourceY
+	for i = 1, totalFrames, 1 do
+		local opacity = 1 - (i / totalFrames)
+		local opacityFill = math.min(math.floor(0xFF * opacity), 0xFF) -- max
+		local bgColor = 0x01000000 * opacityFill
+		animation:addKeyFrame(FRAME_DURATION, function(self, _x, _y)
+			-- Start by drawing the background underneath a solid black screen, then reveal piece by piece
+			Drawing.drawImageRegion(terrain.image, sourceX, sourceY, W, H, _x, _y)
+			gui.drawRectangle(_x, _y, W - 1, H - 1, bgColor, bgColor)
+		end)
+	end
+
+	animation:buildAnimation()
 
 	return animation
 end
