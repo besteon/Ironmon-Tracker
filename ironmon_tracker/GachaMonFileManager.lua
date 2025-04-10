@@ -338,13 +338,13 @@ function GachaMonFileManager.saveGachaDexInfoToFile(filepathOverride)
 	end
 
 	local data = {
-		SeenMons = {}
+		SeenMons = {},
 	}
 	data.NumCollected = GachaMonData.DexData.NumCollected or 0
 	data.NumSeen = GachaMonData.DexData.NumSeen or 0
 	data.PercentageComplete = GachaMonData.DexData.PercentageComplete or 0
-	for id, _ in pairs(GachaMonData.DexData.SeenMons or {}) do
-		if type(id) == "number" then
+	for id, val in pairs(GachaMonData.DexData.SeenMons or {}) do
+		if type(id) == "number" and val == true then
 			table.insert(data.SeenMons, id)
 		end
 	end

@@ -922,6 +922,9 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.GACHAMON,
 		framesToShow = 210,
 		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselGachaMon.toggleState then
+				return false
+			end
 			-- Showing the card pack overrides the need to show the info in the Carousel box
 			if Options["Show card pack on screen after capturing a GachaMon"] then
 				return false

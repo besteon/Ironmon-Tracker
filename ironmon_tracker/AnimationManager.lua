@@ -354,6 +354,27 @@ end
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@return IAnimation
 function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
+	local isNewSpecies = GachaMonData.checkIfNewCollectionSpecies(gachamon)
+	local LABEL_NEW = "NEW"
+	local NEW_W, NEW_H = 28, 14
+	local COLORS = {
+		text = Drawing.Colors.WHITE,
+		textShadow = Drawing.ColorEffects.DARKEN * 2,
+		borderNew = 0xFFFD7DFF,
+		bgfillNew = 0xFFE849A2,
+	}
+	local _drawNewLabel = function(_x, _y)
+		-- fill + 4 borders
+		gui.drawRectangle(_x + 1, _y + 1, NEW_W - 2, NEW_H - 2, COLORS.bgfillNew, COLORS.bgfillNew)
+		gui.drawLine(_x + 1, _y, _x + NEW_W - 1, _y, COLORS.borderNew)
+		gui.drawLine(_x + 1, _y + NEW_H, _x + NEW_W - 1, _y + NEW_H, COLORS.borderNew)
+		gui.drawLine(_x, _y + 1, _x, _y + NEW_H - 1, COLORS.borderNew)
+		gui.drawLine(_x + NEW_W, _y + 1, _x + NEW_W, _y + NEW_H - 1, COLORS.borderNew)
+		-- inner text
+		gui.drawText(_x + 2, _y, LABEL_NEW, COLORS.textShadow, nil, 11, Constants.Font.FAMILY)
+		gui.drawText(_x + 1, _y - 1, LABEL_NEW, COLORS.text, nil, 11, Constants.Font.FAMILY)
+	end
+
 	local animation = AnimationManager.IAnimation:new({
 		X = x,
 		Y = y,
@@ -365,6 +386,9 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
 					_coverScreenInDarkness()
 					local card = gachamon:getCardDisplayData()
 					GachaMonOverlay.drawGachaCard(card, _x, _y, 0, false, false)
+					if isNewSpecies then
+						_drawNewLabel(_x + 21, _y + 75)
+					end
 				end,
 			})
 		},
