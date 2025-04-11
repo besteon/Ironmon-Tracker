@@ -793,7 +793,7 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 	end
 	-- Suppress debug messages when re-calculating here
 	if needsRecalculating then
-		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon, true)
+		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon)
 		-- Always reset the initial stars to original card; do this every time the mon gets rerolled (in case the mon changes)
 		local recentMon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
 		GachaMonData.playerViewedInitialStars = recentMon and recentMon:getStars() or 0
