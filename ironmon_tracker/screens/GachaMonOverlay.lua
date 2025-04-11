@@ -128,7 +128,14 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 			-- NAME & GENDER
+			local trainerName = gachamon:getAssociatedTrainerName()
 			local nameText = Utils.toUpperUTF8(gachamon:getName())
+			if not Utils.isNilOrEmpty(trainerName) then
+				nameText = string.format("%s's %s", trainerName, gachamon:getName())
+			else
+				nameText = gachamon:getName()
+			end
+			nameText = Utils.toUpperUTF8(nameText)
 			Drawing.drawText(x, y, nameText, highlight, shadowcolor)
 			local genderIndex = gachamon:getGender()
 			local gSymbols = { Constants.PixelImages.MALE_SYMBOL, Constants.PixelImages.FEMALE_SYMBOL }
@@ -508,6 +515,25 @@ GachaMonOverlay.Tabs.View.Buttons = {
 
 GachaMonOverlay.Tabs.Recent.Buttons = {
 	-- 6 GachaMon Buttons added during buildData()
+
+	UsageHelpText = {
+		box = { CANVAS.X + 3, CANVAS.Y + CANVAS.H - 26, CANVAS.W - 2, 22, },
+		isVisible = function(self)
+			if not SCREEN.Data.Recent then
+				return
+			end
+			-- Only display the help reminder if fewer than 3 GachaMons have been captured
+			return (SCREEN.Data.Recent.totalPages or 0) <= 1 and #SCREEN.Data.Recent.OrderedGachaMons <= 3
+		end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local text = Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN
+			local textLine1 = "-  These are GachaMons you've captured this game"
+			local textLine2 = '-  Keep the ones you want with: "Add to Collection"'
+			Drawing.drawText(x, y, textLine1, text)
+			Drawing.drawText(x, y + 11, textLine2, text)
+		end
+	},
 
 	EditFilters = {
 		image = Constants.PixelImages.FILTER_SETTINGS,
@@ -1229,7 +1255,7 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("%s  %s  %s", "Stars", Constants.BLANKLINE, "The " .. Resources.AllScreens.Pokemon .. "'s rating"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("%s  %s  %s", "Stars", Constants.BLANKLINE, "The " .. Resources.AllScreens.Pokemon .. "'s rating (1- 5)"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
 			Drawing.drawText(x, y, string.format("%s  %s  %s", "Battle Power", Constants.BLANKLINE, "The card's strength"), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
@@ -2247,11 +2273,6 @@ function SCREEN.drawScreen()
 		gui.drawLine(canvas.x + 212, canvas.y + 1, canvas.x + 212, canvas.y + 142, canvas.border)
 		gui.drawLine(canvas.x + 213, canvas.y + 20, canvas.x + canvas.width - 1, canvas.y + 20, canvas.border)
 		gui.drawLine(canvas.x + 213, canvas.y + 90, canvas.x + canvas.width - 1, canvas.y + 90, canvas.border)
-
-	elseif SCREEN.currentTab == SCREEN.Tabs.Battle then
-		-- Draw battleground background
-		-- gui.drawRectangle(canvas.x + 20, canvas.y + 20, 198, 98, canvas.border, Drawing.Colors.BLACK)
-		-- TODO: Draw a divider and center ball
 	end
 
 	-- Draw all buttons

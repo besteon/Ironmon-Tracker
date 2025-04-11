@@ -52,8 +52,6 @@ TESTING LIST
 --[[
 TODO LIST
 - [Resources] ALL resources
-- [TrackerAPI] Add endpoints for retrieving helpful gachamon data
-- [HowItWorks] Find a better way to explain to others how it works, such that they keep cards around
 
 TODO LATER:
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
@@ -65,8 +63,7 @@ TODO LATER:
    - Don't allow battling self (check for match)
    - When importing a code, find some what to checksum to confirm the data is correct number of bytes
    - Winner message: (POKEBALL_SMALL) W I N N E R (POKEBALL_SMALL)
-- [GachaDex]
-   - If dex is complete, color it or something around it "gold" or fancy looking; add a cool medal
+- [GachaDex] If dex is complete, color it or something around it "gold" or fancy looking; add a cool medal
 - [Text UI] Create a basic MGBA viewing interface
 - [UI] Add a special flair for a real shiny, reverse holo? (not stored, but can deduce by isshiny & < 5stars)
    - Careful, multiple shinies right now may lag game
@@ -170,9 +167,8 @@ function GachaMonData.checkIfNewCollectionSpecies(gachamon)
 end
 
 ---@param pokemonData IPokemon
----@param DEBUG_SUPPRESS_MSGS? boolean TODO: Remove this on release
 ---@return IGachaMon gachamon
-function GachaMonData.convertPokemonToGachaMon(pokemonData, DEBUG_SUPPRESS_MSGS)
+function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	local gachamon = GachaMonData.IGachaMon:new({
 		Version = GachaMonFileManager.Version,
 		Personality = pokemonData.personality or 0,
@@ -233,8 +229,8 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData, DEBUG_SUPPRESS_MSGS)
 
 	local baseStats = pokemonInternal and pokemonInternal.baseStats or {}
 
-	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_MSGS)
-	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon, DEBUG_SUPPRESS_MSGS)
+	gachamon.RatingScore = GachaMonData.calculateRatingScore(gachamon, baseStats)
+	gachamon.BattlePower = GachaMonData.calculateBattlePower(gachamon)
 	gachamon.Temp.Stars = GachaMonData.calculateStars(gachamon)
 
 	-- Always make 5-star or higher GachaMon's shiny
@@ -252,18 +248,12 @@ end
 ---@param gachamon IGachaMon
 ---@param baseStats table
 ---@return number rating Value between 0 and 100
-function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_MSGS)
+function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
 	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
 	local pokemonTypes = pokemonInternal.types or {}
-
-	-- if not DEBUG_SUPPRESS_MSGS then
-	-- 	local pokemonName = pokemonInternal and pokemonInternal.name or "N/A"
-	-- 	local rulesetName = Constants.IronmonRulesetNames[GachaMonData.rulesetKey or false] or "N/A"
-	-- 	Utils.printDebug("--- %s'S RATING | RULESET: %s ---", Utils.toUpperUTF8(pokemonName), Utils.toUpperUTF8(rulesetName))
-	-- end
 
 	-- RULESET
 	local RulesetChanges = RS.Rulesets[GachaMonData.rulesetKey or false] or RS.Rulesets["Standard"]
@@ -309,10 +299,6 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	end
 	if hasDefensiveAbility then
 		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
-		-- if not DEBUG_SUPPRESS_MSGS then
-		-- 	local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-		-- 	Utils.printDebug("[Bonus] %s adds defensive boost (points +50%%)", ability.name or "Ability")
-		-- end
 	end
 	-- Check specific abilities generic to all rulesets
 	if (gachamon.AbilityId or 0) == AbilityData.Values.SandStreamId then
@@ -323,16 +309,8 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 		}
 		if safeSandTypes[pokemonTypes[1] or false] or safeSandTypes[pokemonTypes[2] or false] then
 			abilityRating = abilityRating + (RS.OtherAdjustments.BonusAbilitySandStreamSafe or 0)
-			-- if not DEBUG_SUPPRESS_MSGS then
-			-- 	local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-			-- 	Utils.printDebug("[Bonus] Safe from %s (points %s)", ability.name or "Ability", (RS.OtherAdjustments.BonusAbilitySandStreamSafe or 0))
-			-- end
 		else
 			abilityRating = abilityRating + (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0)
-			-- if not DEBUG_SUPPRESS_MSGS then
-			-- 	local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-			-- 	Utils.printDebug("[Penalty] Takes damage from from %s (points %s)", ability.name or "Ability", (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0))
-			-- end
 		end
 	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
@@ -382,13 +360,6 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 				if badWeatherTypes[moveType] then
 					local badWeatherPenalty = badWeatherTypes[moveType] or 1
 					iMoves[i].rating = iMoves[i].rating * badWeatherPenalty
-					-- if not DEBUG_SUPPRESS_MSGS then
-					-- 	local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-					-- 	Utils.printDebug("[Penalty] %s weakens move power of %s (points * %s)",
-					-- 		ability.name or "Ability",
-					-- 		iMoves[i].move.name or "Move",
-					-- 		badWeatherPenalty)
-					-- end
 				end
 			end
 			if compoundeyesBonus and not MoveData.isOHKO(id) then
@@ -397,23 +368,9 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 				if acc > 0 and acc < 100 then
 					iMoves[i].rating = iMoves[i].rating * compoundeyesBonus
 				end
-				-- if not DEBUG_SUPPRESS_MSGS then
-				-- 	local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-				-- 	Utils.printDebug("[Bonus] %s improves accuracy of %s (points * %s)",
-				-- 		ability.name or "Ability",
-				-- 		iMoves[i].move.name or "Move",
-				-- 		(RS.OtherAdjustments.BonusAbilityCompoundeyesHelpsMove or 0))
-				-- end
 			end
 			if rockheadBonus and MoveData.isRecoil(id) then
 				iMoves[i].rating = iMoves[i].rating * rockheadBonus
-				-- if not DEBUG_SUPPRESS_MSGS then
-				-- 	local ability = AbilityData.Abilities[gachamon.AbilityId or 0] or {}
-				-- 	Utils.printDebug("[Bonus] %s negates recoil damage of %s (points * %s)",
-				-- 		ability.name or "Ability",
-				-- 		iMoves[i].move.name or "Move",
-				-- 		(RS.OtherAdjustments.BonusAbilityRockHeadHelpsMove or 0))
-				-- end
 			end
 			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
 				iMoves[i].rating = iMoves[i].rating * 1.5
@@ -423,25 +380,15 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	local movesRating = 0
 	local penaltyRepeatedMove = RS.OtherAdjustments.PenaltyRepeatedMove or 1
 	for i, iMove in pairs(iMoves) do
-		local debugPenalty = false -- TODO: Remove
 		-- Check for duplicate offensive move types; redundant typing coverage applies penalty to the move with the lower rating
 		for _, cMove in pairs(iMoves) do
 			-- If this iMoves rating is lower than compared-move, and compared-move matches type, and they both deal damage, adjust the iMove rating
 			if cMove and iMove.rating < cMove.rating and cMove.move.type == iMove.move.type and cMove.id ~= iMove.id and cMove.ePower > 0 and iMove.ePower > 0 then
 				iMove.rating = iMove.rating * penaltyRepeatedMove
-				debugPenalty = true
 				break
 			end
 		end
 		movesRating = movesRating + iMove.rating
-		-- if not DEBUG_SUPPRESS_MSGS then
-		-- 	local extraInfo = string.format("%s%s%s",
-		-- 		RulesetChanges.BannedMoves[iMove.id] and "(Banned) " or "",
-		-- 		RulesetChanges.AdjustedMoves[iMove.id] and "(Halved) " or "",
-		-- 		debugPenalty and "(Penalty: Duplicate) " or ""
-		-- 	)
-		-- 	Utils.printDebug("%s. %s %s %s", i, iMove.move.name, iMove.rating, extraInfo)
-		-- end
 	end
 	movesRating = math.min(movesRating, RS.CategoryMaximums.Moves or 999)
 	ratingTotal = ratingTotal + movesRating
@@ -454,9 +401,6 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	local offensiveRating = 0
 	if offensiveAtk < checkPoorOffenseMin and offensiveSpa < checkPoorOffenseMin then
 		offensiveRating = offensiveRating + (RS.OtherAdjustments.PenaltyPoorOffense or 0)
-		-- if not DEBUG_SUPPRESS_MSGS then
-		-- 	Utils.printDebug("[Penalty] At least one offensive stat too low (points %s)", RS.OtherAdjustments.PenaltyPoorOffense or 0)
-		-- end
 	else
 		for _, ratingPair in ipairs(RS.Stats.Offensive or {}) do
 			if offensiveAtk >= (ratingPair.BaseStat or 1) and ratingPair.Rating then
@@ -466,10 +410,6 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 					movePenalty = penaltyNoMoveInCategory
 				end
 				offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
-				-- if not DEBUG_SUPPRESS_MSGS then
-				-- 	local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
-				-- 	Utils.printDebug("- Offensive rating (ATK): %s %s", ratingPair.Rating * movePenalty, penaltyText)
-				-- end
 				-- Rating found, exclude from future threshold checks
 				offensiveAtk = 0
 			end
@@ -480,10 +420,6 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 					movePenalty = penaltyNoMoveInCategory
 				end
 				offensiveRating = offensiveRating + (ratingPair.Rating * movePenalty)
-				-- if not DEBUG_SUPPRESS_MSGS then
-				-- 	local penaltyText = movePenalty ~= 1 and string.format("(Penalty)") or ""
-				-- 	Utils.printDebug("- Offensive rating (SPA): %s %s", ratingPair.Rating * movePenalty, penaltyText)
-				-- end
 				-- Rating found, exclude from future threshold checks
 				offensiveSpa = 0
 			end
@@ -498,23 +434,14 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	local hp = baseStats.hp or 0
 	if hp < checkPoorDefenseMin then
 		hp = penaltyPoorDefense
-		-- if not DEBUG_SUPPRESS_MSGS then
-		-- 	Utils.printDebug("[Penalty] HP defensive stat too low; treating as %s defense.", RS.OtherAdjustments.PenaltyPoorDefense or 0)
-		-- end
 	end
 	local def = baseStats.def or 0
 	if def < checkPoorDefenseMin then
 		def = penaltyPoorDefense
-		-- if not DEBUG_SUPPRESS_MSGS then
-		-- 	Utils.printDebug("[Penalty] DEF defensive stat too low; treating as %s defense.", RS.OtherAdjustments.PenaltyPoorDefense or 0)
-		-- end
 	end
 	local spd = baseStats.spd or 0
 	if spd < checkPoorDefenseMin then
 		spd = penaltyPoorDefense
-		-- if not DEBUG_SUPPRESS_MSGS then
-		-- 	Utils.printDebug("[Penalty] SPD defensive stat too low; treating as %s defense.", RS.OtherAdjustments.PenaltyPoorDefense or 0)
-		-- end
 	end
 	local defensiveStats = hp + def + spd
 	local defensiveRating = 0
@@ -554,19 +481,13 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats, DEBUG_SUPPRESS_M
 	natureRating = math.min(natureRating, RS.CategoryMaximums.Nature or 999)
 	ratingTotal = ratingTotal + natureRating
 
-	-- if not DEBUG_SUPPRESS_MSGS then
-	-- 	Utils.printDebug("- [Subtotals] Ability: %s, Moves: %s, Offensive: %s, Defensive: %s, Speed: %s, Nature: %s",
-	-- 		abilityRating, movesRating, offensiveRating, defensiveRating, speedRating, natureRating)
-	-- 	Utils.printDebug("- Rating Total: %s", math.floor(ratingTotal + 0.5))
-	-- end
-
 	return math.floor(ratingTotal + 0.5)
 end
 
 ---Calculates the GachaMon's "Battle Power" based on its rating, STAB moves, nature, etc
 ---@param gachamon IGachaMon
 ---@return number power Value between 0 and GachaMonData.MAX_BATTLE_POWER (15000)
-function GachaMonData.calculateBattlePower(gachamon, DEBUG_SUPPRESS_MSGS)
+function GachaMonData.calculateBattlePower(gachamon)
 	local power = 0
 
 	-- Add stars/rating bonus
@@ -597,16 +518,6 @@ function GachaMonData.calculateBattlePower(gachamon, DEBUG_SUPPRESS_MSGS)
 	local multiplier = Utils.getNatureMultiplier(statKey, gachamon:getNature())
 	local natureBonus = math.floor(multiplier * 10 - 10) * 1000
 	power = power + natureBonus
-
-	-- if not DEBUG_SUPPRESS_MSGS then
-	-- 	Utils.printDebug("- [Battle Power] Stars: %s, Moves: %s, STAB: %s, Nature: %s, Total: %s",
-	-- 		starsBonus,
-	-- 		movePowerBonus,
-	-- 		hasStab and 1000 or 0,
-	-- 		natureBonus,
-	-- 		math.min(math.floor(power), GachaMonData.MAX_BATTLE_POWER)
-	-- 	)
-	-- end
 
 	if power > GachaMonData.MAX_BATTLE_POWER then
 		return GachaMonData.MAX_BATTLE_POWER
@@ -734,7 +645,6 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		end
 	end
 	if differentTrainer then
-		Utils.printDebug("Checking against trainer: %s", tostring(differentTrainer.trainerId))
 		local t1mon = trainerData.party[1] or {}
 		local t2mon = differentTrainer.party[1] or {}
 		local pokemon1 = PokemonData.Pokemon[t1mon.pokemonID or 0] or PokemonData.BlankPokemon
@@ -742,7 +652,6 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		local bst1 = tonumber(pokemon1.bst) or 0
 		local bst2 = tonumber(pokemon2.bst) or 0
 		if bst2 > bst1 then
-			Utils.printDebug("Better trainer found, goodbye %s!", tostring(trainerData.trainerId))
 			trainerData = differentTrainer
 		end
 	end
@@ -777,7 +686,7 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 	-- Build the Pokemon object from all the trainer/log data
 	local pokemonData = Program.DefaultPokemon:new({
 		pokemonID = trainerPokemon.pokemonID,
-		personality = 1,
+		personality = trainerData.trainerId, -- I don't think these pokemon have personality values that make sense anyway?
 		nature = math.random(0, 4) * 6, -- TODO: for now, pick a random neutral nature; don't know how to retreive
 		level = trainerPokemon.level,
 		abilityNum = 0, -- trainers always use the 1st ability in ironmon
@@ -1351,7 +1260,6 @@ GachaMonData.IGachaMon = {
 		local dataChanged = self.Favorite ~= favoriteBit
 		self.Favorite = favoriteBit
 		if dataChanged then
-			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding
 		end
 		return dataChanged
@@ -1363,7 +1271,6 @@ GachaMonData.IGachaMon = {
 		local dataChanged = self:getKeep() ~= keepBit
 		self.C_MoveIdsGameVersionKeep = Utils.getbits(self.C_MoveIdsGameVersionKeep, 0, 39) + Utils.bit_lshift(keepBit, 39)
 		if dataChanged then
-			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding
 		end
 		return dataChanged
@@ -1375,7 +1282,6 @@ GachaMonData.IGachaMon = {
 		local dataChanged = self.GameWinner ~= winnerBit
 		self.GameWinner = (winnerBit == 1) and 1 or 0
 		if dataChanged then
-			-- TODO: re-save recent mon collection (this might be working already?)
 			self.Temp.Card = nil -- requires rebuilding
 		end
 		return dataChanged
@@ -1467,6 +1373,36 @@ GachaMonData.IGachaMon = {
 			month = Utils.getbits(self.C_DateObtained, 5, 4),
 			year = 2000 + Utils.getbits(self.C_DateObtained, 9, 7),
 		}
+	end,
+	---If this GachaMon card was received as a prize card from a trainer, it should have an associated trainer ID as part of its personality value
+	---@return string|nil
+	getAssociatedTrainerName = function(self)
+		local trainerId = self.Personality
+		local trainer = TrainerData.Trainers[trainerId or false]
+		if not trainer then
+			return nil
+		end
+		local commonName
+		for name, idList in pairs(TrainerData.CommonTrainers or {}) do
+			for _, id in pairs(idList or {}) do
+				if id == trainerId then
+					commonName = name
+					break
+				end
+			end
+			if commonName then
+				break
+			end
+		end
+		if not commonName then
+			return nil
+		end
+		-- Some names are multiple words, use those instead of just their first name
+		if Utils.containsText(commonName, "Surge") or (Utils.containsText(commonName, "Tate") and Utils.containsText(commonName, "Liza")) then
+			return commonName
+		else
+			return (commonName:match("(%w+).*"))
+		end
 	end,
 }
 ---Creates and returns a new IGachaMon object

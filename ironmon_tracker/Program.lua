@@ -386,9 +386,12 @@ function Program.redraw(forced)
 	end
 
 	local _drawAnimations = function()
+		-- Draw any screen-specific animations if they are defined
 		if Program.currentScreen and type(Program.currentScreen.drawAnimations) == "function" then
 			Program.currentScreen.drawAnimations()
 		end
+		-- Always draw GachaMon animations, regardless of what screen is being viewed
+		AnimationManager.drawGachaMonAnims()
 	end
 
 	if Program.overridePackAnimationDraw then

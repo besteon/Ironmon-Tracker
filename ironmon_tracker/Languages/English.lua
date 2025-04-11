@@ -716,10 +716,10 @@ ScreenResources{
 		FilterRouteName = "Route Name",
 	},
 	GachaMonOverlay = {
-		TabRecent = "Recent",
+		TabRecent = "Captures",
 		TabCollection = "Collection",
 		TabView = "View",
-		TabGachaDex = "Dex",
+		TabGachaDex = "GachaDex",
 		TabBattle = "Battle",
 		TabOptions = "Options",
 		TabAbout = "?",

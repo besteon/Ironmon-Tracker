@@ -1682,7 +1682,3 @@ function TrackerScreen.drawFavorites()
 		button.box[2] = prevY
 	end
 end
-
-function TrackerScreen.drawAnimations()
-	AnimationManager.drawGachaMonAnims()
-end
