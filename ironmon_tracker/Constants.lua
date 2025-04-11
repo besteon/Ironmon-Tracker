@@ -197,6 +197,7 @@ Constants.OrderedLists = {
 		"GachaMon Ratings Ruleset",
 		"Add GachaMon to collection if its new",
 		"Add GachaMon to collection after defeating a trainer",
+		"Add to collection if prize from trainer victory",
 		"Show GachaMon stars on main Tracker Screen",
 		"Show card pack on screen after capturing a GachaMon",
 		"Animate GachaMon pack opening",

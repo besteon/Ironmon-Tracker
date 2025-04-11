@@ -189,8 +189,8 @@ function Input.checkJoypadInput()
 
 	if joypad[nextBtn] and not Input.prevJoypadInput[nextBtn] then
 		-- Prioritize GachaMon animations for "Next Page" joypad button press
-		local APO = TrackerScreen.Animations.GachaMonPackOpening
-		local ACD = TrackerScreen.Animations.GachaMonCardDisplay
+		local APO = AnimationManager.GachaMonAnims.PackOpening
+		local ACD = AnimationManager.GachaMonAnims.CardDisplay
 		if APO and not APO.IsActive and APO:IsVisible() and Options["Animate GachaMon pack opening"] then
 			-- Start pack opening animation
 			AnimationManager.tryAddAnimationToActive(APO)
@@ -325,9 +325,9 @@ end
 
 function Input.checkMouseInput(xmouse, ymouse)
 	-- Prioritize mouse button presses for GachaMon animations, if they exist and are visible; if so, ignore any other input checks
-	local APO = TrackerScreen.Animations.GachaMonPackOpening
-	local ACD = TrackerScreen.Animations.GachaMonCardDisplay
-	if Program.currentScreen == TrackerScreen and (APO or ACD) and Input.isMouseInArea(xmouse, ymouse, Constants.SCREEN.WIDTH, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT) then
+	local APO = AnimationManager.GachaMonAnims.PackOpening
+	local ACD = AnimationManager.GachaMonAnims.CardDisplay
+	if (APO or ACD) and Input.isMouseInArea(xmouse, ymouse, Constants.SCREEN.WIDTH, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT) then
 		if APO and not APO.IsActive and APO:IsVisible() then
 			if Options["Animate GachaMon pack opening"] then
 				-- Start pack opening animation
