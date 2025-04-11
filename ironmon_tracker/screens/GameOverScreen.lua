@@ -181,6 +181,29 @@ GameOverScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 112, 16 },
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+			-- For now, use this option as a way to turn this off if someone doesn't like getting new cards
+			if Options["Add to collection if prize from trainer victory"] and not GachaMonData.createdTrainerPrizeCard then
+				-- Add as a frame counter to bypass any redirects from the log parse and display
+				Program.addFrameCounter("GameOverScreen:tryCreateTrainerPrizeGachaMon", 1, function()
+					local pokemon, trainerInfo = GachaMonData.createPokemonDataFromDefeatedTrainers()
+					if not pokemon then
+						return
+					end
+
+					local fromTrainerPrize = true
+					GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
+					local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+					if not gachamon then
+						return
+					end
+
+					GachaMonData.createdTrainerPrizeCard = true
+					GachaMonData.newestRecentMon = gachamon
+					local x, y = Constants.SCREEN.WIDTH + 43, 43
+					AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon, trainerInfo)
+					Program.changeScreenView(GameOverScreen)
+				end, 1)
+			end
 		end,
 	},
 }
@@ -438,4 +461,8 @@ function GameOverScreen.drawScreen()
 			end
 		end
 	end
+end
+
+function GameOverScreen.drawAnimations()
+	AnimationManager.drawGachaMonAnims()
 end

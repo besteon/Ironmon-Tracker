@@ -790,8 +790,8 @@ function Battle.beginNewBattle()
 	Battle.trySwapScreenBackToMain()
 
 	-- Don't clear the mon to show if it's waiting to be viewed
-	local APO = TrackerScreen.Animations.GachaMonPackOpening
-	local ACD = TrackerScreen.Animations.GachaMonCardDisplay
+	local APO = AnimationManager.GachaMonAnims.PackOpening
+	local ACD = AnimationManager.GachaMonAnims.CardDisplay
 	if not APO and not ACD then
 		GachaMonData.clearNewestMonToShow()
 	end

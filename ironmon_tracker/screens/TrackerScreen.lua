@@ -520,25 +520,17 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.GACHAMON end,
 		clearAnimation = function(self)
-			TrackerScreen.Animations.GachaMonPackOpening = nil
+			AnimationManager.GachaMonAnims.PackOpening = nil
 		end,
 		onClick = function(self)
-			local APO = TrackerScreen.Animations.GachaMonPackOpening
+			local APO = AnimationManager.GachaMonAnims.PackOpening
 			if not APO and GachaMonData.hasNewestMonToShow() then
 				local x, y = Constants.SCREEN.WIDTH + 43, 32
-				TrackerScreen.Animations.GachaMonPackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
-				APO = TrackerScreen.Animations.GachaMonPackOpening
+				AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
 			end
 			Program.redraw(true)
 		end,
 	},
-}
-
----Holds relevant animations that occasionally get displayed on the main tracker screen
-TrackerScreen.Animations = { ---@type table<string, IAnimation|nil>
-	GachaMonPackOpening = nil,
-	GachaMonCardDisplay = nil,
-	CardPackHelpText = nil,
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -589,10 +581,6 @@ TrackerScreen.PokeBalls = {
 }
 
 function TrackerScreen.initialize()
-	TrackerScreen.Animations.GachaMonPackOpening = nil
-	TrackerScreen.Animations.GachaMonCardDisplay = nil
-	TrackerScreen.Animations.CardPackHelpText = nil
-
 	-- Buttons for stat markings tracked by the user
 	local heightOffset = 9
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
@@ -807,7 +795,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselRouteInfo.toggleState then
 				return false
 			end
-			if not GachaMonData.hasNewestMonToShow() and showEarlyRouteEncounters() then
+			if showEarlyRouteEncounters() then
 				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
 				return true
 			else
@@ -1696,10 +1684,5 @@ function TrackerScreen.drawFavorites()
 end
 
 function TrackerScreen.drawAnimations()
-	if TrackerScreen.Animations.GachaMonPackOpening then
-		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonPackOpening)
-		AnimationManager.drawAnimation(TrackerScreen.Animations.CardPackHelpText)
-	elseif TrackerScreen.Animations.GachaMonCardDisplay then
-		AnimationManager.drawAnimation(TrackerScreen.Animations.GachaMonCardDisplay)
-	end
+	AnimationManager.drawGachaMonAnims()
 end

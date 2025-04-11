@@ -55,6 +55,7 @@ Options = {
 	["GachaMon Ratings Ruleset"] = "AutoDetect",
 	["Add GachaMon to collection if its new"] = false,
 	["Add GachaMon to collection after defeating a trainer"] = true,
+	["Add to collection if prize from trainer victory"] = true,
 	["Show GachaMon stars on main Tracker Screen"] = true,
 	["Show card pack on screen after capturing a GachaMon"] = false,
 	["Animate GachaMon pack opening"] = true,

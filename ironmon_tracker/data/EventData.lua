@@ -1294,7 +1294,7 @@ function EventData.getGachaMon(params)
 	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
 	local info = {}
 
-	if TrackerScreen.Animations.GachaMonPackOpening ~= nil then
+	if AnimationManager.GachaMonAnims.PackOpening ~= nil then
 		local msg = "Please wait until the GachaMon card pack is opened."
 		return string.format("%s %s", prefix, msg)
 	end

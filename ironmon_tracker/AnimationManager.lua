@@ -1,11 +1,27 @@
 AnimationManager = {
-	-- A key-value table of all active IAnimation objects
+	---A key-value table of all active IAnimation objects
 	---@type table<string, IAnimation>
 	ActiveAnimations = {},
+
+	---Named animation objects used for various GachaMon releated features
+	---@type table<string, IAnimation>
+	GachaMonAnims = {}
 }
 
 function AnimationManager.initialize()
 	AnimationManager.ActiveAnimations = {}
+	AnimationManager.GachaMonAnims = {}
+end
+
+function AnimationManager.drawGachaMonAnims()
+	local AMG = AnimationManager.GachaMonAnims
+	-- Draw in a specific order
+	if AMG.PackOpening then
+		AnimationManager.drawAnimation(AMG.PackOpening)
+		AnimationManager.drawAnimation(AMG.PackHelpText)
+	elseif AMG.CardDisplay then
+		AnimationManager.drawAnimation(AMG.CardDisplay)
+	end
 end
 
 -- Helper Functions
@@ -18,6 +34,40 @@ local _coverScreenInDarkness = function()
 	local border = Theme.COLORS["Upper box border"]
 	local color = 0xF0000000
 	gui.drawRectangle(x, y, w, h, border, color)
+end
+
+local _drawTrainerInfo = function(x, y, trainerInfo)
+	if not (trainerInfo and trainerInfo.name and trainerInfo.routeName) then
+		return
+	end
+	x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
+	y = Constants.SCREEN.MARGIN + 3
+	if not Utils.isNilOrEmpty(trainerInfo.image) then
+		local imageX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 32
+		local imageY = Constants.SCREEN.MARGIN + 2
+		Drawing.drawImage(trainerInfo.image, imageX, imageY)
+	end
+	local headerText = "Prize Card from Trainer:"
+	Drawing.drawText(x, y, headerText, 0xFFFCED86)
+	Drawing.drawText(x + 2, y + 11, trainerInfo.name, Drawing.Colors.WHITE)
+	local routeText = string.format("-  %s", trainerInfo.routeName)
+	Drawing.drawText(x + 2, y + 22, routeText, Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN)
+end
+
+local _drawNewLabel = function(x, y)
+	local LABEL_NEW = "NEW"
+	local NEW_W, NEW_H = 28, 14
+	local border, bg = 0xFFFD7DFF, 0xFFE849A2
+	local text, shadow = Drawing.Colors.WHITE, (Drawing.ColorEffects.DARKEN * 2)
+		-- fill + 4 borders
+	gui.drawRectangle(x + 1, y + 1, NEW_W - 2, NEW_H - 2, bg, bg)
+	gui.drawLine(x + 1, y, x + NEW_W - 1, y, border)
+	gui.drawLine(x + 1, y + NEW_H, x + NEW_W - 1, y + NEW_H, border)
+	gui.drawLine(x, y + 1, x, y + NEW_H - 1, border)
+	gui.drawLine(x + NEW_W, y + 1, x + NEW_W, y + NEW_H - 1, border)
+	-- inner text
+	gui.drawText(x + 2, y, LABEL_NEW, shadow, nil, 11, Constants.Font.FAMILY)
+	gui.drawText(x + 1, y - 1, LABEL_NEW, text, nil, 11, Constants.Font.FAMILY)
 end
 
 ---Creates a new IAnimation for a GachaMon card shiny / holographic foil by drawing an image sprite sheet instead of Bizhawk `gui`
@@ -161,8 +211,9 @@ end
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
+---@param trainerInfo? table<string, any> Optional, if this card was obtained as a prize from a trainer victory, use that to display data
 ---@return IAnimation
-function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
+function AnimationManager.createGachaMonPackOpening(x, y, gachamon, trainerInfo)
 	local SHOW_HELP_FRAME_DELAY = 210
 	local cardOffsetX, cardOffsetY = -1, 13
 
@@ -172,11 +223,12 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		KeyFrames = {},
 		OnExpire = function(self)
 			self:stop()
-			TrackerScreen.Animations.GachaMonPackOpening = nil
-			TrackerScreen.Animations.GachaMonCardDisplay = AnimationManager.createGachaMonCardDisplay(
+			AnimationManager.GachaMonAnims.PackOpening = nil
+			AnimationManager.GachaMonAnims.CardDisplay = AnimationManager.createGachaMonCardDisplay(
 				self.X + cardOffsetX,
 				self.Y + cardOffsetY,
-				self.Temp.GachaMon
+				self.Temp.GachaMon,
+				trainerInfo
 			)
 			Program.Frames.waitToDraw = 0
 		end,
@@ -201,9 +253,10 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		end
 		local helpText = string.format("--  Press (%s) or click to open  --", openButton)
 		local helpTextX = Utils.getCenteredTextX(helpText, Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2)
+		local helpTextY = trainerInfo ~= nil and (y + cardpackH + 1) or (y + cardpackH + 7)
 		local helpTextAnimation = AnimationManager.IAnimation:new({
 			X = x + helpTextX - 38,
-			Y = y + cardpackH + 7,
+			Y = helpTextY,
 			ShouldLoop = true,
 			KeyFrames = {},
 			IsVisible = function(self)
@@ -213,7 +266,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		local _onExpireHelpText = function(self)
 			if packAnimation.IsActive or not packAnimation:IsVisible() then
 				helpTextAnimation:stop()
-				TrackerScreen.Animations.CardPackHelpText = nil
+				AnimationManager.GachaMonAnims.PackHelpText = nil
 			end
 		end
 		for i=1, 160, 4 do
@@ -234,7 +287,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 		end
 		helpTextAnimation:buildAnimation()
 		AnimationManager.tryAddAnimationToActive(helpTextAnimation)
-		TrackerScreen.Animations.CardPackHelpText = helpTextAnimation
+		AnimationManager.GachaMonAnims.PackHelpText = helpTextAnimation
 	end
 
 	-- Add another animation to show help text on how to open packs
@@ -287,6 +340,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	-- Initial drawing, showing the unopened pack; a still image until its clicked on to be animated
 	packAnimation:addKeyFrame(1, function(self, _x, _y)
 		_coverScreenInDarkness()
+		_drawTrainerInfo(_x, _y, trainerInfo)
 		drawPack(_x, _y)
 	end)
 
@@ -295,6 +349,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	for i = 1, numKeyFramesToCutOpen - 1, 1 do
 		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
+			_drawTrainerInfo(_x, _y, trainerInfo)
 			drawPackTopPiece(_x, _y)
 			local cutW = i * cutSpeed
 			drawPackCutPiece(_x, _y, cutW)
@@ -305,6 +360,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	-- Frame: Pop off the top of the pack
 	packAnimation:addKeyFrame(15, function(self, _x, _y)
 		_coverScreenInDarkness()
+		_drawTrainerInfo(_x, _y, trainerInfo)
 		drawPackTopPiece(_x, _y)
 		drawPackBottomPiece(_x, _y)
 		-- top right
@@ -320,6 +376,7 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 	for i = 1, numKeyFramesToSlideAway, 1 do
 		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
+			_drawTrainerInfo(_x, _y, trainerInfo)
 			local iX = _x + (i-1) * 4
 			drawPackTopPiece(iX, _y)
 			drawPackBottomPiece(_x, _y)
@@ -328,13 +385,18 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon)
 
 	packAnimation:addKeyFrame(8, function(self, _x, _y)
 		_coverScreenInDarkness()
+		_drawTrainerInfo(_x, _y, trainerInfo)
 		drawPackBottomPiece(_x, _y)
 	end)
 
 	local numKeyFramesToDropDown = 111
+	if trainerInfo ~= nil then
+		numKeyFramesToDropDown = numKeyFramesToDropDown - 15
+	end
 	for i = 1, numKeyFramesToDropDown, 1 do
 		packAnimation:addKeyFrame(1, function(self, _x, _y)
 			_coverScreenInDarkness()
+			_drawTrainerInfo(_x, _y, trainerInfo)
 			local card = gachamon:getCardDisplayData()
 			GachaMonOverlay.drawGachaCard(card, _x + cardOffsetX, _y + cardOffsetY, 0, false, false)
 			local iY = _y + (i-1) * 1
@@ -352,28 +414,10 @@ end
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
+---@param trainerInfo? table<string, any> Optional, if this card was obtained as a prize from a trainer victory, use that to display data
 ---@return IAnimation
-function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
+function AnimationManager.createGachaMonCardDisplay(x, y, gachamon, trainerInfo)
 	local isNewSpecies = GachaMonData.checkIfNewCollectionSpecies(gachamon)
-	local LABEL_NEW = "NEW"
-	local NEW_W, NEW_H = 28, 14
-	local COLORS = {
-		text = Drawing.Colors.WHITE,
-		textShadow = Drawing.ColorEffects.DARKEN * 2,
-		borderNew = 0xFFFD7DFF,
-		bgfillNew = 0xFFE849A2,
-	}
-	local _drawNewLabel = function(_x, _y)
-		-- fill + 4 borders
-		gui.drawRectangle(_x + 1, _y + 1, NEW_W - 2, NEW_H - 2, COLORS.bgfillNew, COLORS.bgfillNew)
-		gui.drawLine(_x + 1, _y, _x + NEW_W - 1, _y, COLORS.borderNew)
-		gui.drawLine(_x + 1, _y + NEW_H, _x + NEW_W - 1, _y + NEW_H, COLORS.borderNew)
-		gui.drawLine(_x, _y + 1, _x, _y + NEW_H - 1, COLORS.borderNew)
-		gui.drawLine(_x + NEW_W, _y + 1, _x + NEW_W, _y + NEW_H - 1, COLORS.borderNew)
-		-- inner text
-		gui.drawText(_x + 2, _y, LABEL_NEW, COLORS.textShadow, nil, 11, Constants.Font.FAMILY)
-		gui.drawText(_x + 1, _y - 1, LABEL_NEW, COLORS.text, nil, 11, Constants.Font.FAMILY)
-	end
 
 	local animation = AnimationManager.IAnimation:new({
 		X = x,
@@ -384,6 +428,7 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
 				Duration = 600,
 				Draw = function(self, _x, _y)
 					_coverScreenInDarkness()
+					_drawTrainerInfo(_x, _y, trainerInfo)
 					local card = gachamon:getCardDisplayData()
 					GachaMonOverlay.drawGachaCard(card, _x, _y, 0, false, false)
 					if isNewSpecies then
@@ -394,7 +439,7 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon)
 		},
 		OnExpire = function(self)
 			self:stop()
-			TrackerScreen.Animations.GachaMonCardDisplay = nil
+			AnimationManager.GachaMonAnims.CardDisplay = nil
 			GachaMonData.clearNewestMonToShow()
 			Program.redraw(true)
 		end,
