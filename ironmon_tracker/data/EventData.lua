@@ -1302,7 +1302,7 @@ function EventData.getGachaMon(params)
 	local gachamon ---@type IGachaMon|nil
 	if not Utils.isNilOrEmpty(params, true) then
 		local id = DataHelper.findPokemonId(params)
-		local pokemon = PokemonData.Pokemon[id or false]
+		local pokemon = PokemonData.getNatDexCompatible(id)
 		-- Check Recent GachaMons for any matching names, just get "first" one doesn't matter really
 		if pokemon then
 			for _, gmon in pairs(GachaMonData.RecentMons or {}) do
@@ -1323,7 +1323,7 @@ function EventData.getGachaMon(params)
 	-- EXAMPLE OUTPUT
 	-- GachaMon > Milotic - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility
 	local pokemonName = pokemonInternal.name
 	if gachamon:getIsShiny() == 1 then
@@ -1347,8 +1347,9 @@ function EventData.getGachaMon(params)
 	local moveNames = {}
 	local moveIds = gachamon:getMoveIds()
 	for _, moveId in ipairs(moveIds or {}) do
-		if MoveData.isValid(moveId) then
-			table.insert(moveNames, MoveData.Moves[moveId].name)
+		local move = MoveData.getNatDexCompatible(moveId)
+		if move ~= MoveData.BlankMove then
+			table.insert(moveNames, move.name)
 		end
 	end
 	local moveList = table.concat(moveNames, ", ")

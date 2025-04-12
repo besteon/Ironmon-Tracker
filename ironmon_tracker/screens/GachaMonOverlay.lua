@@ -233,7 +233,8 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		onClick = function(self)
 			-- local moveIds = SCREEN.Data.View.GachaMon:getMoveIds()
-			-- if MoveData.isValid(moveIds[1]) then
+			-- local moveInternal = MoveData.getNatDexCompatible(moveIds[1])
+			-- if moveInternal ~= MoveData.BlankMove then
 			-- 	InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, moveIds[1]) -- implied redraw
 			-- end
 		end,
@@ -248,9 +249,9 @@ GachaMonOverlay.Tabs.View.Buttons = {
 
 			local moveIds = gachamon:getMoveIds()
 			for i, moveId in ipairs(moveIds or {}) do
-				local move = MoveData.Moves[moveId] or MoveData.BlankMove
+				local move = MoveData.getNatDexCompatible(moveId)
 				local name, power = Constants.BLANKLINE, ""
-				if MoveData.isValid(moveId) or (GachaMonData.requiresNatDex and moveId > 354) then
+				if move ~= MoveData.BlankMove or (GachaMonData.requiresNatDex and moveId > 354) then
 					name = move.name
 					power = move.power
 					if power == "0" then
@@ -1453,6 +1454,7 @@ function GachaMonOverlay.createTabsAndButtons()
 			onClick = function(self)
 				local dexData = SCREEN.getMonForGachaDexScreenSlot(self.slotNumber)
 				if not dexData then return end
+				local pokemonInternal = PokemonData.getNatDexCompatible(dexData.pokemonID)
 				if dexData.collected then
 					SCREEN.Data.Collection.FilterFunc = function(gachamon)
 						return dexData.pokemonID == gachamon.PokemonId
@@ -1462,7 +1464,7 @@ function GachaMonOverlay.createTabsAndButtons()
 					SCREEN.currentTab = SCREEN.Tabs.Collection
 					SCREEN.refreshButtons()
 					Program.redraw(true)
-				elseif PokemonData.isValid(dexData.pokemonID) then
+				elseif pokemonInternal ~= PokemonData.BlankPokemon then
 					if dexData.seen or dexData.collected or SCREEN.Data.GachaDex.ShowAllSeenIcons then
 						SCREEN.Data.GachaDex.TempShowPokemon = nil
 					else
@@ -1622,7 +1624,7 @@ function GachaMonOverlay.buildGachaDexData()
 	-- 	or SCREEN.SortFuncs.DefaultGachaDexSort
 
 	local _createDexData = function(id)
-		local pokemonInternal = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
+		local pokemonInternal = PokemonData.getNatDexCompatible(id)
 		local pokemonTypes = pokemonInternal.types or {}
 		local hasSeen = GachaMonData.DexData.SeenMons[id]
 		local dexData = {
@@ -2024,10 +2026,8 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	Drawing.drawText(x + abilityX, y + H - 27, abilityName, COLORS.text)
 
 	-- NAME TEXT
-	local monName = Constants.BLANKLINE
-	if PokemonData.isValid(card.PokemonId) or (GachaMonData.requiresNatDex and (card.PokemonId or 0) > 412) then
-		monName = PokemonData.Pokemon[card.PokemonId].name
-	end
+	local pokemonInternal = PokemonData.getNatDexCompatible(card.PokemonId)
+	local monName = pokemonInternal.name or Constants.BLANKLINE
 	local monX = Utils.getCenteredTextX(monName, W) - 1
 	Drawing.drawText(x + monX + 1, y + H - 13, monName, COLORS.shadow)
 	Drawing.drawText(x + monX, y + H - 14, monName, COLORS.name)
@@ -2126,7 +2126,7 @@ function GachaMonOverlay.drawMiniGachaCard(pokemonID, x, y, type1, type2, seen, 
 		local pokemonImageId = pokemonID
 		local imagePath = Drawing.getImagePath("GachaDexPokemonIcon", tostring(pokemonImageId))
 		-- If not a valid image id and also not a nat dex id, use question mark image
-		if GachaMonData.requiresNatDex and (pokemonID or 0) >= 412 then
+		if GachaMonData.requiresNatDex and (pokemonID or 0) > 411 then
 			imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonImageId))
 		elseif not PokemonData.isImageIDValid(pokemonImageId) then
 			-- Question mark icon
@@ -2157,7 +2157,7 @@ function GachaMonOverlay.drawPokemonIcon(pokemonID, pX, pY, useNatDexIcon)
 	local pokemonImageId = pokemonID
 	local animationOn = true -- If left nil, will use default animation sprite; just turn it off for Nat. Dex
 	-- If drawing a Nat. Dex. Pokémon and not using the IconSet used by Nat. Dex., then adjust the x/y offsets
-	if useNatDexIcon or (GachaMonData.requiresNatDex and (pokemonID or 0) >= 412) then
+	if useNatDexIcon or (GachaMonData.requiresNatDex and (pokemonID or 0) > 411) then
 		animationOn = false
 		local iconset = Options.getIconSet()
 		local natdexIconSet = Options.IconSetMap[3]

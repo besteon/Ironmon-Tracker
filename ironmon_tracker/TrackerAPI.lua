@@ -216,13 +216,17 @@ end
 ---Statistics about the player's GachaDex permanent collection (NumSeen, NumCollected, PercentageComplete, table of which mons are seen)
 ---@return table dexData
 function TrackerAPI.getGachaDexStats()
+	local totalPokemon = PokemonData.getTotal() - 25
+	if totalPokemon > 386 and not CustomCode.RomHacks.isPlayingNatDex() then
+		totalPokemon = 386
+	end
 	return {
 		-- Total unique pokemon species for GachaMons seen (captured) but not collected
 		NumSeen = GachaMonData.DexData.NumSeen,
 		-- Total unique pokemon species for GachaMons in collection
 		NumCollected = GachaMonData.DexData.NumCollected,
 		-- Total possible to collect
-		TotalPossible = PokemonData.getTotal() - 25,
+		TotalPossible = totalPokemon,
 		-- A whole number from 0 to 100
 		PercentageComplete = GachaMonData.DexData.PercentageComplete,
 		-- A record of allowed the unique pokemon species seen

@@ -185,7 +185,7 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 		},
 	})
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 
 	gachamon.AbilityId = PokemonData.getAbilityId(pokemonData.pokemonID, pokemonData.abilityNum)
 
@@ -201,7 +201,8 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	end
 
 	for _, move in ipairs(pokemonData.moves or {}) do
-		if MoveData.isValid(move.id) then
+		local moveInternal = MoveData.getNatDexCompatible(move.id)
+		if moveInternal ~= MoveData.BlankMove then
 			table.insert(gachamon.Temp.MoveIds, move.id)
 		end
 	end
@@ -252,7 +253,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local pokemonTypes = pokemonInternal.types or {}
 
 	-- RULESET
@@ -337,7 +338,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
 		iMoves[i] = {
 			id = id,
-			move = MoveData.Moves[id] or MoveData.BlankMove,
+			move = MoveData.getNatDexCompatible(id),
 			ePower = MoveData.getExpectedPower(id),
 			rating = RS.Moves[id] or 0,
 		}
@@ -495,10 +496,10 @@ function GachaMonData.calculateBattlePower(gachamon)
 	power = power + starsBonus
 
 	-- Add move power & STAB bonus
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or false] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local totalMovePower, hasStab = 0, false
 	for _, moveId in ipairs(gachamon:getMoveIds() or {}) do
-		local move = MoveData.Moves[moveId or false]
+		local move = MoveData.getNatDexCompatible(moveId)
 		if move then
 			totalMovePower = totalMovePower + MoveData.getExpectedPower(moveId)
 			if not hasStab and Utils.isSTAB(move, move.type, pokemonInternal.types or {}) then
@@ -571,7 +572,7 @@ function GachaMonData.createRandomGachaMon()
 
 	gachamon.PokemonId = Utils.randomPokemonID()
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local pokemonTypes = pokemonInternal.types or {}
 	gachamon.Type1 = PokemonData.TypeNameToIndexMap[pokemonTypes[1] or PokemonData.Types.UNKNOWN]
 	if not gachamon.Type1 then
@@ -623,8 +624,8 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		trainerData.party = trainerData.party or {}
 		-- Sort their party by BST then level (easier to obtain legendaries/mythical this way)
 		table.sort(trainerData.party, function(a, b)
-			local pokemonA = PokemonData.Pokemon[a.pokemonID] or PokemonData.BlankPokemon
-			local pokemonB = PokemonData.Pokemon[b.pokemonID] or PokemonData.BlankPokemon
+			local pokemonA = PokemonData.getNatDexCompatible(a.pokemonID)
+			local pokemonB = PokemonData.getNatDexCompatible(b.pokemonID)
 			local bstA = tonumber(pokemonA.bst) or 0
 			local bstB = tonumber(pokemonB.bst) or 0
 			return bstA > bstB or (bstA == bstB and a.level > b.level)
@@ -647,8 +648,8 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 	if differentTrainer then
 		local t1mon = trainerData.party[1] or {}
 		local t2mon = differentTrainer.party[1] or {}
-		local pokemon1 = PokemonData.Pokemon[t1mon.pokemonID or 0] or PokemonData.BlankPokemon
-		local pokemon2 = PokemonData.Pokemon[t2mon.pokemonID or 0] or PokemonData.BlankPokemon
+		local pokemon1 = PokemonData.getNatDexCompatible(t1mon.pokemonID)
+		local pokemon2 = PokemonData.getNatDexCompatible(t2mon.pokemonID)
 		local bst1 = tonumber(pokemon1.bst) or 0
 		local bst2 = tonumber(pokemon2.bst) or 0
 		if bst2 > bst1 then
@@ -657,7 +658,8 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 	end
 
 	local trainerPokemon = trainerData.party[1]
-	if not PokemonData.isValid(trainerPokemon.pokemonID) then
+	local pokemonInternal = PokemonData.getNatDexCompatible(trainerPokemon.pokemonID)
+	if pokemonInternal == PokemonData.BlankPokemon then
 		return nil, nil
 	end
 
@@ -674,7 +676,6 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		return nil, nil
 	end
 
-	local pokemonInternal = PokemonData.Pokemon[trainerPokemon.pokemonID]
 	local _estimateStat = function(statKey)
 		local level = trainerPokemon.level
 		local baseStat = pokemonInternal.baseStats[statKey]
@@ -1102,7 +1103,7 @@ function GachaMonData.checkForNatDexRequirement()
 	-- Otherwise, check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
 		-- Check if it's a Nat. Dex. Pokémon
-		if gachamon.PokemonId >= 412 then
+		if gachamon.PokemonId > 411 then
 			GachaMonData.requiresNatDex = true
 			break
 		end
@@ -1113,20 +1114,26 @@ function GachaMonData.checkForNatDexRequirement()
 
 	-- If so, add in necessary data and references
 	if type(natdexExt.buildExtensionPaths) == "function" then
+		-- Required for retrieving the image paths for nat dex pokemon icons
 		natdexExt.buildExtensionPaths()
 	end
-	if type(natdexExt.addNewPokemonData) == "function" then
-		natdexExt.addNewPokemonData()
-	end
-	if type(natdexExt.addNewMoves) == "function" then
-		natdexExt.addNewMoves()
-	end
 	if type(natdexExt.addNewSprites) == "function" then
+		-- Required for retrieving the image paths for nat dex pokemon icons
 		natdexExt.addNewSprites()
 	end
 	if type(natdexExt.addResources) == "function" then
 		natdexExt.addResources()
 	end
+
+	-- NOTE: Instead of adding this data in, which affects many other Tracker features, use their corresponding compatibility lookup functions
+	-- PokemonData.getNatDexCompatible(pokemonID)
+	-- if type(natdexExt.addNewPokemonData) == "function" then
+	-- 	natdexExt.addNewPokemonData()
+	-- end
+	-- MoveData.getNatDexCompatible(moveId)
+	-- if type(natdexExt.addNewMoves) == "function" then
+	-- 	natdexExt.addNewMoves()
+	-- end
 end
 
 
@@ -1305,7 +1312,7 @@ GachaMonData.IGachaMon = {
 
 	---@return string
 	getName = function(self)
-		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
+		local pokemonInternal = PokemonData.getNatDexCompatible(self.PokemonId)
 		return pokemonInternal.name
 	end,
 	---@return table<string, number> stats

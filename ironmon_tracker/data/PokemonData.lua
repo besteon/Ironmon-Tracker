@@ -325,7 +325,7 @@ end
 ---@param pokemonID number
 ---@return boolean
 function PokemonData.isValid(pokemonID)
-	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.getTotal()
+	return pokemonID ~= nil and PokemonData.Pokemon[pokemonID] ~= nil
 end
 
 ---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
@@ -336,18 +336,30 @@ function PokemonData.isImageIDValid(pokemonID)
 	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
 end
 
----Gets the total count of known Pokémon for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---Gets the total count of known Pokémon for this game.
 ---@return number
 function PokemonData.getTotal()
-	-- if PokemonData.knownTotal then
-	-- 	return PokemonData.knownTotal
-	-- end
-	if CustomCode.RomHacks.isPlayingNatDex() then
-		PokemonData.knownTotal = #PokemonData.Pokemon
-	else
-		PokemonData.knownTotal = 411
+	return #PokemonData.Pokemon
+end
+
+---Returns the Pokemon data if the ID is available in the base game, or if NatDex extension exists, try getting data from there
+---@param pokemonID number
+---@return table pokemon If no mon found, returns PokemonData.BlankPokemon
+function PokemonData.getNatDexCompatible(pokemonID)
+	local pokemon = PokemonData.Pokemon[pokemonID or false]
+	if pokemon then
+		return pokemon
 	end
-	return PokemonData.knownTotal
+	local baseGameTotal = 411
+	local hasNatDexAccess = GachaMonData.requiresNatDex or CustomCode.RomHacks.isPlayingNatDex()
+	if pokemonID > baseGameTotal and hasNatDexAccess then
+		local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+		if natdexExt and natdexExt.Data and natdexExt.Data.natDexMons then
+			local adjustedId = pokemonID - baseGameTotal
+			return natdexExt.Data.natDexMons[adjustedId] or PokemonData.BlankPokemon
+		end
+	end
+	return PokemonData.BlankPokemon
 end
 
 local idInternalToNat = {
