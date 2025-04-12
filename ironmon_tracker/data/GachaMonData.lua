@@ -178,7 +178,7 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 		Temp = {
 			Stats = {},
 			MoveIds = {},
-			GameVersion = GameSettings.gameVersionToNumber(GameSettings.versioncolor),
+			GameVersion = GachaMonData.gameVersionToNumber(GameSettings.versioncolor),
 			IsShiny = pokemonData.isShiny and 1 or 0,
 			Nature = pokemonData.nature or 0,
 			DateTimeObtained = os.time(),
@@ -770,6 +770,22 @@ function GachaMonData.clearNewestMonToShow()
 	GachaMonData.newestRecentMon = nil
 end
 
+---Converts a `gameversion` string (i.e. "FireRed") to a number (i.e. 3) for data storage
+---@param gameversion string
+---@return number
+function GachaMonData.gameVersionToNumber(gameversion)
+	local v = { ["Ruby"] = 1, ["Emerald"] = 2, ["FireRed"] = 3, ["Sapphire"] = 4, ["LeafGreen"] = 5 }
+	return v[gameversion or false] or 0
+end
+
+---Converts a number (i.e. 3) that represents the game version back to its string (i.e. "FireRed")
+---@param num number
+---@return string
+function GachaMonData.numberToGameVersion(num)
+	local v = { "Ruby", "Emerald", "FireRed", "Sapphire", "LeafGreen" }
+	return v[num or false] or Constants.HIDDEN_INFO
+end
+
 function GachaMonData.updateMainScreenViewedGachaMon()
 	local viewedPokemon = Battle.getViewedPokemon(true)
 	if not viewedPokemon then
@@ -807,7 +823,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	local rulesetsOrdered = {
 		{ Key = "Standard", Name = Constants.IronmonRulesetNames.Standard },
 		{ Key = "Ultimate", Name = Constants.IronmonRulesetNames.Ultimate },
-		{ Key = "StandSurvivalard", Name = Constants.IronmonRulesetNames.Survival },
+		{ Key = "Survival", Name = Constants.IronmonRulesetNames.Survival },
 		{ Key = "SuperKaizo", Name = Constants.IronmonRulesetNames.SuperKaizo },
 		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },
 	}
@@ -1329,7 +1345,7 @@ GachaMonData.IGachaMon = {
 	getGameVersionName = function(self)
 		if self.Temp.GameVersionName == nil then
 			local versionNum = Utils.getbits(self.C_MoveIdsGameVersionKeep, 36, 3)
-			self.Temp.GameVersionName = GameSettings.numberToGameVersion(versionNum)
+			self.Temp.GameVersionName = GachaMonData.numberToGameVersion(versionNum)
 		end
 		return self.Temp.GameVersionName
 	end,

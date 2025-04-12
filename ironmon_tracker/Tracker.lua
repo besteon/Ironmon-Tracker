@@ -820,7 +820,7 @@ function Tracker.AutoSave.loadFromFile()
 		Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, _finalizeLoadTrackerData)
 		local mismatchMsg = string.format("> %s: %s",
 			"ROM Mismatch",
-			"The ROM file that is open now is *not* the same ROM file that was last played, according to Tracker notes data."
+			"The currently open ROM file is *not* the same ROM file that was last played, according to Tracker notes data."
 		)
 		print(mismatchMsg)
 	else
@@ -867,7 +867,7 @@ function Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, callbackFunc)
 
 	local x, x2 = 15, 135
 	local iy = 10
-	form:createLabel("The ROM file that is open now is NOT the same ROM file that was last played.", x, iy)
+	form:createLabel("The currently open ROM file is NOT the same ROM file that was last played.", x, iy)
 	iy = iy + 22
 	form.Controls.labelOkayToIgnoreIf = form:createLabel("(Note: If you intend to create a NEW ROM anyway, simply dismiss this warning)", x, iy)
 	ExternalUI.BizForms.setProperty(form.Controls.labelOkayToIgnoreIf, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")

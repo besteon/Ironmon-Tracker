@@ -245,6 +245,7 @@ ScreenResources{
 		TabOptions = "Options",
 		ButtonViewLogs = "Logs",
 		ButtonCoverageCalculator = "Coverage Calculator",
+		ButtonGachaMonCollection = "GachaMon Collection",
 		ButtonTimeMachine = "Time Machine",
 		ButtonCrashRecovery = "Crash Recovery",
 		LabelTimer = "Timer options",
@@ -723,12 +724,37 @@ ScreenResources{
 		TabBattle = "Battle",
 		TabOptions = "Options",
 		TabAbout = "?",
+		-- Recent/Captures Tab
+
+		-- Collections Tab
+
+		-- View Tab
+		LabelRating = "Rating",
+		WordPoints = "points",
+		WordStars = "stars",
+		LabelBattlePower = "Battle Power",
+		BattlePowerAbbreviation = "BP",
+		LabelCollectedOn = "Collected on",
+		LabelSeed = "Seed",
+		LabelStats = "Stats",
+		ButtonBattle = "Battle",
+		ButtonFavorite = "Favorite",
+		ButtonInCollection = "In Collection",
+		ButtonAddToCollection = "Add to Collection",
+
+		-- GachaDex Tab
+
+		-- Battle Tab
+
+		-- Options Tab
 		OptionAutoAddIfNew = "It's a new Pokémon species",
 		OptionAutoAddWhenDefeatTrainers = "It defeats at least 2 trainers",
 		OptionAutoAddFromTrainerVictory = "It's a prize card from a trainer victory (must view log)",
 		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
 		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
 		OptionAnimateGachaMonPackOpening = "Animate card pack opening",
+
+		-- About Tab
 	},
 	TeamViewArea = {
 		EggNickname = "EGG",

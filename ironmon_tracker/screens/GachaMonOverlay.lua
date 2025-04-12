@@ -158,30 +158,30 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			if tonumber(stars) > 5 then
 				stars = "5+"
 			end
-			local ratingText = string.format("%s %s  (%s %s)", gachamon.RatingScore or 0, "points", stars, "stars")
-			Drawing.drawText(x, y, string.format("%s:", "Rating"), color, shadowcolor)
+			local ratingText = string.format("%s %s  (%s %s)", gachamon.RatingScore or 0, Resources[SCREEN.Key].WordPoints, stars, Resources[SCREEN.Key].WordStars)
+			Drawing.drawText(x, y, string.format("%s:", Resources[SCREEN.Key].LabelRating), color, shadowcolor)
 			Drawing.drawText(x2, y, ratingText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- BATTLE POWER
-			local bpText = string.format("%s %s", gachamon.BattlePower or 0, "BP")
-			Drawing.drawText(x, y, string.format("%s:", "Battle Power"), color, shadowcolor)
+			local bpText = string.format("%s %s", gachamon.BattlePower or 0, Resources[SCREEN.Key].BattlePowerAbbreviation)
+			Drawing.drawText(x, y, string.format("%s:", Resources[SCREEN.Key].LabelBattlePower), color, shadowcolor)
 			Drawing.drawText(x2, y, bpText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			-- COLLECTED ON INFO: DATE, SEED, GAME VERSION
 			local dateText = os.date("%x", os.time(gachamon:getDateObtainedTable()))
 			local seedText = Utils.formatNumberWithCommas(gachamon.SeedNumber or 0)
 			local versionText = gachamon:getGameVersionName()
-			Drawing.drawText(x, y, string.format("%s:", "Collected on"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("%s:", Resources[SCREEN.Key].LabelCollectedOn), color, shadowcolor)
 			Drawing.drawText(x2, y, dateText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 			Drawing.drawText(x2, y, versionText, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
-			Drawing.drawText(x2, y, string.format("%s %s", "Seed", seedText), color, shadowcolor)
+			Drawing.drawText(x2, y, string.format("%s %s", Resources[SCREEN.Key].LabelSeed, seedText), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING
 		end,
 	},
 	Stats = {
-		getText = function(self) return string.format("%s", "Stats") end,
+		getText = function(self) return string.format("%s", Resources[SCREEN.Key].LabelStats) end,
 		textColor = SCREEN.Colors.highlight,
 		box = { CANVAS.X + 3, CANVAS.Y + 69, 44, 11, },
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
@@ -392,7 +392,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.BATTLE_BALLS,
 		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
-		getText = function(self) return "Battle" end,
+		getText = function(self) return Resources[SCREEN.Key].ButtonBattle end,
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 82, 78, 17, },
 		noShadowBorder = true,
 		isVisible = function(self)
@@ -424,7 +424,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 	Favorite = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.HEART,
-		getText = function(self) return "Favorite" end,
+		getText = function(self) return Resources[SCREEN.Key].ButtonFavorite end,
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 103, 78, 16, },
 		noShadowBorder = true,
 		isVisible = function(self)
@@ -465,7 +465,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.CHECKMARK,
 		iconColors = { SCREEN.Colors.positive },
-		getText = function(self) return "In Collection" end,
+		getText = function(self) return Resources[SCREEN.Key].ButtonInCollection end,
 		box = { CANVAS.X + CANVAS.W - 78, CANVAS.Y + 123, 78, 16, },
 		noShadowBorder = true,
 		isVisible = function(self)
@@ -477,7 +477,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			local keep = gachamon and gachamon:getKeep() or 0
 			if keep == 1 then
 				self.image = Constants.PixelImages.CHECKMARK
-				self.getText = function() return "In Collection" end
+				self.getText = function() return Resources[SCREEN.Key].ButtonInCollection end
 			else
 				self.image = nil
 				self.getText = function() return "" end
@@ -503,7 +503,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 			local gachamon = SCREEN.Data.View.GachaMon
 			local keep = gachamon and gachamon:getKeep() or 0
 			if keep ~= 1 then
-				local text = "Add to Collection"
+				local text = Resources[SCREEN.Key].ButtonAddToCollection
 				local color = Theme.COLORS[SCREEN.Colors.text]
 				Drawing.drawText(x + 4, y + 2, text, color, shadowcolor)
 			end
