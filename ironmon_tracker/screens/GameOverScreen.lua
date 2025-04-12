@@ -6,6 +6,7 @@ GameOverScreen = {
 	},
 	isDisplayed = false, -- Prevents repeated changing screens due to BattleOutcome persisting
 	chosenQuoteIndex = 1,
+	numDefeatedTrainers = 0,
 	enteredFromSpecialLocation = false, -- prevents constantly changing back to game over screen
 	status = nil,
 }
@@ -178,8 +179,8 @@ GameOverScreen.Buttons = {
 				return Resources.GameOverScreen.ButtonOpenLogFile
 			end
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 50, 16 },
-		isVisible = function(self) return not Options["Add to collection if prize from trainer victory"] end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 112, 16 },
+		isVisible = function(self) return not Options["Add to collection if prize from trainer victory"] or (GameOverScreen.numDefeatedTrainers or 0) < 2 end,
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
 		end,
@@ -189,7 +190,7 @@ GameOverScreen.Buttons = {
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		getText = function(self) return Resources.GameOverScreen.ButtonViewLogSmall end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 132, 60, 16 },
-		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] end,
+		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] and (GameOverScreen.numDefeatedTrainers or 0) >= 2 end,
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
 		end,
@@ -200,11 +201,7 @@ GameOverScreen.Buttons = {
 		getText = function(self) return Resources.GameOverScreen.ButtonPrizeCard end,
 		iconColors = { "Positive text" },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 132, 62, 16 },
-		isVisible = function(self)
-			local defeatedTrainers = GachaMonData.getDefeatedCommonTrainers()
-			-- For now, use this option as a way to turn this off if someone doesn't like getting new cards
-			return Options["Add to collection if prize from trainer victory"] and #defeatedTrainers >= 2
-		end,
+		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] and (GameOverScreen.numDefeatedTrainers or 0) >= 2 end,
 		onClick = function(self)
 			-- If already created, display the card
 			if GachaMonData.createdTrainerPrizeCard then
@@ -249,6 +246,7 @@ GameOverScreen.Buttons = {
 function GameOverScreen.initialize()
 	GameOverScreen.isDisplayed = false
 	GameOverScreen.battleStartSaveState = nil -- Creates a temporary save state in memory, for restarting a battle
+	GameOverScreen.numDefeatedTrainers = 0
 	GameOverScreen.enteredFromSpecialLocation = false
 	GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 
@@ -271,6 +269,7 @@ function GameOverScreen.refreshButtons()
 			button:updateSelf()
 		end
 	end
+	GameOverScreen.updateDefeatedTrainersCount()
 end
 
 function GameOverScreen.randomizeAnnouncerQuote()
@@ -289,6 +288,11 @@ function GameOverScreen.randomizeAnnouncerQuote()
 		retries = retries - 1
 	end
 	return Resources.GameOverScreenQuotes[GameOverScreen.chosenQuoteIndex] or ""
+end
+
+function GameOverScreen.updateDefeatedTrainersCount()
+	local defeatedTrainers = GachaMonData.getDefeatedCommonTrainers() or {}
+	GameOverScreen.numDefeatedTrainers = #defeatedTrainers
 end
 
 ---Returns true if a GameOver has occurred and the screen should be displayed (lost/tied, or won final battle)
