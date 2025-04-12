@@ -8,12 +8,17 @@ AnimationManager = {
 	GachaMonAnims = {}
 }
 
+-- NOTE: For now, most/all animation functions are disabled for MGBA; GachaMonData.isCompatibleWithEmulator()
+
 function AnimationManager.initialize()
 	AnimationManager.ActiveAnimations = {}
 	AnimationManager.GachaMonAnims = {}
 end
 
 function AnimationManager.drawGachaMonAnims()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local AMG = AnimationManager.GachaMonAnims
 	-- Draw in a specific order
 	if AMG.PackOpening then
@@ -80,8 +85,11 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param timeToExpire number Number of seconds before this animation expires
 ---@param startFrameIndex? number Optional starting frame index (1-50) to sync up animations; default random
----@return IAnimation animation
+---@return IAnimation? animation
 function AnimationManager.createGachaMonShinySparklesImage(x, y, timeToExpire, startFrameIndex)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local W, H = 48, 48
 	-- TODO: Update this to a formal location if this function gets used
 	local SPRITE_SHEET = FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "shiny-sparkles", FileManager.Extensions.PNG)
@@ -130,8 +138,11 @@ end
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
 ---@param timeToExpire number Number of seconds before this animation expires
----@return table<number, IAnimation> animations
+---@return table<number, IAnimation>? animations
 function AnimationManager.createGachaMonShinySparkles(x, y, timeToExpire)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	-- TODO: consider different types of shiny animation or holographic foil
 
 	local animations = {
@@ -217,8 +228,12 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@param trainerInfo? table<string, any> Optional, if this card was obtained as a prize from a trainer victory, use that to display data
----@return IAnimation
+---@return IAnimation?
 function AnimationManager.createGachaMonPackOpening(x, y, gachamon, trainerInfo)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
+
 	local SHOW_HELP_FRAME_DELAY = 210
 	local cardOffsetX, cardOffsetY = -1, 13
 
@@ -422,8 +437,12 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@param trainerInfo? table<string, any> Optional, if this card was obtained as a prize from a trainer victory, use that to display data
----@return IAnimation
+---@return IAnimation?
 function AnimationManager.createGachaMonCardDisplay(x, y, gachamon, trainerInfo)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
+
 	local isNewSpecies = GachaMonData.checkIfNewCollectionSpecies(gachamon)
 
 	local animation = AnimationManager.IAnimation:new({
@@ -474,8 +493,12 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param gachamon1? IGachaMon
 ---@param gachamon2? IGachaMon
----@return IAnimation animation
+---@return IAnimation? animation
 function AnimationManager.createBattlefieldImageReveal(x, y, gachamon1, gachamon2)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
+
 	local W, H = 235, 142
 	local FRAME_DURATION = 3
 	local TERRAINS = {
@@ -555,6 +578,9 @@ end
 
 ---"Animates" the active animations by incrementing their frame counters
 function AnimationManager.stepFrames()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	if not AnimationManager.anyActive() then
 		return
 	end
@@ -574,6 +600,9 @@ end
 ---@param animation IAnimation
 ---@return boolean success
 function AnimationManager.tryAddAnimationToActive(animation)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	if AnimationManager.ActiveAnimations[animation.GUID] then
 		return false
 	end
@@ -590,6 +619,9 @@ end
 ---Draws a specific animation
 ---@param animation? IAnimation
 function AnimationManager.drawAnimation(animation)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	if animation and animation:IsVisible() then
 		animation:draw()
 	end
@@ -597,6 +629,9 @@ end
 
 ---Draws all visible ActiveAnimations
 function AnimationManager.drawActiveAnimations()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	for _, animation in pairs(AnimationManager.ActiveAnimations or {}) do
 		AnimationManager.drawAnimation(animation)
 	end

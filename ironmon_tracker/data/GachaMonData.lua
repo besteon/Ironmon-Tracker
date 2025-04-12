@@ -44,15 +44,6 @@ GachaMonData = {
 }
 
 --[[
-TESTING LIST
-- Sound glitches out sometimes. Test by turning on game sound while shinies are active in Collection
-- [MGBA] Just make sure stuff is just playable on MGBA even without GachaMon
-]]
-
---[[
-TODO LIST
-- [Resources] ALL resources
-
 TODO LATER:
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
@@ -71,6 +62,11 @@ TODO LATER:
 - [Card] Add Nickname; research how many bytes it takes up
 - [Bug] low-prority; If still viewing a card pack opening and swap to a new mon, no new pack is created for it (might be as easy as check if recentMon ~= nil)
 ]]
+
+-- For now, disable most/all GachaMon features if playing on MGBA emulator (aka. not Bizhawk)
+function GachaMonData.isCompatibleWithEmulator()
+	return Main.IsOnBizhawk()
+end
 
 function GachaMonData.initialize()
 	-- Reset data variables
@@ -787,6 +783,9 @@ function GachaMonData.numberToGameVersion(num)
 end
 
 function GachaMonData.updateMainScreenViewedGachaMon()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local viewedPokemon = Battle.getViewedPokemon(true)
 	if not viewedPokemon then
 		GachaMonData.playerViewedMon = nil
@@ -871,6 +870,9 @@ end
 ---For each Pokémon in the player's party, mark their corresponding GachaMon card that a badge has been obtained
 ---@param badgeNumber number The badge number, must be between 1 and 8 inclusive
 function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	if badgeNumber < 1 or badgeNumber > 8 then
 		return
 	end
@@ -892,6 +894,9 @@ end
 
 ---For each Pokémon in the player's party, mark their corresponding GachaMon card as a game winner
 function GachaMonData.markTeamForGameWin()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local anyChanged = false
 	-- Check each Pokémon in the player's party. For the ones with GachaMon cards, update their game win status
 	for i = 1, 6, 1 do
@@ -910,7 +915,7 @@ end
 ---Only once the Tracker notes are loaded, check for recent GachaMon saved for this exact rom file (rom hash match)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
-	if GachaMonData.initialRecentMonsLoaded then
+	if GachaMonData.initialRecentMonsLoaded or not GachaMonData.isCompatibleWithEmulator()then
 		return
 	end
 
@@ -920,7 +925,7 @@ end
 
 ---Only once per game, load the collection. Usually occurs when the Overlay is first opened or if a "NEW" GachaMon is captured
 function GachaMonData.tryLoadCollection()
-	if GachaMonData.initialCollectionLoaded then
+	if GachaMonData.initialCollectionLoaded or not GachaMonData.isCompatibleWithEmulator() then
 		return
 	end
 	GachaMonData.initialCollectionLoaded = true
@@ -933,6 +938,9 @@ end
 ---@param fromTrainerPrize? boolean Optional, set to true to indicate this pokemon data was generated from a trainer
 ---@return boolean success
 function GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	local gachamon, pidIndex = GachaMonData.getAssociatedRecentMon(pokemon)
 	-- Don't add if it already exists
 	if not GachaMonData.initialRecentMonsLoaded or gachamon then
@@ -966,6 +974,9 @@ end
 ---@param mon IPokemon|IGachaMon It's associated GachaMon from RecentMons will be used
 ---@return boolean success
 function GachaMonData.tryAutoKeepInCollection(mon)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	local gachamon = GachaMonData.getAssociatedRecentMon(mon)
 	if not gachamon or gachamon:getKeep() == 1 then
 		return false
@@ -990,6 +1001,9 @@ end
 ---@param isKeep? boolean
 ---@param isWinner? boolean
 function GachaMonData.updateGachaMonAndSave(gachamon, isFave, isKeep, isWinner)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local monHasChanged = false
 
 	if isFave ~= nil then -- if nil, don't make changes

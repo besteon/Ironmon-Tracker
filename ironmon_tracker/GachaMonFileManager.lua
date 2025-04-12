@@ -385,6 +385,9 @@ end
 ---@param filepathOverride? string
 ---@return boolean success
 function GachaMonFileManager.trySaveCollectionOnClose(collection, filepathOverride)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	if not GachaMonData.collectionRequiresSaving then
 		return false
 	end
@@ -398,6 +401,9 @@ end
 ---@param filepathOverride? string
 ---@return boolean success
 function GachaMonFileManager.tryAppendToCollection(gachamon, filepathOverride)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	-- TODO: Add additional verification to prevent duplicate append of data
 
 	local filepath = filepathOverride or GachaMonFileManager.getCollectionFilePath()
