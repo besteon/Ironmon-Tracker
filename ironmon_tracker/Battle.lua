@@ -193,6 +193,7 @@ function Battle.updateBattleStatus()
 		Program.GameTimer:pause()
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
+		GameOverScreen.updateDefeatedTrainersCount()
 		Program.changeScreenView(GameOverScreen)
 	end
 end
