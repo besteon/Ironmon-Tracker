@@ -593,10 +593,9 @@ function GachaMonData.createRandomGachaMon()
 	return gachamon
 end
 
----Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
----@return IPokemon? pokemon
----@return table<string, any>? trainerInfo
-function GachaMonData.createPokemonDataFromDefeatedTrainers()
+---Gets a list of all the defeated common trainers for the current game
+---@return table<number, number>
+function GachaMonData.getDefeatedCommonTrainers()
 	-- Check through all common trainers
 	local defeatedTrainers = {}
 	for _, idList in pairs(TrainerData.CommonTrainers or {}) do
@@ -606,7 +605,17 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 			end
 		end
 	end
-	if #defeatedTrainers == 0 then
+	return defeatedTrainers
+end
+
+---Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
+---@return IPokemon? pokemon
+---@return table<string, any>? trainerInfo
+function GachaMonData.createPokemonDataFromDefeatedTrainers()
+	-- Check through all common trainers
+	local defeatedTrainers = GachaMonData.getDefeatedCommonTrainers()
+	-- Don't count first rival fight
+	if #defeatedTrainers < 2 then
 		return nil, nil
 	end
 
@@ -663,7 +672,7 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 			local learnedMove = learnedMoves[j]
 			if learnedMove.level <= trainerPokemon.level then
 				-- Insert at the front (i=1) to add them in "reverse" or bottom-up
-				table.insert(trainerPokemon.moves, 1, learnedMove.moveId)
+				table.insert(trainerPokemon.moves, 1, learnedMove.id)
 				if #trainerPokemon.moves >= 4 then
 					break
 				end
