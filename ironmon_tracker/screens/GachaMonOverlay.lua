@@ -232,6 +232,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 		box = { CANVAS.X + 55, CANVAS.Y + 88, 83, 11, },
 		isVisible = function(self) return SCREEN.Data.View.GachaMon ~= nil end,
 		onClick = function(self)
+			-- TODO: Might add this in later, not sure
 			-- local moveIds = SCREEN.Data.View.GachaMon:getMoveIds()
 			-- local moveInternal = MoveData.getNatDexCompatible(moveIds[1])
 			-- if moveInternal ~= MoveData.BlankMove then
@@ -258,6 +259,7 @@ GachaMonOverlay.Tabs.View.Buttons = {
 						power = Constants.BLANKLINE
 					end
 				end
+				-- TODO: For now, don't show colors for moves because the current screen uses "Upper box background" not "Lower box background"
 				local color = Theme.COLORS[SCREEN.Colors.text]
 				local iy = y + 10 * i
 				Drawing.drawText(x + 1, iy, name, color, shadowcolor)
@@ -529,8 +531,8 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			local text = Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN
-			local textLine1 = "-  These are GachaMons you've captured this game"
-			local textLine2 = '-  Keep the ones you want with: "Add to Collection"'
+			local textLine1 = string.format("-  %s", Resources[SCREEN.Key].RecentCapturesHelpText1)
+			local textLine2 = string.format("-  %s", Resources[SCREEN.Key].RecentCapturesHelpText2)
 			Drawing.drawText(x, y, textLine1, text)
 			Drawing.drawText(x, y + 11, textLine2, text)
 		end
@@ -557,7 +559,7 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 		end
 	},
 	LabelSort = {
-		getText = function(self) return string.format("%s:", "Sort") end,
+		getText = function(self) return string.format("%s:", Resources[SCREEN.Key].LabelSort) end,
 		box = { CANVAS.X + 213, CANVAS.Y + 21, 16, 16, },
 		draw = function(self, shadowcolor)
 			local y = self.box[2]
@@ -618,8 +620,9 @@ GachaMonOverlay.Tabs.Recent.Buttons = {
 			end
 			x, y = x + 0, y + 0
 			local color = Theme.COLORS[SCREEN.Colors.text]
-			Drawing.drawText(x + 1, y + 1, "BP", shadowcolor, shadowcolor, 11)
-			Drawing.drawText(x, y, "BP", color, shadowcolor, 11)
+			local bpText = Resources[SCREEN.Key].BattlePowerAbbreviation
+			Drawing.drawText(x + 1, y + 1, bpText, shadowcolor, shadowcolor, 11)
+			Drawing.drawText(x, y, bpText, color, shadowcolor, 11)
 		end
 	},
 	SortByDate = {
@@ -708,7 +711,7 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 		end
 	},
 	LabelSort = {
-		getText = function(self) return string.format("%s:", "Sort") end,
+		getText = function(self) return string.format("%s:", Resources[SCREEN.Key].LabelSort) end,
 		box = { CANVAS.X + 213, CANVAS.Y + 21, 16, 16, },
 	},
 	SortByStars = {
@@ -763,8 +766,9 @@ GachaMonOverlay.Tabs.Collection.Buttons = {
 			end
 			x, y = x + 0, y + 0
 			local color = Theme.COLORS[SCREEN.Colors.text]
-			Drawing.drawText(x + 1, y + 1, "BP", shadowcolor, shadowcolor, 11)
-			Drawing.drawText(x, y, "BP", color, shadowcolor, 11)
+			local bpText = Resources[SCREEN.Key].BattlePowerAbbreviation
+			Drawing.drawText(x + 1, y + 1, bpText, shadowcolor, shadowcolor, 11)
+			Drawing.drawText(x, y, bpText, color, shadowcolor, 11)
 		end
 	},
 	SortByDate = {
@@ -862,7 +866,7 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 		end
 	},
 	LabelSeen = {
-		getText = function(self) return string.format("%s", "Seen") end,
+		getText = function(self) return string.format("%s", Resources[SCREEN.Key].LabelSeen) end,
 		box = { CANVAS.X + 212, CANVAS.Y + 21, 22, 16, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		draw = function(self, shadowcolor)
@@ -881,7 +885,7 @@ GachaMonOverlay.Tabs.GachaDex.Buttons = {
 		end,
 	},
 	LabelCollectionTotals = {
-		getText = function(self) return string.format("%s", "Coll.") end,
+		getText = function(self) return string.format("%s", Resources[SCREEN.Key].LabelCollAbbreviation) end,
 		box = { CANVAS.X + 214, CANVAS.Y + 45, 21, 16, },
 		isVisible = function(self) return SCREEN.Data.GachaDex ~= nil end,
 		draw = function(self, shadowcolor)
@@ -1037,7 +1041,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 		index = 11,
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.REFERENCE_RIGHT,
-		getText = function(self) return "Choose Fighter" end,
+		getText = function(self) return "Choose Fighter" or Resources[SCREEN.Key].ButtonChooseFighter end,
 		box = { CANVAS.X + 23, CANVAS.Y + 123, 82, 18, },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		noShadowBorder = true,
@@ -1053,7 +1057,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.SWORD_ATTACK,
 		iconColors = { SCREEN.Colors.highlight },
-		getText = function(self) return "Add Opponent" end,
+		getText = function(self) return "Add Opponent" or Resources[SCREEN.Key].ButtonAddOpponent end,
 		box = { CANVAS.X + 123, CANVAS.Y + 123, 82, 18, },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		noShadowBorder = true,
@@ -1072,7 +1076,7 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.BATTLE_BALLS,
 		iconColors = Constants.PixelImages.BATTLE_BALLS.iconColors,
-		getText = function(self) return "Start Battle!" end,
+		getText = function(self) return "Start Battle!" or Resources[SCREEN.Key].ButtonStartBattle end,
 		box = { CANVAS.X + 73, CANVAS.Y + 2, 82, 18, },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		noShadowBorder = true,
@@ -1097,8 +1101,8 @@ GachaMonOverlay.Tabs.Battle.Buttons = {
 GachaMonOverlay.Tabs.Options.Buttons = {
 	-- Option checkboxes are added later in createTabsAndButtons()
 
-	LabelOnCatchOptions = {
-		getText = function(self) return string.format("%s ...", "When a new GachaMon is captured, add to collection if" or Resources[SCREEN.Key].Label) end,
+	LabelOnCaptureOptionsHeader = {
+		getText = function(self) return string.format("%s ...", Resources[SCREEN.Key].LabelOnCaptureHeader) end,
 		box = { CANVAS.X + 3, CANVAS.Y + 3, CANVAS.W - 20, 14, },
 		textColor = SCREEN.Colors.highlight,
 	},
@@ -1143,7 +1147,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	},
 
 	LabelRatingsRuleset = {
-		getText = function(self) return string.format("%s:", "Ruleset used for ratings" or Resources[SCREEN.Key].Label) end,
+		getText = function(self) return string.format("%s:", Resources[SCREEN.Key].LabelRulesetForRatings) end,
 		box = { CANVAS.X + 3, CANVAS.Y + 58, CANVAS.W - 20, 14, },
 		textColor = SCREEN.Colors.highlight,
 	},
@@ -1154,7 +1158,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 			local rulesetKey = GachaMonData.rulesetKey or Options["GachaMon Ratings Ruleset"] or false
 			local rulesetName = Constants.IronmonRulesetNames[rulesetKey]
 			if rulesetName and GachaMonData.rulesetAutoDetected then
-				return string.format("%s (%s)", rulesetName, "Auto")
+				return string.format("%s (%s)", rulesetName, Resources[SCREEN.Key].LabelTagAuto)
 			else
 				return rulesetName or Constants.IronmonRulesetNames.Standard
 			end
@@ -1175,7 +1179,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 	},
 
 	CollectionSize = {
-		getText = function(self) return string.format("%s:", "GachaMons in collection" or Resources[SCREEN.Key].Label) end,
+		getText = function(self) return string.format("%s:", Resources[SCREEN.Key].LabelCollectionSize) end,
 		getValue = function(self)
 			return SCREEN.Data.Collection and (#SCREEN.Data.Collection.OrderedGachaMons) or Constants.BLANKLINE
 		end,
@@ -1193,7 +1197,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.NOTEPAD,
 		iconColors = { SCREEN.Colors.text },
-		getText = function(self) return "Cleanup Collection" end,
+		getText = function(self) return Resources[SCREEN.Key].ButtonCleanupCollection end,
 		box = { CANVAS.X + 131, CANVAS.Y + 122, 100, 16, },
 		isVisible = function(self) return #GachaMonData.Collection > 0 end,
 		onClick = function(self)
@@ -1210,14 +1214,14 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 			-- NAME & GENDER
-			local headerText = "GachaMon  Collectable  Card  Game"
+			local headerText = Resources[SCREEN.Key].GachaMonGameHeader
 			if Theme.DRAW_TEXT_SHADOWS then
 				Drawing.drawText(x + 4 + 1, y + 1, headerText, shadowcolor, nil, 14)
 			end
 			Drawing.drawText(x + 4, y, headerText, highlight, nil, 14)
 			y = y + Constants.SCREEN.LINESPACING + 7
 			-- SLOGAN
-			local nameText = "Play IronMON,  collect GachaMon cards!"
+			local nameText = Resources[SCREEN.Key].GachaMonGameDescription
 			local nameTextX = Utils.getCenteredTextX(nameText, w) - 2
 			Drawing.drawText(x + nameTextX, y, nameText, color, shadowcolor)
 		end,
@@ -1229,19 +1233,19 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 			local border = Theme.COLORS[SCREEN.Colors.border]
-			local headerText = Utils.toUpperUTF8("How it works")
+			local headerText = Utils.toUpperUTF8(Resources[SCREEN.Key].SectionHowItWorks)
 			local headertW = Utils.calcWordPixelLength(headerText)
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("1.  %s", "Catch " .. Resources.AllScreens.Pokemon), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("1.  %s", Resources[SCREEN.Key].LabelCatchPokemon), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("2.  %s", "Acquire GachaMon cards"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("2.  %s", Resources[SCREEN.Key].LabelAcquireGachaMonCards), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("3.  %s", "Keep cards in your Collection"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("3.  %s", Resources[SCREEN.Key].LabelKeepCardsInCollection), color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
 			-- TODO: after adding back in the Battle tab, remove the "coming seen" text
-			Drawing.drawText(x, y, string.format("4.  %s", "Battle!  (coming soon)"), color, shadowcolor)
+			Drawing.drawText(x, y, string.format("4.  %s", Resources[SCREEN.Key].LabelBattle), color, shadowcolor)
 		end,
 	},
 	WhatsOnCard = {
@@ -1251,19 +1255,19 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			local color = Theme.COLORS[SCREEN.Colors.text]
 			local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 			local border = Theme.COLORS[SCREEN.Colors.border]
-			local headerText = Utils.toUpperUTF8("What's on a Card")
+			local headerText = Utils.toUpperUTF8(Resources[SCREEN.Key].SectionWhatsOnCard)
 			local headertW = Utils.calcWordPixelLength(headerText)
 			Drawing.drawText(x, y, headerText, highlight, shadowcolor)
 			gui.drawLine(x, y + 11, x + headertW + 2, y + 11, border)
 			y = y + Constants.SCREEN.LINESPACING + 2
-			Drawing.drawText(x, y, string.format("%s  %s  %s", "Stars", Constants.BLANKLINE, "The " .. Resources.AllScreens.Pokemon .. "'s rating (1- 5)"), color, shadowcolor)
+			Drawing.drawText(x, y, Resources[SCREEN.Key].LabelStarsAndRating, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
-			Drawing.drawText(x, y, string.format("%s  %s  %s", "Battle Power", Constants.BLANKLINE, "The card's strength"), color, shadowcolor)
+			Drawing.drawText(x, y, Resources[SCREEN.Key].LabelBattlePowerAndStrength, color, shadowcolor)
 			y = y + Constants.SCREEN.LINESPACING + 1
 		end,
 	},
 	SampleGachaMonCard = {
-		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 45, 76, 76, },
+		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 43, 76, 76, },
 		gachamon = nil,
 		randomizeCard = function(self)
 			self.gachamon = GachaMonData.createRandomGachaMon()

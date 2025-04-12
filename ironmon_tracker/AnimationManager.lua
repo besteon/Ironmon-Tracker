@@ -47,7 +47,7 @@ local _drawTrainerInfo = function(x, y, trainerInfo)
 		local imageY = Constants.SCREEN.MARGIN + 2
 		Drawing.drawImage(trainerInfo.image, imageX, imageY)
 	end
-	local headerText = "Prize Card from Trainer:"
+	local headerText = string.format("%s:", Resources.GachaMonAnimations.LabelPrizeCardFromTrainer)
 	Drawing.drawText(x, y, headerText, 0xFFFCED86)
 	Drawing.drawText(x + 2, y + 11, trainerInfo.name, Drawing.Colors.WHITE)
 	local routeText = string.format("-  %s", trainerInfo.routeName)
@@ -55,7 +55,7 @@ local _drawTrainerInfo = function(x, y, trainerInfo)
 end
 
 local _drawNewLabel = function(x, y)
-	local LABEL_NEW = "NEW"
+	local LABEL_NEW = Resources.GachaMonAnimations.LabelTabNEW
 	local NEW_W, NEW_H = 28, 14
 	local border, bg = 0xFFFD7DFF, 0xFFE849A2
 	local text, shadow = Drawing.Colors.WHITE, (Drawing.ColorEffects.DARKEN * 2)
@@ -251,7 +251,9 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon, trainerInfo)
 		if openButton == Input.NO_KEY_MAPPING then
 			openButton = Constants.BLANKLINE
 		end
-		local helpText = string.format("--  Press (%s) or click to open  --", openButton)
+
+		local helpTextFormat = string.format("--  %s  --", Resources.GachaMonAnimations.LabelPressBUTTONtoOpen)
+		local helpText = string.format(helpTextFormat, openButton)
 		local helpTextX = Utils.getCenteredTextX(helpText, Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2)
 		local helpTextY = trainerInfo ~= nil and (y + cardpackH + 1) or (y + cardpackH + 7)
 		local helpTextAnimation = AnimationManager.IAnimation:new({
