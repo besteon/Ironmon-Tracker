@@ -593,10 +593,9 @@ function GachaMonData.createRandomGachaMon()
 	return gachamon
 end
 
----Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
----@return IPokemon? pokemon
----@return table<string, any>? trainerInfo
-function GachaMonData.createPokemonDataFromDefeatedTrainers()
+---Gets a list of all the defeated common trainers for the current game
+---@return table<number, number>
+function GachaMonData.getDefeatedCommonTrainers()
 	-- Check through all common trainers
 	local defeatedTrainers = {}
 	for _, idList in pairs(TrainerData.CommonTrainers or {}) do
@@ -606,7 +605,17 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 			end
 		end
 	end
-	if #defeatedTrainers == 0 then
+	return defeatedTrainers
+end
+
+---Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
+---@return IPokemon? pokemon
+---@return table<string, any>? trainerInfo
+function GachaMonData.createPokemonDataFromDefeatedTrainers()
+	-- Check through all common trainers
+	local defeatedTrainers = GachaMonData.getDefeatedCommonTrainers()
+	-- Don't count first rival fight
+	if #defeatedTrainers < 2 then
 		return nil, nil
 	end
 
@@ -655,15 +664,18 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		return nil, nil
 	end
 
+	Utils.printDebug("Num Moves: %s", #(trainerPokemon.moves or {}))
 	if #(trainerPokemon.moves or {}) < 4 then
 		trainerPokemon.moves = {}
 		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset by working backwards
 		local learnedMoves = PokemonData.readLevelUpMoves(trainerPokemon.pokemonID) or {}
+		Utils.printDebug("Num Learned Moves: %s", #learnedMoves)
 		for j = #learnedMoves, 1, -1 do
 			local learnedMove = learnedMoves[j]
 			if learnedMove.level <= trainerPokemon.level then
 				-- Insert at the front (i=1) to add them in "reverse" or bottom-up
-				table.insert(trainerPokemon.moves, 1, learnedMove.moveId)
+				table.insert(trainerPokemon.moves, 1, learnedMove.id)
+				Utils.printDebug("Adding move: %s", learnedMove.id)
 				if #trainerPokemon.moves >= 4 then
 					break
 				end

@@ -201,8 +201,9 @@ GameOverScreen.Buttons = {
 		iconColors = { "Positive text" },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 132, 62, 16 },
 		isVisible = function(self)
+			local defeatedTrainers = GachaMonData.getDefeatedCommonTrainers()
 			-- For now, use this option as a way to turn this off if someone doesn't like getting new cards
-			return Options["Add to collection if prize from trainer victory"]
+			return Options["Add to collection if prize from trainer victory"] and #defeatedTrainers >= 2
 		end,
 		onClick = function(self)
 			-- If already created, display the card
