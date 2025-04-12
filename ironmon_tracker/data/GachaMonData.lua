@@ -664,18 +664,15 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		return nil, nil
 	end
 
-	Utils.printDebug("Num Moves: %s", #(trainerPokemon.moves or {}))
 	if #(trainerPokemon.moves or {}) < 4 then
 		trainerPokemon.moves = {}
 		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset by working backwards
 		local learnedMoves = PokemonData.readLevelUpMoves(trainerPokemon.pokemonID) or {}
-		Utils.printDebug("Num Learned Moves: %s", #learnedMoves)
 		for j = #learnedMoves, 1, -1 do
 			local learnedMove = learnedMoves[j]
 			if learnedMove.level <= trainerPokemon.level then
 				-- Insert at the front (i=1) to add them in "reverse" or bottom-up
 				table.insert(trainerPokemon.moves, 1, learnedMove.id)
-				Utils.printDebug("Adding move: %s", learnedMove.id)
 				if #trainerPokemon.moves >= 4 then
 					break
 				end
