@@ -273,6 +273,11 @@ function QuickloadScreen.initialize()
 	SCREEN.checkForActiveProfileChanges()
 	SCREEN.buildProfileButtons()
 
+	-- After New Run profile and custom extensions are loaded, use that to determine the active ruleset for GachaMon calculations
+	if Options["GachaMon Ratings Ruleset"] == "AutoDetect" then
+		Program.addFrameCounter("QuickloadScreen:autoDetermineIronmonRuleset", 1, GachaMonData.autoDetermineIronmonRuleset, 1)
+	end
+
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
 			button.textColor = SCREEN.Colors.text
@@ -1226,6 +1231,18 @@ end
 ---@return string filepath
 function QuickloadScreen.generateTdatFilePath(profile)
 	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
+end
+
+---Builds a full filepath to the GachaMon RecentMons file that will be used by the specified `profile`
+---@param profile IProfile
+---@return string filepath
+function QuickloadScreen.generateGachaMonFilePath(profile)
+	return string.format("%s%s %s%s",
+		FileManager.getGachaMonFolderPath(),
+		profile.Name,
+		FileManager.PostFixes.GACHAMON_RECENT,
+		FileManager.Extensions.GACHAMON
+	)
 end
 
 function QuickloadScreen.refreshButtons()

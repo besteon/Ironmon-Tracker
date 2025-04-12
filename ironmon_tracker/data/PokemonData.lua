@@ -46,7 +46,7 @@ PokemonData.Types = {
 	ICE = "ice",
 	DRAGON = "dragon",
 	DARK = "dark",
-	-- FAIRY = "fairy", -- Currently unused. Expect this to be unused in Gen 1-5
+	FAIRY = "fairy", -- Adding in just for Nat. Dex. rom hack support convenience
 	UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
 	EMPTY = "", -- No second type for this Pokémon or an empty field
 }
@@ -156,14 +156,16 @@ PokemonData.Evolutions = {
 }
 
 function PokemonData.initialize()
+	PokemonData.knownTotal = nil
 	PokemonData.buildData()
 	PokemonData.checkIfDataIsRandomized()
 end
 
 function PokemonData.updateResources()
-	for i, val in ipairs(PokemonData.Pokemon) do
-		if Resources.Game.PokemonNames[i] then
-			val.name = Resources.Game.PokemonNames[i]
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
+		if Resources.Game.PokemonNames[id] then
+			pokemon.name = Resources.Game.PokemonNames[id]
 		end
 	end
 
@@ -218,7 +220,8 @@ function PokemonData.buildData(forced)
 	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
 	-- 	return
 	-- end
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		pokemon.pokemonID = id
 
 		if id < 252 or id > 276 then -- Skip fake Pokemon
@@ -322,7 +325,7 @@ end
 ---@param pokemonID number
 ---@return boolean
 function PokemonData.isValid(pokemonID)
-	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= #PokemonData.Pokemon
+	return pokemonID ~= nil and PokemonData.Pokemon[pokemonID] ~= nil
 end
 
 ---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
@@ -331,6 +334,32 @@ end
 function PokemonData.isImageIDValid(pokemonID)
 	-- 0 is a valid placeholder id
 	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
+end
+
+---Gets the total count of known Pokémon for this game.
+---@return number
+function PokemonData.getTotal()
+	return #PokemonData.Pokemon
+end
+
+---Returns the Pokemon data if the ID is available in the base game, or if NatDex extension exists, try getting data from there
+---@param pokemonID number
+---@return table pokemon If no mon found, returns PokemonData.BlankPokemon
+function PokemonData.getNatDexCompatible(pokemonID)
+	local pokemon = PokemonData.Pokemon[pokemonID or false]
+	if pokemon then
+		return pokemon
+	end
+	local baseGameTotal = 411
+	local hasNatDexAccess = GachaMonData.requiresNatDex or CustomCode.RomHacks.isPlayingNatDex()
+	if pokemonID > baseGameTotal and hasNatDexAccess then
+		local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+		if natdexExt and natdexExt.Data and natdexExt.Data.natDexMons then
+			local adjustedId = pokemonID - baseGameTotal
+			return natdexExt.Data.natDexMons[adjustedId] or PokemonData.BlankPokemon
+		end
+	end
+	return PokemonData.BlankPokemon
 end
 
 local idInternalToNat = {
@@ -381,7 +410,8 @@ function PokemonData.dexMapNationalToInternal(pokemonID)
 end
 
 function PokemonData.getIdFromName(pokemonName)
-	for id, pokemon in pairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if pokemon.name == pokemonName then
 			return id
 		end
@@ -392,7 +422,8 @@ end
 
 function PokemonData.namesToList()
 	local pokemonNames = {}
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if id < 252 or id > 276 then -- Skip fake Pokemon
 			table.insert(pokemonNames, pokemon.name)
 		end
@@ -416,16 +447,19 @@ function PokemonData.getEffectiveness(pokemonID)
 	end
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
+	local isPlayingNatDex = CustomCode.RomHacks.isPlayingNatDex()
 
 	for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
 		local total = 1
-		if typeMultiplier[pokemon.types[1]] ~= nil then
+		if pokemon.types and typeMultiplier[pokemon.types[1]] ~= nil then
 			total = total * typeMultiplier[pokemon.types[1]]
 		end
-		if pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
+		if pokemon.types and pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
 			total = total * typeMultiplier[pokemon.types[2]]
 		end
-		if effectiveness[total] ~= nil then
+		-- Only calculate fairy type effectiveness if nat dex is being playing
+		local fairyOkay = moveType ~= PokemonData.Types.FAIRY or isPlayingNatDex
+		if effectiveness[total] ~= nil and fairyOkay then
 			table.insert(effectiveness[total], moveType)
 		end
 	end
@@ -546,7 +580,7 @@ end
 
 ---Reads from the game data all of the level-up moves learned by a Pokémon species
 ---@param pokemonID number
----@return table learnedMoves A list moves, each entry as a table: { id = number, level = number }
+---@return table<string, number> learnedMoves A list moves, each entry as a table: { id = number, level = number }
 function PokemonData.readLevelUpMoves(pokemonID)
 	local learnedMoves = {}
 	if not PokemonData.isValid(pokemonID) then
@@ -556,7 +590,7 @@ function PokemonData.readLevelUpMoves(pokemonID)
 	local LEVEL_UP_END = 0xFFFF
 	-- gLevelUpLearnsets is an array of addresses for all Pokémon species; each entry is a 4 byte address
 	local levelUpLearnsetPtr = Memory.readdword(GameSettings.gLevelUpLearnsets + (pokemonID * 4))
-	for i=0, 50, 1 do -- MAX of 51 iterations, as a failsafe
+	for i=0, 99, 1 do -- MAX of 100 iterations, as a failsafe
 		-- Each entry is 2 bytes formatted as: #define LEVEL_UP_MOVE(lvl, move) ((lvl << 9) | move)
 		local levelUpMove = Memory.readword(levelUpLearnsetPtr + (i * 2))
 		if levelUpMove == LEVEL_UP_END then
@@ -588,6 +622,28 @@ PokemonData.TypeIndexMap = {
 	[0x0F] = PokemonData.Types.ICE,
 	[0x10] = PokemonData.Types.DRAGON,
 	[0x11] = PokemonData.Types.DARK,
+	[0x12] = PokemonData.Types.FAIRY,
+}
+PokemonData.TypeNameToIndexMap = {
+	[PokemonData.Types.NORMAL] = 0x00,
+	[PokemonData.Types.FIGHTING] = 0x01,
+	[PokemonData.Types.FLYING] = 0x02,
+	[PokemonData.Types.POISON] = 0x03,
+	[PokemonData.Types.GROUND] = 0x04,
+	[PokemonData.Types.ROCK] = 0x05,
+	[PokemonData.Types.BUG] = 0x06,
+	[PokemonData.Types.GHOST] = 0x07,
+	[PokemonData.Types.STEEL] = 0x08,
+	[PokemonData.Types.UNKNOWN] = 0x09, -- MYSTERY
+	[PokemonData.Types.FIRE] = 0x0A,
+	[PokemonData.Types.WATER] = 0x0B,
+	[PokemonData.Types.GRASS] = 0x0C,
+	[PokemonData.Types.ELECTRIC] = 0x0D,
+	[PokemonData.Types.PSYCHIC] = 0x0E,
+	[PokemonData.Types.ICE] = 0x0F,
+	[PokemonData.Types.DRAGON] = 0x10,
+	[PokemonData.Types.DARK] = 0x11,
+	[PokemonData.Types.FAIRY] = 0x12,
 }
 
 PokemonData.BlankPokemon = {

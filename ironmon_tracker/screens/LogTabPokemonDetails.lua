@@ -160,7 +160,8 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		offsetY = offsetY + abilityBtn.box[4]
 	end
 
-	local evoMethods = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}
+	local pokemonInternal = PokemonData.Pokemon[data.p.id] or PokemonData.BlankPokemon
+	local evoMethods = Utils.getShortenedEvolutionsInfo(pokemonInternal.evolution) or {}
 
 	local hasPrevEvo = Options["Show Pre Evolutions"] and (#data.p.prevos > 0)
 	local hasEvo = hasPrevEvo or (#data.p.evos > 0)

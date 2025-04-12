@@ -1,4 +1,5 @@
 UpdateScreen = {
+	Key = "UpdateScreen",
 	States = {
 		NEEDS_CHECK = 1, -- "Already on the latest version.", -- Not displayed anywhere visually
 		NOT_UPDATED = 2, -- "Update not yet started.", -- Not displayed anywhere visually
@@ -13,12 +14,15 @@ UpdateScreen = {
 		boxFill = "Lower box background",
 	},
 }
+UpdateScreen.Overlay = {}
+local SCREEN = UpdateScreen
+
 
 local columnOffsetX = 73
 UpdateScreen.Buttons = {
 	CurrentVersion = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.UpdateScreen.VersionCurrent .. ":" end,
+		getText = function(self) return Resources[SCREEN.Key].VersionCurrent .. ":" end,
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 13, 50, 11 },
 		draw = function(self, shadowcolor)
 			local offsetX = self.box[1] + columnOffsetX
@@ -27,37 +31,38 @@ UpdateScreen.Buttons = {
 	},
 	LatestVersion = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.UpdateScreen.VersionLatest .. ":" end,
+		getText = function(self) return Resources[SCREEN.Key].VersionLatest .. ":" end,
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 25, 50, 11 },
 		draw = function(self, shadowcolor)
 			local offsetX = self.box[1] + columnOffsetX
 			Drawing.drawText(offsetX, self.box[2], Main.Version.latestAvailable, Theme.COLORS[self.textColor], shadowcolor)
 
 			if not Main.isOnLatestVersion() then
-				local newText = string.format("(%s)", Resources.UpdateScreen.VersionNew)
+				local newText = string.format("(%s)", Resources[SCREEN.Key].VersionNew)
 				Drawing.drawText(offsetX + 30, self.box[2], newText, Theme.COLORS["Positive text"], shadowcolor)
 			end
 		end,
 	},
 	ReleaseNotesLabel = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.UpdateScreen.LabelRelease .. ":" end,
+		getText = function(self) return Resources[SCREEN.Key].LabelRelease .. ":" end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 39, 50, 11 },
 	},
 	ShowHideReleaseNotes = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self)
-			if UpdateScreen.showNotes then
-				return Resources.UpdateScreen.ButtonHide
+			if Program.currentOverlay == SCREEN.Overlay then
+				return Resources[SCREEN.Key].ButtonHide
 			else
-				return Resources.UpdateScreen.ButtonShow
+				return Resources[SCREEN.Key].ButtonShow
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + columnOffsetX + 2, Constants.SCREEN.MARGIN + 39, 28, 11 },
 		onClick = function(self)
-			UpdateScreen.showNotes = not UpdateScreen.showNotes
-			if UpdateScreen.showNotes and #UpdateScreen.Pager.Notes == 0 then
-				UpdateScreen.buildOutPagedButtons()
+			if Program.currentOverlay ~= SCREEN.Overlay then
+				Program.openOverlayScreen(SCREEN.Overlay)
+			else
+				Program.closeScreenOverlay()
 			end
 			Program.redraw(true)
 		end
@@ -67,9 +72,9 @@ UpdateScreen.Buttons = {
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		getText = function(self)
 			if self.updateStatus == "Unchecked" then
-				return Resources.UpdateScreen.ButtonCheckForUpdates
+				return Resources[SCREEN.Key].ButtonCheckForUpdates
 			else
-				return Resources.UpdateScreen.ButtonNoUpdates
+				return Resources[SCREEN.Key].ButtonNoUpdates
 			end
 		end,
 		updateStatus = "Unchecked", -- checked later when clicked
@@ -103,11 +108,11 @@ UpdateScreen.Buttons = {
 		getText = function(self)
 			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
 			if not UpdateScreen.isUpdateSupported() then
-				return Resources.UpdateScreen.ButtonOpenDownload
+				return Resources[SCREEN.Key].ButtonOpenDownload
 			elseif Options["Dev branch updates"] then
-				return Resources.UpdateScreen.ButtonInstallFromDev
+				return Resources[SCREEN.Key].ButtonInstallFromDev
 			else
-				return Resources.UpdateScreen.ButtonInstallNow
+				return Resources[SCREEN.Key].ButtonInstallNow
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 73, 90, 16 },
@@ -115,7 +120,7 @@ UpdateScreen.Buttons = {
 		onClick = function(self)
 			if not UpdateScreen.isUpdateSupported() then
 				-- In such a case, open a browser window with a link for manual download...
-				Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
+				Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources[SCREEN.Key].MessageCheckConsole)
 				-- ... and swap back to main Tracker screen.
 				UpdateScreen.exitScreen()
 			else
@@ -126,7 +131,7 @@ UpdateScreen.Buttons = {
 	IgnoreUpdate = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.CLOSE,
-		getText = function(self) return Resources.UpdateScreen.ButtonIgnoreUpdate end,
+		getText = function(self) return Resources[SCREEN.Key].ButtonIgnoreUpdate end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 95, 90, 16 },
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function() UpdateScreen.exitScreen() end
@@ -134,7 +139,7 @@ UpdateScreen.Buttons = {
 	DevOptIn = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Dev branch updates",
-		getText = function(self) return " " .. Resources.UpdateScreen.CheckboxDevBranch end,
+		getText = function(self) return " " .. Resources[SCREEN.Key].CheckboxDevBranch end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 98, 10 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 8, 8 },
 		toggleState = false, -- update later in initialize
@@ -159,7 +164,7 @@ UpdateScreen.Buttons = {
 	end),
 }
 
-UpdateScreen.Pager = {
+UpdateScreen.Overlay.Pager = {
 	Notes = {},
 	currentPage = 0,
 	totalPages = 0,
@@ -188,66 +193,63 @@ UpdateScreen.Pager = {
 		Program.redraw(true)
 	end,
 }
-UpdateScreen.Pager.Buttons = {
+UpdateScreen.Overlay.Pager.Buttons = {
 	OverlayViewOnline = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.UpdateScreen.ButtonViewOnline end,
+		getText = function(self) return Resources[SCREEN.Key].ButtonViewOnline end,
 		box = { 3, Constants.SCREEN.HEIGHT - 15, 55, 11, },
-		isVisible = function() return UpdateScreen.showNotes end,
 		onClick = function(self)
-			Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
+			Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources[SCREEN.Key].MessageCheckConsole)
 		end
 	},
 	OverlayCurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return UpdateScreen.Pager:getPageText() end,
+		getText = function(self) return SCREEN.Overlay.Pager:getPageText() end,
 		box = { 98, Constants.SCREEN.HEIGHT - 14, 50, 10, },
-		isVisible = function() return UpdateScreen.showNotes and UpdateScreen.Pager.totalPages > 1 end,
+		isVisible = function() return SCREEN.Overlay.Pager.totalPages > 1 end,
 	},
 	OverlayPrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		box = { 88, Constants.SCREEN.HEIGHT - 13, 10, 10, },
-		isVisible = function() return UpdateScreen.showNotes and UpdateScreen.Pager.totalPages > 1 end,
-		onClick = function(self) UpdateScreen.Pager:prevPage() end
+		isVisible = function() return SCREEN.Overlay.Pager.totalPages > 1 end,
+		onClick = function(self) SCREEN.Overlay.Pager:prevPage() end
 	},
 	OverlayNextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { 148, Constants.SCREEN.HEIGHT - 13, 10, 10, },
-		isVisible = function() return UpdateScreen.showNotes and UpdateScreen.Pager.totalPages > 1 end,
-		onClick = function(self) UpdateScreen.Pager:nextPage() end
+		isVisible = function() return SCREEN.Overlay.Pager.totalPages > 1 end,
+		onClick = function(self) SCREEN.Overlay.Pager:nextPage() end
 	},
 	OverlayClose = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.AllScreens.Close end,
 		box = { 206, Constants.SCREEN.HEIGHT - 15, 30, 11, },
-		isVisible = function() return UpdateScreen.showNotes end,
 		onClick = function(self)
-			UpdateScreen.Pager.currentPage = 1
-			UpdateScreen.showNotes = false
+			Program.closeScreenOverlay()
 			Program.redraw(true)
 		end
 	},
 }
 
 function UpdateScreen.initialize()
-	for _, button in pairs(UpdateScreen.Buttons) do
+	SCREEN.currentState = SCREEN.States.NOT_UPDATED
+
+	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
-			button.textColor = UpdateScreen.Colors.text
+			button.textColor = SCREEN.Colors.text
 		end
 		if button.boxColors == nil then
-			button.boxColors = { UpdateScreen.Colors.border, UpdateScreen.Colors.boxFill }
+			button.boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill }
 		end
 	end
 
-	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-
-	UpdateScreen.refreshButtons()
+	SCREEN.refreshButtons()
 end
 
 function UpdateScreen.refreshButtons()
-	for _, button in pairs(UpdateScreen.Buttons) do
+	for _, button in pairs(SCREEN.Buttons) do
 		if button.updateSelf ~= nil then
 			button:updateSelf()
 		end
@@ -262,51 +264,15 @@ end
 function UpdateScreen.exitScreen()
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	UpdateScreen.Buttons.CheckForUpdates:reset()
-	UpdateScreen.showNotes = false
-	UpdateScreen.Pager.currentPage = 1
+	SCREEN.Buttons.CheckForUpdates:reset()
+	if Program.currentOverlay == SCREEN.Overlay then
+		Program.closeScreenOverlay()
+	end
 	Program.changeScreenView(NavigationMenu)
 end
 
--- These buttons are only displayed when 'showNotes' is enabled, and input checks are performed separately
-function UpdateScreen.buildOutPagedButtons()
-	if #Main.Version.releaseNotes == 0 then
-		Main.updateReleaseNotes()
-	end
-
-	UpdateScreen.Pager.Notes = {}
-	for i, note in ipairs(Main.Version.releaseNotes) do
-		local wrappedNote = Utils.getWordWrapLines(note, 56)
-		local noteHeight = #wrappedNote * Constants.SCREEN.LINESPACING
-
-		local noteBox = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			textColor = "Default text",
-			notelines = wrappedNote,
-			ordinal = i,
-			dimensions = { width = Constants.SCREEN.WIDTH - 20, height = noteHeight, },
-			isVisible = function(self) return UpdateScreen.Pager.currentPage == self.pageVisible end,
-			draw = function(self, shadowcolor)
-				local yOffset = 0
-				for _, line in pairs(wrappedNote) do
-					Drawing.drawText(self.box[1], self.box[2] + yOffset, line, Theme.COLORS[self.textColor], shadowcolor)
-					yOffset = yOffset + Constants.SCREEN.LINESPACING
-				end
-			end,
-		}
-		table.insert(UpdateScreen.Pager.Notes, noteBox)
-	end
-
-	local x = 4
-	local y = 18
-	local colSpacer = 1
-	local rowSpacer = 4
-	UpdateScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
-	return true
-end
-
 function UpdateScreen.beginAutoUpdate()
-	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
+	SCREEN.currentState = SCREEN.States.IN_PROGRESS
 	Program.redraw(true)
 
 	Tracker.AutoSave.saveToFile()
@@ -335,20 +301,20 @@ function UpdateScreen.performUpdate()
 	Utils.tempDisableBizhawkSound()
 
 	if UpdateOrInstall.performParallelUpdate() then
-		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
+		SCREEN.currentState = SCREEN.States.SUCCESS
 		Main.Version.showUpdate = false
 		Main.Version.showReleaseNotes = true
 		Main.SaveSettings(true)
 		Main.ExitSafely(false)
 	else
-		UpdateScreen.currentState = UpdateScreen.States.ERROR
+		SCREEN.currentState = SCREEN.States.ERROR
 	end
 
 	Drawing.allowCachedImages = true
 	Utils.tempEnableBizhawkSound()
 
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts
-	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+	if SCREEN.currentState == SCREEN.States.SUCCESS then
 		-- Close any open pop-up forms
 		ExternalUI.BizForms.destroyForm()
 		Drawing.AnimatedPokemon:destroy()
@@ -361,54 +327,54 @@ end
 
 -- USER INPUT FUNCTIONS
 function UpdateScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function UpdateScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[UpdateScreen.Colors.boxFill])
+	gui.defaultTextBackground(Theme.COLORS[SCREEN.Colors.boxFill])
 
 	local topBox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
 		y = Constants.SCREEN.MARGIN + 10,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
 		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
-		text = Theme.COLORS[UpdateScreen.Colors.text],
-		border = Theme.COLORS[UpdateScreen.Colors.border],
-		fill = Theme.COLORS[UpdateScreen.Colors.boxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[UpdateScreen.Colors.boxFill]),
+		text = Theme.COLORS[SCREEN.Colors.text],
+		border = Theme.COLORS[SCREEN.Colors.border],
+		fill = Theme.COLORS[SCREEN.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
 	}
 	local textLineY = topBox.y + 2
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.UpdateScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources[SCREEN.Key].Title), Theme.COLORS["Header text"], headerShadow)
 
 	-- TOP BORDER BOX
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	local updateStatusMsg
-	if UpdateScreen.currentState == UpdateScreen.States.IN_PROGRESS then
-		updateStatusMsg = Resources.UpdateScreen.MessageInProgress
-	elseif UpdateScreen.currentState == UpdateScreen.States.AFTER_RESTART then
-		updateStatusMsg = Resources.UpdateScreen.MessageRequireRestart
-	elseif UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+	if SCREEN.currentState == SCREEN.States.IN_PROGRESS then
+		updateStatusMsg = Resources[SCREEN.Key].MessageInProgress
+	elseif SCREEN.currentState == SCREEN.States.AFTER_RESTART then
+		updateStatusMsg = Resources[SCREEN.Key].MessageRequireRestart
+	elseif SCREEN.currentState == SCREEN.States.SUCCESS then
 		updateStatusMsg = ""
-	elseif UpdateScreen.currentState == UpdateScreen.States.ERROR then
-		updateStatusMsg = (Resources.UpdateScreen.MessageError or "") .. ":"
+	elseif SCREEN.currentState == SCREEN.States.ERROR then
+		updateStatusMsg = (Resources[SCREEN.Key].MessageError or "") .. ":"
 	end
 
 	-- If an update was attempted, show status messages about it
 	textLineY = textLineY + 52
-	if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED and UpdateScreen.currentState ~= UpdateScreen.States.NEEDS_CHECK then
+	if SCREEN.currentState ~= SCREEN.States.NOT_UPDATED and SCREEN.currentState ~= SCREEN.States.NEEDS_CHECK then
 		local wrappedDesc = Utils.getWordWrapLines(updateStatusMsg or "", 31)
 		for _, line in pairs(wrappedDesc) do
 			Drawing.drawText(topBox.x + 4, textLineY, line, Theme.COLORS["Intermediate text"], topBox.shadow)
 			textLineY = textLineY + Constants.SCREEN.LINESPACING
 		end
-		if UpdateScreen.currentState == UpdateScreen.States.ERROR then
+		if SCREEN.currentState == SCREEN.States.ERROR then
 			textLineY = textLineY + 2
 			Drawing.drawText(topBox.x + 24, textLineY, FileManager.Files.UPDATE_OR_INSTALL or "", topBox.text, topBox.shadow)
 			textLineY = textLineY + Constants.SCREEN.LINESPACING
@@ -416,12 +382,67 @@ function UpdateScreen.drawScreen()
 	end
 
 	-- Draw all buttons
-	for _, button in pairs(UpdateScreen.Buttons) do
+	for _, button in pairs(SCREEN.Buttons) do
 		Drawing.drawButton(button, topBox.shadow)
 	end
 end
 
-function UpdateScreen.drawReleaseNotesOverlay()
+function UpdateScreen.Overlay.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Overlay.Pager.Buttons)
+end
+
+function UpdateScreen.Overlay.open()
+	if #SCREEN.Overlay.Pager.Notes == 0 then
+		SCREEN.Overlay.buildOutPagedButtons()
+	end
+end
+
+function UpdateScreen.Overlay.close()
+	if Program.currentOverlay == UpdateScreen.Overlay then
+		Program.currentOverlay = nil
+	end
+	SCREEN.Overlay.Pager.currentPage = 1
+end
+
+---Populates the release notes overlay with a paged set of items
+---@return boolean
+function UpdateScreen.Overlay.buildOutPagedButtons()
+	if #Main.Version.releaseNotes == 0 then
+		Main.updateReleaseNotes()
+	end
+
+	SCREEN.Overlay.Pager.Notes = {}
+	for i, note in ipairs(Main.Version.releaseNotes) do
+		local wrappedNote = Utils.getWordWrapLines(note, 56)
+		local noteHeight = #wrappedNote * Constants.SCREEN.LINESPACING
+
+		local noteBox = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			textColor = "Default text",
+			notelines = wrappedNote,
+			ordinal = i,
+			dimensions = { width = Constants.SCREEN.WIDTH - 20, height = noteHeight, },
+			isVisible = function(self) return SCREEN.Overlay.Pager.currentPage == self.pageVisible end,
+			draw = function(self, shadowcolor)
+				local yOffset = 0
+				for _, line in pairs(wrappedNote) do
+					Drawing.drawText(self.box[1], self.box[2] + yOffset, line, Theme.COLORS[self.textColor], shadowcolor)
+					yOffset = yOffset + Constants.SCREEN.LINESPACING
+				end
+			end,
+		}
+		table.insert(SCREEN.Overlay.Pager.Notes, noteBox)
+	end
+
+	local x = 4
+	local y = 18
+	local colSpacer = 1
+	local rowSpacer = 4
+	SCREEN.Overlay.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
+	return true
+end
+
+function UpdateScreen.Overlay.drawScreen()
 	local overlay = {
 		x = 0,
 		y = 0,
@@ -437,15 +458,19 @@ function UpdateScreen.drawReleaseNotesOverlay()
 	gui.drawRectangle(overlay.x, overlay.y, overlay.width, overlay.height, overlay.border, overlay.fill)
 
 	-- Draw header text
-	local headerText = string.format("%s  v%s", Utils.toUpperUTF8(Resources.UpdateScreen.LabelRelease), Main.Version.latestAvailable)
+	local version = Main.TrackerVersion
+	if Utils.isNewerVersion(Main.Version.latestAvailable, version) then
+		version = Main.Version.latestAvailable
+	end
+	local headerText = string.format("%s  v%s", Utils.toUpperUTF8(Resources[SCREEN.Key].LabelRelease), version)
 	Drawing.drawHeader(overlay.x + 1, overlay.y, headerText, Theme.COLORS["Intermediate text"], overlay.shadow)
 
 	-- Draw all release notes
-	for _, note in pairs(UpdateScreen.Pager.Notes) do
+	for _, note in pairs(SCREEN.Overlay.Pager.Notes) do
 		Drawing.drawButton(note, overlay.shadow)
 	end
 	-- Draw all buttons
-	for _, button in pairs(UpdateScreen.Pager.Buttons) do
+	for _, button in pairs(SCREEN.Overlay.Pager.Buttons) do
 		Drawing.drawButton(button, overlay.shadow)
 	end
 end

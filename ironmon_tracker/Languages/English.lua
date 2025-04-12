@@ -165,6 +165,7 @@ ScreenResources{
 		TrackedDataMsgLoadSuccess = "Loaded from last play session.",
 		TrackedDataMsgNewGame = "New game started.",
 		TrackedDataMsgAutoDisabled = "Auto saving / loading is OFF.",
+		TrackedDataMsgRomMismatch = "Incorrect ROM file loaded.",
 		TrackedDataMsgError = "Error loading file.",
 		HeaderFavorites = "Favorite Pokémon",
 		HeaderControls = "GBA Controls",
@@ -219,6 +220,7 @@ ScreenResources{
 		CarouselLastAttack = "Last attack damage",
 		CarouselBattleDetails = "Additional battle details",
 		CarouselPedometer = "Step pedometer",
+		CarouselGachaMon = "GachaMons captured",
 		OptionOverrideButtonModeLR = "Override Button Mode to LR",
 		ButtonEditAll = "Edit All",
 		LabelCurrentControllerBinding = "Current controller binding",
@@ -243,6 +245,7 @@ ScreenResources{
 		TabOptions = "Options",
 		ButtonViewLogs = "Logs",
 		ButtonCoverageCalculator = "Coverage Calculator",
+		ButtonGachaMonCollection = "GachaMon Collection",
 		ButtonTimeMachine = "Time Machine",
 		ButtonCrashRecovery = "Crash Recovery",
 		LabelTimer = "Timer options",
@@ -560,6 +563,8 @@ ScreenResources{
 		ButtonGradeMyNotes = "Grade my notes",
 		ButtonInspectLogFile = "Inspect the log",
 		ButtonOpenLogFile = "Open a log file",
+		ButtonViewLogSmall = "View log",
+		ButtonPrizeCard = "Prize card",
 	},
 	StatMarkingScoreSheet = {
 		Title = "Stat Marking Score Sheet",
@@ -713,6 +718,70 @@ ScreenResources{
 		FilterTrainerName = "Trainer Name",
 		FilterRouteName = "Route Name",
 	},
+	GachaMonAnimations = {
+		LabelPrizeCardFromTrainer = "Prize Card from Trainer",
+		LabelTabNEW = "NEW",
+		LabelPressBUTTONtoOpen = "Press (%s) or click to open"
+	},
+	GachaMonOverlay = {
+		TabRecent = "Captures",
+		TabCollection = "Collection",
+		TabView = "View",
+		TabGachaDex = "GachaDex",
+		TabBattle = "Battle",
+		TabOptions = "Options",
+		TabAbout = "?",
+
+		-- Recent/Captures Tab & Collections Tabs
+		RecentCapturesHelpText1 = "Here are GachaMons you've captured this game.",
+		RecentCapturesHelpText2 = "Click [Add to Collection] to keep them forever.",
+		LabelSort = "Sort",
+
+		-- View Tab
+		LabelRating = "Rating",
+		WordPoints = "points",
+		WordStars = "stars",
+		LabelBattlePower = "Battle Power",
+		BattlePowerAbbreviation = "BP",
+		LabelCollectedOn = "Collected on",
+		LabelSeed = "Seed",
+		LabelStats = "Stats",
+		ButtonBattle = "Battle",
+		ButtonFavorite = "Favorite",
+		ButtonInCollection = "In Collection",
+		ButtonAddToCollection = "Add to Collection",
+
+		-- GachaDex Tab
+		LabelSeen = "Seen",
+		LabelCollAbbreviation = "Coll.",
+
+		-- Battle Tab
+
+		-- Options Tab
+		LabelOnCaptureHeader = "When a new GachaMon is captured, add to collection if",
+		LabelRulesetForRatings = "Ruleset used for ratings",
+		LabelTagAuto = "Auto",
+		LabelCollectionSize = "GachaMons in collection",
+		OptionAutoAddIfNew = "It's a new Pokémon species",
+		OptionAutoAddWhenDefeatTrainers = "It defeats at least 2 trainers",
+		OptionAutoAddFromTrainerVictory = "It's a prize card from a trainer victory",
+		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
+		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
+		OptionAnimateGachaMonPackOpening = "Animate card pack opening",
+		ButtonCleanupCollection = "Cleanup Collection",
+
+		-- About Tab
+		GachaMonGameHeader = "GachaMon  Collectable  Card  Game",
+		GachaMonGameDescription = "Play IronMON,  collect GachaMon cards!",
+		SectionHowItWorks = "How it works",
+		LabelCatchPokemon = "Catch Pokémon",
+		LabelAcquireGachaMonCards = "Acquire GachaMon cards",
+		LabelKeepCardsInCollection = "Keep cards in your Collection",
+		LabelBattle = "Battle!  (coming soon)",
+		SectionWhatsOnCard = "What's on a Card",
+		LabelStarsAndRating = "Stars:  The Pokémon's rating (1- 5)",
+		LabelBattlePowerAndStrength = "Battle Power:  Its strength for doing card battles",
+	},
 	TeamViewArea = {
 		EggNickname = "EGG",
 	},
@@ -765,6 +834,10 @@ ScreenResources{
 		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		CMD_BallQueue_Name = "Ball Queue",
 		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
+		CMD_GachaMon_Name = "GachaMon Info",
+		CMD_GachaMon_Help = "name > Displays card info for a GachaMon, most recent or specific Pokémon.",
+		CMD_GachaDex_Name = "GachaDex Info",
+		CMD_GachaDex_Help = "> Displays GachaDex collection stats and info.",
 		CMD_About_Name = "About the Tracker",
 		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
 		CMD_Help_Name = "Command Help",

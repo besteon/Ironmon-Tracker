@@ -252,7 +252,7 @@ function EventHandler.queueRequestForLater(queueKey, request)
 	end
 	Q.Requests[request.GUID] = request
 	-- Refresh the queue if it's open on the screen
-	if StreamConnectOverlay.isDisplayed and StreamConnectOverlay.currentTab == StreamConnectOverlay.Tabs.Queue then
+	if Program.currentOverlay == StreamConnectOverlay and StreamConnectOverlay.currentTab == StreamConnectOverlay.Tabs.Queue then
 		StreamConnectOverlay.buildPagedButtons()
 	end
 	return true
@@ -600,6 +600,16 @@ EventHandler.DefaultEvents = {
 			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
 			Main.SaveSettings(true)
 		end,
+	},
+	CMD_GachaMon = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!gachamon",
+		Fulfill = function(self, request) return EventData.getGachaMon(request.SanitizedInput) end,
+	},
+	CMD_GachaDex = {
+		Type = EventHandler.EventTypes.Command,
+		Command = "!gachadex",
+		Fulfill = function(self, request) return EventData.getGachaDex(request.SanitizedInput) end,
 	},
 	CMD_About = {
 		Type = EventHandler.EventTypes.Command,

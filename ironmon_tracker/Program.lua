@@ -1,6 +1,6 @@
 Program = {
-	currentScreen = 1,
-	previousScreens = {}, -- breadcrumbs for clicking the Back button
+	currentScreen = {},
+	currentOverlay = nil, -- set to nil when not in use
 	updateRequired = false,
 	inStartMenu = false,
 	inCatchingTutorial = false,
@@ -9,6 +9,7 @@ Program = {
 	isViewingStarter = false,
 	activeFormId = 0,
 	lastActiveTimestamp = 0,
+	overridePackAnimationDraw = false,
 	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -185,7 +186,7 @@ Program.GameTimer = {
 	end,
 	checkInput = function(self, xmouse, ymouse)
 		-- Don't pause if either game screen overlay is covering the screen
-		if not Options["Display play time"] or LogOverlay.isDisplayed or UpdateScreen.showNotes then return end
+		if not Options["Display play time"] or Program.isScreenOverlayOpen() then return end
 		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
 		if clicked then
 			if self.isPaused then
@@ -227,7 +228,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING or StreamConnectOverlay.isDisplayed or UpdateScreen.showNotes
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or Program.isScreenOverlayOpen() or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -252,7 +253,7 @@ Program.Pedometer = {
 	end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
+		local hasConflict = Battle.inActiveBattle() or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -289,6 +290,7 @@ function Program.initialize()
 	else
 		Program.currentScreen = StartupScreen
 	end
+	Program.currentOverlay = nil
 
 	if Main.IsOnBizhawk() then
 		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
@@ -304,6 +306,7 @@ function Program.initialize()
 	Program.hasCompletedTutorial = false
 	Program.isViewingStarter = false
 	Program.lastActiveTimestamp = os.time()
+	Program.overridePackAnimationDraw = false
 	Program.Frames.waitToDraw = 1
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
@@ -325,7 +328,7 @@ function Program.initialize()
 	Program.GameTimer:initialize()
 	Program.AutoSaver:updateSaveCount()
 
-	Program.addFrameCounter("Tracker:AutoLoadData", 1, Tracker.AutoSave.loadFromFile, 1, true)
+	Program.addFrameCounter("Tracker:AutoSave.loadFromFile", 1, Tracker.AutoSave.loadFromFile, 1, true)
 	Program.addFrameCounter("Program:DelayedStartup", 60, Program.delayedStartup, 1, true)
 end
 
@@ -368,17 +371,10 @@ function Program.redraw(forced)
 		Program.ActiveRepel:draw()
 		Program.GameTimer:draw()
 
-		-- These screens occupy the main game screen space, overlayed on top, and need their own check; order matters
-		-- TODO: Create some sort of combined overlay detection variable
-		if UpdateScreen.showNotes then
-			UpdateScreen.drawReleaseNotesOverlay()
-		elseif StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.drawScreen()
-		elseif LogOverlay.isDisplayed then
-			LogOverlay.drawScreen()
+		if Program.currentOverlay and type(Program.currentOverlay.drawScreen) == "function" then
+			Program.currentOverlay.drawScreen()
 		end
-
-		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
+		if Program.currentScreen and type(Program.currentScreen.drawScreen) == "function" then
 			Program.currentScreen.drawScreen()
 		end
 
@@ -389,18 +385,67 @@ function Program.redraw(forced)
 		MGBA.ScreenUtils.updateTextBuffers()
 	end
 
-	CustomCode.afterRedraw()
+	local _drawAnimations = function()
+		-- Draw any screen-specific animations if they are defined
+		if Program.currentScreen and type(Program.currentScreen.drawAnimations) == "function" then
+			Program.currentScreen.drawAnimations()
+		end
+		-- Always draw GachaMon animations, regardless of what screen is being viewed
+		AnimationManager.drawGachaMonAnims()
+	end
+
+	if Program.overridePackAnimationDraw then
+		_drawAnimations()
+		CustomCode.afterRedraw()
+	else
+		-- Default to drawing on top of any drawings that extensions do
+		CustomCode.afterRedraw()
+		_drawAnimations()
+	end
+
 	SpriteData.cleanupActiveIcons()
 end
 
 function Program.changeScreenView(screen)
-	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
 	Program.lastActiveTimestamp = os.time()
-	if type(screen.refreshButtons) == "function" then
+	if screen and type(screen.refreshButtons) == "function" then
 		screen:refreshButtons()
 	end
 	Program.currentScreen = screen
 	Program.redraw(true)
+end
+
+---Opens an overlay screen, which draws over the actual game screen itself
+---@param screen table
+---@param redraw? boolean Optional, if true will redraw the screen
+function Program.openOverlayScreen(screen, redraw)
+	Program.lastActiveTimestamp = os.time()
+	-- Close any open screen if different
+	if Program.currentOverlay and Program.currentOverlay ~= screen then
+		Program.closeScreenOverlay()
+	end
+	-- Change to the screen
+	Program.currentOverlay = screen
+	if screen and type(screen.open) == "function" then
+		screen:open()
+	end
+	if redraw then
+		Program.redraw(true)
+	end
+end
+
+---Returns true if there is a screen overlay open; false otherwise
+---@return boolean
+function Program.isScreenOverlayOpen()
+	return Program.currentOverlay ~= nil
+end
+
+---Closes/removes any open screen overlay. If that overlay screen has a `close` function, it calls that first.
+function Program.closeScreenOverlay()
+	if Program.currentOverlay and type(Program.currentOverlay.close) == "function" then
+		Program.currentOverlay:close()
+	end
+	Program.currentOverlay = nil
 end
 
 -- Deprecated
@@ -458,17 +503,15 @@ function Program.update()
 			Program.updatePokemonTeams()
 			TeamViewArea.buildOutPartyScreen()
 
-			if Program.isValidMapLocation() then
-				if Program.currentScreen == StartupScreen then
-					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-					Program.currentScreen = TrackerScreen
-				elseif Options["Show starter ball info"] and RouteData.Locations.IsInLab[TrackerAPI.getMapId()] then
-					Program.checkForStarterSelection()
-				end
+			if Program.currentScreen == StartupScreen then
+				-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+				Program.currentScreen = TrackerScreen
+			elseif Options["Show starter ball info"] and RouteData.Locations.IsInLab[TrackerAPI.getMapId()] then
+				Program.checkForStarterSelection()
+			end
 
-				if Network.isConnected() then
-					EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
-				end
+			if Network.isConnected() then
+				EventHandler.runEventFunc("CMD_BallQueue", "TryDisplayMessage")
 			end
 
 			if not Program.hasCheckedGameSettings then
@@ -505,6 +548,16 @@ function Program.update()
 				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.STEPS)
 			end
 
+			GachaMonData.updateMainScreenViewedGachaMon()
+
+			-- Check if a new GachaMon has been captured and create an animation for the pack opening
+			local APO = AnimationManager.GachaMonAnims.PackOpening
+			local ACD = AnimationManager.GachaMonAnims.CardDisplay
+			if not APO and not ACD and Options["Show card pack on screen after capturing a GachaMon"] and GachaMonData.hasNewestMonToShow() then
+				local x, y = Constants.SCREEN.WIDTH + 43, 32
+				AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
+			end
+
 			Program.AutoSaver:checkForNextSave()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end
@@ -519,7 +572,10 @@ function Program.update()
 	if Program.Frames.three_sec_update == 0 or Program.updateRequired then
 		Program.updateBagItems()
 		Program.updatePCHeals()
-		Program.updateBadgesObtained()
+		local newBadgeObtained = Program.updateBadgesObtained()
+		if newBadgeObtained and RouteData.Locations.CanObtainBadge[TrackerAPI.getMapId() or 0] then
+			GachaMonData.markTeamForGymBadgeObtained(newBadgeObtained)
+		end
 		CrashRecoveryScreen.trySaveBackup()
 
 		if not Input.joypadUsedRecently then
@@ -567,6 +623,7 @@ function Program.stepFrames()
 	end
 
 	SpriteData.updateActiveIcons()
+	AnimationManager.stepFrames()
 end
 
 --- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
@@ -711,6 +768,8 @@ function Program.updatePokemonTeams()
 		Tracker.Data.isNewGame = true
 	end
 
+	local previousLeadMon = Program.GameData.PlayerTeam[1] or {}
+
 	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
@@ -755,6 +814,12 @@ function Program.updatePokemonTeams()
 
 		-- Next Pokemon - Each is offset by 100 bytes
 		addressOffset = addressOffset + Program.Addresses.sizeofPokemonStruct
+	end
+
+	-- If the lead Pokémon changed (new mon viewed), then try to turn it into a GachaMon; only for catches, exclude battles
+	local currentLeadMon = Program.GameData.PlayerTeam[1]
+	if currentLeadMon and not Battle.inActiveBattle() then
+		GachaMonData.tryAddToRecentMons(currentLeadMon)
 	end
 end
 
@@ -883,14 +948,7 @@ function Program.readNewPokemon(startAddress, personality)
 			spd = Utils.getbits(effort2, 8, 8),
 			spe = Utils.getbits(effort1, 24, 8),
 		},
-		ivs = {
-			hp = Utils.getbits(misc2, 0, 5),
-			atk = Utils.getbits(misc2, 5, 5),
-			def = Utils.getbits(misc2, 10, 5),
-			spa = Utils.getbits(misc2, 20, 5),
-			spd = Utils.getbits(misc2, 25, 5),
-			spe = Utils.getbits(misc2, 15, 5),
-		},
+		ivs = Utils.convertIVNumberToTable(misc2),
 	})
 end
 
@@ -1104,30 +1162,46 @@ function Program.updatePCHeals()
 	end
 end
 
+---Returns a byte such that each badge is a bit packed into the byte. 1st badge is least-significant bit (position 0)
+---@return number badgeBits
+function Program.readBadgeBits()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isValidMapLocation() then
+		return 0
+	end
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	if GameSettings.game == 1 then -- Ruby/Sapphire
+		return Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
+	elseif GameSettings.game == 2 then -- Emerald
+		return Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
+	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
+		return Memory.readbyte(saveblock1Addr + GameSettings.badgeOffset)
+	end
+	return 0
+end
+
+---Updates the Badge buttons on Tracker Screen. Also returns the gym number of any badge obtained since last update; 0 if none
+---@return number newBadgeObtained
 function Program.updateBadgesObtained()
 	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
 	if not Program.isValidMapLocation() then
-		return
+		return 0
 	end
 
-	local badgeBits = nil
-	local saveblock1Addr = Utils.getSaveBlock1Addr()
-	if GameSettings.game == 1 then -- Ruby/Sapphire
-		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
-	elseif GameSettings.game == 2 then -- Emerald
-		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
-	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
-		badgeBits = Memory.readbyte(saveblock1Addr + GameSettings.badgeOffset)
-	end
-
-	if badgeBits ~= nil then
-		for index = 1, 8, 1 do
-			local badgeName = "badge" .. index
-			local badgeButton = TrackerScreen.Buttons[badgeName]
-			local badgeState = Utils.getbits(badgeBits, index - 1, 1)
+	local badgeBits = Program.readBadgeBits()
+	local newBadgeObtained = 0
+	for index = 1, 8, 1 do
+		local badgeName = "badge" .. index
+		local badgeButton = TrackerScreen.Buttons[badgeName]
+		local badgeState = Utils.getbits(badgeBits, index - 1, 1)
+		if badgeButton then
+			if badgeButton.badgeState ~= badgeState then
+				newBadgeObtained = index
+			end
 			badgeButton:updateState(badgeState)
 		end
 	end
+	return newBadgeObtained
 end
 
 function Program.updateMapLocation()

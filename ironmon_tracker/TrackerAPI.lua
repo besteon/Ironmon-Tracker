@@ -202,6 +202,39 @@ function TrackerAPI.hasGameStarted()
 	return Program.isValidMapLocation()
 end
 
+---For a given Pokemon (provide the pokemon object or both the id + personality), this returns its associated GachaMon card captured for this game
+---@param pokemon? IPokemon Must provide this object OR the other two requested params
+---@param pokemonID? number Must provide both PokemonID & personality value
+---@param personality? number Must provide both PokemonID & personality value
+---@return IGachaMon|nil gachamon Refer to `GachaMonData.IGachaMon` for object data structure
+function TrackerAPI.getGachaMonForPokemon(pokemon, pokemonID, personality)
+	pokemon = pokemon or Program.DefaultPokemon:new({ pokemonID = pokemonID, personality = personality })
+	local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+	return gachamon
+end
+
+---Statistics about the player's GachaDex permanent collection (NumSeen, NumCollected, PercentageComplete, table of which mons are seen)
+---@return table dexData
+function TrackerAPI.getGachaDexStats()
+	local totalPokemon = PokemonData.getTotal() - 25
+	if totalPokemon > 386 and not CustomCode.RomHacks.isPlayingNatDex() then
+		totalPokemon = 386
+	end
+	return {
+		-- Total unique pokemon species for GachaMons seen (captured) but not collected
+		NumSeen = GachaMonData.DexData.NumSeen,
+		-- Total unique pokemon species for GachaMons in collection
+		NumCollected = GachaMonData.DexData.NumCollected,
+		-- Total possible to collect
+		TotalPossible = totalPokemon,
+		-- A whole number from 0 to 100
+		PercentageComplete = GachaMonData.DexData.PercentageComplete,
+		-- A record of allowed the unique pokemon species seen
+		---@type table<number, boolean> [pokemonID] = true
+		SeenMons = FileManager.copyTable(GachaMonData.DexData.SeenMons)
+	}
+end
+
 -----------------------------------
 ---  III. INFO LOOKUP  ------------
 -----------------------------------
