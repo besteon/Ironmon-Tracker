@@ -595,9 +595,7 @@ function LogOverlay.parseAndDisplay(logpath)
 		local leadPokemon = Tracker.getPokemon(1, true) or {}
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, leadPokemon.pokemonID)
-			if not Options["Add to collection if prize from trainer victory"] then
-				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
-			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
 		else
 			Program.redraw(true)
 		end

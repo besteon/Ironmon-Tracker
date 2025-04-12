@@ -36,7 +36,7 @@ GachaMonData = {
 	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
 	requiresNatDex = false,
 	-- After a game over, create a prize card from one of the defeated common trainers
-	createdTrainerPrizeCard = false,
+	createdTrainerPrizeCard = nil,
 	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
 	rulesetKey = "Standard",
 	-- If the ruleset was automatically determined from the New Run profile settings (mostly used for a UI label in options tab)
@@ -44,15 +44,6 @@ GachaMonData = {
 }
 
 --[[
-TESTING LIST
-- Sound glitches out sometimes. Test by turning on game sound while shinies are active in Collection
-- [MGBA] Just make sure stuff is just playable on MGBA even without GachaMon
-]]
-
---[[
-TODO LIST
-- [Resources] ALL resources
-
 TODO LATER:
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
@@ -72,6 +63,11 @@ TODO LATER:
 - [Bug] low-prority; If still viewing a card pack opening and swap to a new mon, no new pack is created for it (might be as easy as check if recentMon ~= nil)
 ]]
 
+-- For now, disable most/all GachaMon features if playing on MGBA emulator (aka. not Bizhawk)
+function GachaMonData.isCompatibleWithEmulator()
+	return Main.IsOnBizhawk()
+end
+
 function GachaMonData.initialize()
 	-- Reset data variables
 	GachaMonData.RecentMons = {}
@@ -86,7 +82,7 @@ function GachaMonData.initialize()
 	GachaMonData.initialRecentMonsLoaded = false
 	GachaMonData.collectionRequiresSaving = false
 	GachaMonData.requiresNatDex = false
-	GachaMonData.createdTrainerPrizeCard = false
+	GachaMonData.createdTrainerPrizeCard = nil
 	GachaMonData.playerViewedMon = nil
 	GachaMonData.playerViewedInitialStars = 0
 	GachaMonData.clearNewestMonToShow()
@@ -178,14 +174,14 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 		Temp = {
 			Stats = {},
 			MoveIds = {},
-			GameVersion = GameSettings.gameVersionToNumber(GameSettings.versioncolor),
+			GameVersion = GachaMonData.gameVersionToNumber(GameSettings.versioncolor),
 			IsShiny = pokemonData.isShiny and 1 or 0,
 			Nature = pokemonData.nature or 0,
 			DateTimeObtained = os.time(),
 		},
 	})
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 
 	gachamon.AbilityId = PokemonData.getAbilityId(pokemonData.pokemonID, pokemonData.abilityNum)
 
@@ -201,7 +197,8 @@ function GachaMonData.convertPokemonToGachaMon(pokemonData)
 	end
 
 	for _, move in ipairs(pokemonData.moves or {}) do
-		if MoveData.isValid(move.id) then
+		local moveInternal = MoveData.getNatDexCompatible(move.id)
+		if moveInternal ~= MoveData.BlankMove then
 			table.insert(gachamon.Temp.MoveIds, move.id)
 		end
 	end
@@ -252,7 +249,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RS = GachaMonData.RatingsSystem
 	local ratingTotal = 0
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or 0]
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local pokemonTypes = pokemonInternal.types or {}
 
 	-- RULESET
@@ -337,7 +334,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
 		iMoves[i] = {
 			id = id,
-			move = MoveData.Moves[id] or MoveData.BlankMove,
+			move = MoveData.getNatDexCompatible(id),
 			ePower = MoveData.getExpectedPower(id),
 			rating = RS.Moves[id] or 0,
 		}
@@ -495,10 +492,10 @@ function GachaMonData.calculateBattlePower(gachamon)
 	power = power + starsBonus
 
 	-- Add move power & STAB bonus
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId or false] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local totalMovePower, hasStab = 0, false
 	for _, moveId in ipairs(gachamon:getMoveIds() or {}) do
-		local move = MoveData.Moves[moveId or false]
+		local move = MoveData.getNatDexCompatible(moveId)
 		if move then
 			totalMovePower = totalMovePower + MoveData.getExpectedPower(moveId)
 			if not hasStab and Utils.isSTAB(move, move.type, pokemonInternal.types or {}) then
@@ -571,7 +568,7 @@ function GachaMonData.createRandomGachaMon()
 
 	gachamon.PokemonId = Utils.randomPokemonID()
 
-	local pokemonInternal = PokemonData.Pokemon[gachamon.PokemonId] or PokemonData.BlankPokemon
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local pokemonTypes = pokemonInternal.types or {}
 	gachamon.Type1 = PokemonData.TypeNameToIndexMap[pokemonTypes[1] or PokemonData.Types.UNKNOWN]
 	if not gachamon.Type1 then
@@ -596,14 +593,10 @@ function GachaMonData.createRandomGachaMon()
 	return gachamon
 end
 
----Requires Log file has been parsed. Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
+---Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
 ---@return IPokemon? pokemon
 ---@return table<string, any>? trainerInfo
 function GachaMonData.createPokemonDataFromDefeatedTrainers()
-	if RandomizerLog.loadedLogPath == nil or RandomizerLog.Data.Settings == nil then
-		return nil, nil
-	end
-
 	-- Check through all common trainers
 	local defeatedTrainers = {}
 	for _, idList in pairs(TrainerData.CommonTrainers or {}) do
@@ -623,8 +616,8 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		trainerData.party = trainerData.party or {}
 		-- Sort their party by BST then level (easier to obtain legendaries/mythical this way)
 		table.sort(trainerData.party, function(a, b)
-			local pokemonA = PokemonData.Pokemon[a.pokemonID] or PokemonData.BlankPokemon
-			local pokemonB = PokemonData.Pokemon[b.pokemonID] or PokemonData.BlankPokemon
+			local pokemonA = PokemonData.getNatDexCompatible(a.pokemonID)
+			local pokemonB = PokemonData.getNatDexCompatible(b.pokemonID)
 			local bstA = tonumber(pokemonA.bst) or 0
 			local bstB = tonumber(pokemonB.bst) or 0
 			return bstA > bstB or (bstA == bstB and a.level > b.level)
@@ -647,8 +640,8 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 	if differentTrainer then
 		local t1mon = trainerData.party[1] or {}
 		local t2mon = differentTrainer.party[1] or {}
-		local pokemon1 = PokemonData.Pokemon[t1mon.pokemonID or 0] or PokemonData.BlankPokemon
-		local pokemon2 = PokemonData.Pokemon[t2mon.pokemonID or 0] or PokemonData.BlankPokemon
+		local pokemon1 = PokemonData.getNatDexCompatible(t1mon.pokemonID)
+		local pokemon2 = PokemonData.getNatDexCompatible(t2mon.pokemonID)
 		local bst1 = tonumber(pokemon1.bst) or 0
 		local bst2 = tonumber(pokemon2.bst) or 0
 		if bst2 > bst1 then
@@ -657,24 +650,27 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 	end
 
 	local trainerPokemon = trainerData.party[1]
-	if not PokemonData.isValid(trainerPokemon.pokemonID) then
+	local pokemonInternal = PokemonData.getNatDexCompatible(trainerPokemon.pokemonID)
+	if pokemonInternal == PokemonData.BlankPokemon then
 		return nil, nil
 	end
 
-	-- Verify this trainer's pokemon can be looked up in the log
-	local trainerLog = RandomizerLog.Data.Trainers[trainerData.trainerId or 0] or {}
-	local trainerMon
-	for _, mon in pairs(trainerLog.party or {}) do
-		if mon.pokemonID == trainerPokemon.pokemonID and mon.level == trainerPokemon.level then
-			trainerMon = mon
-			break
+	if #(trainerPokemon.moves or {}) < 4 then
+		trainerPokemon.moves = {}
+		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset by working backwards
+		local learnedMoves = PokemonData.readLevelUpMoves(trainerPokemon.pokemonID) or {}
+		for j = #learnedMoves, 1, -1 do
+			local learnedMove = learnedMoves[j]
+			if learnedMove.level <= trainerPokemon.level then
+				-- Insert at the front (i=1) to add them in "reverse" or bottom-up
+				table.insert(trainerPokemon.moves, 1, learnedMove.moveId)
+				if #trainerPokemon.moves >= 4 then
+					break
+				end
+			end
 		end
 	end
-	if not trainerMon then
-		return nil, nil
-	end
 
-	local pokemonInternal = PokemonData.Pokemon[trainerPokemon.pokemonID]
 	local _estimateStat = function(statKey)
 		local level = trainerPokemon.level
 		local baseStat = pokemonInternal.baseStats[statKey]
@@ -683,7 +679,7 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		return math.floor(((ivs + 2 * baseStat) * level / 100) + additional + 0.5)
 	end
 
-	-- Build the Pokemon object from all the trainer/log data
+	-- Build the Pokemon object from all the trainer data
 	local pokemonData = Program.DefaultPokemon:new({
 		pokemonID = trainerPokemon.pokemonID,
 		personality = trainerData.trainerId, -- I don't think these pokemon have personality values that make sense anyway?
@@ -700,10 +696,10 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 			spe = _estimateStat("spe"),
 		},
 		moves = {
-			{ id = trainerMon.moveIds[1] or 0 },
-			{ id = trainerMon.moveIds[2] or 0 },
-			{ id = trainerMon.moveIds[3] or 0 },
-			{ id = trainerMon.moveIds[4] or 0 },
+			{ id = trainerPokemon.moves[1] or 0 },
+			{ id = trainerPokemon.moves[2] or 0 },
+			{ id = trainerPokemon.moves[3] or 0 },
+			{ id = trainerPokemon.moves[4] or 0 },
 		},
 	})
 
@@ -770,7 +766,26 @@ function GachaMonData.clearNewestMonToShow()
 	GachaMonData.newestRecentMon = nil
 end
 
+---Converts a `gameversion` string (i.e. "FireRed") to a number (i.e. 3) for data storage
+---@param gameversion string
+---@return number
+function GachaMonData.gameVersionToNumber(gameversion)
+	local v = { ["Ruby"] = 1, ["Emerald"] = 2, ["FireRed"] = 3, ["Sapphire"] = 4, ["LeafGreen"] = 5 }
+	return v[gameversion or false] or 0
+end
+
+---Converts a number (i.e. 3) that represents the game version back to its string (i.e. "FireRed")
+---@param num number
+---@return string
+function GachaMonData.numberToGameVersion(num)
+	local v = { "Ruby", "Emerald", "FireRed", "Sapphire", "LeafGreen" }
+	return v[num or false] or Constants.HIDDEN_INFO
+end
+
 function GachaMonData.updateMainScreenViewedGachaMon()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local viewedPokemon = Battle.getViewedPokemon(true)
 	if not viewedPokemon then
 		GachaMonData.playerViewedMon = nil
@@ -793,7 +808,7 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 	end
 	-- Suppress debug messages when re-calculating here
 	if needsRecalculating then
-		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon, true)
+		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon)
 		-- Always reset the initial stars to original card; do this every time the mon gets rerolled (in case the mon changes)
 		local recentMon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
 		GachaMonData.playerViewedInitialStars = recentMon and recentMon:getStars() or 0
@@ -807,7 +822,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	local rulesetsOrdered = {
 		{ Key = "Standard", Name = Constants.IronmonRulesetNames.Standard },
 		{ Key = "Ultimate", Name = Constants.IronmonRulesetNames.Ultimate },
-		{ Key = "StandSurvivalard", Name = Constants.IronmonRulesetNames.Survival },
+		{ Key = "Survival", Name = Constants.IronmonRulesetNames.Survival },
 		{ Key = "SuperKaizo", Name = Constants.IronmonRulesetNames.SuperKaizo },
 		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },
 	}
@@ -855,6 +870,9 @@ end
 ---For each Pokémon in the player's party, mark their corresponding GachaMon card that a badge has been obtained
 ---@param badgeNumber number The badge number, must be between 1 and 8 inclusive
 function GachaMonData.markTeamForGymBadgeObtained(badgeNumber)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	if badgeNumber < 1 or badgeNumber > 8 then
 		return
 	end
@@ -876,6 +894,9 @@ end
 
 ---For each Pokémon in the player's party, mark their corresponding GachaMon card as a game winner
 function GachaMonData.markTeamForGameWin()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local anyChanged = false
 	-- Check each Pokémon in the player's party. For the ones with GachaMon cards, update their game win status
 	for i = 1, 6, 1 do
@@ -894,7 +915,7 @@ end
 ---Only once the Tracker notes are loaded, check for recent GachaMon saved for this exact rom file (rom hash match)
 ---@param forceImportAndUse? boolean Optional, if true will import any found RecentMons from file regardless of ROM hash mismatch; default: false
 function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
-	if GachaMonData.initialRecentMonsLoaded then
+	if GachaMonData.initialRecentMonsLoaded or not GachaMonData.isCompatibleWithEmulator()then
 		return
 	end
 
@@ -904,7 +925,7 @@ end
 
 ---Only once per game, load the collection. Usually occurs when the Overlay is first opened or if a "NEW" GachaMon is captured
 function GachaMonData.tryLoadCollection()
-	if GachaMonData.initialCollectionLoaded then
+	if GachaMonData.initialCollectionLoaded or not GachaMonData.isCompatibleWithEmulator() then
 		return
 	end
 	GachaMonData.initialCollectionLoaded = true
@@ -917,6 +938,9 @@ end
 ---@param fromTrainerPrize? boolean Optional, set to true to indicate this pokemon data was generated from a trainer
 ---@return boolean success
 function GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	local gachamon, pidIndex = GachaMonData.getAssociatedRecentMon(pokemon)
 	-- Don't add if it already exists
 	if not GachaMonData.initialRecentMonsLoaded or gachamon then
@@ -950,6 +974,9 @@ end
 ---@param mon IPokemon|IGachaMon It's associated GachaMon from RecentMons will be used
 ---@return boolean success
 function GachaMonData.tryAutoKeepInCollection(mon)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	local gachamon = GachaMonData.getAssociatedRecentMon(mon)
 	if not gachamon or gachamon:getKeep() == 1 then
 		return false
@@ -974,6 +1001,9 @@ end
 ---@param isKeep? boolean
 ---@param isWinner? boolean
 function GachaMonData.updateGachaMonAndSave(gachamon, isFave, isKeep, isWinner)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local monHasChanged = false
 
 	if isFave ~= nil then -- if nil, don't make changes
@@ -1086,7 +1116,7 @@ function GachaMonData.checkForNatDexRequirement()
 	-- Otherwise, check if any of the Pokémon in the Collection are Nat. Dex. Pokémon
 	for _, gachamon in ipairs(GachaMonData.Collection or {}) do
 		-- Check if it's a Nat. Dex. Pokémon
-		if gachamon.PokemonId >= 412 then
+		if gachamon.PokemonId > 411 then
 			GachaMonData.requiresNatDex = true
 			break
 		end
@@ -1097,20 +1127,26 @@ function GachaMonData.checkForNatDexRequirement()
 
 	-- If so, add in necessary data and references
 	if type(natdexExt.buildExtensionPaths) == "function" then
+		-- Required for retrieving the image paths for nat dex pokemon icons
 		natdexExt.buildExtensionPaths()
 	end
-	if type(natdexExt.addNewPokemonData) == "function" then
-		natdexExt.addNewPokemonData()
-	end
-	if type(natdexExt.addNewMoves) == "function" then
-		natdexExt.addNewMoves()
-	end
 	if type(natdexExt.addNewSprites) == "function" then
+		-- Required for retrieving the image paths for nat dex pokemon icons
 		natdexExt.addNewSprites()
 	end
 	if type(natdexExt.addResources) == "function" then
 		natdexExt.addResources()
 	end
+
+	-- NOTE: Instead of adding this data in, which affects many other Tracker features, use their corresponding compatibility lookup functions
+	-- PokemonData.getNatDexCompatible(pokemonID)
+	-- if type(natdexExt.addNewPokemonData) == "function" then
+	-- 	natdexExt.addNewPokemonData()
+	-- end
+	-- MoveData.getNatDexCompatible(moveId)
+	-- if type(natdexExt.addNewMoves) == "function" then
+	-- 	natdexExt.addNewMoves()
+	-- end
 end
 
 
@@ -1289,7 +1325,7 @@ GachaMonData.IGachaMon = {
 
 	---@return string
 	getName = function(self)
-		local pokemonInternal = PokemonData.Pokemon[self.PokemonId or false] or PokemonData.BlankPokemon
+		local pokemonInternal = PokemonData.getNatDexCompatible(self.PokemonId)
 		return pokemonInternal.name
 	end,
 	---@return table<string, number> stats
@@ -1329,7 +1365,7 @@ GachaMonData.IGachaMon = {
 	getGameVersionName = function(self)
 		if self.Temp.GameVersionName == nil then
 			local versionNum = Utils.getbits(self.C_MoveIdsGameVersionKeep, 36, 3)
-			self.Temp.GameVersionName = GameSettings.numberToGameVersion(versionNum)
+			self.Temp.GameVersionName = GachaMonData.numberToGameVersion(versionNum)
 		end
 		return self.Temp.GameVersionName
 	end,

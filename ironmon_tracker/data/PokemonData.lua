@@ -325,7 +325,7 @@ end
 ---@param pokemonID number
 ---@return boolean
 function PokemonData.isValid(pokemonID)
-	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.getTotal()
+	return pokemonID ~= nil and PokemonData.Pokemon[pokemonID] ~= nil
 end
 
 ---Returns true if the pokemonId is a valid id of a pokemon that can be drawn, usually from an image file
@@ -336,18 +336,30 @@ function PokemonData.isImageIDValid(pokemonID)
 	return PokemonData.isValid(pokemonID) or pokemonID == PokemonData.Values.EggId or pokemonID == PokemonData.Values.GhostId or pokemonID == 0
 end
 
----Gets the total count of known Pokémon for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---Gets the total count of known Pokémon for this game.
 ---@return number
 function PokemonData.getTotal()
-	-- if PokemonData.knownTotal then
-	-- 	return PokemonData.knownTotal
-	-- end
-	if CustomCode.RomHacks.isPlayingNatDex() then
-		PokemonData.knownTotal = #PokemonData.Pokemon
-	else
-		PokemonData.knownTotal = 411
+	return #PokemonData.Pokemon
+end
+
+---Returns the Pokemon data if the ID is available in the base game, or if NatDex extension exists, try getting data from there
+---@param pokemonID number
+---@return table pokemon If no mon found, returns PokemonData.BlankPokemon
+function PokemonData.getNatDexCompatible(pokemonID)
+	local pokemon = PokemonData.Pokemon[pokemonID or false]
+	if pokemon then
+		return pokemon
 	end
-	return PokemonData.knownTotal
+	local baseGameTotal = 411
+	local hasNatDexAccess = GachaMonData.requiresNatDex or CustomCode.RomHacks.isPlayingNatDex()
+	if pokemonID > baseGameTotal and hasNatDexAccess then
+		local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+		if natdexExt and natdexExt.Data and natdexExt.Data.natDexMons then
+			local adjustedId = pokemonID - baseGameTotal
+			return natdexExt.Data.natDexMons[adjustedId] or PokemonData.BlankPokemon
+		end
+	end
+	return PokemonData.BlankPokemon
 end
 
 local idInternalToNat = {
@@ -568,7 +580,7 @@ end
 
 ---Reads from the game data all of the level-up moves learned by a Pokémon species
 ---@param pokemonID number
----@return table learnedMoves A list moves, each entry as a table: { id = number, level = number }
+---@return table<string, number> learnedMoves A list moves, each entry as a table: { id = number, level = number }
 function PokemonData.readLevelUpMoves(pokemonID)
 	local learnedMoves = {}
 	if not PokemonData.isValid(pokemonID) then
@@ -578,7 +590,7 @@ function PokemonData.readLevelUpMoves(pokemonID)
 	local LEVEL_UP_END = 0xFFFF
 	-- gLevelUpLearnsets is an array of addresses for all Pokémon species; each entry is a 4 byte address
 	local levelUpLearnsetPtr = Memory.readdword(GameSettings.gLevelUpLearnsets + (pokemonID * 4))
-	for i=0, 50, 1 do -- MAX of 51 iterations, as a failsafe
+	for i=0, 99, 1 do -- MAX of 100 iterations, as a failsafe
 		-- Each entry is 2 bytes formatted as: #define LEVEL_UP_MOVE(lvl, move) ((lvl << 9) | move)
 		local levelUpMove = Memory.readword(levelUpLearnsetPtr + (i * 2))
 		if levelUpMove == LEVEL_UP_END then

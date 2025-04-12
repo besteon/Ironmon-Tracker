@@ -391,21 +391,33 @@ end
 ---@param moveId number
 ---@return boolean
 function MoveData.isValid(moveId)
-	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.getTotal()
+	return moveId ~= nil and MoveData.Moves[moveId] ~= nil
 end
 
----Gets the total count of known Moves for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---Gets the total count of known Moves for this game.
 ---@return number
 function MoveData.getTotal()
-	-- if MoveData.knownTotal then
-	-- 	return MoveData.knownTotal
-	-- end
-	if CustomCode.RomHacks.isPlayingNatDex() then
-		MoveData.knownTotal = #MoveData.Moves
-	else
-		MoveData.knownTotal = 354
+	return #MoveData.Moves
+end
+
+--Returns the Move data if the ID is available in the base game, or if NatDex extension exists, try getting data from there
+---@param moveId number
+---@return table move If no move found, returns MoveData.BlankMove
+function MoveData.getNatDexCompatible(moveId)
+	local move = MoveData.Moves[moveId or false]
+	if move then
+		return move
 	end
-	return MoveData.knownTotal
+	local baseGameTotal = 354
+	local hasNatDexAccess = GachaMonData.requiresNatDex or CustomCode.RomHacks.isPlayingNatDex()
+	if moveId > baseGameTotal and hasNatDexAccess then
+		local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+		if natdexExt and natdexExt.Data and natdexExt.Data.natDexMoves then
+			local adjustedId = moveId - baseGameTotal
+			return natdexExt.Data.natDexMoves[adjustedId] or MoveData.BlankMove
+		end
+	end
+	return MoveData.BlankMove
 end
 
 ---Returns true if the move is a One-Hit KO move (i.e. Sheer Cold)

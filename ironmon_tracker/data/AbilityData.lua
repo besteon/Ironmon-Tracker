@@ -54,21 +54,13 @@ end
 ---@param abilityId number
 ---@return boolean
 function AbilityData.isValid(abilityId)
-	return abilityId ~= nil and abilityId >= 1 and abilityId <= AbilityData.getTotal()
+	return abilityId ~= nil and AbilityData.Abilities[abilityId] ~= nil
 end
 
----Gets the total count of known Abilities for this game. Use this to bypass any additional data added by NatDex for non-NatDex games
+---Gets the total count of known Abilities for this game.
 ---@return number
 function AbilityData.getTotal()
-	-- if AbilityData.knownTotal then
-	-- 	return AbilityData.knownTotal
-	-- end
-	if CustomCode.RomHacks.isPlayingNatDex() then
-		AbilityData.knownTotal = #AbilityData.Abilities
-	else
-		AbilityData.knownTotal = 77
-	end
-	return AbilityData.knownTotal
+	return #AbilityData.Abilities
 end
 
 function AbilityData.populateAbilityDropdown(abilityList)

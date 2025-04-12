@@ -178,32 +178,69 @@ GameOverScreen.Buttons = {
 				return Resources.GameOverScreen.ButtonOpenLogFile
 			end
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 112, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 50, 16 },
+		isVisible = function(self) return not Options["Add to collection if prize from trainer victory"] end,
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+		end,
+	},
+	ViewLogFileSmall = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.GameOverScreen.ButtonViewLogSmall end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 132, 60, 16 },
+		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] end,
+		onClick = function(self)
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+		end,
+	},
+	GachaMonPrizeCard = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.GACHAMON_CARD,
+		getText = function(self) return Resources.GameOverScreen.ButtonPrizeCard end,
+		iconColors = { "Positive text" },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 132, 62, 16 },
+		isVisible = function(self)
 			-- For now, use this option as a way to turn this off if someone doesn't like getting new cards
-			if Options["Add to collection if prize from trainer victory"] and not GachaMonData.createdTrainerPrizeCard then
-				-- Add as a frame counter to bypass any redirects from the log parse and display
-				Program.addFrameCounter("GameOverScreen:tryCreateTrainerPrizeGachaMon", 1, function()
-					local pokemon, trainerInfo = GachaMonData.createPokemonDataFromDefeatedTrainers()
-					if not pokemon then
-						return
+			return Options["Add to collection if prize from trainer victory"]
+		end,
+		onClick = function(self)
+			-- If already created, display the card
+			if GachaMonData.createdTrainerPrizeCard then
+				if Program.currentOverlay == GachaMonOverlay then
+					Program.closeScreenOverlay()
+					Program.redraw(true)
+				else
+					-- If a different overlay is open, close that first
+					if Program.isScreenOverlayOpen() then
+						Program.closeScreenOverlay()
 					end
-
-					local fromTrainerPrize = true
-					GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
-					local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
-					if not gachamon then
-						return
-					end
-
-					GachaMonData.createdTrainerPrizeCard = true
-					GachaMonData.newestRecentMon = gachamon
-					local x, y = Constants.SCREEN.WIDTH + 43, 43
-					AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon, trainerInfo)
-					Program.changeScreenView(GameOverScreen)
-				end, 1)
+					Program.openOverlayScreen(GachaMonOverlay)
+					GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
+					GachaMonOverlay.Data.View.GachaMon = GachaMonData.createdTrainerPrizeCard
+					GachaMonOverlay.refreshButtons()
+					Program.redraw(true)
+				end
+				return
 			end
+
+			local pokemon, trainerInfo = GachaMonData.createPokemonDataFromDefeatedTrainers()
+			if not pokemon then
+				return
+			end
+
+			local fromTrainerPrize = true
+			GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
+			local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+			if not gachamon then
+				return
+			end
+
+			GachaMonData.createdTrainerPrizeCard = gachamon
+			GachaMonData.newestRecentMon = gachamon
+			local x, y = Constants.SCREEN.WIDTH + 43, 43
+			AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon, trainerInfo)
+			Program.redraw(true)
 		end,
 	},
 }

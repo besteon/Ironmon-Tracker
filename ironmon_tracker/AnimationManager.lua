@@ -8,12 +8,17 @@ AnimationManager = {
 	GachaMonAnims = {}
 }
 
+-- NOTE: For now, most/all animation functions are disabled for MGBA; GachaMonData.isCompatibleWithEmulator()
+
 function AnimationManager.initialize()
 	AnimationManager.ActiveAnimations = {}
 	AnimationManager.GachaMonAnims = {}
 end
 
 function AnimationManager.drawGachaMonAnims()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local AMG = AnimationManager.GachaMonAnims
 	-- Draw in a specific order
 	if AMG.PackOpening then
@@ -40,22 +45,27 @@ local _drawTrainerInfo = function(x, y, trainerInfo)
 	if not (trainerInfo and trainerInfo.name and trainerInfo.routeName) then
 		return
 	end
-	x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-	y = Constants.SCREEN.MARGIN + 3
+	x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
+	y = Constants.SCREEN.MARGIN + 2
 	if not Utils.isNilOrEmpty(trainerInfo.image) then
 		local imageX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 32
 		local imageY = Constants.SCREEN.MARGIN + 2
 		Drawing.drawImage(trainerInfo.image, imageX, imageY)
 	end
-	local headerText = "Prize Card from Trainer:"
+	-- Header
+	local headerText = string.format("%s:", Resources.GachaMonAnimations.LabelPrizeCardFromTrainer)
 	Drawing.drawText(x, y, headerText, 0xFFFCED86)
-	Drawing.drawText(x + 2, y + 11, trainerInfo.name, Drawing.Colors.WHITE)
-	local routeText = string.format("-  %s", trainerInfo.routeName)
-	Drawing.drawText(x + 2, y + 22, routeText, Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN)
+	-- Trainer Name & Class
+	Drawing.drawText(x, y + 10, trainerInfo.name, Drawing.Colors.WHITE)
+	-- Route
+	local routeColor = Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN
+	local routeText = trainerInfo.routeName
+	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, x + 2, y + 23, routeColor)
+	Drawing.drawText(x + 13, y + 22, routeText, routeColor)
 end
 
 local _drawNewLabel = function(x, y)
-	local LABEL_NEW = "NEW"
+	local LABEL_NEW = Resources.GachaMonAnimations.LabelTabNEW
 	local NEW_W, NEW_H = 28, 14
 	local border, bg = 0xFFFD7DFF, 0xFFE849A2
 	local text, shadow = Drawing.Colors.WHITE, (Drawing.ColorEffects.DARKEN * 2)
@@ -75,8 +85,11 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param timeToExpire number Number of seconds before this animation expires
 ---@param startFrameIndex? number Optional starting frame index (1-50) to sync up animations; default random
----@return IAnimation animation
+---@return IAnimation? animation
 function AnimationManager.createGachaMonShinySparklesImage(x, y, timeToExpire, startFrameIndex)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	local W, H = 48, 48
 	-- TODO: Update this to a formal location if this function gets used
 	local SPRITE_SHEET = FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "shiny-sparkles", FileManager.Extensions.PNG)
@@ -125,8 +138,11 @@ end
 ---@param x number Location of the animation to be drawn
 ---@param y number Location of the animation to be drawn
 ---@param timeToExpire number Number of seconds before this animation expires
----@return table<number, IAnimation> animations
+---@return table<number, IAnimation>? animations
 function AnimationManager.createGachaMonShinySparkles(x, y, timeToExpire)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	-- TODO: consider different types of shiny animation or holographic foil
 
 	local animations = {
@@ -212,8 +228,12 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@param trainerInfo? table<string, any> Optional, if this card was obtained as a prize from a trainer victory, use that to display data
----@return IAnimation
+---@return IAnimation?
 function AnimationManager.createGachaMonPackOpening(x, y, gachamon, trainerInfo)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
+
 	local SHOW_HELP_FRAME_DELAY = 210
 	local cardOffsetX, cardOffsetY = -1, 13
 
@@ -251,7 +271,9 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon, trainerInfo)
 		if openButton == Input.NO_KEY_MAPPING then
 			openButton = Constants.BLANKLINE
 		end
-		local helpText = string.format("--  Press (%s) or click to open  --", openButton)
+
+		local helpTextFormat = string.format("--  %s  --", Resources.GachaMonAnimations.LabelPressBUTTONtoOpen)
+		local helpText = string.format(helpTextFormat, openButton)
 		local helpTextX = Utils.getCenteredTextX(helpText, Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN * 2)
 		local helpTextY = trainerInfo ~= nil and (y + cardpackH + 1) or (y + cardpackH + 7)
 		local helpTextAnimation = AnimationManager.IAnimation:new({
@@ -415,8 +437,12 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param gachamon IGachaMon The GachaMon data used to display the card
 ---@param trainerInfo? table<string, any> Optional, if this card was obtained as a prize from a trainer victory, use that to display data
----@return IAnimation
+---@return IAnimation?
 function AnimationManager.createGachaMonCardDisplay(x, y, gachamon, trainerInfo)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
+
 	local isNewSpecies = GachaMonData.checkIfNewCollectionSpecies(gachamon)
 
 	local animation = AnimationManager.IAnimation:new({
@@ -441,6 +467,17 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon, trainerInfo)
 			self:stop()
 			AnimationManager.GachaMonAnims.CardDisplay = nil
 			GachaMonData.clearNewestMonToShow()
+			-- If this was a prize card from the trainer, view it right away
+			if GachaMonData.createdTrainerPrizeCard then
+				-- If a different overlay is open, close that first
+				if Program.currentOverlay ~= GachaMonOverlay then
+					Program.closeScreenOverlay()
+				end
+				Program.openOverlayScreen(GachaMonOverlay)
+				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
+				GachaMonOverlay.Data.View.GachaMon = GachaMonData.createdTrainerPrizeCard
+				GachaMonOverlay.refreshButtons()
+			end
 			Program.redraw(true)
 		end,
 		Temp = {
@@ -456,8 +493,12 @@ end
 ---@param y number Location of the animation to be drawn
 ---@param gachamon1? IGachaMon
 ---@param gachamon2? IGachaMon
----@return IAnimation animation
+---@return IAnimation? animation
 function AnimationManager.createBattlefieldImageReveal(x, y, gachamon1, gachamon2)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
+
 	local W, H = 235, 142
 	local FRAME_DURATION = 3
 	local TERRAINS = {
@@ -537,6 +578,9 @@ end
 
 ---"Animates" the active animations by incrementing their frame counters
 function AnimationManager.stepFrames()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	if not AnimationManager.anyActive() then
 		return
 	end
@@ -556,6 +600,9 @@ end
 ---@param animation IAnimation
 ---@return boolean success
 function AnimationManager.tryAddAnimationToActive(animation)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return false
+	end
 	if AnimationManager.ActiveAnimations[animation.GUID] then
 		return false
 	end
@@ -572,6 +619,9 @@ end
 ---Draws a specific animation
 ---@param animation? IAnimation
 function AnimationManager.drawAnimation(animation)
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	if animation and animation:IsVisible() then
 		animation:draw()
 	end
@@ -579,6 +629,9 @@ end
 
 ---Draws all visible ActiveAnimations
 function AnimationManager.drawActiveAnimations()
+	if not GachaMonData.isCompatibleWithEmulator() then
+		return
+	end
 	for _, animation in pairs(AnimationManager.ActiveAnimations or {}) do
 		AnimationManager.drawAnimation(animation)
 	end
