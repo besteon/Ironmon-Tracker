@@ -36,7 +36,7 @@ GachaMonData = {
 	-- If the collection contains Nat. Dex. GachaMons but the current ROM/Tracker can't display them
 	requiresNatDex = false,
 	-- After a game over, create a prize card from one of the defeated common trainers
-	createdTrainerPrizeCard = false,
+	createdTrainerPrizeCard = nil,
 	-- The current ruleset being used for the current game. Automatically determined after the New Run profiles are loaded.
 	rulesetKey = "Standard",
 	-- If the ruleset was automatically determined from the New Run profile settings (mostly used for a UI label in options tab)
@@ -86,7 +86,7 @@ function GachaMonData.initialize()
 	GachaMonData.initialRecentMonsLoaded = false
 	GachaMonData.collectionRequiresSaving = false
 	GachaMonData.requiresNatDex = false
-	GachaMonData.createdTrainerPrizeCard = false
+	GachaMonData.createdTrainerPrizeCard = nil
 	GachaMonData.playerViewedMon = nil
 	GachaMonData.playerViewedInitialStars = 0
 	GachaMonData.clearNewestMonToShow()
@@ -597,14 +597,10 @@ function GachaMonData.createRandomGachaMon()
 	return gachamon
 end
 
----Requires Log file has been parsed. Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
+---Create a IPokemon data from a defeated "common trainer" used for GachaMon card creation. Bias towards high BST if able
 ---@return IPokemon? pokemon
 ---@return table<string, any>? trainerInfo
 function GachaMonData.createPokemonDataFromDefeatedTrainers()
-	if RandomizerLog.loadedLogPath == nil or RandomizerLog.Data.Settings == nil then
-		return nil, nil
-	end
-
 	-- Check through all common trainers
 	local defeatedTrainers = {}
 	for _, idList in pairs(TrainerData.CommonTrainers or {}) do
@@ -663,17 +659,20 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		return nil, nil
 	end
 
-	-- Verify this trainer's pokemon can be looked up in the log
-	local trainerLog = RandomizerLog.Data.Trainers[trainerData.trainerId or 0] or {}
-	local trainerMon
-	for _, mon in pairs(trainerLog.party or {}) do
-		if mon.pokemonID == trainerPokemon.pokemonID and mon.level == trainerPokemon.level then
-			trainerMon = mon
-			break
+	if #(trainerPokemon.moves or {}) < 4 then
+		trainerPokemon.moves = {}
+		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset by working backwards
+		local learnedMoves = PokemonData.readLevelUpMoves(trainerPokemon.pokemonID) or {}
+		for j = #learnedMoves, 1, -1 do
+			local learnedMove = learnedMoves[j]
+			if learnedMove.level <= trainerPokemon.level then
+				-- Insert at the front (i=1) to add them in "reverse" or bottom-up
+				table.insert(trainerPokemon.moves, 1, learnedMove.moveId)
+				if #trainerPokemon.moves >= 4 then
+					break
+				end
+			end
 		end
-	end
-	if not trainerMon then
-		return nil, nil
 	end
 
 	local _estimateStat = function(statKey)
@@ -684,7 +683,7 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 		return math.floor(((ivs + 2 * baseStat) * level / 100) + additional + 0.5)
 	end
 
-	-- Build the Pokemon object from all the trainer/log data
+	-- Build the Pokemon object from all the trainer data
 	local pokemonData = Program.DefaultPokemon:new({
 		pokemonID = trainerPokemon.pokemonID,
 		personality = trainerData.trainerId, -- I don't think these pokemon have personality values that make sense anyway?
@@ -701,10 +700,10 @@ function GachaMonData.createPokemonDataFromDefeatedTrainers()
 			spe = _estimateStat("spe"),
 		},
 		moves = {
-			{ id = trainerMon.moveIds[1] or 0 },
-			{ id = trainerMon.moveIds[2] or 0 },
-			{ id = trainerMon.moveIds[3] or 0 },
-			{ id = trainerMon.moveIds[4] or 0 },
+			{ id = trainerPokemon.moves[1] or 0 },
+			{ id = trainerPokemon.moves[2] or 0 },
+			{ id = trainerPokemon.moves[3] or 0 },
+			{ id = trainerPokemon.moves[4] or 0 },
 		},
 	})
 

@@ -40,18 +40,23 @@ local _drawTrainerInfo = function(x, y, trainerInfo)
 	if not (trainerInfo and trainerInfo.name and trainerInfo.routeName) then
 		return
 	end
-	x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-	y = Constants.SCREEN.MARGIN + 3
+	x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
+	y = Constants.SCREEN.MARGIN + 2
 	if not Utils.isNilOrEmpty(trainerInfo.image) then
 		local imageX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - 32
 		local imageY = Constants.SCREEN.MARGIN + 2
 		Drawing.drawImage(trainerInfo.image, imageX, imageY)
 	end
+	-- Header
 	local headerText = string.format("%s:", Resources.GachaMonAnimations.LabelPrizeCardFromTrainer)
 	Drawing.drawText(x, y, headerText, 0xFFFCED86)
-	Drawing.drawText(x + 2, y + 11, trainerInfo.name, Drawing.Colors.WHITE)
-	local routeText = string.format("-  %s", trainerInfo.routeName)
-	Drawing.drawText(x + 2, y + 22, routeText, Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN)
+	-- Trainer Name & Class
+	Drawing.drawText(x, y + 10, trainerInfo.name, Drawing.Colors.WHITE)
+	-- Route
+	local routeColor = Drawing.Colors.WHITE - Drawing.ColorEffects.DARKEN
+	local routeText = trainerInfo.routeName
+	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, x + 2, y + 23, routeColor)
+	Drawing.drawText(x + 13, y + 22, routeText, routeColor)
 end
 
 local _drawNewLabel = function(x, y)
@@ -443,6 +448,17 @@ function AnimationManager.createGachaMonCardDisplay(x, y, gachamon, trainerInfo)
 			self:stop()
 			AnimationManager.GachaMonAnims.CardDisplay = nil
 			GachaMonData.clearNewestMonToShow()
+			-- If this was a prize card from the trainer, view it right away
+			if GachaMonData.createdTrainerPrizeCard then
+				-- If a different overlay is open, close that first
+				if Program.currentOverlay ~= GachaMonOverlay then
+					Program.closeScreenOverlay()
+				end
+				Program.openOverlayScreen(GachaMonOverlay)
+				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
+				GachaMonOverlay.Data.View.GachaMon = GachaMonData.createdTrainerPrizeCard
+				GachaMonOverlay.refreshButtons()
+			end
 			Program.redraw(true)
 		end,
 		Temp = {

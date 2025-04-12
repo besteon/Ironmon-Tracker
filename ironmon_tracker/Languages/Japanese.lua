@@ -565,6 +565,8 @@ ScreenResources{
 		ButtonGradeMyNotes = "Grade my notes", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+		ButtonViewLogSmall = "View log", -- NEEDS TRANSLATION
+		ButtonPrizeCard = "Prize card", -- NEEDS TRANSLATION
 	},
 	StatMarkingScoreSheet = {
 		Title = "Stat Marking Score Sheet", -- NEEDS TRANSLATION
@@ -764,7 +766,7 @@ ScreenResources{
 		LabelCollectionSize = "GachaMons in collection",
 		OptionAutoAddIfNew = "It's a new Pokémon species",
 		OptionAutoAddWhenDefeatTrainers = "It defeats at least 2 trainers",
-		OptionAutoAddFromTrainerVictory = "It's a prize card from a trainer victory (must view log)",
+		OptionAutoAddFromTrainerVictory = "It's a prize card from a trainer victory",
 		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
 		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
 		OptionAnimateGachaMonPackOpening = "Animate card pack opening",
