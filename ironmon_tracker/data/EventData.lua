@@ -1227,10 +1227,11 @@ function EventData.getProgress(params)
 		totalDefeated / totalTrainers * 100))
 	local fullyEvolvedSeen, fullyEvolvedTotal = 0, 0
 	-- local legendarySeen, legendaryTotal = 0, 0
-	for pokemonID, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if pokemon.evolution == PokemonData.Evolutions.NONE then
 			fullyEvolvedTotal = fullyEvolvedTotal + 1
-			local trackedPokemon = Tracker.Data.allPokemon[pokemonID] or {}
+			local trackedPokemon = Tracker.Data.allPokemon[id] or {}
 			if (trackedPokemon.eT or 0) > 0 then
 				fullyEvolvedSeen = fullyEvolvedSeen + 1
 			end
@@ -1283,6 +1284,111 @@ function EventData.getBallQueue(params)
 	if request and request.Username then
 		table.insert(info, string.format("%s: %s - %s", "Current pick", request.Username, request.SanitizedInput or "N/A"))
 	end
+
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
+function EventData.getGachaMon(params)
+	local prefix = string.format("%s %s", "GachaMon", OUTPUT_CHAR)
+	local info = {}
+
+	if AnimationManager.GachaMonAnims.PackOpening ~= nil then
+		local msg = "Please wait until the GachaMon card pack is opened."
+		return string.format("%s %s", prefix, msg)
+	end
+
+	local gachamon ---@type IGachaMon|nil
+	if not Utils.isNilOrEmpty(params, true) then
+		local id = DataHelper.findPokemonId(params)
+		local pokemon = PokemonData.getNatDexCompatible(id)
+		-- Check Recent GachaMons for any matching names, just get "first" one doesn't matter really
+		if pokemon then
+			for _, gmon in pairs(GachaMonData.RecentMons or {}) do
+				if gmon.PokemonId == id then
+					gachamon = gmon
+					break
+				end
+			end
+		end
+	else
+		local pokemon = TrackerAPI.getPlayerPokemon() or {}
+		gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+	end
+	if not gachamon then
+		return buildDefaultResponse(params)
+	end
+
+	-- EXAMPLE OUTPUT
+	-- GachaMon > Milotic - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
+
+	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
+	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility
+	local pokemonName = pokemonInternal.name
+	if gachamon:getIsShiny() == 1 then
+		pokemonName = string.format("* %s *", pokemonName)
+	end
+	local nameAndAbility = string.format("%s - %s", pokemonName, abilityInternal.name)
+	table.insert(info, nameAndAbility)
+
+	local numStars = gachamon:getStars() or 0
+	local starsText = string.format("%s Stars", numStars > 5 and "5+" or numStars)
+	table.insert(info, starsText)
+
+	local bpText = string.format("%s BP", gachamon.BattlePower or 0)
+	table.insert(info, bpText)
+
+	local stats = gachamon:getStats()
+	local statValues = string.format("%s/%s/%s/%s/%s/%s", stats.hp or 0, stats.atk or 0, stats.def or 0, stats.spa or 0, stats.spd or 0, stats.spe or 0)
+	local levelAndStats = string.format("%s.%s Stats: %s", Resources.TrackerScreen.LevelAbbreviation, gachamon.Level, statValues)
+	table.insert(info, levelAndStats)
+
+	local moveNames = {}
+	local moveIds = gachamon:getMoveIds()
+	for _, moveId in ipairs(moveIds or {}) do
+		local move = MoveData.getNatDexCompatible(moveId)
+		if move ~= MoveData.BlankMove then
+			table.insert(moveNames, move.name)
+		end
+	end
+	local moveList = table.concat(moveNames, ", ")
+	table.insert(info, moveList)
+
+	return buildResponse(prefix, info)
+end
+
+---@param params string?
+---@return string response
+function EventData.getGachaDex(params)
+	-- TODO: Might add params to do some other fancy lookups later
+	local prefix = string.format("%s %s", "GachaDex", OUTPUT_CHAR)
+	local info = {}
+
+	-- EXAMPLE OUTPUT
+	-- GachaDex > 56% collection complete | GachaMons in collection: 159/386 | Seen: 221
+
+	local DD = GachaMonData.DexData or {}
+
+	local completionText = string.format("%s%% %s",
+	DD.PercentageComplete or 0,
+		"collection complete"
+	)
+	table.insert(info, completionText)
+
+	local totalDex = PokemonData.getTotal() - 25
+	local inCollectionText = string.format("%s: %s/%s",
+		"GachaMons in collection",
+		DD.NumCollected or 0,
+		totalDex
+	)
+	table.insert(info, inCollectionText)
+
+	local seenText = string.format("%s: %s",
+		"Seen",
+		DD.NumSeen or 0
+	)
+	table.insert(info, seenText)
 
 	return buildResponse(prefix, info)
 end

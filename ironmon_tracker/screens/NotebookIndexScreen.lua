@@ -142,10 +142,11 @@ function NotebookIndexScreen.buildScreen()
 	SCREEN.Data.totalPokemon = 0
 	-- SCREEN.Data.pokemonSeenEvolved = 0
 	-- SCREEN.Data.totalPokemonEvolved = 0
-	for pokemonID, pokemon in ipairs(PokemonData.Pokemon) do
-		if pokemonID < 252 or pokemonID > 276 then -- Skip fake Pokemon
+	for id = 1, PokemonData.getTotal(), 1 do
+		-- local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
+		if id < 252 or id > 276 then -- Skip fake Pokemon
 			SCREEN.Data.totalPokemon = SCREEN.Data.totalPokemon + 1
-			local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+			local trackedPokemon = Tracker.Data.allPokemon[id]
 			-- Count it if seen as a wild or on a trainer
 			-- local hasSeen = (trackedPokemon.eW or 0) > 0 or (trackedPokemon.eT or 0) > 0
 			if trackedPokemon ~= nil then

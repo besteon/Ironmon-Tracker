@@ -5,6 +5,7 @@ Tracker.LoadStatusKeys = {
 	NEW_GAME = "TrackedDataMsgNewGame",
 	LOAD_SUCCESS = "TrackedDataMsgLoadSuccess",
 	AUTO_DISABLED = "TrackedDataMsgAutoDisabled",
+	ROM_MISMATCH = "TrackedDataMsgRomMismatch",
 	ERROR = "TrackedDataMsgError",
 }
 Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
@@ -52,7 +53,7 @@ Tracker.DefaultData = {
 	safariEncounters = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
 	hiddenPowers = {},
-	-- performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
+	-- Performs a 1-time automatic tracking of active pokemon used in trainer battles; [personality] = true
 	initialMoveset = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
 	centerHeals = 0,
@@ -422,7 +423,8 @@ function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
 	end
 
 	-- Lookup ability id's from the master list of ability pokemon data
-	for id, ability in pairs(AbilityData.Abilities) do
+	for id = 1, AbilityData.getTotal(), 1 do
+		local ability = AbilityData.Abilities[id] or {}
 		if abilityOneText == ability.name then
 			abilityOneId = id
 		elseif abilityTwoText == ability.name then
@@ -531,6 +533,8 @@ function Tracker.getDefaultPokemon()
 		bst = PokemonData.BlankPokemon.bst,
 		movelvls = { {}, {} },
 		weight = PokemonData.BlankPokemon.weight,
+		friendship = PokemonData.Values.DefaultBaseFriendship,
+		friendshipBase = PokemonData.Values.DefaultBaseFriendship,
 	})
 end
 
@@ -553,6 +557,15 @@ function Tracker.resetData()
 		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH),
 	})
 	Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
+end
+
+---Completely erases any Tracker notes taken and erases the tracker notes file; leaving it with empty information
+function Tracker.clearTrackerNotesAndFile()
+	Tracker.resetData()
+	Tracker.Data.romHash = ""
+	Tracker.Data.gameStatsFishing = 0
+	Tracker.Data.gameStatsRockSmash = 0
+	Tracker.saveData()
 end
 
 ---Resets any recorded information that is temporarily noted for the current battle
@@ -615,6 +628,7 @@ end
 ---@param filepath? string Optional, the filepath that the TDAT file will be loaded from; defaults to selected New Run game profile
 ---@param overwrite? boolean Optional, if true will forcibly overwrite currently loaded data with new data; default: false
 ---@return string loadStatus The `Tracker.LoadStatus` string, respresenting one of `Tracker.LoadStatusKeys`
+---@return string? romHash The romHash loaded from the file, even if it's different than the currently loaded game
 function Tracker.loadData(filepath, overwrite)
 	filepath = filepath or QuickloadScreen.getGameProfileTdatPath()
 	overwrite = overwrite == true -- Defaults to false
@@ -623,13 +637,13 @@ function Tracker.loadData(filepath, overwrite)
 	local fileExtension = FileManager.extractFileExtensionFromPath(filepath):lower()
 	if fileExtension ~= FileManager.Extensions.TRACKED_DATA:sub(2) then -- ignore leading period
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
-		return Tracker.LoadStatus
+		return Tracker.LoadStatus, nil
 	end
 
 	local fileData = FileManager.readTableFromFile(filepath)
 	if fileData == nil then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
-		return Tracker.LoadStatus
+		return Tracker.LoadStatus, nil
 	end
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
@@ -639,7 +653,7 @@ function Tracker.loadData(filepath, overwrite)
 	local isDifferentRom = Utils.isNilOrEmpty(fileData.romHash) or fileData.romHash ~= GameSettings.getRomHash()
 	if not overwrite and isDifferentRom then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
-		return Tracker.LoadStatus
+		return Tracker.LoadStatus, fileData.romHash
 	end
 
 	-- Don't replace some data
@@ -658,7 +672,7 @@ function Tracker.loadData(filepath, overwrite)
 	Tracker.checkForLegacyTrackedData(fileData)
 
 	Tracker.LoadStatus = Tracker.LoadStatusKeys.LOAD_SUCCESS
-	return Tracker.LoadStatus
+	return Tracker.LoadStatus, fileData.romHash
 end
 
 --- Verifies the current Tracker.Data is accurate for this current game, based on the player's in-game TrainerID
@@ -729,10 +743,13 @@ end
 Tracker.AutoSave = {
 	-- The filepath location of the TDAT file that is used for auto loading/saving
 	Tdat = "",
+	-- Prevent auto-saving data if there is a warning or conflict awaiting user response
+	HasSaveConflict = false,
 }
 
 function Tracker.AutoSave.reset()
 	Tracker.AutoSave.Tdat = ""
+	Tracker.AutoSave.HasSaveConflict = false
 end
 
 function Tracker.AutoSave.isEnabled()
@@ -742,7 +759,7 @@ end
 ---Automatically saves Tracker data (TDAT); triggers every few minutes and only if game is being played
 function Tracker.AutoSave.saveToFile()
 	-- Also don't auto save if the game hasn't started being played; nothing to save
-	if not Tracker.AutoSave.isEnabled() or TrackerAPI.getPlayerPokemon() == nil then
+	if not Tracker.AutoSave.isEnabled() or Tracker.AutoSave.HasSaveConflict or TrackerAPI.getPlayerPokemon() == nil then
 		return
 	end
 	if not Utils.isNilOrEmpty(Tracker.AutoSave.Tdat) then
@@ -772,7 +789,7 @@ function Tracker.AutoSave.loadFromFile()
 		shouldCreateProfileTDAT = QuickloadScreen.getActiveProfile() ~= nil
 	end
 
-	Tracker.loadData(fileToLoad)
+	local _, romHashFromFile = Tracker.loadData(fileToLoad)
 
 	-- If no autosave file could be loaded, then treat this as a new game
 	if Tracker.LoadStatus == Tracker.LoadStatusKeys.ERROR then
@@ -784,4 +801,127 @@ function Tracker.AutoSave.loadFromFile()
 		FileManager.CopyFile(fileToLoad, Tracker.AutoSave.Tdat)
 		FileManager.deleteFile(fileToLoad)
 	end
+
+	local _finalizeLoadTrackerData = function(forceImportAndUse)
+		Tracker.AutoSave.HasSaveConflict = false
+		GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
+
+		-- Output to console the Tracker data load status to help with troubleshooting
+		local loadStatusMessage = Resources.StartupScreen[Tracker.LoadStatus or false]
+		if loadStatusMessage then
+			print(string.format("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage))
+		end
+	end
+
+	-- Check if the game loaded is different than the game last played (remembered by the tracker notes)
+	if not Tracker.AutoSave.checkIfRomsMatch(GameSettings.getRomHash(), romHashFromFile) then
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.ROM_MISMATCH
+		-- Only on bizhawk, request confirmation that it's okay to proceed
+		if Main.IsOnBizhawk() then
+			Tracker.AutoSave.HasSaveConflict = true
+			Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, _finalizeLoadTrackerData)
+		end
+		local mismatchMsg = string.format("> %s: %s",
+			"ROM Mismatch",
+			"The currently open ROM file is *not* the same ROM file that was last played, according to Tracker notes data."
+		)
+		print(mismatchMsg)
+	else
+		-- No issues, just complete the remaining actions
+		_finalizeLoadTrackerData()
+	end
+end
+
+---Checks if the currently played ROM matches the last played ROM (using it's hash from tracker notes & name from profile).
+---Ignore check if the rom filenames are the same (rare case that shouldn't happen, but also no way to quickly auto-fix)
+---@param currentRomHash? string
+---@param lastPlayedRomHash? string
+---@return boolean isMatch
+function Tracker.AutoSave.checkIfRomsMatch(currentRomHash, lastPlayedRomHash)
+	currentRomHash = currentRomHash or GameSettings.getRomHash()
+	local profile = QuickloadScreen.getActiveProfile()
+	local lastPlayedRomPath
+	if profile and not Utils.isNilOrEmpty(profile.Paths.CurrentRom) then
+		lastPlayedRomPath = profile.Paths.CurrentRom
+	end
+	local currentRomName = Utils.toLowerUTF8(GameSettings.getRomName())
+	local lastPlayedRomName = Utils.toLowerUTF8(FileManager.extractFileNameFromPath(lastPlayedRomPath or "") or "")
+	local romNameMatch = Utils.isNilOrEmpty(lastPlayedRomName) or currentRomName == lastPlayedRomName
+	local romHashMatch = Utils.isNilOrEmpty(lastPlayedRomHash) or currentRomHash == lastPlayedRomHash
+	-- Disregard rom hash mismatch for this check if the names are identical
+	return romNameMatch or romHashMatch
+end
+
+---Mandatory action by user to fix or dismiss mismatch warning. The loaded ROM is mismatched with last played ROM.
+---@param romHashFromFile? string
+---@param callbackFunc? function Optional, this function is called when the user clicks Yes/No/OK/Cancel
+function Tracker.AutoSave.openRomConflictPrompt(romHashFromFile, callbackFunc)
+	local profile = QuickloadScreen.getActiveProfile()
+	local lastPlayedRomPath
+	if profile and not Utils.isNilOrEmpty(profile.Paths.CurrentRom) then
+		lastPlayedRomPath = profile.Paths.CurrentRom
+	end
+
+	-- No matter what, if/when this form prompt closes, disable the autosave conflict
+	local _failSafeDisableConflict = function ()
+		Tracker.AutoSave.HasSaveConflict = false
+	end
+	local form = ExternalUI.BizForms.createForm("WARNING! Incorrect ROM file loaded.", 430, 280, 100, 20, _failSafeDisableConflict)
+
+	local x, x2 = 15, 135
+	local iy = 10
+	form:createLabel("The currently open ROM file is NOT the same ROM file that was last played.", x, iy)
+	iy = iy + 22
+	form.Controls.labelOkayToIgnoreIf = form:createLabel("(Note: If you intend to create a NEW ROM anyway, simply dismiss this warning)", x, iy)
+	ExternalUI.BizForms.setProperty(form.Controls.labelOkayToIgnoreIf, ExternalUI.BizForms.Properties.FORE_COLOR, "blue")
+	iy = iy + 28
+	form:createLabel("*  Currently open ROM:", x, iy)
+	local currentRomName = GameSettings.getRomName() or "N/A"
+	form.Controls.labelCurrentRomName = form:createLabel(currentRomName, x2, iy)
+	ExternalUI.BizForms.setProperty(form.Controls.labelCurrentRomName, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+	iy = iy + 22
+	form:createLabel("   ROM Hash:", x, iy)
+	local currentRomHash = GameSettings.getRomHash() or Constants.BLANKLINE
+	form.Controls.labelCurrentRomHash = form:createLabel(currentRomHash, x2, iy)
+	ExternalUI.BizForms.setProperty(form.Controls.labelCurrentRomHash, ExternalUI.BizForms.Properties.FORE_COLOR, "red")
+	iy = iy + 22
+	form:createLabel("*  Last played ROM:", x, iy)
+	local lastPlayedRomName = FileManager.extractFileNameFromPath(lastPlayedRomPath or "") or "N/A"
+	form.Controls.labelLastPlayedRomName = form:createLabel(lastPlayedRomName, x2, iy)
+	iy = iy + 22
+	form:createLabel("   ROM Hash:", x, iy)
+	form.Controls.labelLastPlayedRomHash = form:createLabel(romHashFromFile or Constants.BLANKLINE, x2, iy)
+	iy = iy + 45
+	form:createLabel("The Tracker can load your most recently played ROM for this New Run profile:", x, iy)
+	iy = iy + 30
+
+	-- FIX IT/IGNORE WARNING/DISMISS
+	if lastPlayedRomPath then
+		form.Controls.buttonFixIt = form:createButton("Fix it for me", x + 90, iy, function()
+			_failSafeDisableConflict()
+			-- This will force the Tracker to load this rom on the next available frame
+			Main.loadDifferentRom = lastPlayedRomPath
+			form:destroy()
+		end, 105, 25)
+	else
+		form.Controls.buttonIgnoreWarning = form:createButton("Ignore warning (!)", x + 90, iy, function()
+			_failSafeDisableConflict()
+			if type(callbackFunc) == "function" then
+				callbackFunc(true)
+			end
+			form:destroy()
+		end, 105, 25)
+	end
+	form.Controls.buttonDismiss = form:createButton("Dismiss", x + 220, iy, function()
+		_failSafeDisableConflict()
+		local denialMsg = string.format("> %s: %s",
+			"Action Taken",
+			"Mismatch warning dismissed. Gameplay may not function properly."
+		)
+		print(denialMsg)
+		if type(callbackFunc) == "function" then
+			callbackFunc(true)
+		end
+		form:destroy()
+	end, 75, 25)
 end

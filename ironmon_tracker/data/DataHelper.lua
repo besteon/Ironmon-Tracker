@@ -23,7 +23,8 @@ function DataHelper.findPokemonId(name, threshold)
 
 	-- Format list of Pokemon as id, name pairs
 	local pokemonNames = {}
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if (pokemon.bst ~= Constants.BLANKLINE) then
 			pokemonNames[id] = Utils.toLowerUTF8(pokemon.name)
 		end
@@ -46,7 +47,8 @@ function DataHelper.findMoveId(name, threshold)
 
 	-- Format list of Moves as id, name pairs
 	local moveNames = {}
-	for id, move in ipairs(MoveData.Moves) do
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
 		moveNames[id] = Utils.toLowerUTF8(move.name)
 	end
 
@@ -67,7 +69,8 @@ function DataHelper.findAbilityId(name, threshold)
 
 	-- Format list of Abilities as id, name pairs
 	local abilityNames = {}
-	for id, ability in ipairs(AbilityData.Abilities) do
+	for id = 1, AbilityData.getTotal(), 1 do
+		local ability = AbilityData.Abilities[id] or {}
 		abilityNames[id] = Utils.toLowerUTF8(ability.name)
 	end
 
@@ -133,15 +136,18 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
 	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- For Low Kick weight calcs and OHKO moves
 	local useOpenBookInfo = not data.x.viewingOwn and Options["Open Book Play Mode"]
+	local gachaMonViewOverride = (Options["Show card pack on screen after capturing a GachaMon"] and GachaMonData.hasNewestMonToShow())
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
-	elseif not Tracker.Data.hasCheckedSummary then
+		data.x.infoIsHidden = true
+	elseif not Tracker.Data.hasCheckedSummary or gachaMonViewOverride then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
 		local defaultPokemon = Tracker.getDefaultPokemon()
 		defaultPokemon.pokemonID = viewedPokemon.pokemonID
 		defaultPokemon.level = viewedPokemon.level
 		viewedPokemon = defaultPokemon
+		data.x.infoIsHidden = true
 	end
 
 	local pokemonInternal = PokemonData.Pokemon[viewedPokemon.pokemonID] or PokemonData.BlankPokemon
@@ -295,36 +301,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			end
 			move.category = MoveData.getCategory(move.id, move.type)
 		elseif Options["Calculate variable damage"] then
-			if move.id == MoveData.Values.WeatherBallId then
-				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
-				move.category = MoveData.getCategory(move.id, move.type)
-			elseif move.id == MoveData.Values.LowKickId and Battle.inActiveBattle() and opposingPokemon ~= nil then
-				local targetWeight
-				if opposingPokemon.weight ~= nil then
-					targetWeight = opposingPokemon.weight
-				elseif PokemonData.Pokemon[opposingPokemon.pokemonID] ~= nil then
-					targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
-				else
-					targetWeight = 0
-				end
-				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
-			elseif MoveData.isOHKO(move.id) and Battle.inActiveBattle() and opposingPokemon ~= nil then
-				local levelDiff = viewedPokemon.level - opposingPokemon.level
-				if levelDiff > 0 then
-					local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
-					move.accuracy = tostring(math.min(accAsNum + levelDiff, 100))
-				elseif levelDiff < 0 then
-					move.accuracy = "X " -- Ineffective against higher level pokemon
-				end
-			elseif data.x.viewingOwn then
-				if move.id == MoveData.Values.FlailId or move.id == MoveData.Values.ReversalId then
-					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.id == MoveData.Values.EruptionId or move.id == MoveData.Values.WaterSpoutId then
-					move.power = Utils.calculateHighHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.id == MoveData.Values.ReturnId or move.id == MoveData.Values.FrustrationId then
-					move.power = Utils.calculateFriendshipBasedDamage(move.power, viewedPokemon.friendship)
-				end
-			end
+			MoveData.adjustVariableMoveValues(move, viewedPokemon, opposingPokemon)
 		end
 
 		-- Update: If STAB
@@ -395,10 +372,23 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- MISC DATA (data.x)
-	data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
-	data.x.healvalue = math.min(99999, Program.GameData.Items.healingValue or 0) -- Max of 99999
-	data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
+	if data.x.infoIsHidden then
+		data.x.healperc = 0
+		data.x.healvalue = 0
+		data.x.healnum = 0
+	else
+		data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
+		data.x.healvalue = math.min(99999, Program.GameData.Items.healingValue or 0) -- Max of 99999
+		data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
+	end
 	data.x.pcheals = Tracker.Data.centerHeals
+
+	local gachamon = viewedPokemon and GachaMonData.getAssociatedRecentMon(viewedPokemon)
+	if gachamon and not data.x.infoIsHidden then
+		data.x.gachamonStars = gachamon:getStars()
+	else
+		data.x.gachamonStars = 0
+	end
 
 	data.x.route = Constants.BLANKLINE
 	if RouteData.hasRoute(Program.GameData.mapId) then
@@ -441,7 +431,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
-	if not PokemonData.IsRand.types or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
+	if pokemon.types and (not PokemonData.IsRand.types or Options["Reveal info if randomized"] or pokemon.pokemonID == ownLeadPokemon.pokemonID) then
 		data.p.types = { pokemon.types[1], pokemon.types[2] }
 	else
 		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
@@ -478,7 +468,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	end
 
 	-- Experience yield
-	if matchedPokemon and matchedPokemon.level > 0 then
+	if matchedPokemon and (matchedPokemon.level or 0) > 0 then
 		local yield = PokemonData.Pokemon[matchedPokemon.pokemonID].expYield or 0
 		local ratio = Battle.isWildEncounter and (matchedPokemon.level / 7) or (matchedPokemon.level * 3 / 14)
 		data.p.expYield = math.floor(yield * ratio)

@@ -202,6 +202,39 @@ function TrackerAPI.hasGameStarted()
 	return Program.isValidMapLocation()
 end
 
+---For a given Pokemon (provide the pokemon object or both the id + personality), this returns its associated GachaMon card captured for this game
+---@param pokemon? IPokemon Must provide this object OR the other two requested params
+---@param pokemonID? number Must provide both PokemonID & personality value
+---@param personality? number Must provide both PokemonID & personality value
+---@return IGachaMon|nil gachamon Refer to `GachaMonData.IGachaMon` for object data structure
+function TrackerAPI.getGachaMonForPokemon(pokemon, pokemonID, personality)
+	pokemon = pokemon or Program.DefaultPokemon:new({ pokemonID = pokemonID, personality = personality })
+	local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+	return gachamon
+end
+
+---Statistics about the player's GachaDex permanent collection (NumSeen, NumCollected, PercentageComplete, table of which mons are seen)
+---@return table dexData
+function TrackerAPI.getGachaDexStats()
+	local totalPokemon = PokemonData.getTotal() - 25
+	if totalPokemon > 386 and not CustomCode.RomHacks.isPlayingNatDex() then
+		totalPokemon = 386
+	end
+	return {
+		-- Total unique pokemon species for GachaMons seen (captured) but not collected
+		NumSeen = GachaMonData.DexData.NumSeen,
+		-- Total unique pokemon species for GachaMons in collection
+		NumCollected = GachaMonData.DexData.NumCollected,
+		-- Total possible to collect
+		TotalPossible = totalPokemon,
+		-- A whole number from 0 to 100
+		PercentageComplete = GachaMonData.DexData.PercentageComplete,
+		-- A record of allowed the unique pokemon species seen
+		---@type table<number, boolean> [pokemonID] = true
+		SeenMons = FileManager.copyTable(GachaMonData.DexData.SeenMons)
+	}
+end
+
 -----------------------------------
 ---  III. INFO LOOKUP  ------------
 -----------------------------------
@@ -294,18 +327,17 @@ function TrackerAPI.getOption(key)
 	return Options[key]
 end
 
----Changes a Tracker option setting and saves it. Tracket settings are saved (persist) in the Settings.ini file
+---Changes a Tracker option setting and saves it. Tracker settings are saved (persist) in the Settings.ini file
 ---Create your own settings for an extension by using: `TrackerAPI.saveExtensionSetting()`
 ---@param key string
 ---@param value any Usually a boolean or a string
+---@param subtableKey? string Optional, for specifying a setting in an Options subcatgory, such as CONTROLS or FILES; case-sensitive
 ---@return boolean success true if an existing setting was changed, false if no setting was found
-function TrackerAPI.setOption(key, value)
-	-- Checks through categorized options, such as CONTROLS, FILES, or PATHS
-	for _, optionCategory in pairs(Options) do
-		if type(optionCategory) == "table" and optionCategory[key] ~= nil then
-			optionCategory[key] = value
-			return true
-		end
+function TrackerAPI.setOption(key, value, subtableKey)
+	if subtableKey and type(Options[subtableKey]) == "table" and Options[subtableKey][key] ~= nil then
+		Options[subtableKey][key] = value
+		Main.SaveSettings(true)
+		return true
 	end
 	if Options[key] ~= nil then
 		Options.addUpdateSetting(key, value)
@@ -373,7 +405,7 @@ end
 ---@param language string|table ENGLISH, SPANISH, GERMAN, FRENCH, ITALIAN, or a Resources.Language table
 function TrackerAPI.setLanguage(language)
 	if type(language) == "string" then
-		Resources.changeLanguageSetting(Resources[language:upper()], true)
+		Resources.changeLanguageSetting(Resources.Languages[language:upper()], true)
 	elseif type(language) == "table" then
 		Resources.changeLanguageSetting(language, true)
 	end

@@ -273,6 +273,11 @@ function QuickloadScreen.initialize()
 	SCREEN.checkForActiveProfileChanges()
 	SCREEN.buildProfileButtons()
 
+	-- After New Run profile and custom extensions are loaded, use that to determine the active ruleset for GachaMon calculations
+	if Options["GachaMon Ratings Ruleset"] == "AutoDetect" then
+		Program.addFrameCounter("QuickloadScreen:autoDetermineIronmonRuleset", 1, GachaMonData.autoDetermineIronmonRuleset, 1)
+	end
+
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
 			button.textColor = SCREEN.Colors.text
@@ -939,7 +944,13 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", currentPath, filterOptions)
 		if success then
-			ExternalUI.BizForms.setText(form.Controls.Generate.textboxROM, newPath)
+			if FileManager.fileExists(newPath) then
+				ExternalUI.BizForms.setText(form.Controls.Generate.textboxROM, newPath)
+			else
+				Main.DisplayError("The Tracker cannot access this file: Issue with name or location.\n\nCheck that there are no diacritics/accented characters in the full file path or name of this file. For example: é ñ ü")
+				print("> [ERROR] Unable to access file path:")
+				print(string.format("> %s", tostring(newPath)))
+			end
 		end
 		_verifyFilesAndUpdateButtons()
 		_autoUpdateBlueTextValues()
@@ -959,8 +970,14 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT A ROM", currentPath, filterOptions)
 		if success then
 			newPath = _extractFolderPath(newPath)
-			ExternalUI.BizForms.setText(form.Controls.Premade.textboxFOLDER, newPath or "")
-			_autoUpdateProfileName()
+			if FileManager.folderExists(newPath) then
+				ExternalUI.BizForms.setText(form.Controls.Premade.textboxFOLDER, newPath or "")
+				_autoUpdateProfileName()
+			else
+				Main.DisplayError("The Tracker cannot access this folder: Issue with name or location.\n\nCheck that there are no diacritics/accented characters in the full file path or name of this folder. For example: é ñ ü")
+				print("> [ERROR] Unable to access folder path:")
+				print(string.format("> %s", tostring(newPath)))
+			end
 		end
 		_verifyFilesAndUpdateButtons()
 		_autoUpdateBlueTextValues()
@@ -980,7 +997,13 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT JAR", currentPath, filterOptions)
 		if success then
-			ExternalUI.BizForms.setText(form.Controls.Generate.textboxJAR, newPath)
+			if FileManager.fileExists(newPath) then
+				ExternalUI.BizForms.setText(form.Controls.Generate.textboxJAR, newPath)
+			else
+				Main.DisplayError("The Tracker cannot access this file: Issue with name or location.\n\nCheck that there are no diacritics/accented characters in the full file path or name of this file. For example: é ñ ü")
+				print("> [ERROR] Unable to access file path:")
+				print(string.format("> %s", tostring(newPath)))
+			end
 		end
 		_verifyFilesAndUpdateButtons()
 		_autoUpdateBlueTextValues()
@@ -1003,8 +1026,14 @@ function QuickloadScreen.addEditProfilePrompt(profile)
 		local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 		local newPath, success = ExternalUI.BizForms.openFilePrompt("SELECT RNQS", currentPath, filterOptions)
 		if success then
-			ExternalUI.BizForms.setText(form.Controls.Generate.textboxRNQS, newPath)
-			_autoUpdateProfileName()
+			if FileManager.fileExists(newPath) then
+				ExternalUI.BizForms.setText(form.Controls.Generate.textboxRNQS, newPath)
+				_autoUpdateProfileName()
+			else
+				Main.DisplayError("The Tracker cannot access this file: Issue with name or location.\n\nCheck that there are no diacritics/accented characters in the full file path or name of this file. For example: é ñ ü")
+				print("> [ERROR] Unable to access file path:")
+				print(string.format("> %s", tostring(newPath)))
+			end
 		end
 		_verifyFilesAndUpdateButtons()
 		_autoUpdateBlueTextValues()
@@ -1202,6 +1231,18 @@ end
 ---@return string filepath
 function QuickloadScreen.generateTdatFilePath(profile)
 	return FileManager.getTdatFolderPath() .. profile.Name .. FileManager.Extensions.TRACKED_DATA
+end
+
+---Builds a full filepath to the GachaMon RecentMons file that will be used by the specified `profile`
+---@param profile IProfile
+---@return string filepath
+function QuickloadScreen.generateGachaMonFilePath(profile)
+	return string.format("%s%s %s%s",
+		FileManager.getGachaMonFolderPath(),
+		profile.Name,
+		FileManager.PostFixes.GACHAMON_RECENT,
+		FileManager.Extensions.GACHAMON
+	)
 end
 
 function QuickloadScreen.refreshButtons()

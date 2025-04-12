@@ -62,7 +62,7 @@ RouteData.Rods = {
 -- Allows the Tracker to verify if data can be updated based on the location of the player
 RouteData.Locations = {
 	CanPCHeal = {},
-	CanObtainBadge = {}, -- Currently unused for the time being
+	CanObtainBadge = {},
 	IsInLab = {},
 	IsInHallOfFame = {},
 	IsInSafariZone = {},
@@ -4380,14 +4380,14 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.GymBuilding,
 		area = RouteData.CombinedAreas.LavaridgeGym,
 		dungeon = true,
-		trainers = { 202, 204, 501, 201, 648, 203, 205, 650, 268 },
+		trainers = { 201, 203, 648, 650, 268 },
 	}
 	RouteData.Info[70] = {
 		name = "Lavaridge Gym B1F",
 		icon = RouteData.Icons.GymBuilding,
 		area = RouteData.CombinedAreas.LavaridgeGym,
 		dungeon = true,
-		-- trainers = { }, -- Combine with id=69
+		trainers = { 202, 204, 205, 501 },
 	}
 	RouteData.Info[71] = {
 		name = "Lavaridge Town PC",
@@ -4439,14 +4439,14 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.GymBuilding,
 		area = RouteData.CombinedAreas.SootopolisGym,
 		dungeon = true,
-		trainers = { 128, 613, 115, 502, 131, 614, 301, 130, 118, 129, 272 },
+		trainers = { 272 },
 	}
 	RouteData.Info[110] = {
 		name = "Sootopolis Gym B1F",
 		icon = RouteData.Icons.GymBuilding,
 		area = RouteData.CombinedAreas.SootopolisGym,
 		dungeon = true,
-		-- trainers = { }, -- Combine with id=109
+		trainers = { 128, 613, 115, 502, 131, 614, 301, 130, 118, 129 },
 	}
 	-- Ruby/Sapphire gyms have different trainers
 	if not isGameEmerald then
@@ -4772,15 +4772,15 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.AquaHideout,
 		dungeon = true,
-		trainers = isGameEmerald and { 23, 3, 192, 193 }
-			or { 23, 3 },
+		trainers = isGameEmerald and { 3, 4, 192, 193 }
+			or { 3, 4 },
 	}
 	RouteData.Info[145 + offset] = {
 		name = "Aqua Hideout B2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.AquaHideout,
 		dungeon = true,
-		trainers = { 24, 27, 28, 30 },
+		trainers = { 5, 27, 28, 30 },
 	}
 	RouteData.Info[146 + offset] = {
 		name = "Seafloor Cavern U.", -- Underwater
@@ -5508,8 +5508,8 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.MountainTop,
 		area = RouteData.CombinedAreas.MtPyre,
 		dungeon = true,
-		trainers = isGameEmerald and { 5, 4, 569 } -- instead of 4,5 could be 23,24 or 27,28
-			or { 5, 4 },
+		trainers = isGameEmerald and { 23, 24, 25, 569 }
+			or { 23, 24, 25  },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = {0.40,0.40,0.60}, minLv = 27, maxLv = 29, },
 			{ pokemonID = {307,307,-1}, rate = 0.30, minLv = 27, maxLv = 29, },
@@ -5613,7 +5613,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
-		trainers = { 718, 721, 720, 719, 727, 725, 722, 723 },
+		trainers = { 718, 720, 719, 727 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5625,6 +5625,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
+		trainers = { 721, 730, 722, 723 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5648,6 +5649,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
+		trainers = { 725 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -5659,7 +5661,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
-		trainers = { 728, 730, 731, 732, 601 },
+		trainers = { 728, 731, 732, 601 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },

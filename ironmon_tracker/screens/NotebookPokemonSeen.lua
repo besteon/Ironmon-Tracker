@@ -172,7 +172,8 @@ function NotebookPokemonSeen.buildScreen(navFilter)
 
 	-- Add to list all pokemon with tracked notes, and optionally all other pokemon as well
 	SCREEN.Data.pokemon = {}
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		local trackedPokemon = Tracker.Data.allPokemon[id]
 		local validPokemon = id < 252 or id > 276
 		if trackedPokemon ~= nil or (includeUnseen and validPokemon) then

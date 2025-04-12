@@ -42,6 +42,20 @@ Constants.STAT_STATES = {
 	[3] = { text = "=", textColor = "Default text" },
 }
 
+---A table of supported IronMON rulesets for the Tracker. Rulesets details available at https://ironmon.gg
+---@type table<string, string>
+Constants.IronmonRulesetNames = {
+	Standard = "Standard",
+	Ultimate = "Ultimate",
+	Kaizo = "Kaizo",
+	Survival = "Survival",
+	SuperKaizo = "Super Kaizo",
+	Subpar = "Subpar",
+	Ascension1 = "Ascension 1", -- A RogueMon ruleset
+	Ascension2 = "Ascension 2", -- A RogueMon ruleset
+	Ascension3 = "Ascension 3", -- A RogueMon ruleset
+}
+
 -- Holds information about looking up badge icon files and kerning offsets to draw onto screen
 Constants.Badges = {
 	-- Ruby/Sapphire
@@ -178,7 +192,15 @@ Constants.OrderedLists = {
 		"Allow sprites to walk",
 		"Active Profile",
 		"Has checked carousel battle details",
+		"Has checked carousel GachaMon",
 		"AlertNewOptionLR",
+		"GachaMon Ratings Ruleset",
+		"Add GachaMon to collection if its new",
+		"Add GachaMon to collection after defeating a trainer",
+		"Add to collection if prize from trainer victory",
+		"Show GachaMon stars on main Tracker Screen",
+		"Show card pack on screen after capturing a GachaMon",
+		"Animate GachaMon pack opening",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -264,6 +286,7 @@ Constants.PixelImages = {
 		{1,1,1,1,1,1,1,1,1,0,0},
 	},
 	HEART = { -- 12x12
+		iconColors = { 0xFFF04037, 0xFFFF0000, 0xFFFFFFFF },
 		{0,0,1,1,0,0,0,1,1,0,0,},
 		{0,1,2,2,1,0,1,2,2,1,0,},
 		{1,2,3,3,2,1,2,2,2,2,1,},
@@ -290,11 +313,11 @@ Constants.PixelImages = {
 	},
 	MAGNIFYING_GLASS = { -- 10x10
 		{0,0,1,1,1,0,0,0,0,0},
-		{0,1,0,0,0,1,0,0,0,0},
-		{1,0,0,0,0,0,1,0,0,0},
-		{1,0,0,0,0,0,1,0,0,0},
-		{1,0,0,0,0,0,1,0,0,0},
-		{0,1,0,0,0,1,0,0,0,0},
+		{0,1,2,2,2,1,0,0,0,0},
+		{1,2,2,2,2,2,1,0,0,0},
+		{1,2,2,2,2,2,1,0,0,0},
+		{1,2,2,2,2,2,1,0,0,0},
+		{0,1,2,2,2,1,0,0,0,0},
 		{0,0,1,1,1,0,1,0,0,0},
 		{0,0,0,0,0,0,0,1,1,0},
 		{0,0,0,0,0,0,0,1,1,1},
@@ -322,7 +345,6 @@ Constants.PixelImages = {
 		{0,1,1,1,0,1,1,1,0},
 		{0,1,1,1,1,1,1,1,0},
 		{0,0,0,1,1,1,0,0,0},
-
 	},
 	INSTALL_BOX = { -- 9x9
 		{0,0,0,0,1,0,0,0,0},
@@ -533,6 +555,7 @@ Constants.PixelImages = {
 		{1,1,0,0,0,0,0,1,1},
 	},
 	POKEBALL = { -- 12x12
+		iconColors = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, },
 		{0,0,0,0,1,1,1,1,0,0,0,0},
 		{0,0,1,1,2,2,2,2,1,1,0,0},
 		{0,1,2,2,2,3,2,2,2,2,1,0},
@@ -781,6 +804,65 @@ Constants.PixelImages = {
 		{1,1,1,0,0},
 		{1,1,0,0,0},
 		{1,0,0,0,0},
+	},
+	GACHAMON_CARD = {
+		{1,1,1,1,1,1,1,1,0,0,0,0,0},
+		{1,2,2,2,2,2,2,2,1,0,0,0,0},
+		{1,2,1,2,1,2,2,2,2,1,1,1,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,2,2,2,2,2,2,2,2,2,2,2,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
+	},
+	FILTER_SETTINGS = { -- 14x11
+		{0,0,0,0,0,0,0,0,0,1,1,1,0,0,0},
+		{0,0,0,0,0,0,0,0,1,2,2,2,1,0,0},
+		{1,1,1,1,1,1,1,1,1,2,2,2,1,1,1},
+		{0,0,0,0,0,0,0,0,1,2,2,2,1,0,0},
+		{0,0,0,0,0,0,0,0,0,1,1,1,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,1,1,1,0,0,0,0,0,0,0,0,0},
+		{0,0,1,2,2,2,1,0,0,0,0,0,0,0,0},
+		{1,1,1,2,2,2,1,1,1,1,1,1,1,1,1},
+		{0,0,1,2,2,2,1,0,0,0,0,0,0,0,0},
+		{0,0,0,1,1,1,0,0,0,0,0,0,0,0,0},
+	},
+	CALENDAR = { -- 11x13
+		getColors = function(self) return { Drawing.Colors.BLACK, Drawing.Colors.WHITE, Drawing.Colors.RED, 0xFFDDDDDD, 0xFFDD0000, } end,
+		{0,1,0,1,0,1,0,1,0,1,0,},
+		{3,1,3,1,3,1,3,1,3,1,5,},
+		{3,3,3,3,3,3,3,3,3,3,5,},
+		{2,2,2,2,2,2,2,2,2,2,4,},
+		{2,2,2,2,2,2,2,2,2,2,4,},
+		{2,2,1,1,1,2,1,1,1,2,4,},
+		{2,2,2,2,1,2,2,2,1,2,4,},
+		{2,2,1,1,1,2,1,1,1,2,4,},
+		{2,2,1,2,2,2,2,2,1,2,4,},
+		{2,2,1,1,1,2,1,1,1,2,4,},
+		{2,2,2,2,2,2,2,2,2,2,4,},
+		{2,2,2,2,2,2,2,2,2,2,4,},
+		{4,4,4,4,4,4,4,4,4,4,4,},
+	},
+	STAR = { -- 12x11
+		getColors = function(self) return { 0xFFFCED86, 0xFFEACA1D, Drawing.Colors.WHITE, 0x40000000 } end,
+		getNewStarColors = function(self) return { 0xFFF99F5E, 0xFFE87320, 0xFFF7E0CF, 0x40000000 } end,
+		getEmptyStarColors = function(self) return { 0xFF877E48, 0xFF847111, 0xFF848484, 0x20000000 } end,
+		{0,0,0,0,0,4,4,0,0,0,0,0},
+		{0,0,0,0,4,1,1,4,0,0,0,0},
+		{0,0,0,0,4,1,1,4,0,0,0,0},
+		{0,4,4,4,1,1,1,1,4,4,4,0},
+		{4,2,1,1,1,1,3,1,1,1,1,4},
+		{4,2,2,2,1,1,1,3,1,1,1,4},
+		{0,4,2,2,1,1,1,1,1,1,4,0},
+		{0,0,4,2,2,2,1,1,1,4,0,0},
+		{0,4,2,2,2,4,4,1,1,1,4,0},
+		{0,4,2,2,4,0,0,4,1,1,4,0},
+		{0,0,4,4,0,0,0,0,4,4,0,0},
 	},
 }
 

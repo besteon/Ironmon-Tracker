@@ -3,7 +3,7 @@ Options = {
 	["Language"] = Resources and Resources.Default.Language.Key or "ENGLISH",
 	["Autodetect language from game"] = true,
 	["Allow carousel rotation"] = true,
-	["CarouselItems"] = "Badges,Notes,RouteInfo,Trainers,LastAttack,BattleDetails,Pedometer",
+	["CarouselItems"] = "Badges,Notes,RouteInfo,Trainers,LastAttack,BattleDetails,Pedometer,GachaMon",
 	["CarouselSpeed"] = "1",
 	["Auto swap to enemy"] = true,
 	["Show random ball picker"] = true,
@@ -52,8 +52,17 @@ Options = {
 	["Allow sprites to walk"] = true,
 	["Active Profile"] = "",
 
+	["GachaMon Ratings Ruleset"] = "AutoDetect",
+	["Add GachaMon to collection if its new"] = false,
+	["Add GachaMon to collection after defeating a trainer"] = true,
+	["Add to collection if prize from trainer victory"] = true,
+	["Show GachaMon stars on main Tracker Screen"] = true,
+	["Show card pack on screen after capturing a GachaMon"] = false,
+	["Animate GachaMon pack opening"] = true,
+
 	-- Internal Tracker settings
 	["Has checked carousel battle details"] = false,
+	["Has checked carousel GachaMon"] = false,
 
 	-- In rare situations, new options get added that the user should be informed about (true: requires alerting, set to false after)
 	["AlertNewOptionLR"] = true, -- This is for the "Override Button Mode to LR" setting; allowing Tracker to change data in game
@@ -97,6 +106,7 @@ Options.Overrides = {
 	["ROMs and Logs"] = "", -- Generated from New Runs (Quickload); @ /..
 	["Theme Presets"] = "", -- All preloaded & user theme codes; @ /..
 	["Tracker Data"] = "", -- Auto saved .TDAT files; @ /..
+	["GachaMon Collection"] = "", -- The GachaMon card collection files; @ /gachamon/..
 }
 
 -- The order of these iconsets cannot change, as user Settings reference them by their index number

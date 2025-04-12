@@ -532,8 +532,9 @@ function CoverageCalcScreen.calculateCoverageTable(moveTypes, onlyFullyEvolved)
 		return highestEff
 	end
 	-- Check all pokemon for highest effectiveness, and categorize them
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
-		if shouldCheckPokemon(id) then
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
+		if shouldCheckPokemon(id) and pokemon.types then
 			local highestEff = calcHighestEffectiveness(pokemon.types[1], pokemon.types[2])
 			-- For Shedinja, only count types that are super effective or better
 			if id == 303 and highestEff < 2 then

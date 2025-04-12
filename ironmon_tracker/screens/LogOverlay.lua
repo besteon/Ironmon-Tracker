@@ -44,8 +44,8 @@ LogOverlay.Windower = {
 	end,
 	changeTab = function(self, newTab, pageNum, totalPages, tabInfoId, filterGrid)
 		if newTab == nil then return end
-		if not LogOverlay.isDisplayed then
-			LogOverlay.isDisplayed = true
+		if Program.currentOverlay ~= LogOverlay then
+			Program.openOverlayScreen(LogOverlay)
 		end
 
 		local prevTab = {
@@ -101,6 +101,27 @@ LogOverlay.Windower = {
 	end,
 }
 
+-- Redudant placeholder to help manage controller Inputs
+LogOverlay.Pager = {
+	getPageText = function(self)
+		return LogOverlay.Windower:getPageText()
+	end,
+	prevPage = function(self)
+		if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
+			return LogTabPokemonDetails.Pager:prevPage()
+		else
+			return LogOverlay.Windower:prevPage()
+		end
+	end,
+	nextPage = function(self)
+		if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
+			return LogTabPokemonDetails.Pager:nextPage()
+		else
+			return LogOverlay.Windower:nextPage()
+		end
+	end,
+}
+
 local pagerOffsetX = 155
 LogOverlay.HeaderButtons = {
 	CurrentPage = {
@@ -152,7 +173,7 @@ LogOverlay.HeaderButtons = {
 		onClick = function(self)
 			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
-				LogOverlay.isDisplayed = false
+				Program.closeScreenOverlay()
 				LogSearchScreen.clearSearch()
 				if LogOverlay.isGameOver then
 					Program.changeScreenView(GameOverScreen)
@@ -243,7 +264,6 @@ LogOverlay.NavFilters = {
 }
 
 function LogOverlay.initialize()
-	LogOverlay.isDisplayed = false
 	LogOverlay.isGameOver = false
 	LogOverlay.viewedLog = "None"
 
@@ -379,7 +399,7 @@ end
 
 -- Rebuilds the buttons for the currently displayed screen. Useful when the Tracker's display language changes
 function LogOverlay.rebuildScreen()
-	if not LogOverlay.isDisplayed then return end
+	if Program.currentOverlay ~= LogOverlay then return end
 
 	-- Rebuild majority of the data, and clear out navigation history
 	LogOverlay.TabHistory = {}
@@ -406,7 +426,7 @@ end
 
 -- USER INPUT FUNCTIONS
 function LogOverlay.checkInput(xmouse, ymouse)
-	if not LogOverlay.isDisplayed then return end
+	if Program.currentOverlay ~= LogOverlay then return end
 
 	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.HeaderButtons)
 
@@ -418,7 +438,7 @@ end
 
 -- DRAWING FUNCTIONS
 function LogOverlay.drawScreen()
-	if not LogOverlay.isDisplayed then return end
+	if Program.currentOverlay ~= LogOverlay then return end
 
 	Drawing.drawBackgroundAndMargins(0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT)
 
@@ -516,7 +536,14 @@ function LogOverlay.getLogFileAutodetected(postFix)
 		local loadedRomName = plainFormatter(GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM)
 		local autodetectedName = plainFormatter(romname or "")
 		if loadedRomName ~= autodetectedName then
-			return nil
+			local filepath = FileManager.getLoadedRomPath() or ""
+			local basepath = filepath and filepath .. FileManager.slash or ""
+			local logfile = basepath .. GameSettings.getRomName() .. FileManager.Extensions.GBA_ROM .. FileManager.Extensions.RANDOMIZER_LOGFILE
+			if FileManager.fileExists(logfile) then
+				return logfile
+			else
+				return nil
+			end
 		end
 	end
 
@@ -549,15 +576,17 @@ function LogOverlay.parseAndDisplay(logpath)
 		RandomizerLog.loadedLogPath = logpath
 	end
 
+	local shouldOpenOverlay = false
 	-- If data has already been loaded and parsed, use that first, otherwise try parsing the provided log file
 	if RandomizerLog.Data.Settings ~= nil then
-		LogOverlay.isDisplayed = true
+		shouldOpenOverlay = true
 	else
-		LogOverlay.isDisplayed = RandomizerLog.parseLog(logpath)
+		shouldOpenOverlay = RandomizerLog.parseLog(logpath)
 	end
 
-	if LogOverlay.isDisplayed then
+	if shouldOpenOverlay then
 		LogOverlay.TabHistory = {}
+		Program.openOverlayScreen(LogOverlay)
 		LogOverlay.buildAllTabs()
 		LogOverlay.Windower:changeTab(LogTabPokemon)
 		LogSearchScreen.resetSearchSortFilter()
@@ -572,5 +601,5 @@ function LogOverlay.parseAndDisplay(logpath)
 		end
 	end
 
-	return LogOverlay.isDisplayed
+	return shouldOpenOverlay
 end

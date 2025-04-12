@@ -206,7 +206,12 @@ function NavigationMenu.initialize()
 	-- Draw a helpful reminder on how to use the universal "back" button
 	NavigationMenu.Buttons.Back.draw = function(self, shadowcolor)
 		local x, y = self.box[1], self.box[2]
-		local text = string.format("(%s + %s)", Options.CONTROLS["Previous page"] or "L", Options.CONTROLS["Next page"] or "R")
+		local buttonL = Options.CONTROLS["Previous page"] or "L"
+		local buttonR = Options.CONTROLS["Next page"] or "R"
+		if buttonL == Input.NO_KEY_MAPPING or buttonR == Input.NO_KEY_MAPPING then
+			return
+		end
+		local text = string.format("(%s + %s)", buttonL, buttonR)
 		local textWidth = Utils.calcWordPixelLength(text)
 		local color = Theme.COLORS[self.textColor] - (Drawing.ColorEffects.DARKEN * 2)
 		Drawing.drawText(x - textWidth - 1, y - 1, text, color, shadowcolor)

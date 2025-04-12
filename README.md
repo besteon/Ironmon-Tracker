@@ -63,7 +63,7 @@ Trackers for other games:
 ## Latest Changes
 
 ### Easier Extension Installs & Updates
-![The new Extensions screen rework, showing the number of extensions installed as well as buttons that can update all extensions or install a new extension.](https://github.com/user-attachments/assets/b0fa7354-033a-448c-93d5-1f6d0c1b2877)
+![The GachaMon Collectable Card Game about page, explaining how the new feature works. Get GachaMon cards by playing the game, catching Pokémon, and defeating trainers. Cards are rated from 1-5 stars.](https://github.com/user-attachments/assets/500037d8-0cf4-4f91-8267-c00a852873ad)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
