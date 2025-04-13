@@ -764,10 +764,10 @@ ScreenResources{
 		LabelCollectionSize = "GachaMons in collection",
 		OptionAutoAddIfNew = "It's a new Pokémon species",
 		OptionAutoAddWhenDefeatTrainers = "It defeats at least 2 trainers",
-		OptionAutoAddFromTrainerVictory = "It's a prize card from a trainer victory",
 		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
 		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
 		OptionAnimateGachaMonPackOpening = "Animate card pack opening",
+		OptionAutoAddFromTrainerVictory = "Occasionally receive prize cards from Trainers",
 		ButtonCleanupCollection = "Cleanup Collection",
 
 		-- About Tab
