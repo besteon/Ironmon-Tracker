@@ -1132,23 +1132,10 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	OptionAutoAddFromTrainerVictory = {
-		type = Constants.ButtonTypes.CHECKBOX,
-		optionKey = "Add to collection if prize from trainer victory",
-		getText = function(self) return " " .. Resources[SCREEN.Key]["OptionAutoAddFromTrainerVictory"] end,
-		clickableArea = { CANVAS.X + 11, CANVAS.Y + 42, 190, 8 },
-		box = {	CANVAS.X + 11, CANVAS.Y + 42, 8, 8 },
-		toggleState = Options["Add to collection if prize from trainer victory"],
-		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
-		onClick = function(self)
-			self.toggleState = Options.toggleSetting(self.optionKey)
-			Program.redraw(true)
-		end,
-	},
 
 	LabelRatingsRuleset = {
 		getText = function(self) return string.format("%s:", Resources[SCREEN.Key].LabelRulesetForRatings) end,
-		box = { CANVAS.X + 3, CANVAS.Y + 58, CANVAS.W - 20, 14, },
+		box = { CANVAS.X + 3, CANVAS.Y + 46, CANVAS.W - 20, 14, },
 		textColor = SCREEN.Colors.highlight,
 	},
 	EditRatingsRuleset = {
@@ -1163,14 +1150,14 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 				return rulesetName or Constants.IronmonRulesetNames.Standard
 			end
 		end,
-		box = { CANVAS.X + 131, CANVAS.Y + 56, 100, 16, },
+		box = { CANVAS.X + 131, CANVAS.Y + 44, 100, 16, },
 		onClick = function(self)
 			GachaMonOverlay.openEditRulesetWindow()
 		end,
 	},
 
 	DividerLine = {
-		box = { CANVAS.X + 1, CANVAS.Y + 77, CANVAS.W - 2, 1, },
+		box = { CANVAS.X + 1, CANVAS.Y + 65, CANVAS.W - 2, 1, },
 		draw = function(self, shadowcolor)
 			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
 			local border = Theme.COLORS[SCREEN.Colors.border]
@@ -1515,6 +1502,7 @@ function GachaMonOverlay.createTabsAndButtons()
 		{ "Show GachaMon stars on main Tracker Screen", "OptionShowGachaMonStarsOnTracker", },
 		{ "Show card pack on screen after capturing a GachaMon", "OptionShowCardPackOnScreen", },
 		{ "Animate GachaMon pack opening", "OptionAnimateGachaMonPackOpening", },
+		{ "Add to collection if prize from trainer victory", "OptionAutoAddFromTrainerVictory", },
 	}
 	for _, optionTuple in ipairs(optionKeyMap) do
 		local textWidth = Utils.calcWordPixelLength(" " .. Resources[SCREEN.Key][optionTuple[2]])
@@ -1868,7 +1856,7 @@ end
 ---@param x number
 ---@param y number
 ---@param initialStars? number The original amount of stars to compare to the new star value. New stars have a different color, missing stars are hollow
-function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars)
+function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars, colorsOverride)
 	if numStars < 1 then
 		return
 	end
@@ -1907,6 +1895,8 @@ function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars)
 			elseif i > numStars and i <= initialStars then
 				colors = emptyStarColors
 			end
+		elseif colorsOverride then
+			colors = colorsOverride
 		end
 		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
 		if i >= 4 and needsTwoLines then
@@ -1961,8 +1951,13 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	gui.drawRectangle(x+1, y+1+H-BOT_H, W/2-1, BOT_H-2, COLORS.bg1bot, COLORS.bg1bot)
 	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
 
+	local colorsOverride
+	if card.BelongsToTrainer then
+		colorsOverride = Constants.PixelImages.STAR:getTrainerStarColors()
+	end
+
 	-- STARS
-	GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y)
+	GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, nil, colorsOverride)
 
 	-- CARD FRAME
 	-- left-half
