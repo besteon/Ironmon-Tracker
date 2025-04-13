@@ -852,6 +852,7 @@ Constants.PixelImages = {
 		getColors = function(self) return { 0xFFFCED86, 0xFFEACA1D, Drawing.Colors.WHITE, 0x40000000 } end,
 		getNewStarColors = function(self) return { 0xFFF99F5E, 0xFFE87320, 0xFFF7E0CF, 0x40000000 } end,
 		getEmptyStarColors = function(self) return { 0xFF877E48, 0xFF847111, 0xFF848484, 0x20000000 } end,
+		getTrainerStarColors = function(self) return { 0xFF8BD6F5, 0xFF67B8E5, 0xFFBDECFE, 0x40000000 } end,
 		{0,0,0,0,0,4,4,0,0,0,0,0},
 		{0,0,0,0,4,1,1,4,0,0,0,0},
 		{0,0,0,0,4,1,1,4,0,0,0,0},

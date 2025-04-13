@@ -221,6 +221,91 @@ function TrainerData.isGiovanni(trainerId)
 	return GameSettings.game == 3 and trainerId >= 348 and trainerId <= 350
 end
 
+---Gets the common-known trainer table for a specific game version. Refer to GachaMonData.gameVersionToNumber()
+---@param gamenumber? number Optional, if no game version specified, uses currently loaded game
+---@return table<string, table<number, number>>
+function TrainerData.getCommonTrainers(gamenumber)
+	gamenumber = gamenumber or GameSettings.game
+	if gamenumber == 1 or gamenumber == 4 then -- Ruby / Sapphire
+		return {
+			["Rival 1"] = { 520, 523, 526, 529, 532, 535 },
+			["Rival 2"] = { 521, 524, 527, 530, 533, 536 },
+			["Rival 3"] = { 522, 525, 528, 531, 534, 537 },
+			["Rival 4"] = { 661, 662, 663, 664, 665, 666 },
+			["Roxanne"] = { 265 },
+			["Brawly"] = { 266 },
+			["Wattson"] = { 267 },
+			["Flannery"] = { 268 },
+			["Norman"] = { 269 },
+			["Winona"] = { 270 },
+			["Tate Liza"] = { 271 },
+			["Tate & Liza"] = { 271 },
+			["Wallace"] = { 272 }, -- 8th gym leader
+			["Sidney"] = { 261 },
+			["Phoebe"] = { 262 },
+			["Glacia"] = { 263 },
+			["Drake"] = { 264 },
+			["Steven"] = { 335 }, -- Elite 4 champion
+			["Wally 1"] = { 656 },
+			["Wally 2"] = { 519 },
+		}
+	elseif gamenumber == 2 then -- Emerald
+		return {
+			["Rival 1"] = { 520, 523, 526, 529, 532, 535 },
+			["Rival 2"] = { 521, 524, 527, 530, 533, 536 },
+			["Rival 3"] = { 522, 525, 528, 531, 534, 537 },
+			["Rival 4"] = { 593, 592, 599, 600, 665, 666 },
+			["Rival 5"] = { 661, 662, 663, 664, 768, 769 },
+			["Roxanne"] = { 265 },
+			["Brawly"] = { 266 },
+			["Wattson"] = { 267 },
+			["Flannery"] = { 268 },
+			["Norman"] = { 269 },
+			["Winona"] = { 270 },
+			["Tate Liza"] = { 271 },
+			["Tate & Liza"] = { 271 },
+			["Juan"] = { 272 }, -- 8th gym leader
+			["Sidney"] = { 261 },
+			["Phoebe"] = { 262 },
+			["Glacia"] = { 263 },
+			["Drake"] = { 264 },
+			["Wallace"] = { 335 }, -- Elite 4 champion
+			["Steven"] = { 804 }, -- Final trainer
+			["Wally 1"] = { 656 },
+			["Wally 2"] = { 519 },
+		}
+	elseif gamenumber == 3 or gamenumber == 5 then -- Fire Red / Leaf Green
+		return {
+			["Rival 1"] = { 326, 327, 328 },
+			["Rival 2"] = { 329, 330, 331 },
+			["Rival 3"] = { 332, 333, 334 },
+			["Rival 4"] = { 426, 427, 428 },
+			["Rival 5"] = { 429, 430, 431 },
+			["Rival 6"] = { 432, 433, 434 },
+			["Rival 7"] = { 435, 436, 437 },
+			["Brock"] = { 414 },
+			["Misty"] = { 415 },
+			["Lt. Surge"] = { 416 },
+			["Erika"] = { 417 },
+			["Koga"] = { 418 },
+			["Sabrina"] = { 420 },
+			["Blaine"] = { 419 },
+			["Giovanni Hideout"] = { 348 },
+			["Giovanni Silph Co."] = { 349 },
+			["Giovanni Gym"] = { 350 },
+			["Dojo"] = { 317 },
+			["Lorelei"] = { 410 },
+			["Bruno"] = { 411 },
+			["Agatha"] = { 412 },
+			["Lance"] = { 413 },
+			["Champion"] = { 438, 439, 440 },
+			["Jimmy"] = { 102 }, -- Bonus trainer, commonly referred to as "Jimmy"
+		}
+	else
+		return {}
+	end
+end
+
 -- Helper functions for the image retrieval functions
 local getClassFilename = function(trainerClass)
 	trainerClass = trainerClass or TrainerData.Classes.Unknown
@@ -288,28 +373,7 @@ function TrainerData.setupTrainersAsRubySapphire()
 		{ leader = "Tate & Liza", number = 4, },
 		{ leader = "Wallace", number = 3, },
 	}
-	TrainerData.CommonTrainers = {
-		["Rival 1"] = { 520, 523, 526, 529, 532, 535 },
-		["Rival 2"] = { 521, 524, 527, 530, 533, 536 },
-		["Rival 3"] = { 522, 525, 528, 531, 534, 537 },
-		["Rival 4"] = { 661, 662, 663, 664, 665, 666 },
-		["Roxanne"] = { 265 },
-		["Brawly"] = { 266 },
-		["Wattson"] = { 267 },
-		["Flannery"] = { 268 },
-		["Norman"] = { 269 },
-		["Winona"] = { 270 },
-		["Tate Liza"] = { 271 },
-		["Tate & Liza"] = { 271 },
-		["Wallace"] = { 272 }, -- 8th gym leader
-		["Sidney"] = { 261 },
-		["Phoebe"] = { 262 },
-		["Glacia"] = { 263 },
-		["Drake"] = { 264 },
-		["Steven"] = { 335 }, -- Elite 4 champion
-		["Wally 1"] = { 656 },
-		["Wally 2"] = { 519 },
-	}
+	TrainerData.CommonTrainers = TrainerData.getCommonTrainers(1)
 
 	-- Ordered by average level of party Pokémon, lowest to highest
 	TrainerData.OrderedIds = {
@@ -446,30 +510,7 @@ function TrainerData.setupTrainersAsEmerald()
 		{ leader = "Tate & Liza", number = 4, },
 		{ leader = "Juan", number = 3, },
 	}
-	TrainerData.CommonTrainers = {
-		["Rival 1"] = { 520, 523, 526, 529, 532, 535 },
-		["Rival 2"] = { 521, 524, 527, 530, 533, 536 },
-		["Rival 3"] = { 522, 525, 528, 531, 534, 537 },
-		["Rival 4"] = { 593, 592, 599, 600, 665, 666 },
-		["Rival 5"] = { 661, 662, 663, 664, 768, 769 },
-		["Roxanne"] = { 265 },
-		["Brawly"] = { 266 },
-		["Wattson"] = { 267 },
-		["Flannery"] = { 268 },
-		["Norman"] = { 269 },
-		["Winona"] = { 270 },
-		["Tate Liza"] = { 271 },
-		["Tate & Liza"] = { 271 },
-		["Juan"] = { 272 }, -- 8th gym leader
-		["Sidney"] = { 261 },
-		["Phoebe"] = { 262 },
-		["Glacia"] = { 263 },
-		["Drake"] = { 264 },
-		["Wallace"] = { 335 }, -- Elite 4 champion
-		["Steven"] = { 804 }, -- Final trainer
-		["Wally 1"] = { 656 },
-		["Wally 2"] = { 519 },
-	}
+	TrainerData.CommonTrainers = TrainerData.getCommonTrainers(2)
 
 	-- Ordered by average level of party Pokémon, lowest to highest
 	TrainerData.OrderedIds = {
@@ -618,32 +659,7 @@ function TrainerData.setupTrainersAsFRLG()
 		{ leader = "Blaine", number = 38, },
 		{ leader = "Giovanni", number = 26, },
 	}
-	TrainerData.CommonTrainers = {
-		["Rival 1"] = { 326, 327, 328 },
-		["Rival 2"] = { 329, 330, 331 },
-		["Rival 3"] = { 332, 333, 334 },
-		["Rival 4"] = { 426, 427, 428 },
-		["Rival 5"] = { 429, 430, 431 },
-		["Rival 6"] = { 432, 433, 434 },
-		["Rival 7"] = { 435, 436, 437 },
-		["Brock"] = { 414 },
-		["Misty"] = { 415 },
-		["Lt. Surge"] = { 416 },
-		["Erika"] = { 417 },
-		["Koga"] = { 418 },
-		["Sabrina"] = { 420 },
-		["Blaine"] = { 419 },
-		["Giovanni Hideout"] = { 348 },
-		["Giovanni Silph Co."] = { 349 },
-		["Giovanni Gym"] = { 350 },
-		["Dojo"] = { 317 },
-		["Lorelei"] = { 410 },
-		["Bruno"] = { 411 },
-		["Agatha"] = { 412 },
-		["Lance"] = { 413 },
-		["Champion"] = { 438, 439, 440 },
-		["Jimmy"] = { 102 }, -- Bonus trainer, commonly referred to as "Jimmy"
-	}
+	TrainerData.CommonTrainers = TrainerData.getCommonTrainers(3)
 
 	-- Ordered by average level of party Pokémon, lowest to highest (includes sevii)
 	TrainerData.OrderedIds = {

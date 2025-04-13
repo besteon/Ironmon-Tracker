@@ -1868,7 +1868,7 @@ end
 ---@param x number
 ---@param y number
 ---@param initialStars? number The original amount of stars to compare to the new star value. New stars have a different color, missing stars are hollow
-function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars)
+function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars, colorsOverride)
 	if numStars < 1 then
 		return
 	end
@@ -1907,6 +1907,8 @@ function GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, initialStars)
 			elseif i > numStars and i <= initialStars then
 				colors = emptyStarColors
 			end
+		elseif colorsOverride then
+			colors = colorsOverride
 		end
 		-- Normally draw 1 to 4 stars horizontally, unless its a 5-star, then do a 3/2 split
 		if i >= 4 and needsTwoLines then
@@ -1961,8 +1963,13 @@ function GachaMonOverlay.drawGachaCard(card, x, y, borderPadding, showFavoriteOv
 	gui.drawRectangle(x+1, y+1+H-BOT_H, W/2-1, BOT_H-2, COLORS.bg1bot, COLORS.bg1bot)
 	gui.drawRectangle(x+1+W/2, y+1+H-BOT_H, W/2-2, BOT_H-2, COLORS.bg2bot, COLORS.bg2bot)
 
+	local colorsOverride
+	if card.BelongsToTrainer then
+		colorsOverride = Constants.PixelImages.STAR:getTrainerStarColors()
+	end
+
 	-- STARS
-	GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y)
+	GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y, nil, colorsOverride)
 
 	-- CARD FRAME
 	-- left-half
