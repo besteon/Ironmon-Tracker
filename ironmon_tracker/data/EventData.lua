@@ -298,7 +298,7 @@ function EventData.getTrainer(params)
 		-- If param is not a number, check if it's a commonly known trainer
 		if trainerId == 0 then
 			local foundIds
-			for trainerName, trainerIds in pairs(TrainerData.CommonTrainers or {}) do
+			for trainerName, trainerIds in pairs(TrainerData.getCommonTrainers() or {}) do
 				if Utils.containsText(trainerName, params, true) then
 					foundIds = trainerIds
 					break

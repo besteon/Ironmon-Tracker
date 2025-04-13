@@ -598,7 +598,7 @@ end
 function GachaMonData.getDefeatedCommonTrainers()
 	-- Check through all common trainers
 	local defeatedTrainers = {}
-	for _, idList in pairs(TrainerData.CommonTrainers or {}) do
+	for _, idList in pairs(TrainerData.getCommonTrainers() or {}) do
 		for _, id in ipairs(idList or {}) do
 			if TrackerAPI.hasDefeatedTrainer(id) then
 				table.insert(defeatedTrainers, id)
@@ -1223,6 +1223,7 @@ GachaMonData.IGachaMon = {
 		C.IsShiny = self:getIsShiny() == 1
 		C.InCollection = self:getKeep() == 1
 		C.IsGameWinner = self.GameWinner == 1
+		C.BelongsToTrainer = self:getAssociatedTrainerName() ~= nil
 		C.PokemonId = self.PokemonId -- Icon
 		C.AbilityId = self.AbilityId -- Rules Text
 		C.StatBars = {}
@@ -1427,8 +1428,9 @@ GachaMonData.IGachaMon = {
 		if not trainer then
 			return nil
 		end
+		local gamenumber = self:getGameVersionNumber()
 		local commonName
-		for name, idList in pairs(TrainerData.CommonTrainers or {}) do
+		for name, idList in pairs(TrainerData.getCommonTrainers(gamenumber) or {}) do
 			for _, id in pairs(idList or {}) do
 				if id == trainerId then
 					commonName = name
