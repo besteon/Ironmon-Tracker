@@ -45,6 +45,7 @@ GachaMonData = {
 
 --[[
 TODO LATER:
+- [UI] Update filters for new stuff added, like "Game Winners" and "Trainer prize cards"
 - [Battle] animation showing them fight. Text appears when move gets used. A vertical "HP bar" depletes. Battle time ~10-15 seconds
    - Perhaps draw a Kanto Gym badge/environment to battle on, and have it affect the battle.
    - Use new terrain sheet. Fight on grass or mountains unless both are flying type "Sky Battle".
@@ -995,7 +996,6 @@ function GachaMonData.tryAutoKeepInCollection(mon)
 	if gachamon.Temp.TrainersDefeated < GachaMonData.TRAINERS_TO_DEFEAT then
 		return false
 	end
-
 
 	-- Flag this GachaMon as something to keep in collection
 	GachaMonData.updateGachaMonAndSave(gachamon, nil, true)

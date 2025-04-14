@@ -470,19 +470,39 @@ function SetupScreen.createButtons()
 			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
 			onClick = function(self)
 				self.toggleState = Options.toggleSetting(self.optionKey)
-				-- If PC Heal tracking switched, invert the count
-				if self.optionKey == "PC heals count downward" then
-					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				end
 				Program.redraw(true)
-				if self.optionKey == "Show Team View" then
-					TeamViewArea.refreshDisplayPadding()
-					TeamViewArea.buildOutPartyScreen()
-					Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
-				end
 			end
 		}
 		startY = startY + Constants.SCREEN.LINESPACING
+	end
+
+	-- Additional onclick checks and actions for some option checkboxes
+
+	local optionBtnTrackHeals = SCREEN.Buttons["Track PC Heals"]
+	optionBtnTrackHeals.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		-- If GachaMon stars option is also enabled, turn that off as it conflicts by using the same screen space
+		if self.toggleState and Options["Show GachaMon stars on main Tracker Screen"] then
+			Options.toggleSetting("Show GachaMon stars on main Tracker Screen")
+		end
+		Program.redraw(true)
+	end
+
+	local optionBtnHealsDownward = SCREEN.Buttons["PC heals count downward"]
+	optionBtnHealsDownward.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		-- If PC Heal tracking switched, invert the count
+		Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+		Program.redraw(true)
+	end
+
+	local optionBtnTeamView = SCREEN.Buttons["Show Team View"]
+	optionBtnTeamView.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		Program.redraw(true)
+		TeamViewArea.refreshDisplayPadding()
+		TeamViewArea.buildOutPartyScreen()
+		Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
 	end
 
 	-- TAB: CAROUSEL

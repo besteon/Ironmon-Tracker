@@ -1522,6 +1522,16 @@ function GachaMonOverlay.createTabsAndButtons()
 		}
 		startY = startY + Constants.SCREEN.LINESPACING + 1
 	end
+
+	local optionBtnShowStars = SCREEN.Tabs.Options.Buttons["Show GachaMon stars on main Tracker Screen"]
+	optionBtnShowStars.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		-- If Survival mode for Track PC Heals is also enabled, turn that off as it conflicts by using the same screen space
+		if self.toggleState and Options["Track PC Heals"] then
+			Options.toggleSetting("Track PC Heals")
+		end
+		Program.redraw(true)
+	end
 end
 
 function GachaMonOverlay.buildData()

@@ -308,6 +308,10 @@ function AnimationManager.createGachaMonPackOpening(x, y, gachamon, trainerInfo)
 			end, _onExpireHelpText)
 		end
 		helpTextAnimation:buildAnimation()
+		-- If somehow an old help text for a regular card pack opening is still active, disable it
+		if AnimationManager.GachaMonAnims.PackHelpText then
+			AnimationManager.GachaMonAnims.PackHelpText:stop()
+		end
 		AnimationManager.tryAddAnimationToActive(helpTextAnimation)
 		AnimationManager.GachaMonAnims.PackHelpText = helpTextAnimation
 	end
