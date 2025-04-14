@@ -23,6 +23,10 @@ CustomCode = {
 			MoveExpansion = "MoveExpansionExtension", -- Phys/Special split, extra moves
 			MAX = "MAXExtension", -- same as above but with extra abilities
 		},
+		-- Internal cached data about extensions, for faster lookups
+		ExtensionCachedData = {
+
+		},
 	},
 
 	-- When installing/updating extensions, the below files and folders are removed after the release download and before copying over the files/folders
@@ -50,6 +54,7 @@ function CustomCode.initialize()
 	CustomCode.ExtensionCount = 0
 	CustomCode.KnownErrors = {}
 	CustomCode.EnabledExtensions = {}
+	CustomCode.RomHacks.clearAllCacheData()
 	CustomCode.loadKnownExtensions()
 end
 
@@ -471,50 +476,119 @@ function CustomCode.checkForRomHacks()
 	end
 end
 
+---Gets the cached data about an extension for faster data lookups
+---@param extensionKey string
+---@param cacheKey string
+---@return any
+function CustomCode.RomHacks.getCache(extensionKey, cacheKey)
+	if not extensionKey or not cacheKey then
+		return nil
+	end
+	local EXT_CACHE = CustomCode.RomHacks.ExtensionCachedData[extensionKey] or {}
+	return EXT_CACHE[cacheKey]
+end
+
+---Caches data about an extension for faster data lookups
+---@param extensionKey string
+---@param cacheKey string
+---@param cacheValue any
+function CustomCode.RomHacks.cacheData(extensionKey, cacheKey, cacheValue)
+	if not extensionKey or not cacheKey then
+		return
+	end
+	local EXT_CACHE = CustomCode.RomHacks.ExtensionCachedData[extensionKey]
+	if not EXT_CACHE then
+		CustomCode.RomHacks.ExtensionCachedData[extensionKey] = {}
+		EXT_CACHE = CustomCode.RomHacks.ExtensionCachedData[extensionKey]
+	end
+	EXT_CACHE[cacheKey] = cacheValue
+end
+
+---Clears out all cached data stored internally for all extensions
+function CustomCode.RomHacks.clearAllCacheData()
+	CustomCode.RomHacks.ExtensionCachedData = {}
+end
+
 ---Returns true if the rom loaded is NatDex modified, and the extension is enabled and running
 ---@return boolean
 function CustomCode.RomHacks.isPlayingNatDex()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
+	local CACHE_KEY = "isPlaying"
+	local cacheValue = CustomCode.RomHacks.getCache(EXT_KEY, CACHE_KEY)
+	if cacheValue ~= nil then
+		return cacheValue
+	end
+
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, false)
 		return false
 	end
 	-- The NatDex extension has a built-in method for checking if it's being used
 	local extension = TrackerAPI.getExtensionSelf(EXT_KEY) or {}
-	return type(extension.checkIfNatDexROM) == "function" and extension:checkIfNatDexROM()
+	local isPlaying = type(extension.checkIfNatDexROM) == "function" and extension:checkIfNatDexROM()
+	CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, isPlaying)
+	return isPlaying
 end
 
 ---Returns true if the NatDex rom and extension are of a specific version or lower (for checking compatibility)
 ---@param version string Example: 1.1.3
 ---@return boolean
 function CustomCode.RomHacks.isNatDexVersionOrLower(version)
+	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
+	local CACHE_KEY = "isVersionLower"
+	local cacheValue = CustomCode.RomHacks.getCache(EXT_KEY, CACHE_KEY)
+	if cacheValue ~= nil then
+		return cacheValue
+	end
+
 	if not CustomCode.RomHacks.isPlayingNatDex() then
+		CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, false)
 		return false
 	end
-	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.NatDex
 	local extension = TrackerAPI.getExtensionSelf(EXT_KEY) or {}
-	return not Utils.isNewerVersion(extension.version or "0.0.0", version)
+	local isVersionLower = not Utils.isNewerVersion(extension.version or "0.0.0", version)
+	CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, isVersionLower)
+	return isVersionLower
 end
 
 ---Returns true if the rom loaded is MoveExpansion modified, and the extension is enabled and running
 ---@return boolean
 function CustomCode.RomHacks.isPlayingMoveExpansion()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MoveExpansion
+	local CACHE_KEY = "isPlaying"
+	local cacheValue = CustomCode.RomHacks.getCache(EXT_KEY, CACHE_KEY)
+	if cacheValue ~= nil then
+		return cacheValue
+	end
+
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, false)
 		return false
 	end
 	-- Have to manually check added data to determine if Move Expansion extension is in use
-	return MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
+	local isPlaying = MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
+	CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, isPlaying)
+	return isPlaying
 end
 
 ---Returns true if the rom loaded is MAX modified, and the extension is enabled and running
 ---@return boolean
 function CustomCode.RomHacks.isPlayingMAX()
 	local EXT_KEY = CustomCode.RomHacks.ExtensionKeys.MAX
+	local CACHE_KEY = "isPlaying"
+	local cacheValue = CustomCode.RomHacks.getCache(EXT_KEY, CACHE_KEY)
+	if cacheValue ~= nil then
+		return cacheValue
+	end
+
 	if not TrackerAPI.isExtensionEnabled(EXT_KEY) then
+		CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, false)
 		return false
 	end
 	-- Have to manually check added data to determine if Move Expansion extension is in use
-	return MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
+	local isPlaying = MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
+	CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, isPlaying)
+	return isPlaying
 end
 
 --------------------------------------------------------------------------------------------------

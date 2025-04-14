@@ -19,7 +19,7 @@ local TAB_HEIGHT = 12
 
 SCREEN.OrderedTypeKeys = {
 	"NORMAL", "FIGHTING", "FLYING", "POISON", "GROUND", "ROCK", "BUG", "GHOST", "STEEL",
-	"FIRE", "WATER", "GRASS", "ELECTRIC", "PSYCHIC", "ICE", "DRAGON", "DARK",
+	"FIRE", "WATER", "GRASS", "ELECTRIC", "PSYCHIC", "ICE", "DRAGON", "DARK", "FAIRY",
 }
 
 SCREEN.Buttons = {
@@ -318,6 +318,19 @@ function CoverageCalcScreen.createButtons()
 	for _, button in ipairs(buttonsToAdd) do
 		local btnKey = "MoveType" .. button.moveType
 		SCREEN.Buttons[btnKey] = button
+	end
+
+	-- Individual button adjustments
+
+	local buttonFairy = SCREEN.Buttons["MoveTypefairy"]
+	if buttonFairy then
+		buttonFairy.isVisible = function(self)
+			local correctScreen = SCREEN.currentView == SCREEN.Views.MoveTypes
+			local isPlayingNatDex = CustomCode.RomHacks.isPlayingNatDex()
+			return correctScreen and isPlayingNatDex
+		end
+	else
+		Utils.printDebug("---------------- cant find button")
 	end
 
 	-- POKEMON TABS VIEW
