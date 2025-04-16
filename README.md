@@ -62,8 +62,10 @@ Trackers for other games:
 
 ## Latest Changes
 
-### Easier Extension Installs & Updates
+### GachaMon! A Collectable Card Game
 ![The GachaMon Collectable Card Game about page, explaining how the new feature works. Get GachaMon cards by playing the game, catching Pokémon, and defeating trainers. Cards are rated from 1-5 stars.](https://github.com/user-attachments/assets/500037d8-0cf4-4f91-8267-c00a852873ad)
+
+Learn more about GachaMon here: <https://github.com/besteon/Ironmon-Tracker/wiki/GachaMon-Collectable-Card-Game>
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

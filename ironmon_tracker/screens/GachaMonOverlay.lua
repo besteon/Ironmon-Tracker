@@ -1254,7 +1254,7 @@ GachaMonOverlay.Tabs.About.Buttons = {
 		end,
 	},
 	SampleGachaMonCard = {
-		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 43, 76, 76, },
+		box = { CANVAS.X + CANVAS.W - 77, CANVAS.Y + 44, 76, 76, },
 		gachamon = nil,
 		randomizeCard = function(self)
 			self.gachamon = GachaMonData.createRandomGachaMon()
@@ -1278,6 +1278,15 @@ GachaMonOverlay.Tabs.About.Buttons = {
 			-- Draw card
 			local card = self.gachamon and self.gachamon:getCardDisplayData() or {}
 			GachaMonOverlay.drawGachaCard(card, x, y, 4, false, false)
+		end,
+	},
+	WikiLink = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return string.format(" %s", Resources[SCREEN.Key].ButtonHelpWiki) end,
+		textColor = SCREEN.Colors.highlight,
+		box = { CANVAS.X + CANVAS.W - 31, CANVAS.Y + 126, 26, 12 },
+		onClick = function(self)
+			Utils.openBrowserWindow(FileManager.Urls.GACHAMON, Resources[SCREEN.Key].MessageCheckConsole)
 		end,
 	},
 }
@@ -1521,6 +1530,16 @@ function GachaMonOverlay.createTabsAndButtons()
 			end
 		}
 		startY = startY + Constants.SCREEN.LINESPACING + 1
+	end
+
+	local optionBtnShowStars = SCREEN.Tabs.Options.Buttons["Show GachaMon stars on main Tracker Screen"]
+	optionBtnShowStars.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		-- If Survival mode for Track PC Heals is also enabled, turn that off as it conflicts by using the same screen space
+		if self.toggleState and Options["Track PC Heals"] then
+			Options.toggleSetting("Track PC Heals")
+		end
+		Program.redraw(true)
 	end
 end
 

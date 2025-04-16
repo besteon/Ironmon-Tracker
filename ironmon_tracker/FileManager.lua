@@ -98,6 +98,7 @@ FileManager.Urls = {
 	NEW_RUNS = "https://github.com/besteon/Ironmon-Tracker/wiki/New-Runs-Setup",
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 	STREAM_CONNECT = "https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide",
+	GACHAMON = "https://github.com/besteon/Ironmon-Tracker/wiki/GachaMon-Collectable-Card-Game",
 }
 
 -- All Lua code files used by the Tracker, loaded and initialized in the order listed
