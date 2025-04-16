@@ -783,6 +783,8 @@ ScreenResources{
 		SectionWhatsOnCard = "What's on a Card",
 		LabelStarsAndRating = "Stars:  The Pokémon's rating (1- 5)",
 		LabelBattlePowerAndStrength = "Battle Power:  Its strength for doing card battles",
+		ButtonHelpWiki = "Help",
+		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's GachaMon Help Wiki.",
 	},
 	TeamViewArea = {
 		EggNickname = "EGG", -- NEEDS TRANSLATION
