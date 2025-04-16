@@ -329,8 +329,6 @@ function CoverageCalcScreen.createButtons()
 			local isPlayingNatDex = CustomCode.RomHacks.isPlayingNatDex()
 			return correctScreen and isPlayingNatDex
 		end
-	else
-		Utils.printDebug("---------------- cant find button")
 	end
 
 	-- POKEMON TABS VIEW
