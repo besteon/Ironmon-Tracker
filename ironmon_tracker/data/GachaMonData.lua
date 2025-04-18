@@ -135,9 +135,12 @@ function GachaMonData.findInCollection(gachamon)
 end
 
 ---Returns true if no matching Pokémon species for this `gachamon` already exists in the collection; false if matching species found
----@param gachamon IGachaMon
+---@param gachamon IGachaMon|nil
 ---@return boolean
 function GachaMonData.checkIfNewCollectionSpecies(gachamon)
+	if not gachamon then
+		return false
+	end
 	-- Temp store this information if previously checked for faster lookup
 	if gachamon.Temp.IsNewCollectionSpecies ~= nil then
 		return gachamon.Temp.IsNewCollectionSpecies

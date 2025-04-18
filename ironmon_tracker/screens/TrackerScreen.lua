@@ -888,13 +888,13 @@ function TrackerScreen.buildCarousel()
 				end
 				local text
 				if defeatedTrainersList and totalInArea then
-					text = string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainersList, totalInArea)
+					text = string.format("%s: %s/%s", Resources.TrackerScreen.TrainersDefeated, #defeatedTrainersList, totalInArea)
 				else
 					text = string.format("%s: %s", routeName, "N/A")
 				end
 				TrackerScreen.Buttons.TrainerSummary.updatedText = text
 			else
-				TrackerScreen.Buttons.TrainerSummary.updatedText = "No Trainers in this area."
+				TrackerScreen.Buttons.TrainerSummary.updatedText = Resources.TrackerScreen.TrainersNoneInArea
 			end
 
 			if Main.IsOnBizhawk() then
@@ -920,7 +920,13 @@ function TrackerScreen.buildCarousel()
 			return GachaMonData.hasNewestMonToShow()
 		end,
 		getContentList = function(self)
-			TrackerScreen.Buttons.GachaMonSummary.updatedText = string.format(" %s", "New GachaMon captured!")
+			local text
+			if GachaMonData.checkIfNewCollectionSpecies(GachaMonData.newestRecentMon) then
+				text = string.format(" %s! %s", Resources.GachaMonAnimations.LabelTabNEW, Resources.TrackerScreen.GachaMonCaptured)
+			else
+				text = string.format(" %s", Resources.TrackerScreen.GachaMonCaptured)
+			end
+			TrackerScreen.Buttons.GachaMonSummary.updatedText = text
 			if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.GachaMonSummary }
 			else

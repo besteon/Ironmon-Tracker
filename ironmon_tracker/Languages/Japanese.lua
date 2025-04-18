@@ -148,6 +148,9 @@ ScreenResources{
 		EncounterGoodRod = "いいつりざお",
 		EncounterOldRod = "ボロのつりざお",
 		EncounterSeenPokemon = "出現",
+		TrainersDefeated = "Trainers defeated", -- NEEDS TRANSLATION
+		TrainersNoneInArea = "No Trainers in this area.", -- NEEDS TRANSLATION
+		GachaMonCaptured = "GachaMon captured!", -- NEEDS TRANSLATION
 		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
 		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
 		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
