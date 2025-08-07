@@ -149,9 +149,9 @@ ScreenResources{
 		EncounterGoodRod = "Caña Buena", 
 		EncounterOldRod = "Caña Vieja", 
 		EncounterSeenPokemon = "vistos", -- or: Pok. vistos
-    TrainersDefeated = "Entrenadores derrotados", -- NEEDS TRANSLATION
-		TrainersNoneInArea = "Ningún entrenador en el área.", -- NEEDS TRANSLATION
-		GachaMonCaptured = "¡GachaMon capturado!", -- NEEDS TRANSLATION
+    	TrainersDefeated = "Entrenadores derrotados",
+		TrainersNoneInArea = "Ningún entrenador en el área.",
+		GachaMonCaptured = "¡GachaMon capturado!",
 		PromptNoteDesc = "Deja una nota breve para", 
 		PromptNoteAbilityDesc = "Asigna una o ambas habilidades para", 
 		PromptNoteClearAbilities = "Borrar habilidades", 
@@ -793,8 +793,8 @@ ScreenResources{
 		EggNickname = "HUEVO", 
 	},
 	CustomCode = {
-		ExtensionsLoaded = "Extensión cargada", -- NO CONSIGO VERLO
-		ExtensionsMissing = "Falta extensión", -- NO CONSIGO VERLO
+		ExtensionsLoaded = "Extensión cargada",
+		ExtensionsMissing = "Falta extensión",
 	},
 	StreamConnect = {
 		-- THE BELOW EVENTS NEED TRANSLATION
@@ -860,7 +860,7 @@ ScreenResources{
 		CR_ChangeLanguage_Name = "Cambiar idioma del Tracker",
 		GE_GameOver_Name = "Cuando se termina la partida...",
 		GE_GameOver_TriggerEffect = "Actualizar SB Global Variables",
-    GE_GachaMonCapture_Name = "Cuand un GachaMon ha sido capturado...",
+ 	    GE_GachaMonCapture_Name = "Cuand un GachaMon ha sido capturado...",
 		GE_GachaMonCapture_TriggerEffect = "Enviar el código compartido base64",
 		O_SendMessage = "Mensaje al chat si se completa",
 		O_AutoComplete = "Auto completar el canje",
