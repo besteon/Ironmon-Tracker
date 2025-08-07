@@ -60,6 +60,20 @@ MoveData.Values = {
 	WaterSportId = 346,
 }
 
+MoveData.Addresses = {
+	offsetMovePower = 0x0,
+	offsetMoveType = 0x8,
+	offsetMoveAccuracy = 0x10,
+	offsetMovePP = 0x18,
+	offsetMoveFlagsCategory = 0x6,
+
+	sizeofMovePower = 8,
+	sizeofMoveType = 8,
+	sizeofMoveAccuracy = 8,
+	sizeofMovePP = 8,
+	sizeofMoveFlagsCategory = 2,
+}
+
 MoveData.IsRand = {
 	moveType = false,
 	movePower = false,
@@ -318,13 +332,13 @@ function MoveData.readMoveInfoFromMemory(moveId)
 	local addr = GameSettings.gBattleMoves + (moveId * Program.Addresses.sizeofBattleMove)
 	local moveData = Memory.readdword(addr + Program.Addresses.offsetBattleMoves)
 	-- Optional move flags for the Physical/Special split rom patch (in vanilla, this value is 0)
-	local moveFlags = Memory.readbyte(addr + (Program.Addresses.offsetBattleMoves * 8))
+	local moveFlags = Memory.readbyte(addr + Program.Addresses.offsetBattleMoveFlags)
 
-	local movePower = Utils.getbits(moveData, 0, 8)
-	local moveType = Utils.getbits(moveData, 8, 8)
-	local moveAccuracy = Utils.getbits(moveData, 16, 8)
-	local movePP = Utils.getbits(moveData, 24, 8)
-	local moveCategory = Utils.getbits(moveFlags, 6, 2)
+	local movePower = Utils.getbits(moveData, MoveData.Addresses.offsetMovePower, MoveData.Addresses.sizeofMovePower)
+	local moveType = Utils.getbits(moveData, MoveData.Addresses.offsetMoveType, MoveData.Addresses.sizeofMoveType)
+	local moveAccuracy = Utils.getbits(moveData, MoveData.Addresses.offsetMoveAccuracy, MoveData.Addresses.sizeofMoveAccuracy)
+	local movePP = Utils.getbits(moveData, MoveData.Addresses.offsetMovePP, MoveData.Addresses.sizeofMovePP)
+	local moveCategory = Utils.getbits(moveFlags, MoveData.Addresses.offsetMoveFlagsCategory, MoveData.Addresses.sizeofMoveFlagsCategory)
 
 	return {
 		power = tostring(movePower),

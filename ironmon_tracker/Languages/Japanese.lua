@@ -148,6 +148,9 @@ ScreenResources{
 		EncounterGoodRod = "いいつりざお",
 		EncounterOldRod = "ボロのつりざお",
 		EncounterSeenPokemon = "出現",
+		TrainersDefeated = "Trainers defeated", -- NEEDS TRANSLATION
+		TrainersNoneInArea = "No Trainers in this area.", -- NEEDS TRANSLATION
+		GachaMonCaptured = "GachaMon captured!", -- NEEDS TRANSLATION
 		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
 		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
 		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
@@ -856,7 +859,9 @@ ScreenResources{
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
 		GE_GameOver_Name = "When the game is over...",
-		GE_GameOver_TriggerEffect = "Update SB Global Variables",
+		GE_GameOver_TriggerEffect = "Send win/loss status and Pokémon ID",
+		GE_GachaMonCapture_Name = "When a GachaMon is captured...",
+		GE_GachaMonCapture_TriggerEffect = "Send its base64 share code",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",

@@ -169,6 +169,7 @@ Constants.OrderedLists = {
 		"Show experience points bar",
 		"Animated Pokemon popout",
 		"Refocus emulator after load",
+		"Warn of ROM mismatch",
 		"Use premade ROMs",
 		"Generate ROM each time",
 		"Display repel usage",

@@ -11,8 +11,15 @@ local function CodeExtensionTemplate()
 	self.name = "My Fancy Extension"
 	self.author = "My Username"
 	self.description = "This is a template file for my fancy custom code extension."
-	self.github = "MyUsername/ExtensionRepo" -- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
-	self.url = string.format("https://github.com/%s", self.github or "") -- Remove this attribute if no host website available for this extension
+
+	-- List of other extension keys required to be enabled in order to use this extension; aka, dependencies. (i.e. Roguemon requires "NatDexExtension")
+	self.requiredExtKeys = {}
+
+	-- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
+	self.github = "MyUsername/ExtensionRepo"
+
+	-- Remove this attribute if no host website available for this extension
+	self.url = string.format("https://github.com/%s", self.github or "")
 
 	--------------------------------------
 	-- INTENRAL TRACKER FUNCTIONS BELOW

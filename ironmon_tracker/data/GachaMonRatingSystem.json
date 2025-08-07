@@ -516,9 +516,10 @@
 		"PenaltyNoMoveInCategory": 0.20,
 		"PenaltyAbilitySandStreamUnsafe": -2,
 		"PenaltyWeatherAbilityWeakensMove": 0.65,
+		"BonusMoveIsSTAB": 1.5,
 		"BonusAbilityImprovesWeakness": 1.50,
 		"BonusAbilityCompoundeyesHelpsMove": 1.1,
-		"BonusAbilityRockHeadHelpsMove": 1.1,
+		"BonusAbilityRockHeadHelpsMove": 1.5,
 		"BonusAbilitySandStreamSafe": 2
 	},
 	"RatingToStars": [

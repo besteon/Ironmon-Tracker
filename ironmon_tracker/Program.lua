@@ -37,6 +37,7 @@ Program = {
 		offsetBattlePokemonTypes = 0x21,
 		offsetBattlePokemonDoublesPartner = 0xB0,
 		offsetBattleMoves = 0x1,
+		offsetBattleMoveFlags = 0x8,
 		offsetEvoInfoTaskId = 0x2,
 		offsetTaskIsActive = 0x4,
 		offsetTrainerFlagStart = 0x500,

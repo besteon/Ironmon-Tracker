@@ -159,7 +159,8 @@ function CustomCode.loadExtension(extensionKey)
 	return loadedExtension
 end
 
--- extensionName: the name of the custom extension found in the ExtensionLibrary
+---Enables an extension.
+---@param extensionKey string Usually the extension filename (found in the ExtensionLibrary)
 function CustomCode.enableExtension(extensionKey)
 	local extension = CustomCode.ExtensionLibrary[extensionKey]
 	if extension == nil then
@@ -184,7 +185,8 @@ function CustomCode.enableExtension(extensionKey)
 	end
 end
 
--- extensionName: the name of the custom extension found in the ExtensionLibrary
+---Disables an extension.
+---@param extensionKey string Usually the extension filename (found in the ExtensionLibrary)
 function CustomCode.disableExtension(extensionKey)
 	local extension = CustomCode.ExtensionLibrary[extensionKey]
 	if extension == nil then
@@ -420,7 +422,9 @@ function CustomCode.downloadAndInstallExtensionFiles(githubRepoUrl, folderNamesT
 	return true
 end
 
--- Simulates an interface-like function execution for custom code files
+---Simulates an interface-like function execution for custom code files
+---@param funcLabel string The name of the function (used for error logging)
+---@param ... any Optional parameters for the function
 function CustomCode.execFunctions(funcLabel, ...)
 	if not CustomCode.isEnabled() then return end
 
@@ -434,6 +438,11 @@ function CustomCode.execFunctions(funcLabel, ...)
 	end
 end
 
+---Executes an extension's function.
+---@param extensionKey string Usually the filename of the extension
+---@param functionLabel string The name of the function (used for error logging)
+---@param functToExec function The function itself
+---@return boolean success
 function CustomCode.tryExecute(extensionKey, functionLabel, functToExec)
 	CustomCode.extBeingExecuted = extensionKey
 	CustomCode.funcBeingExecuted = functionLabel
@@ -443,6 +452,8 @@ function CustomCode.tryExecute(extensionKey, functionLabel, functToExec)
 	return result
 end
 
+---Logs an error message
+---@param err any
 function CustomCode.logError(err)
 	err = tostring(err)
 	local errorMessage
@@ -455,6 +466,73 @@ function CustomCode.logError(err)
 	if not CustomCode.KnownErrors[errorMessage] then
 		CustomCode.KnownErrors[errorMessage] = true
 		FileManager.logError(errorMessage)
+	end
+end
+
+---Properly executes each extension's startup function, respecting any extension dependencies (cascade loading)
+function CustomCode.executeExtensionStartups()
+	if not CustomCode.isEnabled() then return end
+
+	local startedExtensionKeys = {}
+
+	local _tryStartupExtensions = function(extensionsToStartup)
+		local anyNewStarted = false
+		local skippedExtensions = {}
+		for _, ext in pairs(extensionsToStartup or {}) do
+			local allRequiredAreStarted = true
+			for _, requiredKey in pairs(ext.selfObject and ext.selfObject.requiredExtKeys or {}) do
+				if not Utils.isNilOrEmpty(requiredKey) and not startedExtensionKeys[requiredKey] then
+					allRequiredAreStarted = false
+					break
+				end
+			end
+			if allRequiredAreStarted then
+				startedExtensionKeys[ext.key] = true
+				anyNewStarted = true
+				-- Run its startup function
+				local functToExec = ext.selfObject and ext.selfObject["startup"]
+				if type(functToExec) == "function" then
+					CustomCode.tryExecute(ext.selfObject.name, "startup", functToExec)
+				end
+			else
+				table.insert(skippedExtensions, ext)
+			end
+		end
+		return anyNewStarted, skippedExtensions
+	end
+
+	-- Keep trying to startup extensions in a cascading fashion, until no new ones get started
+	local anyNewStarted = false
+	local unstartedExtensions = CustomCode.EnabledExtensions
+	for _ = 1, 999, 1 do
+		anyNewStarted, unstartedExtensions = _tryStartupExtensions(unstartedExtensions)
+		-- No new extensions were started, no need to keep trying
+		if not anyNewStarted or #unstartedExtensions == 0 then
+			break
+		end
+	end
+
+	-- If there are any extensions that couldn't start up due to their required extensions not being installed/enabled, report this to the user
+	if #unstartedExtensions > 0 then
+		local unstartedExtensionTextInfo = {}
+		-- Determine dependencies and disable any extensions that couldn't startup, to prevent their other functions from causing errors
+		for _, ext in pairs(unstartedExtensions or {}) do
+			local missingDependencies = {}
+			for _, requiredKey in pairs(ext.selfObject and ext.selfObject.requiredExtKeys or {}) do
+				if not Utils.isNilOrEmpty(requiredKey) and not startedExtensionKeys[requiredKey] then
+					table.insert(missingDependencies, requiredKey)
+				end
+			end
+			if #missingDependencies > 0 then
+				local dependencyInfo = string.format("%s is missing: %s", ext.key, table.concat(missingDependencies, ", "))
+				table.insert(unstartedExtensionTextInfo, dependencyInfo)
+			end
+
+			CustomCode.disableExtension(ext.key)
+		end
+		Main.SaveSettings(true)
+		-- Inform the user that extensions couldn't start
+		CustomCode.openMissingExtensionsWarningWindow(unstartedExtensionTextInfo)
 	end
 end
 
@@ -589,6 +667,30 @@ function CustomCode.RomHacks.isPlayingMAX()
 	local isPlaying = MoveData.Moves[355] ~= nil and MoveData.Moves[356] ~= nil
 	CustomCode.RomHacks.cacheData(EXT_KEY, CACHE_KEY, isPlaying)
 	return isPlaying
+end
+
+function CustomCode.openMissingExtensionsWarningWindow(unstartedExtensionTextInfo)
+	if not unstartedExtensionTextInfo or #unstartedExtensionTextInfo == 0 then
+		return
+	end
+
+	local form = ExternalUI.BizForms.createForm("Missing Extensions", 420, 340)
+	local x = 15
+	local iY = 15
+
+	local NEW_LINE = "\r\n"
+	local textUnstartedExtensionsList = table.concat(unstartedExtensionTextInfo, NEW_LINE)
+
+	form.Controls.label1 = form:createLabel("The following extensions are missing required extension(s) to run.", x, iY)
+	iY = iY + 22
+	form.Controls.label2 = form:createLabel("They have been automatically disabled.", x, iY)
+	iY = iY + 30
+	form.Controls.textboxUnstartedExtensions = form:createTextBox(textUnstartedExtensionsList, x, iY, 390, 160, "", true, true, "Both")
+	iY = iY + 185
+
+	form:createButton(Resources.AllScreens.OK, 160, iY, function()
+		form:destroy()
+	end, 80, 25)
 end
 
 --------------------------------------------------------------------------------------------------

@@ -170,7 +170,7 @@ function Main.Run()
 	FileManager.setupErrorLog()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
 	FileManager.executeEachFile("initialize") -- initialize all tracker files
-	CustomCode.startup()
+	CustomCode.executeExtensionStartups()
 	CustomCode.checkForRomHacks()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 

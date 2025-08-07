@@ -149,13 +149,16 @@ ScreenResources{
 		EncounterGoodRod = "Caña Buena", 
 		EncounterOldRod = "Caña Vieja", 
 		EncounterSeenPokemon = "vistos", -- or: Pok. vistos
+    TrainersDefeated = "Entrenadores derrotados", -- NEEDS TRANSLATION
+		TrainersNoneInArea = "Ningún entrenador en el área.", -- NEEDS TRANSLATION
+		GachaMonCaptured = "¡GachaMon capturado!", -- NEEDS TRANSLATION
 		PromptNoteDesc = "Deja una nota breve para", 
 		PromptNoteAbilityDesc = "Asigna una o ambas habilidades para", 
 		PromptNoteClearAbilities = "Borrar habilidades", 
 		PromptStepsTitle = "Elige una meta de pasos", 
 		PromptStepsDesc1 = "El podómetro cambiará de color cuando llegues a la meta.", 
 		PromptStepsDesc2 = "Ajustar a 0 para apagar", 
-		PromptStepsEnterGoal = "¿Cuántos pasos faltan para llegar a tu meta? ", 
+		PromptStepsEnterGoal = "¿Cuántos pasos faltan para llegar a tu meta? ",
 	},
 	StartupScreen = {
 		Title = "Ironmon Tracker", 
@@ -856,7 +859,9 @@ ScreenResources{
 		CR_ChangeTheme_Name = "Cambiar tema del Tracker",
 		CR_ChangeLanguage_Name = "Cambiar idioma del Tracker",
 		GE_GameOver_Name = "Cuando se termina la partida...",
-		GE_GameOver_TriggerEffect = "Actualizar SB Global Variables", 
+		GE_GameOver_TriggerEffect = "Actualizar SB Global Variables",
+    GE_GachaMonCapture_Name = "Cuand un GachaMon ha sido capturado...",
+		GE_GachaMonCapture_TriggerEffect = "Enviar el código compartido base64",
 		O_SendMessage = "Mensaje al chat si se completa",
 		O_AutoComplete = "Auto completar el canje",
 		O_RequireChosenMon = "La dirección elegida debe coincidir",
