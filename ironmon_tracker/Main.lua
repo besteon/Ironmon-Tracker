@@ -332,7 +332,7 @@ function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
-	end, 155, 80)
+	end, 155, 80, 80, 22)
 
 	-- Optional additional info button and event function
 	if type(moreInfoFunc) == "function" then
@@ -694,27 +694,30 @@ function Main.GenerateNextRom()
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not success or not FileManager.fileExists(nextRomPath) then
 		local output = table.concat(FileManager.readLinesFromFile(errorLogFilepath), "\n")
-		local missingJava = Utils.containsText(output, "'java' is not recognized", true)
-		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
 		local err1
-		local moreInfoLabel, moreinfoUrl
-		if missingJava then
+		local err2 = "--- The Randomizer program failed to generate a ROM ---"
+		local moreInfoBtnLabel, moreInfoBtnUrl
+		if Utils.containsText(output, "'java' is not recognized", true) then
 			err1 = string.format('ERROR: Java not installed. Please install "Java 64-bit Offline."')
-			moreInfoLabel = "Get Java"
-			moreinfoUrl = "https://www.java.com/en/download/manual.jsp"
-		elseif missing64bit then
+			moreInfoBtnLabel = "Get Java"
+			moreInfoBtnUrl = "https://www.java.com/en/download/manual.jsp"
+		elseif Utils.containsText(output, "Invalid maximum heap size", true) then
 			err1 = string.format('ERROR: Wrong Java installed. Please install "Java 64-bit Offline."')
-			moreInfoLabel = "Get Java"
-			moreinfoUrl = "https://www.java.com/en/download/manual.jsp"
+			moreInfoBtnLabel = "Get Java"
+			moreInfoBtnUrl = "https://www.java.com/en/download/manual.jsp"
+		elseif Utils.containsText(output, "ArrayIndexOutOfBoundsException", true) then
+			err1 = string.format("ERROR: The patch applied to the Source ROM is not compatible.")
+			err2 = string.format("Check the patch version requirements on the patch's download page.")
+			moreInfoBtnLabel = "View Error Log"
+			moreInfoBtnUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 		else
-			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
-			moreInfoLabel = "View Error Log"
-			moreinfoUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
+			err1 = string.format('ERROR: For more info, go to your Tracker folder, then open the "%s" file.', FileManager.Files.RANDOMIZER_ERROR_LOG)
+			moreInfoBtnLabel = "View Error Log"
+			moreInfoBtnUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 		end
-		local err2 = "~~~ The Randomizer program failed to generate a ROM ~~~"
 		print("> " .. err1)
 		print("> " .. err2)
-		Main.DisplayError(err1 .. "\n\n" .. err2, moreInfoLabel, function() Utils.openBrowserWindow(moreinfoUrl) end)
+		Main.DisplayError(err1 .. "\n\n" .. err2, moreInfoBtnLabel, function() Utils.openBrowserWindow(moreInfoBtnUrl) end)
 		return nil
 	end
 
