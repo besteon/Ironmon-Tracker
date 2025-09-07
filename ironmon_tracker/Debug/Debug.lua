@@ -64,7 +64,7 @@ function Debug.createEditPokeForm()
 end
 
 function Debug.setPokemonData(formsTable)
-	local addr = Utils.inlineIf(forms.ischecked(formsTable["enemy"]),GameSettings.estats,GameSettings.pstats)
+	local addr = Utils.inlineIf(forms.ischecked(formsTable["enemy"]),GameSettings.gEnemyParty, GameSettings.gPlayerParty)
 	addr = addr + (tonumber(forms.gettext(formsTable["partyNum"])) - 1) * 100 -- size of Pokemon struct
 	local personality = Memory.readdword(addr)
 	local growthOffset = (MiscData.TableData.growth[personality % 24 + 1] - 1) * 12

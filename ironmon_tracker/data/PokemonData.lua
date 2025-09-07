@@ -236,7 +236,7 @@ function PokemonData.buildData(forced)
 		pokemon.pokemonID = id
 
 		if id < 252 or id > 276 then -- Skip fake Pokemon
-			local addrOffset = GameSettings.gBaseStats + (id * Program.Addresses.sizeofBaseStatsPokemon)
+			local addrOffset = GameSettings.gSpeciesInfo + (id * Program.Addresses.sizeofBaseStatsPokemon)
 
 			-- BST (6 bytes)
 			local baseHPAttack = Memory.readword(addrOffset + PokemonData.Addresses.offsetBaseStats)

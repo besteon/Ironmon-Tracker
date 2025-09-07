@@ -31,6 +31,7 @@ GameSettings.RomVersions = {
 	FireRed_Japanese = 	{ name = "Pokémon FireRed J", 		softwareVersion = 0x00630000, 	gameCode = 0x4250524A },
 	LeafGreen_v1_0 = 	{ name = "Pokémon LeafGreen v1.0", 	softwareVersion = 0x00810000, 	gameCode = 0x42504745 },
 	LeafGreen_v1_1 = 	{ name = "Pokémon LeafGreen v1.1", 	softwareVersion = 0x01800000, 	gameCode = 0x42504745 },
+	-- EmeraldPit = 		{ name = "Emerald Pit v2.4.2", 		softwareVersion = 0x00720000, 	gameCode = 0x42504545 },
 }
 
 --[[ Symbols tables references
@@ -325,6 +326,10 @@ function GameSettings.importAddressesFromJson(filepath)
 	end
 
 	xpcall(function()
+		GameSettings.updateForDeprecatedNames(data.GameInfo)
+		GameSettings.updateForDeprecatedNames(data.Addresses)
+		GameSettings.updateForDeprecatedNames(data.AbilityAddresses)
+
 		-- GameInfo
 		GameSettings.gamecode = data.GameInfo.GameCode
 		GameSettings.game = data.GameInfo.GameNumber -- 1:Ruby/Sapphire, 2:Emerald, 3:FireRed/LeafGreen
@@ -470,4 +475,34 @@ function GameSettings.getTrackerAutoSaveName()
 	local filenameEnding = FileManager.PostFixes.AUTOSAVE .. FileManager.Extensions.TRACKED_DATA
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
+end
+
+-- key = old, unused address, value = new, currently used address
+local DEPRECATED_ADDRESSES = {
+	pstats = "gPlayerParty",
+	estats = "gEnemyParty",
+	gBaseStats = "gSpeciesInfo",
+	gSaveBlock1ptr = "gSaveBlock1Ptr",
+	gSaveBlock2ptr = "gSaveBlock2Ptr",
+	gBideDmg = "gTakenDmg",
+	gBattleStructPtr = "gBattleStruct",
+	sSaveDialogTimer = "sSaveDialogDelay",
+
+	-- TODO: Add to rom hack
+	-- gTakenDmg: 20241f8   (Original: 20241f8)
+	-- sSaveDialogDelay: 2037620   (Original: 2037620)
+	-- gMovesInfo = gBattleMoves
+}
+
+-- Add compatibility for deprecated addresses
+local mt = {}
+setmetatable(GameSettings, mt)
+mt.__index = DEPRECATED_ADDRESSES
+
+function GameSettings.updateForDeprecatedNames(addressTable)
+	for deprecatedAddr, newAddr in pairs(DEPRECATED_ADDRESSES) do
+		if addressTable[deprecatedAddr] ~= nil then
+			addressTable[newAddr] = addressTable[deprecatedAddr]
+		end
+	end
 end

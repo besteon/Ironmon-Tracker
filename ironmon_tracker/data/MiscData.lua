@@ -108,7 +108,7 @@ function MiscData.getMonGender(pokemonID, personality)
 		return MiscData.Gender.UNKNOWN
 	end
 
-	local threshold = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * Program.Addresses.sizeofBaseStatsPokemon) + PokemonData.Addresses.offsetGenderRatio)
+	local threshold = Memory.readbyte(GameSettings.gSpeciesInfo + (pokemonID * Program.Addresses.sizeofBaseStatsPokemon) + PokemonData.Addresses.offsetGenderRatio)
 	if threshold == MiscData.Gender.MALE then
 		return MiscData.Gender.MALE
 	elseif threshold == MiscData.Gender.FEMALE then

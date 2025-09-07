@@ -775,11 +775,11 @@ function Program.updatePokemonTeams()
 	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
-		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
-		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
+		local personality = Memory.readdword(GameSettings.gPlayerParty + addressOffset)
+		local trainerID = Memory.readdword(GameSettings.gPlayerParty + addressOffset + 4)
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local pokemon = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
+			local pokemon = Program.readNewPokemon(GameSettings.gPlayerParty + addressOffset, personality)
 			if Program.validPokemonData(pokemon) then
 				Tracker.verifyDataForPlayer(pokemon.trainerID)
 
@@ -793,11 +793,11 @@ function Program.updatePokemonTeams()
 		end
 
 		-- Then lookup information on the opposing Pokemon
-		personality = Memory.readdword(GameSettings.estats + addressOffset)
-		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
+		personality = Memory.readdword(GameSettings.gEnemyParty + addressOffset)
+		trainerID = Memory.readdword(GameSettings.gEnemyParty + addressOffset + 4)
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local pokemon = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
+			local pokemon = Program.readNewPokemon(GameSettings.gEnemyParty + addressOffset, personality)
 			if Program.validPokemonData(pokemon) then
 				-- Double-check a race condition where current PP values are wildly out of range if retrieved right before a battle begins
 				if not Battle.inActiveBattle() then
@@ -1114,7 +1114,7 @@ function Program.getNextLevelExp(pokemonID, level, experience)
 		return 0, 100 -- arbitrary returned values to indicate this information isn't found and it's 0% of the way to next level
 	end
 
-	local growthRateIndex = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * Program.Addresses.sizeofBaseStatsPokemon) + Program.Addresses.offsetGrowthRateIndex)
+	local growthRateIndex = Memory.readbyte(GameSettings.gSpeciesInfo + (pokemonID * Program.Addresses.sizeofBaseStatsPokemon) + Program.Addresses.offsetGrowthRateIndex)
 	local expTableOffset = GameSettings.gExperienceTables + (growthRateIndex * Program.Addresses.sizeofExpTablePokemon) + (level * Program.Addresses.sizeofExpTableLevel)
 	local expAtLv = Memory.readdword(expTableOffset)
 	local expAtNextLv = Memory.readdword(expTableOffset + Program.Addresses.sizeofExpTableLevel)
@@ -1261,8 +1261,8 @@ function Program.getLearnedMoveInfoTable()
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
 
 		local battleStructAddress
-		if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
-			battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
+		if GameSettings.gBattleStruct ~= nil then -- Pointer unavailable in RS
+			battleStructAddress = Memory.readdword(GameSettings.gBattleStruct)
 		else
 			battleStructAddress = Program.Addresses.battleStructDefault
 		end

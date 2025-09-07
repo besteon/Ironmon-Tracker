@@ -869,8 +869,8 @@ function SCREEN.GameFuncs.readStatus2(index)
 	end
 
 	local battleStructAddress
-	if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
-		battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
+	if GameSettings.gBattleStruct ~= nil then -- Pointer unavailable in RS
+		battleStructAddress = Memory.readdword(GameSettings.gBattleStruct)
 	else
 		battleStructAddress = 0x02000000 -- gSharedMem
 	end
