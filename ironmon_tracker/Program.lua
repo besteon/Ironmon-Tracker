@@ -61,6 +61,20 @@ Program = {
 		offsetPokedex = 0x18, -- SaveBlock2
 		offsetPokedexOwned = 0x10, -- SaveBlock2's Pokedex struct
 		offsetPokedexSeen = 0x44, -- SaveBlock2's Pokedex struct
+		offsetTrainerClass = 0x01,
+		offsetTrainerGender = 0x02,
+		offsetTrainerPic = 0x03,
+		offsetTrainerName = 0x04,
+		offsetTrainerItems = 0x10,
+		offsetTrainerDoubleBattle = 0x18,
+		offsetTrainerFlagsAI = 0x1C,
+		offsetTrainerPartySize = 0x20,
+		offsetTrainerPartyPtr = 0x24,
+		offsetTrainerMonLevel = 0x02,
+		offsetTrainerMonSpecies = 0x04,
+		offsetTrainerMonItem = 0x06,
+		offsetTrainerMonNoItemMove1 = 0x06,
+		offsetTrainerMonItemMove1 = 0x08,
 
 		sizeofBaseStatsPokemon = 0x1C,
 		sizeofExpTablePokemon = 0x194,
@@ -77,6 +91,10 @@ Program = {
 		sizeofLastAttackerMove = 0x2,
 		sizeofPokemonStruct = 0x64,
 		sizeofPokemonNickname = 0xA,
+		sizeofTrainerMonWithDefaultMoves = 8,
+		sizeofTrainerMonWithCustomMoves = 16,
+		sizeofTrainerItem = 0x02,
+		sizeofTrainerMonCustomMove = 0x02,
 	},
 	Values = {
 		ShinyOdds = 8, -- n/65536
@@ -965,19 +983,19 @@ function Program.readTrainerGameData(trainerId)
 
 	local startAddress = GameSettings.gTrainers + (trainerId * Program.Addresses.sizeofTrainer)
 	trainer.partyFlags = Memory.readbyte(startAddress)
-	trainer.trainerPic = Memory.readbyte(startAddress + 0x03)
-	trainer.doubleBattle = Memory.readbyte(startAddress + 0x18) ~= 0
-	trainer.aiFlags = Memory.readdword(startAddress + 0x1C) -- AI_SCRIPT_CHECK_BAD_MOVE(1 << 0) | AI_SCRIPT_TRY_TO_FAINT(1 << 2) | AI_SCRIPT_CHECK_VIABILITY(1 << 1)
-	trainer.partySize = Memory.readbyte(startAddress + 0x20)
+	trainer.trainerPic = Memory.readbyte(startAddress + Program.Addresses.offsetTrainerPic)
+	trainer.doubleBattle = Memory.readbyte(startAddress + Program.Addresses.offsetTrainerDoubleBattle) ~= 0
+	trainer.aiFlags = Memory.readdword(startAddress + Program.Addresses.offsetTrainerFlagsAI) -- AI_SCRIPT_CHECK_BAD_MOVE(1 << 0) | AI_SCRIPT_TRY_TO_FAINT(1 << 2) | AI_SCRIPT_CHECK_VIABILITY(1 << 1)
+	trainer.partySize = Memory.readbyte(startAddress + Program.Addresses.offsetTrainerPartySize)
 	trainer.items = {
-		Memory.readword(startAddress + 0x10),
-		Memory.readword(startAddress + 0x12),
-		Memory.readword(startAddress + 0x14),
-		Memory.readword(startAddress + 0x16),
+		Memory.readword(startAddress + Program.Addresses.offsetTrainerItems),
+		Memory.readword(startAddress + Program.Addresses.offsetTrainerItems + Program.Addresses.sizeofTrainerItem * 1),
+		Memory.readword(startAddress + Program.Addresses.offsetTrainerItems + Program.Addresses.sizeofTrainerItem * 2),
+		Memory.readword(startAddress + Program.Addresses.offsetTrainerItems + Program.Addresses.sizeofTrainerItem * 3),
 	}
 
 	-- GENDER
-	local genderBit = Utils.getbits(Memory.readbyte(startAddress + 0x02), 7, 1)
+	local genderBit = Utils.getbits(Memory.readbyte(startAddress + Program.Addresses.offsetTrainerGender), 7, 1)
 	if genderBit == 0 then
 		trainer.gender = MiscData.Gender.MALE
 	elseif genderBit == 1 then
@@ -987,7 +1005,7 @@ function Program.readTrainerGameData(trainerId)
 	end
 
 	-- TRAINER CLASS
-	local classId = Memory.readbyte(startAddress + 0x01)
+	local classId = Memory.readbyte(startAddress + Program.Addresses.offsetTrainerClass)
 	local classStartAddr = GameSettings.gTrainerClassNames + (classId * Program.Addresses.sizeofTrainerClass)
 	trainer.trainerClass = ""
 	for i = 0, Program.Addresses.sizeofTrainerClass - 1, 1 do
@@ -1003,7 +1021,7 @@ function Program.readTrainerGameData(trainerId)
 	if GameSettings.game == 3 and TrainerData.isRival(trainerId) then
 		trainerNameAddr = Utils.getSaveBlock1Addr() + Program.Addresses.offsetRivalName
 	else
-		trainerNameAddr = startAddress + 0x04
+		trainerNameAddr = startAddress + Program.Addresses.offsetTrainerName
 	end
 	trainer.trainerName = ""
 	for i = 0, Program.Addresses.sizeofTrainerName - 1, 1 do
@@ -1021,52 +1039,52 @@ function Program.readTrainerGameData(trainerId)
 		-- #define F_TRAINER_PARTY_HELD_ITEM      (1 << 1) 2 or greater = held item, 1 or lower = no item
 		if trainer.partyFlags == 0 then -- TrainerMonNoItemDefaultMoves (flag: 0 << 0)
 			for i = 0, trainer.partySize - 1, 1 do
-				local offset = i * 8 -- mon size in bytes
+				local offset = i * Program.Addresses.sizeofTrainerMonWithDefaultMoves
 				table.insert(partyData, {
 					iv = Memory.readword(partyPtr + offset), -- u16 iv;
-					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
-					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
 				})
 			end
 		elseif trainer.partyFlags == 1 then -- TrainerMonNoItemCustomMoves (flag: 1 << 0)
 			-- TODO: Untested, not available in FRLG
 			for i = 0, trainer.partySize - 1, 1 do
-				local offset = i * 16 -- mon size in bytes
+				local offset = i * Program.Addresses.sizeofTrainerMonWithCustomMoves
 				table.insert(partyData, {
 					iv = Memory.readword(partyPtr + offset), -- u16 iv;
-					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
-					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
+					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
 					moves = { -- u16 moves[MAX_MON_MOVES];
-						Memory.readword(partyPtr + offset + 0x06),
-						Memory.readword(partyPtr + offset + 0x08),
-						Memory.readword(partyPtr + offset + 0x0A),
-						Memory.readword(partyPtr + offset + 0x0C),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonNoItemMove1),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonNoItemMove1 + Program.Addresses.sizeofTrainerMonCustomMove * 1),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonNoItemMove1 + Program.Addresses.sizeofTrainerMonCustomMove * 2),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonNoItemMove1 + Program.Addresses.sizeofTrainerMonCustomMove * 3),
 					}
 				})
 			end
 		elseif trainer.partyFlags == 2 then -- TrainerMonItemDefaultMoves (flag: 1 << 1)
 			for i = 0, trainer.partySize - 1, 1 do
-				local offset = i * 8 -- mon size in bytes
+				local offset = i * Program.Addresses.sizeofTrainerMonWithDefaultMoves
 				table.insert(partyData, {
 					iv = Memory.readword(partyPtr + offset), -- u16 iv;
-					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
-					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
-					heldItem = Memory.readword(partyPtr + offset + 0x06),-- u16 heldItem;
+					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
+					heldItem = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItem),-- u16 heldItem;
 				})
 			end
 		elseif trainer.partyFlags == 3 then -- TrainerMonItemCustomMoves (flag: 1 << 0 | 1 << 1)
 			for i = 0, trainer.partySize - 1, 1 do
-				local offset = i * 16 -- mon size in bytes
+				local offset = i * Program.Addresses.sizeofTrainerMonWithCustomMoves
 				table.insert(partyData, {
 					iv = Memory.readword(partyPtr + offset), -- u16 iv;
-					level = Memory.readbyte(partyPtr + offset + 0x02), -- u8 lvl;
-					species = Memory.readword(partyPtr + offset + 0x04), -- u16 species;
-					heldItem = Memory.readword(partyPtr + offset + 0x06),-- u16 heldItem;
+					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
+					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
+					heldItem = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItem),-- u16 heldItem;
 					moves = { -- u16 moves[MAX_MON_MOVES];
-						Memory.readword(partyPtr + offset + 0x08),
-						Memory.readword(partyPtr + offset + 0x0A),
-						Memory.readword(partyPtr + offset + 0x0C),
-						Memory.readword(partyPtr + offset + 0x0E),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItemMove1),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItemMove1 + Program.Addresses.sizeofTrainerMonCustomMove * 1),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItemMove1 + Program.Addresses.sizeofTrainerMonCustomMove * 2),
+						Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItemMove1 + Program.Addresses.sizeofTrainerMonCustomMove * 3),
 					}
 				})
 			end
@@ -1075,7 +1093,7 @@ function Program.readTrainerGameData(trainerId)
 	end
 
 	trainer.party = {}
-	local partyPtr = Memory.readdword(startAddress + 0x24)
+	local partyPtr = Memory.readdword(startAddress + Program.Addresses.offsetTrainerPartyPtr)
 	local partyData = readPartyPokemon(partyPtr)
 	for _, pokemon in ipairs(partyData or {}) do
 		table.insert(trainer.party, {
