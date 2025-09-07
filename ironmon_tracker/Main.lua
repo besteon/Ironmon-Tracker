@@ -721,6 +721,9 @@ function Main.GenerateNextRom()
 		return nil
 	end
 
+	-- local logFilepath = nextRomPath .. FileManager.Extensions.RANDOMIZER_LOGFILE
+	-- Main.RecordNewRunRandomizerSeed(logFilepath)
+
 	return {
 		fileName = nextRomName,
 		filePath = nextRomPath,
@@ -835,6 +838,28 @@ function Main.FindSmallestSeedFromQuickloadFiles()
 		end
 	end
 	return smallestSeed or -1
+end
+
+---Saves randomizer log info for a rom for recreating it if needed.
+---@param logFilepath string The filepath to the newly created rom's log file from using the New Run feature.
+function Main.RecordNewRunRandomizerSeed(logFilepath)
+	if Utils.isNilOrEmpty(logFilepath) then
+		return
+	end
+
+	local file = io.open(logFilepath, "r")
+	if file == nil then
+		return
+	end
+
+	local fileContents = file:read("*a")
+	local gameNamePattern = "^Randomization of %s completed%.$"
+	local version = string.match(fileContents, RandomizerLog.Patterns.RandomizerVersion)
+	local randomSeed = string.match(fileContents, RandomizerLog.Patterns.RandomizerSeed)
+	local settingsString = string.match(fileContents, RandomizerLog.Patterns.RandomizerSettings)
+	local gameName = string.match(fileContents, gameNamePattern)
+	local currentTime = os.time()
+	file:close()
 end
 
 -- Creates a backup copy of a ROM 'filename' and its log file, labeling them as "PreviousAttempt"

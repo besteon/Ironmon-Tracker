@@ -412,6 +412,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			if rockheadBonus and MoveData.isRecoil(id) then
 				iMoves[i].rating = iMoves[i].rating * rockheadBonus
 			end
+			-- TODO: Check for weather ability + weather ball
 			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
 				iMoves[i].rating = iMoves[i].rating * (RS.OtherAdjustments.BonusMoveIsSTAB or 1)
 			end
