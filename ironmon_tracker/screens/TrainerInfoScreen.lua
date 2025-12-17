@@ -322,7 +322,7 @@ function TrainerInfoScreen.buildScreen(trainerId)
 				if trainerGame.defeated or Options["Open Book Play Mode"] then
 					return pokemon.pokemonID
 				end
-				if trainerId == trainerIdCurrentBattle then
+				if Battle.inActiveBattle() and trainerId == trainerIdCurrentBattle then
 					local enemyMon = Tracker.getPokemon(i, false)
 					if enemyMon and enemyMon.curHP <= 0 then
 						return pokemon.pokemonID
