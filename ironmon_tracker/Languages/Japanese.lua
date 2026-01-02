@@ -385,12 +385,12 @@ ScreenResources{
 		ButtonShow = "Show", -- NEEDS TRANSLATION
 		ButtonHide = "Hide", -- NEEDS TRANSLATION
 		ButtonViewOnline = "View Online", -- NEEDS TRANSLATION
-		CheckboxDevBranch = "Dev branch updates", -- NEEDS TRANSLATION
+		CheckboxDevBranch = "Beta test branch updates", -- NEEDS TRANSLATION
 		ButtonCheckForUpdates = "Check for updates", -- NEEDS TRANSLATION
 		ButtonNoUpdates = "No update available", -- NEEDS TRANSLATION
 		ButtonBeginInstall = "Begin install", -- NEEDS TRANSLATION
 		ButtonInstallNow = "Install now", -- NEEDS TRANSLATION
-		ButtonInstallFromDev = "Install from dev", -- NEEDS TRANSLATION
+		ButtonInstallFromDev = "Install from beta branch", -- NEEDS TRANSLATION
 		ButtonOpenDownload = "Open download", -- NEEDS TRANSLATION
 		ButtonIgnoreUpdate = "Ignore update", -- NEEDS TRANSLATION
 		MessageInProgress = "Update in progress, please wait. Check command prompt window for status.", -- NEEDS TRANSLATION
@@ -960,7 +960,7 @@ ScreenResources{
 		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
-		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionDevBranchUpdates = "Beta test branch updates", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
