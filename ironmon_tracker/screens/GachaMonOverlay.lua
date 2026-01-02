@@ -1535,7 +1535,7 @@ function GachaMonOverlay.createTabsAndButtons()
 	local optionBtnShowStars = SCREEN.Tabs.Options.Buttons["Show GachaMon stars on main Tracker Screen"]
 	optionBtnShowStars.onClick = function(self)
 		self.toggleState = Options.toggleSetting(self.optionKey)
-		-- If Survival mode for Track PC Heals is also enabled, turn that off as it conflicts by using the same screen space
+		-- If Survival mode for Track PokéCenter heals is also enabled, turn that off as it conflicts by using the same screen space
 		if self.toggleState and Options["Track PC Heals"] then
 			Options.toggleSetting("Track PC Heals")
 		end
