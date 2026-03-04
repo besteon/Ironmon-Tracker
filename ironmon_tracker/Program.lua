@@ -1396,7 +1396,7 @@ function Program.validPokemonData(pokemonData)
 	end
 
 	-- If the Pokemon is holding an item, and that item is invalid
-	if pokemonData.heldItem ~= nil and (pokemonData.heldItem < 0 or pokemonData.heldItem > 376) then
+	if pokemonData.heldItem ~= nil and (pokemonData.heldItem < 0 or pokemonData.heldItem > MiscData.getTotalItems()) then
 		return false
 	end
 
