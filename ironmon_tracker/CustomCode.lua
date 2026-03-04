@@ -55,7 +55,7 @@ function CustomCode.initialize()
 	CustomCode.KnownErrors = {}
 	CustomCode.EnabledExtensions = {}
 	CustomCode.RomHacks.clearAllCacheData()
-	CustomCode.loadKnownExtensions()
+	-- Note: Extensions are loaded as part of Main startup, before game data is read from memory.
 end
 
 -- Loads all installed extensions during Tracker startup. Known extensions are determined by Main.LoadSettings()
@@ -696,6 +696,12 @@ end
 --------------------------------------------------------------------------------------------------
 -- Avoid modifying anything below this line if possible, so that extensions remain upgrade safe --
 --------------------------------------------------------------------------------------------------
+
+-- Executed only once: When the Tracker first starts up but before any data about the game is loaded (even before game version is detected).
+-- CAUTION: Use only for additions to GameSettings.RomVersions and JSON files for custom game addresses.
+function CustomCode.beforeGameDataLoad()
+	CustomCode.execFunctions("beforeGameDataLoad")
+end
 
 -- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 function CustomCode.startup()

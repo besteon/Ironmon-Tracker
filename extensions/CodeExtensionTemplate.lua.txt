@@ -61,6 +61,12 @@ local function CodeExtensionTemplate()
 		return success
 	end
 
+	-- Executed only once: When the Tracker first starts up but before any data about the game is loaded (even before game version is detected).
+	-- CAUTION: Use only for additions to GameSettings.RomVersions and custom address JSON imports.
+	function self.beforeGameDataLoad()
+		-- [ADD CODE HERE]
+	end
+
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 	function self.startup()
 		-- [ADD CODE HERE]

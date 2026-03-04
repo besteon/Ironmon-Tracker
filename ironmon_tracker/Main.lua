@@ -153,6 +153,12 @@ function Main.Run()
 	end
 
 	Memory.initialize()
+
+	-- Load custom code and extensions before anything else. To allow for a hook to change game data that needs to be read from memory.
+	CustomCode.initialize()
+	CustomCode.loadKnownExtensions()
+	CustomCode.beforeGameDataLoad()
+
 	GameSettings.initialize()
 	Resources.autoDetectForeignLanguage()
 
@@ -169,7 +175,7 @@ function Main.Run()
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
 	FileManager.setupErrorLog()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
-	FileManager.executeEachFile("initialize") -- initialize all tracker files
+	FileManager.executeEachFile("initialize", FileManager.ExcludeFromInitialize) -- initialize all tracker files
 	CustomCode.executeExtensionStartups()
 	CustomCode.checkForRomHacks()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked

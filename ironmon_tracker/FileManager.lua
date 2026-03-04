@@ -195,6 +195,17 @@ FileManager.LuaCode = {
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
 
+-- Some files are initialized early and don't need to be re-intialized again
+FileManager.ExcludeFromInitialize = {
+	["UpdateOrInstall"] = true,
+	["Main"] = true,
+	["FileManager"] = true,
+	["Resources"] = true,
+	["CustomCode"] = true,
+	["GameSettings"] = true,
+	["Memory"] = true,
+}
+
 function FileManager.setupFolders()
 	local foldersToCheck = {
 		FileManager.getTdatFolderPath(),
@@ -398,8 +409,11 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 	return false
 end
 
--- Executes 'functionName' for all code files loaded in the Tracker, except Main, FileManager, and UpdateOrInstall.
-function FileManager.executeEachFile(functionName)
+---Executes 'functionName' for all loaded code files.
+---@param functionName string The name of the function to execute
+---@param excludeFileNames table<string, boolean> (Optional) A set of file names to exclude from having the function executed
+function FileManager.executeEachFile(functionName, excludeFileNames)
+	excludeFileNames = excludeFileNames or {}
 	local globalRef
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
@@ -409,9 +423,13 @@ function FileManager.executeEachFile(functionName)
 	end
 
 	for _, luafile in ipairs(FileManager.LuaCode) do
-		local luaObject = globalRef[luafile.name or ""] or {}
-		if type(luaObject[functionName]) == "function" then
-			luaObject[functionName]()
+		local luaFilename = luafile.name or ""
+		if not excludeFileNames[luaFilename] then
+			local luaObject = globalRef[luaFilename] or {}
+			local luaFunction = luaObject[functionName]
+			if type(luaFunction) == "function" then
+				luaFunction()
+			end
 		end
 	end
 end
