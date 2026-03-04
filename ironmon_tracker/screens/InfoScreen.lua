@@ -581,7 +581,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local iconButtons = {}
 	for index=1, totalPossible, 1 do
-		local pokemonID = 252 -- Question mark icon
+		local pokemonID = PokemonData.Values.QuestionMarkId
 		local rate = nil
 		local minLv, maxLv = nil, nil
 		if areaInfo ~= nil and areaInfo[index] ~= nil then
@@ -605,7 +605,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			box = { x, y, iconWidth, iconWidth },
 			isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 			onClick = function(self)
-				if not self:isVisible() or self.pokemonID == 252 then
+				if not self:isVisible() or self.pokemonID == PokemonData.Values.QuestionMarkId then
 					return
 				end
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
@@ -1090,8 +1090,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	-- POKEMON SEEN
 	local iconset = Options.getIconSet()
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		-- id 252 is the question mark icon
-		if iconButton.pokemonID == 252 and iconset.adjustQuestionMark then
+		if iconButton.pokemonID == PokemonData.Values.QuestionMarkId and iconset.adjustQuestionMark then
 			iconButton.box[2] = iconButton.box[2] + (iconset.yOffset or 0)
 		end
 

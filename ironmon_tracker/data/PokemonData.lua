@@ -1,6 +1,7 @@
 PokemonData = {}
 
 PokemonData.Values = {
+	QuestionMarkId = 252, -- The ID of the image file that shows a question mark for unknown pokemon (like scouting route pivots)
 	EggId = 412,
 	GhostId = 413, -- Pokémon Tower's Silph Scope Ghost
 	DefaultBaseFriendship = 70,
