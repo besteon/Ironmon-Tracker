@@ -36,7 +36,7 @@ LogTabPokemon = {
 			x = 0, y = 0,
 			w = 14, h = 13,
 		},
-		Omanyte = {
+		Omnamyte = {
 			image = FileManager.buildImagePath("icons", "tiny-omanyte", ".png"),
 			x = 0, y = 0,
 			w = 13, h = 14,

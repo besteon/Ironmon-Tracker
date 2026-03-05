@@ -59,7 +59,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 		-- PARTY POKEMON
 		local pokemonNameButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return string.format("%s. %s", i, partyPokemon.name) end, -- e.g. "1. Shuckle"
+			getText = function(self) return string.format("%s. %s", i, partyPokemon.name) end, -- e.g. "1. Shuffle"
 			textColor = LogTabTrainerDetails.Colors.text,
 			index = 10 + i,
 			pokemonID = partyPokemon.id,

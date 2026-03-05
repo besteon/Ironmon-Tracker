@@ -1321,7 +1321,7 @@ function EventData.getGachaMon(params)
 	end
 
 	-- EXAMPLE OUTPUT
-	-- GachaMon > Milotic - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
+	-- GachaMon > Waterworm - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
 
 	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility

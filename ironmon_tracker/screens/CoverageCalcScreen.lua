@@ -445,7 +445,7 @@ function CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(slotNumber)
 		[MoveData.Categories.SPECIAL] = true,
 	}
 	-- These shouldn't be counted automatically as "coverage" since they don't have a damage multiplier
-	-- Unfortunately this excludes Night Shade when caring about Shedinja, but don't have a good solution otherwise
+	-- Unfortunately this excludes Night Shade when caring about Sheninja, but don't have a good solution otherwise
 	local excludedMoveIds = {
 		[12] = true, -- Guillotine
 		[32] = true, -- Horn Drill
@@ -547,7 +547,7 @@ function CoverageCalcScreen.calculateCoverageTable(moveTypes, onlyFullyEvolved)
 		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if shouldCheckPokemon(id) and pokemon.types then
 			local highestEff = calcHighestEffectiveness(pokemon.types[1], pokemon.types[2])
-			-- For Shedinja, only count types that are super effective or better
+			-- For Sheninja, only count types that are super effective or better
 			if id == 303 and highestEff < 2 then
 				highestEff = 0
 			end

@@ -168,7 +168,7 @@ end
 -- This determines what icon to show on each Startup Screen
 -- random: changes randomly each seed
 -- attempts: shows a Pokemon based on the attempt count, eg. "attempt 25" would show Pikachu
--- [ID_NUM]: shows the same Pokemon every time, eg. "set as 213" would always show Shuckle
+-- [ID_NUM]: shows the same Pokemon every time, eg. "set as 213" would always show Shuffle
 Options.StartupIcon = {
 	random = "Random",
 	attempts = "Attempts",

@@ -3296,7 +3296,7 @@ GameResources{
 		},
 		{
 			NameKey = "Forecast",
-			Description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Castform obtains this ability.", -- NEEDS TRANSLATION
+			Description = "Lamgoo's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Lamgoo obtains this ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Sticky Hold",
@@ -3852,7 +3852,7 @@ GameResources{
 		"Alakabra", --Alakabra english:Alakabra
 		"Simsala", --Simsala english:Alakazam
 		"Machollo", --Machollo english:Machop
-		"Maschock", --Maschock english:Machoke
+		"Maschock", --Maschock english:Martachoke
 		"Machomei", --Machomei english:Machamp
 		"Knofensa", --Knofensa english:Bellsprout
 		"Ultrigaria", --Ultrigaria english:Weepinbell
@@ -3860,8 +3860,8 @@ GameResources{
 		"Tentacha", --Tentacha english:Tentacool
 		"Tentoxa", --Tentoxa english:Tentacruel
 		"Kleinstein", --Kleinstein english:Geodude
-		"Georok", --Georok english:Graveler
-		"Geowaz", --Geowaz english:Golem
+		"Georok", --Georok english:Geowheel
+		"Geowaz", --Geowaz english:Rockmar
 		"Ponita", --Ponita english:Ponyta
 		"Gallopa", --Gallopa english:Rapidash
 		"Flegmon", --Flegmon english:Slowpoke
@@ -3870,12 +3870,12 @@ GameResources{
 		"Magneton", --Magneton english:Magneton
 		"Porenta", --Porenta english:Farfetch'd
 		"Dodu", --Dodu english:Doduo
-		"Dodri", --Dodri english:Dodrio
-		"Jurob", --Jurob english:Seel
+		"Dodri", --Dodri english:Dotrio
+		"Jurob", --Jurob english:seel
 		"Jugong", --Jugong english:Dewgong
-		"Sleima", --Sleima english:Grimer
+		"Sleima", --Sleima english:Grimace
 		"Sleimok", --Sleimok english:Muk
-		"Muschas", --Muschas english:Shellder
+		"Muschas", --Muschas english:Sheldon
 		"Austos", --Austos english:Cloyster
 		"Nebulak", --Nebulak english:Gastly
 		"Alpollo", --Alpollo english:Haunter
@@ -3884,10 +3884,10 @@ GameResources{
 		"Traumato", --Traumato english:Drowzee
 		"Hypno", --Hypno english:Hypno
 		"Krabby", --Krabby english:Krabby
-		"Kingler", --Kingler english:Kingler
-		"Voltobal", --Voltobal english:Voltorb
-		"Lektrobal", --Lektrobal english:Electrode
-		"Owei", --Owei english:Exeggcute
+		"Krabking", --Krabking english:Krabking
+		"Voltobal", --Voltobal english:Electricute
+		"Lektrobal", --Lektrobal english:Electricute
+		"Owei", --Owei english:Exegg
 		"Kokowei", --Kokowei english:Exeggutor
 		"Tragosso", --Tragosso english:Cubone
 		"Knogga", --Knogga english:Marowak
@@ -3896,22 +3896,22 @@ GameResources{
 		"Schlurp", --Schlurp english:Lickitung
 		"Smogon", --Smogon english:Koffing
 		"Smogmog", --Smogmog english:Weezing
-		"Rihorn", --Rihorn english:Rhyhorn
+		"Rihorn", --Rihorn english:Rhynosaur
 		"Rizeros", --Rizeros english:Rhydon
 		"Chaneira", --Chaneira english:Chansey
 		"Tangela", --Tangela english:Tangela
 		"Kangama", --Kangama english:Kangaskhan
 		"Seeper", --Seeper english:Horsea
-		"Seemon", --Seemon english:Seadra
+		"Seemon", --Seemon english:Seagun
 		"Goldini", --Goldini english:Goldeen
 		"Golking", --Golking english:Seaking
 		"Sterndu", --Sterndu english:Staryu
 		"Starmie", --Starmie english:Starmie
 		"Pantimos", --Pantimos english:Mr. Mime
-		"Sichlor", --Sichlor english:Scyther
+		"Sichlor", --Sichlor english:Skyther
 		"Rossana", --Rossana english:Jynx
-		"Elektek", --Elektek english:Electabuzz
-		"Magmar", --Magmar english:Magmar
+		"Elektek", --Elektek english:Electrobuzz
+		"Magma", --Magma english:Magma
 		"Pinsir", --Pinsir english:Pinsir
 		"Tauros", --Tauros english:Tauros
 		"Karpador", --Karpador english:Magikarp
@@ -3922,9 +3922,9 @@ GameResources{
 		"Aquana", --Aquana english:Vaporeon
 		"Blitza", --Blitza english:Jolteon
 		"Flamara", --Flamara english:Flareon
-		"Porygon", --Porygon english:Porygon
-		"Amonitas", --Amonitas english:Omanyte
-		"Amoroso", --Amoroso english:Omastar
+		"Polygon", --Polygon english:Polygon
+		"Amonitas", --Amonitas english:Omnamyte
+		"Amoroso", --Amoroso english:Omnisaur
 		"Kabuto", --Kabuto english:Kabuto
 		"Kabutops", --Kabutops english:Kabutops
 		"Aerodactyl", --Aerodactyl english:Aerodactyl
@@ -3939,89 +3939,89 @@ GameResources{
 		"Mew", --Mew english:Mew
 		"Endivie", --Endivie english:Chikorita
 		"Lorblatt", --Lorblatt english:Bayleef
-		"Meganie", --Meganie english:Meganium
+		"Meganie", --Meganie english:Megananium
 		"Feurigel", --Feurigel english:Cyndaquil
 		"Igelavar", --Igelavar english:Quilava
 		"Tornupto", --Tornupto english:Typhlosion
 		"Karnimani", --Karnimani english:Totodile
-		"Tyracroc", --Tyracroc english:Croconaw
-		"Impergator", --Impergator english:Feraligatr
-		"Wiesor", --Wiesor english:Sentret
+		"Tyracroc", --Tyracroc english:Toteguy
+		"Impergator", --Impergator english:Felaligatr
+		"Wiesor", --Wiesor english:Ratswirl
 		"Wiesenior", --Wiesenior english:Furret
 		"Hoothoot", --Hoothoot english:Hoothoot
 		"Noctuh", --Noctuh english:Noctowl
 		"Ledyba", --Ledyba english:Ledyba
-		"Ledian", --Ledian english:Ledian
-		"Webarak", --Webarak english:Spinarak
-		"Ariados", --Ariados english:Ariados
+		"Ledyba2", --Ledyba2 english:Ledyba2
+		"Webarak", --Webarak english:Spiney
+		"Tores", --Tores english:Tores
 		"Iksbat", --Iksbat english:Crobat
-		"Lampi", --Lampi english:Chinchou
-		"Lanturn", --Lanturn english:Lanturn
+		"Lampi", --Lampi english:Lantoon
+		"Lamphrey", --Lamphrey english:Lamphrey
 		"Pichu", --Pichu english:Pichu
 		"Pii", --Pii english:Cleffa
-		"Fluffeluff", --Fluffeluff english:Igglybuff
+		"Fluffeluff", --Fluffeluff english:igglypuff
 		"Togepi", --Togepi english:Togepi
-		"Togetic", --Togetic english:Togetic
-		"Natu", --Natu english:Natu
+		"Togekiss", --Togekiss english:Togekiss
+		"Zazu", --Zazu english:Zazu
 		"Xatu", --Xatu english:Xatu
 		"Voltilamm", --Voltilamm english:Mareep
-		"Waaty", --Waaty english:Flaaffy
+		"Waaty", --Waaty english:Flaafy
 		"Ampharos", --Ampharos english:Ampharos
 		"Blubella", --Blubella english:Bellossom
 		"Marill", --Marill english:Marill
 		"Azumarill", --Azumarill english:Azumarill
 		"Mogelbaum", --Mogelbaum english:Sudowoodo
 		"Quaxo", --Quaxo english:Politoed
-		"Hoppspross", --Hoppspross english:Hoppip
-		"Hubelupf", --Hubelupf english:Skiploom
-		"Papungha", --Papungha english:Jumpluff
+		"Hoppspross", --Hoppspross english:Leafkitty
+		"Hubelupf", --Hubelupf english:Floof
+		"Papungha", --Papungha english:Pompom
 		"Griffel", --Griffel english:Aipom
-		"Sonnkern", --Sonnkern english:Sunkern
+		"Sonnkern", --Sonnkern english:Toolee
 		"Sonnflora", --Sonnflora english:Sunflora
-		"Yanma", --Yanma english:Yanma
+		"Wingon", --Wingon english:Wingon
 		"Felino", --Felino english:Wooper
 		"Morlord", --Morlord english:Quagsire
 		"Psiana", --Psiana english:Espeon
 		"Nachtara", --Nachtara english:Umbreon
-		"Kramurx", --Kramurx english:Murkrow
+		"Kramurx", --Kramurx english:Marco
 		"Laschoking", --Laschoking english:Slowking
 		"Traunfugil", --Traunfugil english:Misdreavus
 		"Icognito", --Icognito english:Unown
 		"Woingenau", --Woingenau english:Wobbuffet
-		"Girafarig", --Girafarig english:Girafarig
-		"Tannza", --Tannza english:Pineco
-		"Forstellka", --Forstellka english:Forretress
+		"Girafig", --Girafig english:Girafig
+		"Tannza", --Tannza english:Treecone
+		"Forstellka", --Forstellka english:Roclamb
 		"Dummisel", --Dummisel english:Dunsparce
-		"Skorgla", --Skorgla english:Gligar
+		"Skorgla", --Skorgla english:Galactitar
 		"Stahlos", --Stahlos english:Steelix
-		"Snubbull", --Snubbull english:Snubbull
-		"Granbull", --Granbull english:Granbull
-		"Baldorfish", --Baldorfish english:Qwilfish
+		"Snoobull", --Snoobull english:Snoobull
+		"Snowbull", --Snowbull english:Snowbull
+		"Baldorfish", --Baldorfish english:Porqueen
 		"Scherox", --Scherox english:Scizor
-		"Pottrott", --Pottrott english:Shuckle
+		"Pottrott", --Pottrott english:Shuffle
 		"Skaraborn", --Skaraborn english:Heracross
 		"Sniebel", --Sniebel english:Sneasel
 		"Teddiursa", --Teddiursa english:Teddiursa
 		"Ursaring", --Ursaring english:Ursaring
-		"Schneckmag", --Schneckmag english:Slugma
-		"Magcargo", --Magcargo english:Magcargo
-		"Quiekel", --Quiekel english:Swinub
+		"Schneckmag", --Schneckmag english:Magmar
+		"Magsnail", --Magsnail english:Magsnail
+		"Quiekel", --Quiekel english:Swine
 		"Keifel", --Keifel english:Piloswine
 		"Corasonn", --Corasonn english:Corsola
-		"Remoraid", --Remoraid english:Remoraid
-		"Octillery", --Octillery english:Octillery
+		"Remoray", --Remoray english:Remoray
+		"Octogon", --Octogon english:Octogon
 		"Botogel", --Botogel english:Delibird
-		"Mantax", --Mantax english:Mantine
+		"Mantax", --Mantax english:Mantaray
 		"Panzaeron", --Panzaeron english:Skarmory
 		"Hunduster", --Hunduster english:Houndour
 		"Hundemon", --Hundemon english:Houndoom
 		"Seedraking", --Seedraking english:Kingdra
 		"Phanpy", --Phanpy english:Phanpy
-		"Donphan", --Donphan english:Donphan
-		"Porygon2", --Porygon2 english:Porygon2
-		"Damhirplex", --Damhirplex english:Stantler
-		"Farbeagle", --Farbeagle english:Smeargle
-		"Rabauz", --Rabauz english:Tyrogue
+		"Elephon", --Elephon english:Elephon
+		"Polyhere", --Polyhere english:Polyhere
+		"Damhirplex", --Damhirplex english:Antlereyes
+		"Farbeagle", --Farbeagle english:Smeegle
+		"Rabauz", --Rabauz english:Hitmonkid
 		"Kapoera", --Kapoera english:Hitmontop
 		"Kussilla", --Kussilla english:Smoochum
 		"Elekid", --Elekid english:Elekid
@@ -4035,7 +4035,7 @@ GameResources{
 		"Pupitar", --Pupitar english:Pupitar
 		"Despotar", --Despotar english:Tyranitar
 		"Lugia", --Lugia english:Lugia
-		"Ho-Oh", --Ho-Oh english:Ho-Oh
+		"Ho Ho", --Ho Ho english:Ho Ho
 		"Celebi", --Celebi english:Celebi
 		"?", --? english:none
 		"?", --? english:none
@@ -4063,128 +4063,128 @@ GameResources{
 		"?", --? english:none
 		"?", --? english:none
 		"Geckarbor", --Geckarbor english:Treecko
-		"Reptain", --Reptain english:Grovyle
-		"Gewaldro", --Gewaldro english:Sceptile
+		"Reptain", --Reptain english:Treemo
+		"Gewaldro", --Gewaldro english:Treecool
 		"Flemmli", --Flemmli english:Torchic
 		"Jungglut", --Jungglut english:Combusken
 		"Lohgock", --Lohgock english:Blaziken
-		"Hydropi", --Hydropi english:Mudkip
-		"Moorabbel", --Moorabbel english:Marshtomp
+		"Hydropi", --Hydropi english:mudkip
+		"Moorabbel", --Moorabbel english:Mudstomp
 		"Sumpex", --Sumpex english:Swampert
 		"Fiffyen", --Fiffyen english:Poochyena
-		"Magnayen", --Magnayen english:Mightyena
+		"Magnayen", --Magnayen english:Doomhound
 		"Zigzachs", --Zigzachs english:Zigzagoon
-		"Geradaks", --Geradaks english:Linoone
-		"Waumpel", --Waumpel english:Wurmple
+		"Geradaks", --Geradaks english:Liloon
+		"Waumpel", --Waumpel english:Wumple
 		"Schaloko", --Schaloko english:Silcoon
 		"Papinella", --Papinella english:Beautifly
-		"Panekon", --Panekon english:Cascoon
-		"Pudox", --Pudox english:Dustox
+		"Panekon", --Panekon english:Mothcoon
+		"Pudox", --Pudox english:Duskmoth
 		"Loturzel", --Loturzel english:Lotad
-		"Lombrero", --Lombrero english:Lombre
-		"Kappalores", --Kappalores english:Ludicolo
+		"Lombrero", --Lombrero english:Loman
+		"Kappalores", --Kappalores english:Quacktad
 		"Samurzel", --Samurzel english:Seedot
-		"Blanas", --Blanas english:Nuzleaf
-		"Tengulist", --Tengulist english:Shiftry
-		"Nincada", --Nincada english:Nincada
-		"Ninjask", --Ninjask english:Ninjask
-		"Ninjatom", --Ninjatom english:Shedinja
+		"Blanas", --Blanas english:Newleaf
+		"Tengulist", --Tengulist english:Leafmogu
+		"Bug", --Bug english:Bug
+		"Ninmask", --Ninmask english:Ninmask
+		"Ninjatom", --Ninjatom english:Sheninja
 		"Schwalbini", --Schwalbini english:Taillow
 		"Schwalboss", --Schwalboss english:Swellow
-		"Knilz", --Knilz english:Shroomish
-		"Kapilz", --Kapilz english:Breloom
+		"Knilz", --Knilz english:Shroom
+		"Kapilz", --Kapilz english:Mushloom
 		"Pandir", --Pandir english:Spinda
 		"Wingull", --Wingull english:Wingull
-		"Pelipper", --Pelipper english:Pelipper
-		"Gehweiher", --Gehweiher english:Surskit
-		"Maskeregen", --Maskeregen english:Masquerain
+		"Pelibeak", --Pelibeak english:Pelibeak
+		"Gehweiher", --Gehweiher english:skittle
+		"Maskeregen", --Maskeregen english:Masquerana
 		"Wailmer", --Wailmer english:Wailmer
 		"Wailord", --Wailord english:Wailord
 		"Eneco", --Eneco english:Skitty
-		"Enekoro", --Enekoro english:Delcatty
-		"Kecleon", --Kecleon english:Kecleon
-		"Puppance", --Puppance english:Baltoy
-		"Lepumentas", --Lepumentas english:Claydol
+		"Enekoro", --Enekoro english:Katty
+		"Charmeleon", --Charmeleon english:Charmeleon
+		"Puppance", --Puppance english:Spinny
+		"Lepumentas", --Lepumentas english:Eyeeye
 		"Nasgnet", --Nasgnet english:Nosepass
-		"Qurtel", --Qurtel english:Torkoal
+		"Qurtel", --Qurtel english:Tormagma
 		"Zobiris", --Zobiris english:Sableye
-		"Schmerbe", --Schmerbe english:Barboach
-		"Welsar", --Welsar english:Whiscash
-		"Liebiskus", --Liebiskus english:Luvdisc
-		"Krebscorps", --Krebscorps english:Corphish
-		"Krebutack", --Krebutack english:Crawdaunt
-		"Barschwa", --Barschwa english:Feebas
-		"Milotic", --Milotic english:Milotic
-		"Kanivanha", --Kanivanha english:Carvanha
-		"Tohaido", --Tohaido english:Sharpedo
-		"Knacklion", --Knacklion english:Trapinch
-		"Vibrava", --Vibrava english:Vibrava
+		"Schmerbe", --Schmerbe english:Barbaros
+		"Welsar", --Welsar english:Whipsnap
+		"Liebiskus", --Liebiskus english:Luvander
+		"Krebscorps", --Krebscorps english:Clawfish
+		"Krebutack", --Krebutack english:Crawking
+		"Barschwa", --Barschwa english:Feeba
+		"Waterworm", --Waterworm english:Waterworm
+		"Kanivanha", --Kanivanha english:RoughSkin
+		"Tohaido", --Tohaido english:Sharkpedo
+		"Knacklion", --Knacklion english:Trapzee
+		"Diamondwing", --Diamondwing english:Diamondwing
 		"Libelldra", --Libelldra english:Flygon
-		"Makuhita", --Makuhita english:Makuhita
-		"Hariyama", --Hariyama english:Hariyama
-		"Frizelbliz", --Frizelbliz english:Electrike
-		"Voltenso", --Voltenso english:Manectric
-		"Camaub", --Camaub english:Numel
-		"Camerupt", --Camerupt english:Camerupt
+		"Mario", --Mario english:Mario
+		"Chopchop", --Chopchop english:Chopchop
+		"Frizelbliz", --Frizelbliz english:Doglizard
+		"Voltenso", --Voltenso english:Electrid
+		"Camaub", --Camaub english:Camel
+		"Magmel", --Magmel english:Magmel
 		"Seemops", --Seemops english:Spheal
-		"Seejong", --Seejong english:Sealeo
-		"Walraisa", --Walraisa english:Walrein
-		"Tuska", --Tuska english:Cacnea
-		"Noktuska", --Noktuska english:Cacturne
-		"Schneppke", --Schneppke english:Snorunt
-		"Firnontor", --Firnontor english:Glalie
-		"Lunastein", --Lunastein english:Lunatone
-		"Sonnfel", --Sonnfel english:Solrock
-		"Azurill", --Azurill english:Azurill
+		"Seejong", --Seejong english:Walstache
+		"Walraisa", --Walraisa english:Walorus
+		"Tuska", --Tuska english:Cacutar
+		"Noktuska", --Noktuska english:Cacutar
+		"Schneppke", --Schneppke english:Snowball
+		"Firnontor", --Firnontor english:Glacier
+		"Lunastein", --Lunastein english:Moonswoon
+		"Sonnfel", --Sonnfel english:Solarsun
+		"Mari", --Mari english:Mari
 		"Spoink", --Spoink english:Spoink
-		"Groink", --Groink english:Grumpig
-		"Plusle", --Plusle english:Plusle
-		"Minun", --Minun english:Minun
-		"Flunkifer", --Flunkifer english:Mawile
-		"Meditie", --Meditie english:Meditite
-		"Meditalis", --Meditalis english:Medicham
-		"Wablu", --Wablu english:Swablu
+		"Groink", --Groink english:Torjumpy
+		"Plus", --Plus english:Plus
+		"Minus", --Minus english:Minus
+		"Flunkifer", --Flunkifer english:Marwile
+		"Meditie", --Meditie english:Medichan
+		"Meditalis", --Meditalis english:ChanChan
+		"Wablu", --Wablu english:Altari
 		"Altaria", --Altaria english:Altaria
-		"Isso", --Isso english:Wynaut
+		"Isso", --Isso english:Walnut
 		"Zwirrlicht", --Zwirrlicht english:Duskull
 		"Zwirrklop", --Zwirrklop english:Dusclops
 		"Roselia", --Roselia english:Roselia
-		"Bummelz", --Bummelz english:Slakoth
-		"Muntier", --Muntier english:Vigoroth
+		"Bummelz", --Bummelz english:Sloth
+		"Muntier", --Muntier english:Claw
 		"Letarking", --Letarking english:Slaking
-		"Schluppuck", --Schluppuck english:Gulpin
-		"Schlukwech", --Schlukwech english:Swalot
-		"Tropius", --Tropius english:Tropius
-		"Flurmel", --Flurmel english:Whismur
-		"Krakeelo", --Krakeelo english:Loudred
-		"Krawumms", --Krawumms english:Exploud
-		"Perlu", --Perlu english:Clamperl
+		"Schluppuck", --Schluppuck english:Gooplin
+		"Schlukwech", --Schlukwech english:Swarlot
+		"Bananatree", --Bananatree english:Bananatree
+		"Flurmel", --Flurmel english:Whimber
+		"Krakeelo", --Krakeelo english:Exloud
+		"Krawumms", --Krawumms english:Extremeo
+		"Perlu", --Perlu english:Clamfish
 		"Aalabyss", --Aalabyss english:Huntail
-		"Saganabyss", --Saganabyss english:Gorebyss
+		"Saganabyss", --Saganabyss english:Arian
 		"Absol", --Absol english:Absol
-		"Shuppet", --Shuppet english:Shuppet
-		"Banette", --Banette english:Banette
-		"Vipitis", --Vipitis english:Seviper
-		"Sengo", --Sengo english:Zangoose
-		"Relicanth", --Relicanth english:Relicanth
-		"Stollunior", --Stollunior english:Aron
-		"Stollrak", --Stollrak english:Lairon
-		"Stolloss", --Stolloss english:Aggron
-		"Formeo", --Formeo english:Castform
-		"Volbeat", --Volbeat english:Volbeat
-		"Illumise", --Illumise english:Illumise
-		"Liliep", --Liliep english:Lileep
-		"Wielie", --Wielie english:Cradily
-		"Anorith", --Anorith english:Anorith
-		"Armaldo", --Armaldo english:Armaldo
-		"Trasla", --Trasla english:Ralts
-		"Kirlia", --Kirlia english:Kirlia
+		"Shadween", --Shadween english:Shadween
+		"Bandette", --Bandette english:Bandette
+		"Vipitis", --Vipitis english:Sevira
+		"Sengo", --Sengo english:Zongoose
+		"Coelath", --Coelath english:Coelath
+		"Stollunior", --Stollunior english:Lavo
+		"Stollrak", --Stollrak english:Steelmo
+		"Stolloss", --Stolloss english:Argon
+		"Formeo", --Formeo english:Lamgoo
+		"Bee", --Bee english:Bee
+		"Fly", --Fly english:Fly
+		"Liliep", --Liliep english:Flower
+		"Wielie", --Wielie english:Bigtooth
+		"Littleguy", --Littleguy english:Littleguy
+		"Lavitar", --Lavitar english:Lavitar
+		"Trasla", --Trasla english:Ralt
+		"Kiriya", --Kiriya english:Kiriya
 		"Guardevoir", --Guardevoir english:Gardevoir
 		"Kindwurm", --Kindwurm english:Bagon
 		"Draschel", --Draschel english:Shelgon
 		"Brutalanda", --Brutalanda english:Salamence
-		"Tanhel", --Tanhel english:Beldum
-		"Metang", --Metang english:Metang
+		"Tanhel", --Tanhel english:Rockgon
+		"Metclang", --Metclang english:Metclang
 		"Metagross", --Metagross english:Metagross
 		"Regirock", --Regirock english:Regirock
 		"Regice", --Regice english:Regice
@@ -4196,6 +4196,6 @@ GameResources{
 		"Latios", --Latios english:Latios
 		"Jirachi", --Jirachi english:Jirachi
 		"Deoxys", --Deoxys english:Deoxys
-		"Palimpalim", --Palimpalim english:Chimecho
+		"Palimpalim", --Palimpalim english:Chime
 	},
 }

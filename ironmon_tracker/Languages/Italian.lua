@@ -3296,7 +3296,7 @@ GameResources{
 		},
 		{
 			NameKey = "Forecast",
-			Description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Castform obtains this ability.", -- NEEDS TRANSLATION
+			Description = "Lamgoo's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Lamgoo obtains this ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Sticky Hold",

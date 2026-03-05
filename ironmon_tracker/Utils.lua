@@ -1028,7 +1028,7 @@ end
 
 ---Returns 1, 2, or 3 depending on game.
 ---FRLG: 1=Bulbasaur (left), 2=Squirtle (middle), 3=Charmander (right)
----RSE: 1=Treecko (left), 2=Torchic (middle), 3=Mudkip (right)
+---RSE: 1=Treecko (left), 2=Torchic (middle), 3=mudkip (right)
 ---@return number starterChoice
 function Utils.getStarterMonChoice()
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
