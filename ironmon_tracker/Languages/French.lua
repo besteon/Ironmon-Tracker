@@ -3786,7 +3786,7 @@ GameResources{
 	-- The list of Pokémon names below must remain in the same order
 	PokemonNames = {
 		"Bulbizarre", --Bulbizarre english:Bulbasaur
-		"Herbizarre", --Herbizarre english:Ivysaur
+		"Herbizarre", --Herbizarre english:Venubulb
 		"Florizarre", --Florizarre english:Venusaur
 		"Salameche", --Salameche english:Charmander
 		"Reptincel", --Reptincel english:Charmeleon
@@ -3804,20 +3804,20 @@ GameResources{
 		"Roucoups", --Roucoups english:Pidgeotto
 		"Roucarnage", --Roucarnage english:Pidgeot
 		"Rattata", --Rattata english:Rattata
-		"Rattatac", --Rattatac english:Raticate
+		"Rattatac", --Rattatac english:Mousecate
 		"Piafabec", --Piafabec english:Spearow
 		"Rapasdepic", --Rapasdepic english:Fearow
 		"Abo", --Abo english:Ekans
-		"Arbok", --Arbok english:Arbok
+		"Arbark", --Arbark english:Arbark
 		"Pikachu", --Pikachu english:Pikachu
 		"Raichu", --Raichu english:Raichu
 		"Sabelette", --Sabelette english:Sandshrew
 		"Sablaireau", --Sablaireau english:Sandslash
-		"Nidoran F", --Nidoran  english:Nidoran F
+		"Nidoran", --Nidoran  english:Nidoran
 		"Nidorina", --Nidorina english:Nidorina
 		"Nidoqueen", --Nidoqueen english:Nidoqueen
-		"Nidoran M", --Nidoran  english:Nidoran M
-		"Nidorino", --Nidorino english:Nidorino
+		"Nidorino", --Nidoran  english:Nidorino
+		"Nidorun", --Nidorun english:Nidorun
 		"Nidoking", --Nidoking english:Nidoking
 		"Melofee", --Melofee english:Clefairy
 		"Melodelfe", --Melodelfe english:Clefable
@@ -3826,12 +3826,12 @@ GameResources{
 		"Rondoudou", --Rondoudou english:Jigglypuff
 		"Grodoudou", --Grodoudou english:Wigglytuff
 		"Nosferapti", --Nosferapti english:Zubat
-		"Nosferalto", --Nosferalto english:Golbat
+		"Nosferalto", --Nosferalto english:Zublue
 		"Mystherbe", --Mystherbe english:Oddish
-		"Ortide", --Ortide english:Gloom
-		"Rafflesia", --Rafflesia english:Vileplume
-		"Paras", --Paras english:Paras
-		"Parasect", --Parasect english:Parasect
+		"Ortide", --Ortide english:VileGloom
+		"Rafflesia", --Rafflesia english:Vilebloom
+		"Paramite", --Paramite english:Paramite
+		"Paramiteect", --Paramiteect english:Paramiteect
 		"Mimitoss", --Mimitoss english:Venonat
 		"Aeromite", --Aeromite english:Venomoth
 		"Taupiqueur", --Taupiqueur english:Diglett
@@ -3846,9 +3846,9 @@ GameResources{
 		"Arcanin", --Arcanin english:Arcanine
 		"Ptitard", --Ptitard english:Poliwag
 		"Tetarte", --Tetarte english:Poliwhirl
-		"Tartard", --Tartard english:Poliwrath
+		"Tartard", --Tartard english:Poliswag
 		"Abra", --Abra english:Abra
-		"Kadabra", --Kadabra english:Kadabra
+		"Alakabra", --Alakabra english:Alakabra
 		"Alakazam", --Alakazam english:Alakazam
 		"Machoc", --Machoc english:Machop
 		"Machopeur", --Machopeur english:Machoke

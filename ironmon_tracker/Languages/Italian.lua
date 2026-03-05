@@ -1259,7 +1259,7 @@ GameResources{
 		"Forza", --Forza english:Strength
 		"Assorbimento", --Assorbimento english:Absorb
 		"Megassorbim.", --Megassorbim. english:Mega Drain
-		"Parassiseme", --Parassiseme english:Leech Seed
+		"Paramitesiseme", --Paramitesiseme english:Leech Seed
 		"Crescita", --Crescita english:Growth
 		"Foglielama", --Foglielama english:Razor Leaf
 		"Solarraggio", --Solarraggio english:SolarBeam

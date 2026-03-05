@@ -3787,7 +3787,7 @@ GameResources{
 	-- The list of Pokémon names below must remain in the same order
 	PokemonNames = {
 		"Bisasam", --Bisasam english:Bulbasaur
-		"Bisaknosp", --Bisaknosp english:Ivysaur
+		"Bisaknosp", --Bisaknosp english:Venubulb
 		"Bisaflor", --Bisaflor english:Venusaur
 		"Glumanda", --Glumanda english:Charmander
 		"Glutexo", --Glutexo english:Charmeleon
@@ -3805,20 +3805,20 @@ GameResources{
 		"Tauboga", --Tauboga english:Pidgeotto
 		"Tauboss", --Tauboss english:Pidgeot
 		"Rattfratz", --Rattfratz english:Rattata
-		"Rattikarl", --Rattikarl english:Raticate
+		"Rattikarl", --Rattikarl english:Mousecate
 		"Habitak", --Habitak english:Spearow
 		"Ibitak", --Ibitak english:Fearow
 		"Rettan", --Rettan english:Ekans
-		"Arbok", --Arbok english:Arbok
+		"Arbark", --Arbark english:Arbark
 		"Pikachu", --Pikachu english:Pikachu
 		"Raichu", --Raichu english:Raichu
 		"Sandan", --Sandan english:Sandshrew
 		"Sandamer", --Sandamer english:Sandslash
-		"Nidoran F", --Nidoran  english:Nidoran F
+		"Nidoran", --Nidoran  english:Nidoran
 		"Nidorina", --Nidorina english:Nidorina
 		"Nidoqueen", --Nidoqueen english:Nidoqueen
-		"Nidoran M", --Nidoran  english:Nidoran M
-		"Nidorino", --Nidorino english:Nidorino
+		"Nidorino", --Nidoran  english:Nidorino
+		"Nidorun", --Nidorun english:Nidorun
 		"Nidoking", --Nidoking english:Nidoking
 		"Piepi", --Piepi english:Clefairy
 		"Pixi", --Pixi english:Clefable
@@ -3827,12 +3827,12 @@ GameResources{
 		"Pummeluff", --Pummeluff english:Jigglypuff
 		"Knuddeluff", --Knuddeluff english:Wigglytuff
 		"Zubat", --Zubat english:Zubat
-		"Golbat", --Golbat english:Golbat
+		"Zublue", --Zublue english:Zublue
 		"Myrapla", --Myrapla english:Oddish
-		"Duflor", --Duflor english:Gloom
-		"Giflor", --Giflor english:Vileplume
-		"Paras", --Paras english:Paras
-		"Parasek", --Parasek english:Parasect
+		"Duflor", --Duflor english:VileGloom
+		"Giflor", --Giflor english:Vilebloom
+		"Paramite", --Paramite english:Paramite
+		"Paramiteek", --Paramiteek english:Paramiteect
 		"Bluzuk", --Bluzuk english:Venonat
 		"Omot", --Omot english:Venomoth
 		"Digda", --Digda english:Diglett
@@ -3847,9 +3847,9 @@ GameResources{
 		"Arkani", --Arkani english:Arcanine
 		"Quapsel", --Quapsel english:Poliwag
 		"Quaputzi", --Quaputzi english:Poliwhirl
-		"Quappo", --Quappo english:Poliwrath
+		"Quappo", --Quappo english:Poliswag
 		"Abra", --Abra english:Abra
-		"Kadabra", --Kadabra english:Kadabra
+		"Alakabra", --Alakabra english:Alakabra
 		"Simsala", --Simsala english:Alakazam
 		"Machollo", --Machollo english:Machop
 		"Maschock", --Maschock english:Machoke

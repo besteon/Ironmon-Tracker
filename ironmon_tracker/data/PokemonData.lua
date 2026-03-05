@@ -680,7 +680,7 @@ PokemonData.Pokemon = {
 		weight = 6.9
 	},
 	{
-		name = "Ivysaur",
+		name = "Venubulb",
 		evolution = "32",
 		bst = 405,
 		movelvls = { { 4, 7, 10, 15, 15, 22, 29, 38, 47, 56 }, { 4, 7, 10, 15, 15, 22, 29, 38, 47, 56 } },
@@ -806,7 +806,7 @@ PokemonData.Pokemon = {
 		weight = 3.5
 	},
 	{
-		name = "Raticate",
+		name = "Mousecate",
 		evolution = PokemonData.Evolutions.NONE,
 		bst = 413,
 		movelvls = { { 7, 13, 20, 30, 40, 50 }, { 7, 13, 20, 30, 40, 50 } },
@@ -834,7 +834,7 @@ PokemonData.Pokemon = {
 		weight = 6.9
 	},
 	{
-		name = "Arbok",
+		name = "Arbark",
 		evolution = PokemonData.Evolutions.NONE,
 		bst = 438,
 		movelvls = { { 8, 13, 20, 28, 38, 46, 46, 46, 56 }, { 8, 13, 20, 28, 38, 46, 46, 46, 56 } },
@@ -869,7 +869,7 @@ PokemonData.Pokemon = {
 		weight = 29.5
 	},
 	{
-		name = "Nidoran F",
+		name = "Nidoran",
 		evolution = "16",
 		bst = 275,
 		movelvls = { { 8, 12, 17, 20, 23, 30, 38, 47 }, { 8, 12, 17, 20, 23, 30, 38, 47 } },
@@ -890,14 +890,14 @@ PokemonData.Pokemon = {
 		weight = 60.0
 	},
 	{
-		name = "Nidoran M",
+		name = "Nidorino",
 		evolution = "16",
 		bst = 273,
 		movelvls = { { 8, 12, 17, 20, 23, 30, 38, 47 }, { 8, 12, 17, 20, 23, 30, 38, 47 } },
 		weight = 9.0
 	},
 	{
-		name = "Nidorino",
+		name = "Nidorun",
 		evolution = PokemonData.Evolutions.MOON,
 		bst = 365,
 		movelvls = { { 8, 12, 18, 22, 26, 34, 43, 53 }, { 8, 12, 18, 22, 26, 34, 43, 53 } },
@@ -962,7 +962,7 @@ PokemonData.Pokemon = {
 		weight = 7.5
 	},
 	{
-		name = "Golbat",
+		name = "Zublue",
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = 455,
 		movelvls = { { 6, 11, 16, 21, 28, 35, 42, 49, 56 }, { 6, 11, 16, 21, 28, 35, 42, 49, 56 } },
@@ -976,28 +976,28 @@ PokemonData.Pokemon = {
 		weight = 5.4
 	},
 	{
-		name = "Gloom",
+		name = "VileGloom",
 		evolution = PokemonData.Evolutions.LEAF_SUN,
 		bst = 395,
 		movelvls = { { 7, 14, 16, 18, 24, 35, 44 }, { 7, 14, 16, 18, 24, 35, 44 } },
 		weight = 8.6
 	},
 	{
-		name = "Vileplume",
+		name = "Vilebloom",
 		evolution = PokemonData.Evolutions.NONE,
 		bst = 480,
 		movelvls = { { 44 }, { 44 } },
 		weight = 18.6
 	},
 	{
-		name = "Paras",
+		name = "Paramite",
 		evolution = "24",
 		bst = 285,
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
 		weight = 5.4
 	},
 	{
-		name = "Parasect",
+		name = "Paramiteect",
 		evolution = PokemonData.Evolutions.NONE,
 		bst = 405,
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51, 59 }, { 7, 13, 19, 27, 35, 43, 51, 59 } },
@@ -1102,7 +1102,7 @@ PokemonData.Pokemon = {
 		weight = 20.0
 	},
 	{
-		name = "Poliwrath",
+		name = "Poliswag",
 		evolution = PokemonData.Evolutions.NONE,
 		bst = 500,
 		movelvls = { { 35, 51 }, { 35, 51 } },
@@ -1116,7 +1116,7 @@ PokemonData.Pokemon = {
 		weight = 19.5
 	},
 	{
-		name = "Kadabra",
+		name = "Alakabra",
 		evolution = "37", -- Level 37 replaces trade evolution
 		bst = 400,
 		movelvls = { { 16, 18, 21, 23, 25, 30, 33, 36, 43 }, { 16, 18, 21, 23, 25, 30, 33, 36, 43 } },
