@@ -1513,13 +1513,13 @@ function TrackerScreen.drawMovesArea(data)
 		end
 
 		-- MOVE CATEGORY
-		if Options["Show physical special icons"] and allowHiddenMoveInfo then
-			if move.category == MoveData.Categories.PHYSICAL then
-				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
-			elseif move.category == MoveData.Categories.SPECIAL then
-				Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
-			end
-		end
+		--if Options["Show physical special icons"] and allowHiddenMoveInfo then
+		--	if move.category == MoveData.Categories.PHYSICAL then
+		--		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
+		--	elseif move.category == MoveData.Categories.SPECIAL then
+		--		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
+		--	end
+		--end
 
 		-- MOVE TYPE COLORED RECTANGLE
 		if not Theme.MOVE_TYPES_ENABLED and move.name ~= Constants.BLANKLINE and allowHiddenMoveInfo then
@@ -1537,13 +1537,13 @@ function TrackerScreen.drawMovesArea(data)
 		end
 
 		-- DRAW MOVE EFFECTIVENESS
-		if move.showeffective then
-			if move.effectiveness == 0 then
-				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
-			else
-				Drawing.drawMoveEffectiveness(Constants.SCREEN.WIDTH + movePowerOffset - 5, moveOffsetY, move.effectiveness)
-			end
-		end
+		--if move.showeffective then
+		--	if move.effectiveness == 0 then
+		--		Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
+		--	else
+		--		Drawing.drawMoveEffectiveness(Constants.SCREEN.WIDTH + movePowerOffset - 5, moveOffsetY, move.effectiveness)
+		--	end
+		--end
 
 		local moveName = move.name .. Utils.inlineIf(move.starred, "*", "")
 
