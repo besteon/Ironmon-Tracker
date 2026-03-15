@@ -329,7 +329,7 @@ function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 	client.pause()
 	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
 	-- Create the form directly through Bizhawk and not ExternalUI, as it's possible that UI has not been loaded yet
-	local form = forms.newform(400, 150, formTitle, function() client.unpause() end)
+	local form = forms.newform(400, 160, formTitle, function() client.unpause() end)
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
@@ -338,11 +338,11 @@ function Main.DisplayError(errMessage, moreInfoBtnLabel, moreInfoFunc)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
-	end, 155, 80, 80, 22)
+	end, 155, 90, 80, 25)
 
 	-- Optional additional info button and event function
 	if type(moreInfoFunc) == "function" then
-		forms.button(form, moreInfoBtnLabel or "(?)", moreInfoFunc, 20, 80, 110, 22)
+		forms.button(form, moreInfoBtnLabel or "(?)", moreInfoFunc, 20, 90, 110, 25)
 	end
 	return form
 end
@@ -713,7 +713,12 @@ function Main.GenerateNextRom()
 			moreInfoBtnUrl = "https://www.java.com/en/download/manual.jsp"
 		elseif Utils.containsText(output, "ArrayIndexOutOfBoundsException", true) then
 			err1 = string.format("ERROR: The patch applied to the Source ROM is not compatible.")
-			err2 = string.format("Check the patch version requirements on the patch's download page.")
+			err2 = string.format("Check the patch version requirements on the patch's download page. (e.g. v1.1 vs v1.0)")
+			moreInfoBtnLabel = "View Error Log"
+			moreInfoBtnUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
+		elseif Utils.containsText(output, "UnsupportedOperationException", true) then
+			err1 = string.format("ERROR: The chosen Randomizer JAR is not compatible with your Source ROM.")
+			err2 = string.format("Fix your New Run profile by choosing the proper Randomizer for your game.")
 			moreInfoBtnLabel = "View Error Log"
 			moreInfoBtnUrl = errorFolderpath .. FileManager.Files.RANDOMIZER_ERROR_LOG
 		else
