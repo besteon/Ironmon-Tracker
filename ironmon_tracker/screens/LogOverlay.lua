@@ -300,8 +300,12 @@ function LogOverlay.preloadForOpenBook()
 			end
 		end
 	end
-	-- Delay parsing data for open book until Tracker and custom extensions are fully loaded
-	Program.addFrameCounter("LoadOpenBookLog", 5, preloadLog, 1)
+
+	-- Only load log data if its for a randomized game
+	if PokemonData.isGameDataRandomized() or MoveData.isMoveDataRandomized() or MoveData.isTMDataRandomized() or TrainerData.isTeamDataRandomized() then
+		-- Delay parsing data for open book until Tracker and custom extensions are fully loaded
+		Program.addFrameCounter("LoadOpenBookLog", 5, preloadLog, 1)
+	end
 end
 
 function LogOverlay.refreshButtons()

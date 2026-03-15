@@ -88,7 +88,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 46, 31, 10 },
 		boxColors = { "Upper box border", "Upper box background" },
 		shouldShow = false, -- for now, need to update this during the legacy drawScreen method
-		isVisible = function(self) return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and self.shouldShow end,
+		isVisible = function(self) return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and self.shouldShow and PokemonData.isGameDataRandomized() end,
 		onClick = function (self)
 			if RandomEvosScreen.buildPagedButtons(InfoScreen.infoLookup) then
 				Program.changeScreenView(RandomEvosScreen)
@@ -363,7 +363,7 @@ function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.infoLookup = info
 	if screen == InfoScreen.Screens.ROUTE_INFO then
 		InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-		InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
+		InfoScreen.Buttons.ShowRouteLevels.toggleState = (not PokemonData.isGameDataRandomized() or Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
 	end
 	Program.changeScreenView(InfoScreen)
 end
@@ -518,7 +518,7 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.infoLookup.mapId = mapId
 			InfoScreen.infoLookup.encounterArea = encounterArea
 			InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
+			InfoScreen.Buttons.ShowRouteLevels.toggleState = (not PokemonData.isGameDataRandomized() or Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
 			Program.redraw(true)
 		end
 		form:destroy()
@@ -705,8 +705,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON TYPES
 	local type1, type2 = data.p.types[1], data.p.types[2]
 	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Pokemon[pokemonID] then
-		type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.UNKNOWN
-		type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
+		if #RandomizerLog.Data.Pokemon[pokemonID].Types > 0 then
+			type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.UNKNOWN
+			type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
+		end
 	end
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)

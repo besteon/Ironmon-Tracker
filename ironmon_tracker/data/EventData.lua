@@ -821,7 +821,7 @@ end
 function EventData.getTMsHMs(params)
 	local info = {}
 	local prefix = string.format("%s %s", "TMs", OUTPUT_CHAR)
-	local canSeeTM = Options["Open Book Play Mode"]
+	local canSeeTM = not MoveData.isTMDataRandomized() or Options["Open Book Play Mode"]
 
 	local singleTmLookup
 	local displayGym, displayNonGym, displayHM

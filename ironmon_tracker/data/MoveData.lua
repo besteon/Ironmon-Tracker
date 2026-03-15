@@ -42,7 +42,7 @@ MoveData.Values = {
 	LockOnId = 199,
 	RolloutId = 205,
 	FuryCutterId = 210,
-	AttactId = 213,
+	AttractId = 213,
 	SafeguardId = 219,
 	EncoreId = 227,
 	UproarId = 253,
@@ -80,6 +80,7 @@ MoveData.IsRand = {
 	moveAccuracy = false,
 	movePP = false,
 	moveCategory = false,
+	tms = false,
 }
 
 -- Move categories identify the type of attack a move is: physical, special, or status
@@ -357,6 +358,7 @@ function MoveData.checkIfDataIsRandomized()
 	local areAccuraciesRandomized = false
 	local arePPsRandomized = false
 	local areCategoriesChanged = false
+	local areTMsRandomized = false
 
 	-- Check once if any data was randomized
 	local moveInfo = MoveData.readMoveInfoFromMemory(314) -- Air Cutter
@@ -392,13 +394,36 @@ function MoveData.checkIfDataIsRandomized()
 		end
 	end
 
+	-- Check for randomized TM moves
+	if Program.getMoveIdFromTMHMNumber(10) ~= MoveData.Values.HiddenPowerId then
+		areTMsRandomized = true
+	elseif Program.getMoveIdFromTMHMNumber(27) ~= MoveData.Values.ReturnId then
+		areTMsRandomized = true
+	elseif Program.getMoveIdFromTMHMNumber(45) ~= MoveData.Values.AttractId then
+		areTMsRandomized = true
+	end
+
 	MoveData.IsRand.moveType = areTypesRandomized
 	MoveData.IsRand.movePower = arePowersRandomized
 	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
 	MoveData.IsRand.movePP = arePPsRandomized
 	MoveData.IsRand.moveCategory = areCategoriesChanged
+	MoveData.IsRand.tms = areTMsRandomized
 
+	-- Check against 'move' changes only (not TMs)
 	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized or areCategoriesChanged
+end
+
+---Returns true if the move data for this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function MoveData.isMoveDataRandomized()
+	return MoveData.IsRand.moveType or MoveData.IsRand.movePower or MoveData.IsRand.moveAccuracy or MoveData.IsRand.movePP or MoveData.IsRand.moveCategory
+end
+
+---Returns true if the TMs data for this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function MoveData.isTMDataRandomized()
+	return MoveData.IsRand.tms
 end
 
 ---Returns true if the moveId is a valid, existing id of a move in MoveData.Moves

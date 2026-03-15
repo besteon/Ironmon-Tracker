@@ -2,6 +2,7 @@ AbilityData = {}
 
 AbilityData.Values = {
 	DrizzleId = 2,
+	SturdyId = 5,
 	VoltAbsorbId = 10,
 	WaterAbsorbId = 11,
 	CompoundeyesId = 14,
@@ -16,9 +17,11 @@ AbilityData.Values = {
 	ThickFatId = 47,
 	TruantId = 54,
 	HustleId = 55,
+	OvergrowId = 65,
 	RockHeadId = 69,
 	DroughtId = 70,
 	PurePowerId = 74,
+	ShellArmorId = 75,
 	CacophonyId = 76,
 }
 

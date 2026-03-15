@@ -1,6 +1,13 @@
 -- Currently, this is only used for connecting to trainer data parsed from a randomizer log file
 TrainerData = {}
 
+TrainerData.IsRand = {
+	-- trainerName = false,
+	teamPokemon = false,
+	teamLevels = false,
+	teamSize = false,
+}
+
 -- These are populated later after the game being played is determined
 TrainerData.Trainers = {}
 TrainerData.OrderedIds = {}
@@ -128,11 +135,133 @@ function TrainerData.buildData()
 	TrainerData.FinalTrainer = {}
 	if GameSettings.game == 1 then -- Ruby / Sapphire
 		TrainerData.setupTrainersAsRubySapphire()
-	elseif GameSettings.game == 2 then
-		TrainerData.setupTrainersAsEmerald() -- Emerald
-	elseif GameSettings.game == 3 then
-		TrainerData.setupTrainersAsFRLG() -- FireRed / LeafGreen
+	elseif GameSettings.game == 2 then -- Emerald
+		TrainerData.setupTrainersAsEmerald()
+	elseif GameSettings.game == 3 then -- FireRed / LeafGreen
+		TrainerData.setupTrainersAsFRLG()
 	end
+	TrainerData.checkIfDataIsRandomized()
+end
+
+--- Compare data from game memory with original game data to determine what's been randomized
+function TrainerData.checkIfDataIsRandomized()
+	-- Reset to default of false (not-randomized)
+	for key, _ in pairs(TrainerData.IsRand) do
+		TrainerData.IsRand[key] = false
+	end
+
+	-- Arbitrarilty check first two gym leader trainers for randomized information
+	if GameSettings.game == 1 then -- Ruby / Sapphire
+		local gymLeader1 = Program.readTrainerGameData(265) -- Roxanne, first gym leader in R/S
+		local gymLeader2 = Program.readTrainerGameData(266) -- Brawly, second gym leader in R/S
+
+		-- Check trainer's Pokémon (species)
+		if gymLeader1.party[1] and gymLeader1.party[1].pokemonID ~= 74 then -- Geodude
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader1.party[2] and gymLeader1.party[2].pokemonID ~= 320 then -- Nosepass
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[1] and gymLeader2.party[1].pokemonID ~= 66 then -- Machop
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[2] and gymLeader2.party[2].pokemonID ~= 335 then -- Makuhita
+			TrainerData.IsRand.teamPokemon = true
+		end
+
+		-- Check levels of trainer's Pokémon
+		if gymLeader1.party[1] and gymLeader1.party[1].level ~= 14 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader1.party[2] and gymLeader1.party[2].level ~= 15 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[1] and gymLeader2.party[1].level ~= 17 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[2] and gymLeader2.party[2].level ~= 18 then
+			TrainerData.IsRand.teamLevels = true
+		end
+
+		-- Check number of Pokémon in trainer party
+		if gymLeader1.partySize ~= 2 then
+			TrainerData.IsRand.teamSize = true
+		elseif gymLeader2.partySize ~= 2 then
+			TrainerData.IsRand.teamSize = true
+		end
+	elseif GameSettings.game == 2 then -- Emerald
+		local gymLeader1 = Program.readTrainerGameData(265) -- Roxanne, first gym leader in Emerald
+		local gymLeader2 = Program.readTrainerGameData(266) -- Brawly, second gym leader in Emerald
+
+		-- Check trainer's Pokémon (species)
+		if gymLeader1.party[1] and gymLeader1.party[1].pokemonID ~= 74 then -- Geodude
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader1.party[2] and gymLeader1.party[2].pokemonID ~= 74 then -- Geodude
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader1.party[3] and gymLeader1.party[3].pokemonID ~= 320 then -- Nosepass
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[1] and gymLeader2.party[1].pokemonID ~= 66 then -- Machop
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[2] and gymLeader2.party[2].pokemonID ~= 356 then -- Meditite
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[3] and gymLeader2.party[3].pokemonID ~= 335 then -- Makuhita
+			TrainerData.IsRand.teamPokemon = true
+		end
+
+		-- Check levels of trainer's Pokémon
+		if gymLeader1.party[1] and gymLeader1.party[1].level ~= 12 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader1.party[2] and gymLeader1.party[2].level ~= 12 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader1.party[3] and gymLeader1.party[3].level ~= 15 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[1] and gymLeader2.party[1].level ~= 16 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[2] and gymLeader2.party[2].level ~= 16 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[3] and gymLeader2.party[3].level ~= 19 then
+			TrainerData.IsRand.teamLevels = true
+		end
+
+		-- Check number of Pokémon in trainer party
+		if gymLeader1.partySize ~= 3 then
+			TrainerData.IsRand.teamSize = true
+		elseif gymLeader2.partySize ~= 3 then
+			TrainerData.IsRand.teamSize = true
+		end
+	elseif GameSettings.game == 3 then -- FireRed / LeafGreen
+		local gymLeader1 = Program.readTrainerGameData(414) -- Brock, first gym leader in FR/LG
+		local gymLeader2 = Program.readTrainerGameData(415) -- Misty, second gym leader in FR/LG
+
+		-- Check trainer's Pokémon (species)
+		if gymLeader1.party[1] and gymLeader1.party[1].pokemonID ~= 74 then -- Geodude
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader1.party[2] and gymLeader1.party[2].pokemonID ~= 95 then -- Onix
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[1] and gymLeader2.party[1].pokemonID ~= 120 then -- Staryu
+			TrainerData.IsRand.teamPokemon = true
+		elseif gymLeader2.party[2] and gymLeader2.party[2].pokemonID ~= 121 then -- Starmie
+			TrainerData.IsRand.teamPokemon = true
+		end
+
+		-- Check levels of trainer's Pokémon
+		if gymLeader1.party[1] and gymLeader1.party[1].level ~= 12 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader1.party[2] and gymLeader1.party[2].level ~= 14 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[1] and gymLeader2.party[1].level ~= 18 then
+			TrainerData.IsRand.teamLevels = true
+		elseif gymLeader2.party[2] and gymLeader2.party[2].level ~= 21 then
+			TrainerData.IsRand.teamLevels = true
+		end
+
+		-- Check number of Pokémon in trainer party
+		if gymLeader1.partySize ~= 2 then
+			TrainerData.IsRand.teamSize = true
+		elseif gymLeader2.partySize ~= 2 then
+			TrainerData.IsRand.teamSize = true
+		end
+	end
+end
+
+---Returns true if the Pokémon data in this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function TrainerData.isTeamDataRandomized()
+	return TrainerData.IsRand.teamPokemon or TrainerData.IsRand.teamLevels or TrainerData.IsRand.teamSize
 end
 
 function TrainerData.getTrainerInfo(trainerId)

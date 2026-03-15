@@ -6,6 +6,9 @@ PokemonData.Values = {
 	GhostId = 413, -- Pokémon Tower's Silph Scope Ghost
 	DefaultBaseFriendship = 70,
 	FriendshipRequiredToEvo = 220,
+	ExpYieldBulbasaur = 64,
+	ExpYieldLapras = 219,
+	ExpYieldShuckle = 80,
 }
 
 -- https://github.com/pret/pokefirered/blob/0c17a3b041a56f176f23145e4a4c0ae758f8d720/include/pokemon.h#L208-L236
@@ -286,31 +289,70 @@ end
 
 --- Compare data from game memory with original game data to determine what's been randomized
 function PokemonData.checkIfDataIsRandomized()
-	PokemonData.IsRand.types = false
-	PokemonData.IsRand.abilities = false
-	PokemonData.IsRand.friendshipBase = false
-	PokemonData.IsRand.expYield = false
+	-- Reset to default of false (not-randomized)
+	for key, _ in pairs(PokemonData.IsRand) do
+		PokemonData.IsRand[key] = false
+	end
 
-	-- Arbitrarilty check two different pokemon for randomized information
+	-- Arbitrarilty check three different pokemon for randomized information
 	local bulbasaur = PokemonData.Pokemon[1]
 	local lapras = PokemonData.Pokemon[131]
+	local shuckle = PokemonData.Pokemon[213]
 
+	-- Check for randomized Pokémon typings
 	if bulbasaur.types[1] ~= PokemonData.Types.GRASS or bulbasaur.types[2] ~= PokemonData.Types.POISON then
 		PokemonData.IsRand.types = true
 	elseif lapras.types[1] ~= PokemonData.Types.WATER or lapras.types[2] ~= PokemonData.Types.ICE then
 		PokemonData.IsRand.types = true
+	elseif shuckle.types[1] ~= PokemonData.Types.BUG or shuckle.types[2] ~= PokemonData.Types.ROCK then
+		PokemonData.IsRand.types = true
 	end
-	if bulbasaur.abilities[1] ~= 65 or bulbasaur.abilities[2] ~= 65 then -- 65 = Overgrow
+
+	-- Check for randomized Pokémon abilities
+	if bulbasaur.abilities[1] ~= AbilityData.Values.OvergrowId then
 		PokemonData.IsRand.abilities = true
-	elseif lapras.abilities[1] ~= 11 or lapras.abilities[2] ~= 75 then -- 11 = Water Absorb, 75 = Shell Armor
+	elseif bulbasaur.abilities[2] ~= AbilityData.Values.OvergrowId and bulbasaur.abilities[2] ~= 0 then -- 2nd ability can be empty
+		PokemonData.IsRand.abilities = true
+	elseif lapras.abilities[1] ~= AbilityData.Values.WaterAbsorbId or lapras.abilities[2] ~= AbilityData.Values.ShellArmorId then
+		PokemonData.IsRand.abilities = true
+	elseif shuckle.abilities[1] ~= AbilityData.Values.SturdyId then
+		PokemonData.IsRand.abilities = true
+	elseif shuckle.abilities[2] ~= AbilityData.Values.SturdyId and shuckle.abilities[2] ~= 0 then -- 2nd ability can be empty
 		PokemonData.IsRand.abilities = true
 	end
-	if bulbasaur.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship or lapras.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship then
+
+	-- Check for randomized Pokémon stats
+	if bulbasaur.baseStats.hp ~= 45 or bulbasaur.baseStats.atk ~= 49 or bulbasaur.baseStats.def ~= 49
+		or bulbasaur.baseStats.spa ~= 65 or bulbasaur.baseStats.spd ~= 65 or bulbasaur.baseStats.spe ~= 45 then
+		PokemonData.IsRand.stats = true
+	elseif lapras.baseStats.hp ~= 130 or lapras.baseStats.atk ~= 85 or lapras.baseStats.def ~= 80
+		or lapras.baseStats.spa ~= 85 or lapras.baseStats.spd ~= 95 or lapras.baseStats.spe ~= 60 then
+		PokemonData.IsRand.stats = true
+	elseif shuckle.baseStats.hp ~= 20 or shuckle.baseStats.atk ~= 10 or shuckle.baseStats.def ~= 230
+		or shuckle.baseStats.spa ~= 10 or shuckle.baseStats.spd ~= 230 or shuckle.baseStats.spe ~= 5 then
+		PokemonData.IsRand.stats = true
+	end
+
+	-- Check for randomized Pokémon base friendship values
+	local baseFriendship = PokemonData.Values.DefaultBaseFriendship
+	if bulbasaur.friendshipBase ~= baseFriendship or lapras.friendshipBase ~= baseFriendship or shuckle.friendshipBase ~= baseFriendship then
 		PokemonData.IsRand.friendshipBase = true
 	end
-	if bulbasaur.expYield ~= 64 or lapras.expYield ~= 219 then
+
+	-- Check for randomized Pokémon experience yield values
+	if bulbasaur.expYield ~= PokemonData.Values.ExpYieldBulbasaur then
+		PokemonData.IsRand.expYield = true
+	elseif lapras.expYield ~= PokemonData.Values.ExpYieldLapras then
+		PokemonData.IsRand.expYield = true
+	elseif shuckle.expYield ~= PokemonData.Values.ExpYieldShuckle then
 		PokemonData.IsRand.expYield = true
 	end
+end
+
+---Returns true if the Pokémon data in this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function PokemonData.isGameDataRandomized()
+	return PokemonData.IsRand.types or PokemonData.IsRand.abilities or PokemonData.IsRand.stats or PokemonData.IsRand.friendshipBase or PokemonData.IsRand.expYield
 end
 
 function PokemonData.getTypeResource(typename)
