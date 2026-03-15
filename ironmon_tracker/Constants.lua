@@ -49,6 +49,7 @@ Constants.IronmonRulesetNames = {
 	Ultimate = "Ultimate",
 	Kaizo = "Kaizo",
 	Survival = "Survival",
+	SurvivalRevival = "Survival Revival",
 	SuperKaizo = "Super Kaizo",
 	Subpar = "Subpar",
 	Ascension1 = "Ascension 1", -- A RogueMon ruleset

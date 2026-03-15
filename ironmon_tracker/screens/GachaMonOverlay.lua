@@ -1150,7 +1150,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 				return rulesetName or Constants.IronmonRulesetNames.Standard
 			end
 		end,
-		box = { CANVAS.X + 131, CANVAS.Y + 44, 100, 16, },
+		box = { CANVAS.X + 124, CANVAS.Y + 44, 107, 16, },
 		onClick = function(self)
 			GachaMonOverlay.openEditRulesetWindow()
 		end,
@@ -1811,6 +1811,7 @@ function GachaMonOverlay.openEditRulesetWindow()
 		Constants.IronmonRulesetNames.Ultimate,
 		Constants.IronmonRulesetNames.Kaizo,
 		Constants.IronmonRulesetNames.Survival,
+		Constants.IronmonRulesetNames.SurvivalRevival,
 		Constants.IronmonRulesetNames.SuperKaizo,
 		Constants.IronmonRulesetNames.Subpar,
 	}

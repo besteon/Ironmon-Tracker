@@ -912,6 +912,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	local rulesetsOrdered = {
 		{ Key = "Standard", Name = Constants.IronmonRulesetNames.Standard },
 		{ Key = "Ultimate", Name = Constants.IronmonRulesetNames.Ultimate },
+		{ Key = "SurvivalRevival", Name = Constants.IronmonRulesetNames.SurvivalRevival },
 		{ Key = "Survival", Name = Constants.IronmonRulesetNames.Survival },
 		{ Key = "SuperKaizo", Name = Constants.IronmonRulesetNames.SuperKaizo },
 		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },
