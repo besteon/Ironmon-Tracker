@@ -9,6 +9,7 @@ Options = {
 	["Show random ball picker"] = true,
 	["Show heals as whole number"] = false,
 	["Show Poke Ball catch rate"] = true,
+	["Can click trainers on screen"] = true,
 	["Show starter ball info"] = false,
 	["Hide stats until summary shown"] = false,
 	["Right justified numbers"] = false,

@@ -367,7 +367,7 @@ function Input.checkMouseInput(xmouse, ymouse)
 
 	if Program.currentOverlay and type(Program.currentOverlay.checkInput) == "function" then
 		Program.currentOverlay.checkInput(xmouse, ymouse)
-	else
+	elseif Options["Can click trainers on screen"] then
 		Input.checkAnyTrainersClicked(xmouse, ymouse)
 	end
 end
