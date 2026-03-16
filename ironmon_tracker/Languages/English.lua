@@ -275,6 +275,7 @@ ScreenResources{
 		ButtonGameStats = "Game Stats",
 		LabelGameOverCondition = "Game is considered over when",
 		OptionAutoSwapEnemy = "Auto swap to enemy",
+		OptionCanClickTrainers = "Can click trainers on screen",
 		OptionShowStarterBallInfo = "Show starter ball info",
 		OptionHideStatsUntilSummary = "Hide info until summary shown",
 		OptionShowNicknames = "Show nicknames",

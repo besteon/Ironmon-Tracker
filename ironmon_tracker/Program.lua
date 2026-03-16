@@ -747,6 +747,17 @@ function Program.checkForStarterSelection()
 	end
 end
 
+---Returns the current map tile coordinates of the player.
+---@return table<string, number> tile { x = number, y = number }
+function Program.getPlayerMapTile()
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	-- The player's map tile coordinates are stored in the first 4 bytes of SaveBlock1
+	return {
+		x = Memory.readbyte(saveBlock1Addr + 0x0),
+		y = Memory.readbyte(saveBlock1Addr + 0x2),
+	}
+end
+
 function Program.updateRepelSteps()
 	-- Checks for an active repel and updates the current steps remaining
 	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel

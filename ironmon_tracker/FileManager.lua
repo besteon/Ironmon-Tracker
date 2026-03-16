@@ -124,6 +124,7 @@ FileManager.LuaCode = {
 	{ name = "EventData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "EventData.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
+	{ name = "TrainerMapData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerMapData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
 	{ name = "GachaMonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonData.lua", },
 	-- Second set of core files
