@@ -1,4 +1,6 @@
 GachaMonData = {
+	MIN_RATING = 0, -- Prevent underflow
+	MAX_RATING = 255, -- Prevent overflow
 	MIN_BATTLE_POWER = 1000,
 	MAX_BATTLE_POWER = 15000,
 	SHINY_ODDS = 0.004695, -- 1 in 213 odds. (Pokémon Go and Pokémon Sleep use ~1/500)
@@ -260,9 +262,10 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RulesetChanges = RS.Rulesets[GachaMonData.rulesetKey or false] or RS.Rulesets["Standard"]
 
 	-- ABILITY
-	local abilityRating = RS.Abilities[gachamon.AbilityId or 0] or 0
+	local abilityId = gachamon.AbilityId or 0
+	local abilityRating = RS.Abilities[abilityId] or 0
 	-- Remove rating if banned ability, unless it qualifies for an exception
-	if RulesetChanges.BannedAbilities[gachamon.AbilityId or 0] then
+	if RulesetChanges.BannedAbilities[abilityId] then
 		local bannedAbilityException = false
 		for _, bae in pairs(RulesetChanges.BannedAbilityExceptions or {}) do
 			local bstOkay = pokemonInternal.bst < (bae.BSTLessThan or 0)
@@ -279,7 +282,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	end
 	-- Check if the ability helps improves the Pokémon's weakness(es)
 	local typeDefensiveAbilities = AbilityData.getTypeDefensiveAbilities()
-	local defensiveTypings = typeDefensiveAbilities[gachamon.AbilityId or 0]
+	local defensiveTypings = typeDefensiveAbilities[abilityId]
 	local hasDefensiveAbility = false
 	if abilityRating > 0 and defensiveTypings then
 		local pokemonDefenses = PokemonData.getEffectiveness(gachamon.PokemonId)
@@ -302,7 +305,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
 	end
 	-- Check specific abilities generic to all rulesets
-	if (gachamon.AbilityId or 0) == AbilityData.Values.SandStreamId then
+	if abilityId == AbilityData.Values.SandStreamId then
 		local safeSandTypes = {
 			[PokemonData.Types.GROUND] = true,
 			[PokemonData.Types.ROCK] = true,
@@ -314,7 +317,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = abilityRating + (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0)
 		end
 	end
-	if (gachamon.AbilityId or 0) == AbilityData.Values.ImmunityId then
+	if abilityId == AbilityData.Values.ImmunityId then
 		local unhelpfulTypes = {
 			[PokemonData.Types.POISON] = true,
 			[PokemonData.Types.STEEL] = true,
@@ -324,7 +327,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.ImmunityId] or 0)
 		end
 	end
-	if (gachamon.AbilityId or 0) == AbilityData.Values.WaterVeilId then
+	if abilityId == AbilityData.Values.WaterVeilId then
 		local unhelpfulTypes = {
 			[PokemonData.Types.FIRE] = true,
 		}
@@ -333,7 +336,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.WaterVeilId] or 0)
 		end
 	end
-	if (gachamon.AbilityId or 0) == AbilityData.Values.MagmaArmorId then
+	if abilityId == AbilityData.Values.MagmaArmorId then
 		local unhelpfulTypes = {
 			[PokemonData.Types.ICE] = true,
 		}
@@ -342,7 +345,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.MagmaArmorId] or 0)
 		end
 	end
-	if (gachamon.AbilityId or 0) == AbilityData.Values.LevitateId then
+	if abilityId == AbilityData.Values.LevitateId then
 		local unhelpfulTypes = {
 			[PokemonData.Types.FLYING] = true,
 		}
@@ -355,18 +358,33 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	ratingTotal = ratingTotal + abilityRating
 
 	local badWeatherTypes = {}
-	if (gachamon.AbilityId or 0) == AbilityData.Values.DrizzleId then
+	if abilityId == AbilityData.Values.DrizzleId then
 		badWeatherTypes[PokemonData.Types.FIRE] = RS.OtherAdjustments.PenaltyWeatherAbilityWeakensMove
-	elseif (gachamon.AbilityId or 0) == AbilityData.Values.DroughtId then
+	elseif abilityId == AbilityData.Values.DroughtId then
 		badWeatherTypes[PokemonData.Types.WATER] = RS.OtherAdjustments.PenaltyWeatherAbilityWeakensMove
 	end
 	local compoundeyesBonus = nil
-	if (gachamon.AbilityId or 0) == AbilityData.Values.CompoundeyesId then
+	if abilityId == AbilityData.Values.CompoundeyesId then
 		compoundeyesBonus = RS.OtherAdjustments.BonusAbilityCompoundeyesHelpsMove
 	end
 	local rockheadBonus = nil
-	if (gachamon.AbilityId or 0) == AbilityData.Values.RockHeadId then
+	if abilityId == AbilityData.Values.RockHeadId then
 		rockheadBonus = RS.OtherAdjustments.BonusAbilityRockHeadHelpsMove
+	end
+	local weatherBallBonus, weatherBallStabType = nil, nil
+	if abilityId == AbilityData.Values.DrizzleId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.WATER
+	elseif abilityId == AbilityData.Values.DroughtId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.FIRE
+	elseif abilityId == AbilityData.Values.SandStreamId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.ROCK
+	-- Snow Warning doesn't exist in vanilla gen3, but adding it here anyway for rom hack support
+	elseif abilityId == AbilityData.Values.SnowWarningId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.ICE
 	end
 
 	-- MOVES
@@ -410,8 +428,19 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			if rockheadBonus and MoveData.isRecoil(id) then
 				iMoves[i].rating = iMoves[i].rating * rockheadBonus
 			end
+			if weatherBallBonus and id == MoveData.Values.WeatherBallId then
+				iMoves[i].rating = iMoves[i].rating * weatherBallBonus
+			end
 			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
-				iMoves[i].rating = iMoves[i].rating * 1.5
+				iMoves[i].rating = iMoves[i].rating * (RS.OtherAdjustments.BonusMoveIsSTAB or 1)
+			elseif weatherBallStabType then
+				-- Check if the weather ball's type from the ability matches any of the Pokémon's types
+				for _, type in ipairs(pokemonTypes) do
+					if weatherBallStabType == type then
+						iMoves[i].rating = iMoves[i].rating * (RS.OtherAdjustments.BonusMoveIsSTAB or 1)
+						break
+					end
+				end
 			end
 		end
 	end
@@ -519,7 +548,16 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	natureRating = math.min(natureRating, RS.CategoryMaximums.Nature or 999)
 	ratingTotal = ratingTotal + natureRating
 
-	return math.floor(ratingTotal + 0.5)
+	-- Round up
+	ratingTotal = math.floor(ratingTotal + 0.5)
+
+	if ratingTotal > GachaMonData.MAX_RATING then
+		return GachaMonData.MAX_RATING
+	elseif ratingTotal < GachaMonData.MIN_RATING then
+		return GachaMonData.MIN_RATING
+	else
+		return ratingTotal
+	end
 end
 
 ---Calculates the GachaMon's "Battle Power" based on its rating, STAB moves, nature, etc
@@ -874,6 +912,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	local rulesetsOrdered = {
 		{ Key = "Standard", Name = Constants.IronmonRulesetNames.Standard },
 		{ Key = "Ultimate", Name = Constants.IronmonRulesetNames.Ultimate },
+		{ Key = "SurvivalRevival", Name = Constants.IronmonRulesetNames.SurvivalRevival },
 		{ Key = "Survival", Name = Constants.IronmonRulesetNames.Survival },
 		{ Key = "SuperKaizo", Name = Constants.IronmonRulesetNames.SuperKaizo },
 		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },

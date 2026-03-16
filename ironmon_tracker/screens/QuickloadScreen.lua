@@ -206,12 +206,26 @@ SCREEN.Buttons = {
 			SCREEN.Pager:nextPage()
 		end
 	},
+	WarnOfRomMismatch = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Warn of ROM mismatch",
+		getText = function(self) return "Warn of ROM mismatch" end,
+		clickableArea = { CANVAS.X + 4, CANVAS.Y + 4, 110, 8 },
+		box = {	CANVAS.X + 4, CANVAS.Y + 4, 8, 8 },
+		toggleState = false,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Options end,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end
+	},
 	RefocusEmulator = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Refocus emulator after load",
 		getText = function(self) return Resources.QuickloadScreen.OptionRefocusEmulator end,
-		clickableArea = { CANVAS.X + 4, CANVAS.Y + 4, 110, 8 },
-		box = {	CANVAS.X + 4, CANVAS.Y + 4, 8, 8 },
+		clickableArea = { CANVAS.X + 4, CANVAS.Y + 16, 110, 8 },
+		box = {	CANVAS.X + 4, CANVAS.Y + 16, 8, 8 },
 		toggleState = false,
 		-- Option not needed nor used for Bizhawk 2.8
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Options and Main.emulator ~= Main.EMU.BIZHAWK28 end,

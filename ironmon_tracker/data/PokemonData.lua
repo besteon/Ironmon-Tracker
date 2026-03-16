@@ -1,10 +1,14 @@
 PokemonData = {}
 
 PokemonData.Values = {
+	QuestionMarkId = 252, -- The ID of the image file that shows a question mark for unknown pokemon (like scouting route pivots)
 	EggId = 412,
 	GhostId = 413, -- Pokémon Tower's Silph Scope Ghost
 	DefaultBaseFriendship = 70,
 	FriendshipRequiredToEvo = 220,
+	ExpYieldBulbasaur = 64,
+	ExpYieldLapras = 219,
+	ExpYieldShuckle = 80,
 }
 
 -- https://github.com/pret/pokefirered/blob/0c17a3b041a56f176f23145e4a4c0ae758f8d720/include/pokemon.h#L208-L236
@@ -19,11 +23,14 @@ PokemonData.Addresses = {
 	offsetLevelUpMoveId = 0x0,
 	offsetLevelUpMoveLv = 0x9,
 
-	sizeofExpYield = 1,
+	sizeofExpYield = 1, -- Number of bytes for the experience yield section
+	sizeofAbilityInBytes = 1, -- Number of bytes for ONE ability number (each Pokémon has two total)
 	sizeofLevelUpLearnset = 4,
 	sizeofLevelUpMove = 2,
 	sizeofLevelUpMoveId = 9,
 	sizeofLevelUpMoveLv = 7,
+
+	endFlagLevelUp = 0xFFFF
 }
 
 PokemonData.IsRand = {
@@ -226,6 +233,8 @@ function PokemonData.buildData(forced)
 	-- if not forced or someNonExistentCondition then -- Currently Unused/unneeded
 	-- 	return
 	-- end
+	local expReadFunc = Memory.getReadFunc(PokemonData.Addresses.sizeofExpYield)
+	local abilityReadFunc = Memory.getReadFunc(PokemonData.Addresses.sizeofAbilityInBytes)
 	for id = 1, PokemonData.getTotal(), 1 do
 		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		pokemon.pokemonID = id
@@ -262,21 +271,17 @@ function PokemonData.buildData(forced)
 			--Catch Rate (1 byte)
 			pokemon.catchRate = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetCatchRate)
 
-			-- Exp Yield
-			if PokemonData.Addresses.sizeofExpYield == 2 then
-				pokemon.expYield = Memory.readword(addrOffset + PokemonData.Addresses.offsetExpYield)
-			else
-				pokemon.expYield = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetExpYield)
-			end
+			-- Exp Yield ([1] byte)
+			pokemon.expYield = expReadFunc(addrOffset + PokemonData.Addresses.offsetExpYield)
 
 			-- Base Friendship (1 byte)
 			pokemon.friendshipBase = Memory.readbyte(addrOffset + PokemonData.Addresses.offsetBaseFriendship)
 
-			-- Abilities (2 bytes)
-			local abilitiesData = Memory.readword(addrOffset + PokemonData.Addresses.offsetAbilities)
+			-- Abilities ([2] bytes)
+			local abilityAddr = addrOffset + PokemonData.Addresses.offsetAbilities
 			pokemon.abilities = {
-				Utils.getbits(abilitiesData, 0, 8),
-				Utils.getbits(abilitiesData, 8, 8),
+				abilityReadFunc(abilityAddr),
+				abilityReadFunc(abilityAddr + PokemonData.Addresses.sizeofAbilityInBytes)
 			}
 		end
 	end
@@ -284,31 +289,70 @@ end
 
 --- Compare data from game memory with original game data to determine what's been randomized
 function PokemonData.checkIfDataIsRandomized()
-	PokemonData.IsRand.types = false
-	PokemonData.IsRand.abilities = false
-	PokemonData.IsRand.friendshipBase = false
-	PokemonData.IsRand.expYield = false
+	-- Reset to default of false (not-randomized)
+	for key, _ in pairs(PokemonData.IsRand) do
+		PokemonData.IsRand[key] = false
+	end
 
-	-- Arbitrarilty check two different pokemon for randomized information
+	-- Arbitrarilty check three different pokemon for randomized information
 	local bulbasaur = PokemonData.Pokemon[1]
 	local lapras = PokemonData.Pokemon[131]
+	local shuckle = PokemonData.Pokemon[213]
 
+	-- Check for randomized Pokémon typings
 	if bulbasaur.types[1] ~= PokemonData.Types.GRASS or bulbasaur.types[2] ~= PokemonData.Types.POISON then
 		PokemonData.IsRand.types = true
 	elseif lapras.types[1] ~= PokemonData.Types.WATER or lapras.types[2] ~= PokemonData.Types.ICE then
 		PokemonData.IsRand.types = true
+	elseif shuckle.types[1] ~= PokemonData.Types.BUG or shuckle.types[2] ~= PokemonData.Types.ROCK then
+		PokemonData.IsRand.types = true
 	end
-	if bulbasaur.abilities[1] ~= 65 or bulbasaur.abilities[2] ~= 65 then -- 65 = Overgrow
+
+	-- Check for randomized Pokémon abilities
+	if bulbasaur.abilities[1] ~= AbilityData.Values.OvergrowId then
 		PokemonData.IsRand.abilities = true
-	elseif lapras.abilities[1] ~= 11 or lapras.abilities[2] ~= 75 then -- 11 = Water Absorb, 75 = Shell Armor
+	elseif bulbasaur.abilities[2] ~= AbilityData.Values.OvergrowId and bulbasaur.abilities[2] ~= 0 then -- 2nd ability can be empty
+		PokemonData.IsRand.abilities = true
+	elseif lapras.abilities[1] ~= AbilityData.Values.WaterAbsorbId or lapras.abilities[2] ~= AbilityData.Values.ShellArmorId then
+		PokemonData.IsRand.abilities = true
+	elseif shuckle.abilities[1] ~= AbilityData.Values.SturdyId then
+		PokemonData.IsRand.abilities = true
+	elseif shuckle.abilities[2] ~= AbilityData.Values.SturdyId and shuckle.abilities[2] ~= 0 then -- 2nd ability can be empty
 		PokemonData.IsRand.abilities = true
 	end
-	if bulbasaur.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship or lapras.friendshipBase ~= PokemonData.Values.DefaultBaseFriendship then
+
+	-- Check for randomized Pokémon stats
+	if bulbasaur.baseStats.hp ~= 45 or bulbasaur.baseStats.atk ~= 49 or bulbasaur.baseStats.def ~= 49
+		or bulbasaur.baseStats.spa ~= 65 or bulbasaur.baseStats.spd ~= 65 or bulbasaur.baseStats.spe ~= 45 then
+		PokemonData.IsRand.stats = true
+	elseif lapras.baseStats.hp ~= 130 or lapras.baseStats.atk ~= 85 or lapras.baseStats.def ~= 80
+		or lapras.baseStats.spa ~= 85 or lapras.baseStats.spd ~= 95 or lapras.baseStats.spe ~= 60 then
+		PokemonData.IsRand.stats = true
+	elseif shuckle.baseStats.hp ~= 20 or shuckle.baseStats.atk ~= 10 or shuckle.baseStats.def ~= 230
+		or shuckle.baseStats.spa ~= 10 or shuckle.baseStats.spd ~= 230 or shuckle.baseStats.spe ~= 5 then
+		PokemonData.IsRand.stats = true
+	end
+
+	-- Check for randomized Pokémon base friendship values
+	local baseFriendship = PokemonData.Values.DefaultBaseFriendship
+	if bulbasaur.friendshipBase ~= baseFriendship or lapras.friendshipBase ~= baseFriendship or shuckle.friendshipBase ~= baseFriendship then
 		PokemonData.IsRand.friendshipBase = true
 	end
-	if bulbasaur.expYield ~= 64 or lapras.expYield ~= 219 then
+
+	-- Check for randomized Pokémon experience yield values
+	if bulbasaur.expYield ~= PokemonData.Values.ExpYieldBulbasaur then
+		PokemonData.IsRand.expYield = true
+	elseif lapras.expYield ~= PokemonData.Values.ExpYieldLapras then
+		PokemonData.IsRand.expYield = true
+	elseif shuckle.expYield ~= PokemonData.Values.ExpYieldShuckle then
 		PokemonData.IsRand.expYield = true
 	end
+end
+
+---Returns true if the Pokémon data in this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function PokemonData.isGameDataRandomized()
+	return PokemonData.IsRand.types or PokemonData.IsRand.abilities or PokemonData.IsRand.stats or PokemonData.IsRand.friendshipBase or PokemonData.IsRand.expYield
 end
 
 function PokemonData.getTypeResource(typename)
@@ -592,20 +636,24 @@ function PokemonData.readLevelUpMoves(pokemonID)
 	if not PokemonData.isValid(pokemonID) then
 		return learnedMoves
 	end
+
 	-- https://github.com/pret/pokefirered/blob/d2c592030d78d1a46df1cba562a3c7af677dbf21/src/data/pokemon/level_up_learnsets.h
-	local LEVEL_UP_END = 0xFFFF
 	-- gLevelUpLearnsets is an array of addresses for all Pokémon species; each entry is a 4 byte address
 	local levelUpLearnsetPtr = Memory.readdword(GameSettings.gLevelUpLearnsets + (pokemonID * PokemonData.Addresses.sizeofLevelUpLearnset))
-	for i=0, 99, 1 do -- MAX of 100 iterations, as a failsafe
-		-- Each entry is 2 bytes formatted as: #define LEVEL_UP_MOVE(lvl, move) ((lvl << 9) | move)
-		local levelUpMove = Memory.readword(levelUpLearnsetPtr + (i * PokemonData.Addresses.sizeofLevelUpMove))
-		if levelUpMove == LEVEL_UP_END then
+	local levelUpReadFunc = Memory.getReadFunc(PokemonData.Addresses.sizeofLevelUpMove)
+
+	-- MAX of 100 iterations, as a failsafe
+	for i=0, 99, 1 do
+		-- Each entry is [2] bytes formatted as: #define LEVEL_UP_MOVE(lvl, move) ((lvl << 9) | move)
+		local levelUpMove = levelUpReadFunc(levelUpLearnsetPtr + (i * PokemonData.Addresses.sizeofLevelUpMove))
+		if levelUpMove == PokemonData.Addresses.endFlagLevelUp then
 			break
 		end
 		local moveId = Utils.getbits(levelUpMove, PokemonData.Addresses.offsetLevelUpMoveId, PokemonData.Addresses.sizeofLevelUpMoveId)
 		local level = Utils.getbits(levelUpMove, PokemonData.Addresses.offsetLevelUpMoveLv, PokemonData.Addresses.sizeofLevelUpMoveLv)
 		table.insert(learnedMoves, { id = moveId, level = level })
 	end
+
 	return learnedMoves
 end
 

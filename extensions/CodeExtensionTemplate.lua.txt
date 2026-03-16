@@ -11,8 +11,15 @@ local function CodeExtensionTemplate()
 	self.name = "My Fancy Extension"
 	self.author = "My Username"
 	self.description = "This is a template file for my fancy custom code extension."
-	self.github = "MyUsername/ExtensionRepo" -- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
-	self.url = string.format("https://github.com/%s", self.github or "") -- Remove this attribute if no host website available for this extension
+
+	-- List of other extension keys required to be enabled in order to use this extension; aka, dependencies. (i.e. Roguemon requires "NatDexExtension")
+	self.requiredExtKeys = {}
+
+	-- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
+	self.github = "MyUsername/ExtensionRepo"
+
+	-- Remove this attribute if no host website available for this extension
+	self.url = string.format("https://github.com/%s", self.github or "")
 
 	--------------------------------------
 	-- INTENRAL TRACKER FUNCTIONS BELOW
@@ -52,6 +59,12 @@ local function CodeExtensionTemplate()
 		local extensionFilenameKey = "CodeExtensionTemplate" -- REPLACE WITH FILENAME OF EXTENSION
 		local success = TrackerAPI.updateExtension(extensionFilenameKey)
 		return success
+	end
+
+	-- Executed only once: When the Tracker first starts up but before any data about the game is loaded (even before game version is detected).
+	-- CAUTION: Use only for additions to GameSettings.RomVersions and custom address JSON imports.
+	function self.beforeGameDataLoad()
+		-- [ADD CODE HERE]
 	end
 
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code

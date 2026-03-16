@@ -814,7 +814,7 @@ function Tracker.AutoSave.loadFromFile()
 	end
 
 	-- Check if the game loaded is different than the game last played (remembered by the tracker notes)
-	if not Tracker.AutoSave.checkIfRomsMatch(GameSettings.getRomHash(), romHashFromFile) then
+	if Options["Warn of ROM mismatch"] and not Tracker.AutoSave.checkIfRomsMatch(GameSettings.getRomHash(), romHashFromFile) then
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.ROM_MISMATCH
 		-- Only on bizhawk, request confirmation that it's okay to proceed
 		if Main.IsOnBizhawk() then

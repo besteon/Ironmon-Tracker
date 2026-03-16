@@ -1034,8 +1034,9 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
 			},
 			[RouteData.EncounterArea.SUPERROD] = {
-				{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 15, maxLv = 25, },
 				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
 				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 			},
 		},
@@ -1055,8 +1056,9 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
 			},
 			[RouteData.EncounterArea.SUPERROD] = {
-				{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 15, maxLv = 25, },
 				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
 				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 			},
 		},
@@ -1079,8 +1081,9 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
 			},
 			[RouteData.EncounterArea.SUPERROD] = {
-				{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 15, maxLv = 25, },
 				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
 				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 			},
 		},

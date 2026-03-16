@@ -1,6 +1,12 @@
 MiscData = {}
 -- List of items: https://bulbapedia.bulbagarden.net/wiki/List_of_items_by_index_number_(Generation_III)
 
+MiscData.Values = {
+	TotalItemsRS = 349,
+	TotalItemsFRLG = 375,
+	TotalItemsEmerald = 377,
+}
+
 MiscData.TableData = {
 	growth = { 1, 1, 1, 1, 1, 1, 2, 2, 3, 4, 3, 4, 2, 2, 3, 4, 3, 4, 2, 2, 3, 4, 3, 4 },
 	attack = { 2, 2, 3, 4, 3, 4, 1, 1, 1, 1, 1, 1, 3, 4, 2, 2, 4, 3, 3, 4, 2, 2, 4, 3 },
@@ -81,7 +87,21 @@ function MiscData.updateResources()
 	end
 end
 
--- Returns an absolute filepath to the icon image for the item, or nil if not available
+---Returns the total number of items in the game (Each game version has a different # of items)
+---@return number
+function MiscData.getTotalItems()
+	if GameSettings.game == 1 then
+		return MiscData.Values.TotalItemsRS
+	elseif GameSettings.game == 2 then
+		return MiscData.Values.TotalItemsEmerald
+	elseif GameSettings.game == 3 then
+		return MiscData.Values.TotalItemsFRLG
+	else
+		return 0
+	end
+end
+
+---Returns an absolute filepath to the icon image for the item, or nil if not available
 --- @param itemId number
 --- @return string? filepath
 function MiscData.getItemIcon(itemId)

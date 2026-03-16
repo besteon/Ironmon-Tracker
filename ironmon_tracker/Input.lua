@@ -31,7 +31,9 @@ Input.StatHighlighter = {
 	end,
 	-- Cycle through the six visible stats to enable marking them as high/low/neutral
 	cycleToNextStat = function(self)
-		if Battle.isViewingOwn then return end
+		if Battle.isViewingOwn or not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			return
+		end
 		if self.framesSinceInput < self.framesHighlightMax then
 			self.statIndex = (self.statIndex % 6) + 1
 		end
@@ -39,7 +41,9 @@ Input.StatHighlighter = {
 		Program.redraw(true)
 	end,
 	markSelectedStat = function(self)
-		if not self:isActive() then return end
+		if not self:isActive() or not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			return
+		end
 		self.framesSinceInput = 0
 		local statKey = self:getSelectedStat()
 		local statButton = TrackerScreen.Buttons[statKey or false]
@@ -53,7 +57,9 @@ Input.StatHighlighter = {
 	end,
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
-		if not self:isActive() then return end
+		if not self:isActive() or not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			return
+		end
 		self.framesSinceInput = self.framesSinceInput + (1.0 / Program.clientFpsMultiplier)
 		if self.framesSinceInput >= self.framesHighlightMax then
 			Program.redraw(true)
@@ -448,7 +454,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	end
 
 	local pokemonMoves
-	if not Battle.isViewingOwn and not Options["Open Book Play Mode"] then
+	if not Battle.isViewingOwn and PokemonData.isGameDataRandomized() and not Options["Open Book Play Mode"] then
 		pokemonMoves = Tracker.getMoves(pokemon.pokemonID, pokemon.level) -- tracked moves only
 	elseif Tracker.Data.hasCheckedSummary then
 		pokemonMoves = pokemon.moves
