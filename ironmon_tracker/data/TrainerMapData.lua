@@ -4,7 +4,10 @@ TrainerMapData = {}
 TrainerMapData.Routes = {}
 
 function TrainerMapData.initialize()
-	TrainerMapData.buildData()
+	-- Don't bother building data for MGBA emulator, as it doesn't accept mouse clicks on screen
+	if Main.IsOnBizhawk() then
+		TrainerMapData.buildData()
+	end
 end
 
 function TrainerMapData.buildData()
