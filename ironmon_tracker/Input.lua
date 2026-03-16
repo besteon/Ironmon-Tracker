@@ -367,6 +367,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 
 	if Program.currentOverlay and type(Program.currentOverlay.checkInput) == "function" then
 		Program.currentOverlay.checkInput(xmouse, ymouse)
+	else
+		Input.checkAnyTrainersClicked(xmouse, ymouse)
 	end
 end
 
@@ -416,6 +418,20 @@ end
 
 function Input.isMouseInArea(xmouse, ymouse, x, y, width, height)
 	return (xmouse >= x and xmouse <= x + width) and (ymouse >= y and ymouse <= y + height)
+end
+
+---Returns the screen tile that was clicked, if within the screen bounds x{0,14}, y{0,10}; nil otherwise
+---@param xmouse number
+---@param ymouse number
+---@return table|nil
+function Input.getClickedScreenTile(xmouse, ymouse)
+	if not Input.isMouseInArea(xmouse, ymouse, 0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT) then
+		return nil
+	end
+	return {
+		x = math.floor(xmouse / 16),
+		y = math.floor((8 + ymouse) / 16),
+	}
 end
 
 function Input.checkButtonsClicked(xmouse, ymouse, buttons)
@@ -474,5 +490,37 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 			break
 		end
 		moveOffsetY = moveOffsetY + 10
+	end
+end
+
+function Input.checkAnyTrainersClicked(xmouse, ymouse)
+	if not Program.isValidMapLocation() or Battle.inActiveBattle() then
+		return
+	end
+
+	local screenTile = Input.getClickedScreenTile(xmouse, ymouse)
+	if not screenTile then
+		return
+	end
+
+	local playerTile = Program.getPlayerMapTile()
+
+	-- Adjust for player being centered on the screen to get the actual map tile that was clicked
+	local clickedMapTile = {
+		x = screenTile.x + playerTile.x - 7, -- Offset 7 tiles left because the player is always centered
+		y = screenTile.y + playerTile.y - 5, -- Offset 5 tiles up because the player is always centered
+	}
+
+	local trainerId = TrainerMapData.getTrainerIdFromMapTile(clickedMapTile.x, clickedMapTile.y)
+
+	-- If the trainer exists and data can be shown for it, show that screen
+	if trainerId and TrainerInfoScreen.buildScreen(trainerId) then
+		if Program.currentScreen ~= TrainerInfoScreen then
+			TrainerInfoScreen.previousScreen = Program.currentScreen
+		end
+		Program.changeScreenView(TrainerInfoScreen)
+	-- Otherwise, if clicking on empty space, close the trainer screen
+	elseif Program.currentScreen == TrainerInfoScreen then
+		Program.changeScreenView(TrainerInfoScreen.previousScreen or TrackerScreen)
 	end
 end
