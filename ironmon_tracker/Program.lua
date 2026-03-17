@@ -389,6 +389,7 @@ function Program.redraw(forced)
 	if Main.IsOnBizhawk() then
 		Program.ActiveRepel:draw()
 		Program.GameTimer:draw()
+		TrainerMapData.drawOverlay()
 
 		if Program.currentOverlay and type(Program.currentOverlay.drawScreen) == "function" then
 			Program.currentOverlay.drawScreen()

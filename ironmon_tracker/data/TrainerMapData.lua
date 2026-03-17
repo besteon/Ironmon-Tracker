@@ -3,6 +3,37 @@ TrainerMapData = {}
 -- The key is the mapId, the value is a list of tile-tables (x, y, id)
 TrainerMapData.Routes = {}
 
+-- Overlay drawing state
+TrainerMapData.IsOverlayVisible = false
+
+local TILE_SIZE = 16
+
+-- Per-trainer color palette (ARGB). Alpha kept low so the map is still readable.
+local PALETTE_FILL = {
+	0x38FF4040, -- red
+	0x384080FF, -- blue
+	0x3840DD40, -- green
+	0x38DDDD30, -- yellow
+	0x38FF40FF, -- magenta
+	0x3840DDDD, -- cyan
+	0x38FF9020, -- orange
+	0x38A060FF, -- purple
+	0x38FF80A0, -- pink
+	0x3880FF80, -- lime
+}
+local PALETTE_BORDER = {
+	0x70FF4040,
+	0x704080FF,
+	0x7040DD40,
+	0x70DDDD30,
+	0x70FF40FF,
+	0x7040DDDD,
+	0x70FF9020,
+	0x70A060FF,
+	0x70FF80A0,
+	0x7080FF80,
+}
+
 function TrainerMapData.initialize()
 	-- Don't bother building data for MGBA emulator, as it doesn't accept mouse clicks on screen
 	if Main.IsOnBizhawk() then
@@ -39,6 +70,47 @@ function TrainerMapData.getTrainerIdFromMapTile(tileX, tileY)
 	end
 
 	return nil
+end
+
+---Enable the tile overlay (debug visualization of trainer movement ranges).
+function TrainerMapData.showOverlay()
+	TrainerMapData.IsOverlayVisible = true
+end
+
+---Disable the tile overlay.
+function TrainerMapData.hideOverlay()
+	TrainerMapData.IsOverlayVisible = false
+end
+
+---Draws colored tile overlays for all trainers on the current map.
+---Call from a drawing hook (e.g. after the main screen draw).
+function TrainerMapData.drawOverlay()
+	if not TrainerMapData.IsOverlayVisible then return end
+	if not Program.isValidMapLocation() then return end
+	-- gBattleMainFunc is non-zero for the entire duration of battle, including the fade-out transition
+	if Memory.readdword(GameSettings.gBattleMainFunc) ~= 0 then return end
+	if Program.isInStartMenu() or Program.isScreenOverlayOpen() then return end
+
+	local mapId = TrackerAPI.getMapId()
+	local routeData = TrainerMapData.Routes[mapId]
+	if not routeData then return end
+
+	local playerTile = Program.getPlayerMapTile()
+
+	for _, tile in ipairs(routeData) do
+		-- Player is at screen tile (7, 5); offset map tile relative to player
+		local screenX = (tile.x - playerTile.x + 7) * TILE_SIZE
+		local screenY = (tile.y - playerTile.y + 5) * TILE_SIZE - 8
+
+		-- Cull off-screen tiles
+		if screenX > -TILE_SIZE and screenX < 240
+			and screenY > -TILE_SIZE and screenY < 160 then
+			local idx = (tile.id % #PALETTE_FILL) + 1
+			gui.drawRectangle(screenX, screenY,
+				TILE_SIZE - 1, TILE_SIZE - 1,
+				PALETTE_BORDER[idx], PALETTE_FILL[idx])
+		end
+	end
 end
 
 function TrainerMapData.setupTrainerMapAsRubySapphire()
