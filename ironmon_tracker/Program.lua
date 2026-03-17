@@ -751,10 +751,10 @@ end
 ---@return table<string, number> tile { x = number, y = number }
 function Program.getPlayerMapTile()
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
-	-- The player's map tile coordinates are stored in the first 4 bytes of SaveBlock1
+	-- The player's map tile coordinates (struct Coords16) are stored as two s16 values at the start of SaveBlock1
 	return {
-		x = Memory.readbyte(saveBlock1Addr + 0x0),
-		y = Memory.readbyte(saveBlock1Addr + 0x2),
+		x = Memory.readword(saveBlock1Addr + 0x0),
+		y = Memory.readword(saveBlock1Addr + 0x2),
 	}
 end
 
