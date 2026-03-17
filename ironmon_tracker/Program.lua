@@ -20,6 +20,7 @@ Program = {
 		carouselActive = 0, -- counts up
 		Others = {}, -- list of other frame counter objects
 	},
+	DebugDrawing = {},
 	Addresses = {
 		battleStructDefault = 0x2000000, -- gSharedMem
 		nicknameCharEnd = 0xFF,
@@ -389,7 +390,6 @@ function Program.redraw(forced)
 	if Main.IsOnBizhawk() then
 		Program.ActiveRepel:draw()
 		Program.GameTimer:draw()
-		TrainerMapData.drawOverlay()
 
 		if Program.currentOverlay and type(Program.currentOverlay.drawScreen) == "function" then
 			Program.currentOverlay.drawScreen()
@@ -421,6 +421,12 @@ function Program.redraw(forced)
 		-- Default to drawing on top of any drawings that extensions do
 		CustomCode.afterRedraw()
 		_drawAnimations()
+	end
+
+	for _, debugDrawFunc in pairs(Program.DebugDrawing) do
+		if type(debugDrawFunc) == "function" then
+			debugDrawFunc()
+		end
 	end
 
 	SpriteData.cleanupActiveIcons()
@@ -691,6 +697,21 @@ end
 function Program.removeFrameCounter(label)
 	if label == nil then return end
 	Program.Frames.Others[label] = nil
+end
+
+---Adds a drawing function for testing that will be called every time the screen is redrawn.
+---@param label string
+---@param drawFunc function
+function Program.addDebugDrawing(label, drawFunc)
+	if not label or not drawFunc or not Main.IsOnBizhawk() then return end
+	Program.DebugDrawing[label] = drawFunc
+end
+
+---Removes a previously added debug drawing function.
+---@param label string
+function Program.removeDebugDrawing(label)
+	if not label or not Main.IsOnBizhawk() then return end
+	Program.DebugDrawing[label] = nil
 end
 
 function Program.checkForStarterSelection()
