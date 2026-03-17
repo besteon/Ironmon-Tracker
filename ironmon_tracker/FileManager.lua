@@ -201,7 +201,9 @@ FileManager.LuaCode = {
 FileManager.LuaData = {
 	Ruby = {},
 	Sapphire = {},
-	Emerald = {},
+	Emerald = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "EmeraldTrainerRouteData.lua",
+	},
 	FireRed = {
 		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "FRLGTrainerRouteData.lua",
 	},
