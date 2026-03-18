@@ -449,7 +449,7 @@ end
 
 ---Executes 'functionName' for all loaded code files.
 ---@param functionName string The name of the function to execute
----@param excludeFileNames table<string, boolean> (Optional) A set of file names to exclude from having the function executed
+---@param excludeFileNames? table<string, boolean> (Optional) A set of file names to exclude from having the function executed
 function FileManager.executeEachFile(functionName, excludeFileNames)
 	excludeFileNames = excludeFileNames or {}
 	local globalRef

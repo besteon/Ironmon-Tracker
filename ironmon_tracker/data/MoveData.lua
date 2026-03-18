@@ -554,7 +554,7 @@ function MoveData.getExpectedPower(moveId)
 	}
 	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Fixed_number_of_multiple_strikes
 	local doubleHitMoves = {
-		[155] = true, [24] = true
+		[155] = true, [24] = true, [41] = true,
 	}
 
 	local power = tonumber(MoveData.Moves[moveId].power) or 0
