@@ -511,10 +511,18 @@ function Input.checkAnyTrainersClicked(xmouse, ymouse)
 		y = screenTile.y + playerTile.y - 5, -- Offset 5 tiles up because the player is always centered
 	}
 
+	-- If the lights are out, check if the trainer (tile clicked) is close enough
+	local canSeeTrainer = true
+	if not RouteData.canSeeDarkArea() then
+		local xDist = math.abs(clickedMapTile.x - playerTile.x)
+		local yDist = math.abs(clickedMapTile.y - playerTile.y)
+		canSeeTrainer = xDist <= 1 and yDist <= 1
+	end
+
 	local trainerId = TrainerMapData.getTrainerIdFromMapTile(clickedMapTile.x, clickedMapTile.y)
 
-	-- If the trainer exists and data can be shown for it, show that screen
-	if trainerId and TrainerInfoScreen.buildScreen(trainerId) then
+	-- If the trainer exists, can be seen, and data can be shown for it, show that screen
+	if canSeeTrainer and trainerId and TrainerInfoScreen.buildScreen(trainerId) then
 		if Program.currentScreen ~= TrainerInfoScreen then
 			TrainerInfoScreen.previousScreen = Program.currentScreen
 		end
