@@ -144,12 +144,65 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	GachaMonStars = {
+		box = { Constants.SCREEN.WIDTH + 61, 58, 38, 21 },
+		isVisible = function()
+			local allowedToShow = Battle.isViewingOwn and Options["Show GachaMon stars on main Tracker Screen"]
+			local hasConflict = Options["Track PC Heals"] or GachaMonData.playerViewedMon == nil or GachaMonData.hasNewestMonToShow()
+			return allowedToShow and not hasConflict
+		end,
+		onClick = function(self)
+			if not GachaMonData.playerViewedMon then
+				return
+			end
+			if Program.currentOverlay == GachaMonOverlay then
+				Program.closeScreenOverlay()
+				Program.redraw(true)
+				return
+			end
+			-- If another overlay is open, close that first
+			if Program.isScreenOverlayOpen() then
+				Program.closeScreenOverlay()
+			end
+			Program.openOverlayScreen(GachaMonOverlay)
+			local gachamon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
+			if gachamon then
+				GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
+				GachaMonOverlay.Data.View.GachaMon = gachamon
+				GachaMonOverlay.refreshButtons()
+			end
+			Program.redraw(true)
+		end,
+		draw = function(self, shadowcolor)
+			if not GachaMonData.playerViewedMon then
+				return
+			end
+			local x, y = self.box[1], self.box[2]
+			local numStars = GachaMonData.playerViewedMon:getStars() or 0
+			local numStarsToDraw = math.max(numStars, GachaMonData.playerViewedInitialStars or 0) -- use the larger amount
+			if numStarsToDraw < 5 then
+				y = y + 3
+			end
+			if numStarsToDraw < 3 then
+				x = x + 10
+			end
+			local initialStars = nil
+			if (GachaMonData.playerViewedInitialStars or 0) > 0 then
+				initialStars = GachaMonData.playerViewedInitialStars
+			end
+			GachaMonOverlay.drawStarsOfGachaMon(numStars, x, y + 1, initialStars)
+		end,
+	},
 	LogViewerQuickAccess = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Intermediate text",
 		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
-		isVisible = function() return Battle.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
+		isVisible = function()
+			local okayToShow = Battle.isViewingOwn and Options["Open Book Play Mode"]
+			local hasConflict = Options["Track PC Heals"] or Options["Show GachaMon stars on main Tracker Screen"]
+			return okayToShow and not hasConflict
+		end,
 		onClick = function(self)
 			-- Default to pulling up the Routes info screen
 			LogOverlay.Windower:changeTab(LogTabRoutes)
@@ -229,7 +282,7 @@ TrackerScreen.Buttons = {
 				return
 			end
 			local abilityId
-			if Options["Open Book Play Mode"] then
+			if not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
 				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 0) -- 0 is the first ability
 			else
 				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID) or {}
@@ -246,7 +299,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + 37, 46, 63, 11},
+		clickableArea = { Constants.SCREEN.WIDTH + 37, 46, 63, 10},
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return true end,
 		onClick = function(self)
@@ -257,7 +310,7 @@ TrackerScreen.Buttons = {
 			local abilityId
 			if Battle.isViewingOwn then
 				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
-			elseif Options["Open Book Play Mode"] then
+			elseif not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
 				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
 			else
 				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -273,7 +326,7 @@ TrackerScreen.Buttons = {
 	HealsInBag = {
 		-- Invisible clickable button
 		type = Constants.ButtonTypes.NO_BORDER,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 55, 21 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 54, 21 },
 		isVisible = function() return Battle.isViewingOwn end,
 		onClick = function(self)
 			HealsInBagScreen.changeTab(HealsInBagScreen.Tabs.All)
@@ -457,6 +510,27 @@ TrackerScreen.Buttons = {
 			end
 		end
 	},
+	GachaMonSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.GACHAMON_CARD,
+		iconColors = { "Intermediate text", },
+		getText = function(self) return self.updatedText or "" end,
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 13, 13 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.GACHAMON end,
+		clearAnimation = function(self)
+			AnimationManager.GachaMonAnims.PackOpening = nil
+		end,
+		onClick = function(self)
+			local APO = AnimationManager.GachaMonAnims.PackOpening
+			if not APO and GachaMonData.hasNewestMonToShow() then
+				local x, y = Constants.SCREEN.WIDTH + 43, 32
+				AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon)
+			end
+			Program.redraw(true)
+		end,
+	},
 }
 
 -- This is also a priority list, lower the number has more priority of showing up before the others; must be sequential
@@ -468,6 +542,7 @@ TrackerScreen.CarouselTypes = {
 	NOTES = 5, -- During battle
 	BATTLE_DETAILS = 6, -- During battle
 	PEDOMETER = 7, -- Outside of battle
+	GACHAMON = 8, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -517,7 +592,7 @@ function TrackerScreen.initialize()
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Battle.inActiveBattle() and not Battle.isViewingOwn and not Options["Open Book Play Mode"] end,
+			isVisible = function() return Battle.inActiveBattle() and not Battle.isViewingOwn and PokemonData.IsRand.stats and not Options["Open Book Play Mode"] end,
 			onClick = function(self)
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
@@ -609,7 +684,7 @@ function TrackerScreen.buildCarousel()
 			if not Options["Allow carousel rotation"] and TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER]:canShow() then
 				return false
 			end
-			return Battle.isViewingOwn and not showEarlyRouteEncounters()
+			return Battle.isViewingOwn and not GachaMonData.hasNewestMonToShow() and not showEarlyRouteEncounters()
 		end,
 		getContentList = function(self)
 			local badgeButtons = {}
@@ -771,7 +846,7 @@ function TrackerScreen.buildCarousel()
 			if not SetupScreen.Buttons.CarouselPedometer.toggleState then
 				return false
 			end
-			return Battle.isViewingOwn and Program.Pedometer:isInUse()
+			return Battle.isViewingOwn and not GachaMonData.hasNewestMonToShow() and Program.Pedometer:isInUse()
 		end,
 		getContentList = function(self)
 			TrackerScreen.Buttons.PedometerStepText:updateSelf()
@@ -813,19 +888,49 @@ function TrackerScreen.buildCarousel()
 				end
 				local text
 				if defeatedTrainersList and totalInArea then
-					text = string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainersList, totalInArea)
+					text = string.format("%s: %s/%s", Resources.TrackerScreen.TrainersDefeated, #defeatedTrainersList, totalInArea)
 				else
 					text = string.format("%s: %s", routeName, "N/A")
 				end
 				TrackerScreen.Buttons.TrainerSummary.updatedText = text
 			else
-				TrackerScreen.Buttons.TrainerSummary.updatedText = "No Trainers in this area."
+				TrackerScreen.Buttons.TrainerSummary.updatedText = Resources.TrackerScreen.TrainersNoneInArea
 			end
 
 			if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.TrainerSummary }
 			else
 				return TrackerScreen.Buttons.TrainerSummary.updatedText or ""
+			end
+		end,
+	}
+
+	--  GACHAMON
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.GACHAMON] = {
+		type = TrackerScreen.CarouselTypes.GACHAMON,
+		framesToShow = 210,
+		canShow = function(self)
+			if not SetupScreen.Buttons.CarouselGachaMon.toggleState then
+				return false
+			end
+			-- Showing the card pack overrides the need to show the info in the Carousel box
+			if Options["Show card pack on screen after capturing a GachaMon"] then
+				return false
+			end
+			return GachaMonData.hasNewestMonToShow()
+		end,
+		getContentList = function(self)
+			local text
+			if GachaMonData.checkIfNewCollectionSpecies(GachaMonData.newestRecentMon) then
+				text = string.format(" %s! %s", Resources.GachaMonAnimations.LabelTabNEW, Resources.TrackerScreen.GachaMonCaptured)
+			else
+				text = string.format(" %s", Resources.TrackerScreen.GachaMonCaptured)
+			end
+			TrackerScreen.Buttons.GachaMonSummary.updatedText = text
+			if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.GachaMonSummary }
+			else
+				return TrackerScreen.Buttons.GachaMonSummary.updatedText or ""
 			end
 		end,
 	}
@@ -1070,8 +1175,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			extraInfoText = Resources.TrackerScreen.BattleNewEncounter
 		end
-		-- Prioritize showing open book stuff with highlight color
-		if Options["Open Book Play Mode"] then
+		-- Only highlight new encounter / last level seen if the real game abilities aren't being revealed
+		if not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
 			extraInfoColor = Theme.COLORS["Default text"]
 		else
 			extraInfoColor = Theme.COLORS["Intermediate text"]
@@ -1183,6 +1288,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			end
 			Drawing.drawText(incBtn.box[1], incBtn.box[2], incBtn:getText(), Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
 			Drawing.drawText(decBtn.box[1], decBtn.box[2], decBtn:getText(), Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
+		elseif Options["Show GachaMon stars on main Tracker Screen"] then
+			Drawing.drawButton(TrackerScreen.Buttons.GachaMonStars, shadowcolor)
 		else
 			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
@@ -1206,8 +1313,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	end
 
 	-- POKEMON ICON (draw last to overlap anything else, if necessary)
-	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
-	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
+	if not data.x.infoIsHidden then
+		SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
+		SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
+	end
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
 
 	-- Temporary process to refresh the icon before it's first drawn
@@ -1307,19 +1416,18 @@ function TrackerScreen.drawStatsArea(data)
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
-		if Battle.isViewingOwn then
-			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
-			if not Options["Color stat numbers by nature"] then
-				textColor = Theme.COLORS["Default text"]
-			end
-			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
+		local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
+		if not Battle.isViewingOwn and (not PokemonData.IsRand.stats or Options["Open Book Play Mode"]) then
+			textColor = Theme.COLORS["Intermediate text"]
+		elseif not Options["Color stat numbers by nature"] then
+			textColor = Theme.COLORS["Default text"]
+		end
+
+		-- Confirm if its okay to show the stats or not (i.e. don't show randomized enemy stats)
+		if not Battle.isViewingOwn and PokemonData.IsRand.stats and not Options["Open Book Play Mode"] then
+			Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
 		else
-			if Options["Open Book Play Mode"] then
-				local bstSpread = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
-				Drawing.drawNumber(statOffsetX + 25, statOffsetY, bstSpread, 3, Theme.COLORS["Intermediate text"], shadowcolor)
-			else
-				Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
-			end
+			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		end
 		statOffsetY = statOffsetY + 10
 	end

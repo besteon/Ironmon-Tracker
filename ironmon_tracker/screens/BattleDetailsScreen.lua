@@ -953,7 +953,7 @@ function SCREEN.GameFuncs.readStatus2(index)
 				PokemonId = sourcePokemon.pokemonID,
 				getText = function(self)
 					return string.format("%s (%s)",
-					Resources.Game.MoveNames[MoveData.Values.AttactId or 213] or Constants.BLANKLINE,
+					Resources.Game.MoveNames[MoveData.Values.AttractId or 213] or Constants.BLANKLINE,
 						PokemonData.Pokemon[self.Value].name
 					)
 				end,

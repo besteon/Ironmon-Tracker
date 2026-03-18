@@ -25,6 +25,8 @@ FileManager.Folders = {
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
+	GachaMon = "gachamon",
+	GachaMonImages = "gachamon",
 }
 
 FileManager.Files = {
@@ -42,6 +44,10 @@ FileManager.Files = {
 	KNOWN_WORKING_DIR = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt",
 	NEWRUN_PROFILES = FileManager.Folders.TrackerCode .. FileManager.slash .. "NewRunProfiles.json",
 	ADDRESS_OVERRIDES = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.GameAddresses .. FileManager.slash .. "TrackerOverrides.json",
+	GACHAMON_COLLECTION = FileManager.Folders.GachaMon .. FileManager.slash .. "FullCollection.gccg",
+	GACHAMON_RECENT_DEFAULT = FileManager.Folders.GachaMon .. FileManager.slash .. "RecentGachaMons.gccg", -- Default filepath if no New Run Profile is in use
+	GACHAMON_RATING_SYSTEM = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonRatingSystem.json",
+	GACHAMON_DEX = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.DataCode .. FileManager.slash .. "GachaDexInfo.json",
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -55,18 +61,24 @@ FileManager.Files = {
 	}
 }
 
+FileManager.PreFixes = {
+	CARDPACK = "cardpack",
+}
+
 FileManager.PostFixes = {
 	ATTEMPTS_FILE = "Attempts",
 	AUTORANDOMIZED = "AutoRandomized",
 	PREVIOUSATTEMPT = "PreviousAttempt",
 	AUTOSAVE = "AutoSave",
 	BACKUPSAVE = "BackupSave",
+	GACHAMON_RECENT = "RecentGachaMons",
 }
 
 FileManager.Extensions = {
 	GBA_ROM = ".gba",
 	RANDOMIZER_LOGFILE = ".log",
 	TRACKED_DATA = ".tdat",
+	GACHAMON = ".gccg",
 	ATTEMPTS = ".txt",
 	ANIMATED_POKEMON = ".gif",
 	TRAINER = ".png",
@@ -75,6 +87,7 @@ FileManager.Extensions = {
 	MGBA_SAVESTATE = ".ss0", -- ".ss0" through ".ss9" are okay to use
 	LUA_CODE = ".lua",
 	TAR_GZ = ".tar.gz",
+	PNG = ".png",
 }
 
 FileManager.Urls = {
@@ -85,6 +98,7 @@ FileManager.Urls = {
 	NEW_RUNS = "https://github.com/besteon/Ironmon-Tracker/wiki/New-Runs-Setup",
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 	STREAM_CONNECT = "https://github.com/besteon/Ironmon-Tracker/wiki/Stream-Connect-Guide",
+	GACHAMON = "https://github.com/besteon/Ironmon-Tracker/wiki/GachaMon-Collectable-Card-Game",
 }
 
 -- All Lua code files used by the Tracker, loaded and initialized in the order listed
@@ -97,6 +111,8 @@ FileManager.LuaCode = {
 	{ name = "Utils", filepath = "Utils.lua", },
 	{ name = "Memory", filepath = "Memory.lua", },
 	{ name = "GameSettings", filepath = "GameSettings.lua", },
+	{ name = "StructEncoder", filepath = "StructEncoder.lua", },
+	{ name = "GachaMonFileManager", filepath = "GachaMonFileManager.lua", },
 	-- Data files
 	{ name = "PokemonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonData.lua", },
 	{ name = "PokemonRevoData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonRevoData.lua", },
@@ -109,6 +125,7 @@ FileManager.LuaCode = {
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
+	{ name = "GachaMonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonData.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
@@ -121,6 +138,7 @@ FileManager.LuaCode = {
 	{ name = "Pickle", filepath = "Pickle.lua", },
 	{ name = "Tracker", filepath = "Tracker.lua", },
 	{ name = "MGBA", filepath = "MGBA.lua", },
+	{ name = "AnimationManager", filepath = "AnimationManager.lua", },
 	-- Network files
 	{ name = "Network", filepath = FileManager.Folders.Network .. FileManager.slash .. "Network.lua", },
 	{ name = "EventHandler", filepath = FileManager.Folders.Network .. FileManager.slash .. "EventHandler.lua", },
@@ -169,6 +187,7 @@ FileManager.LuaCode = {
 	{ name = "LogTabRouteDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabRouteDetails.lua", },
 	{ name = "LogTabTMs", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTMs.lua", },
 	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
+	{ name = "GachaMonOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GachaMonOverlay.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
 	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua"},
 	{ name = "StreamConnectOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamConnectOverlay.lua", },
@@ -176,9 +195,23 @@ FileManager.LuaCode = {
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
 
+-- Some files are initialized early and don't need to be re-intialized again
+FileManager.ExcludeFromInitialize = {
+	["UpdateOrInstall"] = true,
+	["Main"] = true,
+	["FileManager"] = true,
+	["Resources"] = true,
+	["CustomCode"] = true,
+	["GameSettings"] = true,
+	["Memory"] = true,
+}
+
 function FileManager.setupFolders()
-	if not FileManager.getPathOverride("Tracker Data") then
-		local folder = FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+	local foldersToCheck = {
+		FileManager.getTdatFolderPath(),
+		FileManager.getGachaMonFolderPath(),
+	}
+	for _, folder in ipairs(foldersToCheck) do
 		if not FileManager.folderExists(folder) then
 			FileManager.createFolder(folder)
 		end
@@ -376,8 +409,11 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 	return false
 end
 
--- Executes 'functionName' for all code files loaded in the Tracker, except Main, FileManager, and UpdateOrInstall.
-function FileManager.executeEachFile(functionName)
+---Executes 'functionName' for all loaded code files.
+---@param functionName string The name of the function to execute
+---@param excludeFileNames? table<string, boolean> (Optional) A set of file names to exclude from having the function executed
+function FileManager.executeEachFile(functionName, excludeFileNames)
+	excludeFileNames = excludeFileNames or {}
 	local globalRef
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
@@ -387,9 +423,13 @@ function FileManager.executeEachFile(functionName)
 	end
 
 	for _, luafile in ipairs(FileManager.LuaCode) do
-		local luaObject = globalRef[luafile.name or ""] or {}
-		if type(luaObject[functionName]) == "function" then
-			luaObject[functionName]()
+		local luaFilename = luafile.name or ""
+		if not excludeFileNames[luaFilename] then
+			local luaObject = globalRef[luaFilename] or {}
+			local luaFunction = luaObject[functionName]
+			if type(luaFunction) == "function" then
+				luaFunction()
+			end
 		end
 	end
 end
@@ -537,6 +577,11 @@ end
 ---@return string folderpath
 function FileManager.getTdatFolderPath()
 	return FileManager.getPathOverride("Tracker Data") or FileManager.prependDir(FileManager.Folders.TrackerNotes, true)
+end
+
+---@return string folderpath
+function FileManager.getGachaMonFolderPath()
+	return FileManager.getPathOverride("GachaMon Collection") or FileManager.prependDir(FileManager.Folders.GachaMon, true)
 end
 
 ---@return string filepath

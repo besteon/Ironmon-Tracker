@@ -1,1091 +1,1171 @@
 ScreenResources{
 	GameOverScreenQuotes = {
-		"What's the matter trainer?", -- NEEDS TRANSLATION
-		"What will the trainer do now?", -- NEEDS TRANSLATION
-		"Oh! Another failure!", -- NEEDS TRANSLATION
-		"Boom!", -- NEEDS TRANSLATION
-		"Devastating!", -- NEEDS TRANSLATION
-		"Gone! It didn't stand a chance!", -- NEEDS TRANSLATION
-		"Can strategy overcome the level disadvantage?", -- NEEDS TRANSLATION
-		"It's in no condition to fight!", -- NEEDS TRANSLATION
-		"This is a battle between obviously mismatched Pokémon.", -- NEEDS TRANSLATION
-		"The Pokémon returns to its Poké Ball.", -- NEEDS TRANSLATION
-		"Down! That didn't take much!", -- NEEDS TRANSLATION
-		"That one hurt!", -- NEEDS TRANSLATION
-		"And there goes the battle!", -- NEEDS TRANSLATION
-		"What a wild turn of events!", -- NEEDS TRANSLATION
-		"Taken down on the word go!", -- NEEDS TRANSLATION
-		"Woah! That was overpowering!", -- NEEDS TRANSLATION
-		"It's finally taken down!", -- NEEDS TRANSLATION
-		"Harsh blow!", -- NEEDS TRANSLATION
-		"That was brutal!", -- NEEDS TRANSLATION
-		"Nailed the weak spot!", -- NEEDS TRANSLATION
-		"Hey! What's it doing? Down it goes!", -- NEEDS TRANSLATION
-	},
+		"¿Qué pasa, entrenador?", -- Center text
+		"¿Qué hará ahora el entrenador?", -- Center text
+		"¡Oh! ¡Otro fracaso!", -- Center text
+		"Bum!",
+		"¡Devastador!", -- Center text
+		"¡Eliminado! ¡No tuvo ninguna oportunidad!", -- Center text
+		"¿Podrá la estrategia dominar la desventaja de nivel?", -- Center text
+		"¡No está en condiciones de luchar!", -- Center text
+		"Este combate es entre Pokémon claramente desiguales",
+		"El Pokémon vuelve a su Poké Ball",
+		"¡Abatido! ¡Fue pan comido!", -- Center text
+		"¡Esa ha debido doler!", -- Center text
+		"¡Y se acabó el combate!", -- Center text
+		"¡Qué giro más inesperado!", -- Center text
+		"¡Derrotado al instante!", -- Center text
+		"¡Guau! ¡Eso fue arrollador!", -- Center text
+		"¡Por fin ha sido derrotado!", -- Center text
+		"¡Golpe durísimo!",
+		"¡Eso fue brutal!", -- Center text
+		"¡Justo en el punto débil!", -- Center text
+		"¡Eh! ¿¡Qué está haciendo!? ¡Se desploma!", -- Center text
+		},
 	AllScreens = {
 		Pokemon = "Pokémon",
-		Back = "Back", -- NEEDS TRANSLATION
-		Yes = "Yes", -- NEEDS TRANSLATION
-		No = "No", -- NEEDS TRANSLATION
-		OK = "OK", -- NEEDS TRANSLATION
-		Cancel = "Cancel", -- NEEDS TRANSLATION
-		Preview = "Preview", -- NEEDS TRANSLATION
-		Save = "Save", -- NEEDS TRANSLATION
-		Close = "Close", -- NEEDS TRANSLATION
-		Clear = "Clear", -- NEEDS TRANSLATION
-		Import = "Import", -- NEEDS TRANSLATION
-		Export = "Export", -- NEEDS TRANSLATION
-		Lookup = "Look up", -- NEEDS TRANSLATION
-		Page = "Page", -- NEEDS TRANSLATION
+		Back = "Atrás",
+		Yes = "Sí",
+		No = "No",
+		OK = "OK",
+		Cancel = "Cancelar",
+		Preview = "Vista previa",
+		Save = "Guardar",
+		Close = "Cerrar",
+		Clear = "Borrar",
+		Import = "Importar",
+		Export = "Exportar",
+		Lookup = "Buscar",
+		Page = "Página",
 	},
 	PokemonEvolutionDetails = {
 		-- abbreviation: appears on the main Tracker Screen
 		-- short: used for the log viewer
 		-- detailed: used for Pokémon Info Look up
 		LEVEL = {
-			short = "Lv.", -- NEEDS TRANSLATION
-			detailed = "Level", -- NEEDS TRANSLATION
+			short = "Nv.",
+			detailed = "Nivel",
 		},
 		FRIEND = {
-			abbreviation = "FRIEND", -- NEEDS TRANSLATION
-			short = "Friend", -- NEEDS TRANSLATION
-			detailed = "Friendship", -- NEEDS TRANSLATION
+			abbreviation = "AMISTAD",
+			short = "Amistad",
+			detailed = "Amistad",
 		},
 		FRIEND_READY = {
-			abbreviation = "READY", -- NEEDS TRANSLATION
+			abbreviation = "LISTO",
 		},
 		THUNDER = {
-			abbreviation = "THUNDER", -- NEEDS TRANSLATION
-			short = "Thunder", -- NEEDS TRANSLATION
-			detailed = "Piedratrueno",
+			abbreviation = "TRUENO",
+			short = "Trueno",
+			detailed = "Piedra trueno",
 		},
 		FIRE = {
-			abbreviation = "FIRE", -- NEEDS TRANSLATION
-			short = "Fire", -- NEEDS TRANSLATION
-			detailed = "Piedra Fuego",
+			abbreviation = "FUEGO",
+			short = "Fuego",
+			detailed = "Piedra fuego",
 		},
 		WATER = {
-			abbreviation = "WATER", -- NEEDS TRANSLATION
-			short = "Water", -- NEEDS TRANSLATION
-			detailed = "Piedra Agua",
+			abbreviation = "AGUA",
+			short = "Agua",
+			detailed = "Piedra agua",
 		},
 		MOON = {
-			abbreviation = "MOON", -- NEEDS TRANSLATION
-			short = "Moon", -- NEEDS TRANSLATION
+			abbreviation = "LUNAR",
+			short = "Lunar",
 			detailed = "Piedra Lunar",
 		},
 		LEAF = {
-			abbreviation = "LEAF", -- NEEDS TRANSLATION
-			short = "Leaf", -- NEEDS TRANSLATION
+			abbreviation = "HOJA",
+			short = "Hoja",
 			detailed = "Piedra Hoja",
 		},
 		SUN = {
-			abbreviation = "SUN", -- NEEDS TRANSLATION
-			short = "Sun", -- NEEDS TRANSLATION
+			abbreviation = "SOLAR",
+			short = "Solar",
 			detailed = "Piedra Solar",
 		},
 		LEAF_SUN = {
-			abbreviation = "LF/SN", -- NEEDS TRANSLATION
+			abbreviation = "HJ/SL",
 		},
 		WATER30 = {
-			abbreviation = "30/WTR", -- NEEDS TRANSLATION
+			abbreviation = "30/AGU",
 		},
 		WATER37 = {
-			abbreviation = "37/WTR", -- NEEDS TRANSLATION
+			abbreviation = "37/AGU",
 		},
 		WATER37_REV = {
-			abbreviation = "WTR/37", -- NEEDS TRANSLATION
+			abbreviation = "AGU/37",
 		},
 		EEVEE_STONES = {
-			abbreviation = "STONE", -- NEEDS TRANSLATION
-			detailed = "5 Diff. Stones", -- NEEDS TRANSLATION
+			abbreviation = "PIEDRA",
+			detailed = "5 Piedras dif.",
 		},
 	},
 	TrackerScreen = {
-		HPAbbreviation = "HP", -- NEEDS TRANSLATION
-		LevelAbbreviation = "Lv", -- NEEDS TRANSLATION
-		RandomBallChosen = "Randomly chosen ball", -- NEEDS TRANSLATION
-		RandomBallUserChosen = "Chosen ball", -- NEEDS TRANSLATION
-		RandomBallUserPicks = "picks", -- NEEDS TRANSLATION
-		RandomBallLeft = "Left", -- NEEDS TRANSLATION
-		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
-		RandomBallRight = "Right", -- NEEDS TRANSLATION
-		RandomBallRandom = "Random", -- NEEDS TRANSLATION
-		HealsInBag = "Heals", -- NEEDS TRANSLATION
-		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
-		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
-		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
-		BattleSeenInTheWild = "Seen (Wild)", -- NEEDS TRANSLATION
-		BattleSeenOnTrainers = "Seen (Trainer)", -- NEEDS TRANSLATION
-		BattleTeam = "Team", -- NEEDS TRANSLATION
-		StatHP = "HP", -- NEEDS TRANSLATION
-		StatATK = "ATK", -- NEEDS TRANSLATION
-		StatDEF = "DEF", -- NEEDS TRANSLATION
-		StatSPA = "SPA", -- NEEDS TRANSLATION
-		StatSPD = "SPD", -- NEEDS TRANSLATION
-		StatSPE = "SPE", -- NEEDS TRANSLATION
-		StatBST = "BST", -- NEEDS TRANSLATION
-		StatAccuracy = "Acc", -- NEEDS TRANSLATION
-		StatEvasion = "Eva", -- NEEDS TRANSLATION
-		HeaderMoves = "Moves", -- NEEDS TRANSLATION
-		HeaderPP = "PP", -- NEEDS TRANSLATION
-		HeaderPow = "Pow", -- NEEDS TRANSLATION
-		HeaderAcc = "Acc", -- NEEDS TRANSLATION
-		ToCatch = "to catch", -- NEEDS TRANSLATION
-		LeaveANote = "Leave a note", -- NEEDS TRANSLATION
-		DamageTaken = "damage", -- NEEDS TRANSLATION
-		DamageTakenInTeams = "Total received", -- NEEDS TRANSLATION
-		PedometerSteps = "Steps", -- NEEDS TRANSLATION
-		PedometerGoal = "Goal", -- NEEDS TRANSLATION
-		PedometerTotal = "Total", -- NEEDS TRANSLATION
-		PedometerReset = "Reset", -- NEEDS TRANSLATION
-		EncounterWalking = "Walking", -- NEEDS TRANSLATION
-		EncounterSurfing = "Surfing", -- NEEDS TRANSLATION
-		EncounterUnderwater = "Underwater", -- NEEDS TRANSLATION
-		EncounterStatic = "Static", -- NEEDS TRANSLATION
-		EncounterRockSmash = "RockSmash", -- NEEDS TRANSLATION
-		EncounterSuperRod = "Super Rod", -- NEEDS TRANSLATION
-		EncounterGoodRod = "Good Rod", -- NEEDS TRANSLATION
-		EncounterOldRod = "Old Rod", -- NEEDS TRANSLATION
-		EncounterSeenPokemon = "Seen Pokémon", -- NEEDS TRANSLATION
-		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
-		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
-		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
-		PromptStepsTitle = "Choose a Step Goal", -- NEEDS TRANSLATION
-		PromptStepsDesc1 = "Pedometer will change color when your goal is reached.", -- NEEDS TRANSLATION
-		PromptStepsDesc2 = "Set to 0 to turn off", -- NEEDS TRANSLATION
-		PromptStepsEnterGoal = "How many steps to reach your goal?", -- NEEDS TRANSLATION
+		HPAbbreviation = "PS",
+		LevelAbbreviation = "Nv",
+		RandomBallChosen = "Poké ball elegida al azar",
+		RandomBallUserChosen = "Poké Ball elegida",
+		RandomBallUserPicks = "Elige",
+		RandomBallLeft = "Izquierda",
+		RandomBallMiddle = "Medio",
+		RandomBallRight = "Derecha",
+		RandomBallRandom = "Aleatoria",
+		HealsInBag = "Curaciones",
+		UnidentifiedGhost = "Fantasma",
+		BattleNewEncounter = "Pokémon nuevo",
+		BattleLastSeen = "Última vez",
+		BattleSeenInTheWild = "Visto (Salvaje)",
+		BattleSeenOnTrainers = "Visto (Entrenador)",
+		BattleTeam = "Equipo",
+		StatHP = "PS",
+		StatATK = "ATQ",
+		StatDEF = "DEF",
+		StatSPA = "ASP",
+		StatSPD = "DSP",
+		StatSPE = "VEL",
+		StatBST = "BST",
+		StatAccuracy = "Pre",
+		StatEvasion = "Eva",
+		HeaderMoves = "Mov.",
+		HeaderPP = "PP",
+		HeaderPow = "Pot",
+		HeaderAcc = "Pre",
+		ToCatch = "de captura",
+		LeaveANote = "Dejar nota",
+		DamageTaken = "daño",
+		DamageTakenInTeams = "Total recibido",
+		PedometerSteps = "Pasos",
+		PedometerGoal = "Meta",
+		PedometerTotal = "Totales",
+		PedometerReset = "Reset",
+		EncounterWalking = "Caminando",
+		EncounterSurfing = "Surfeando",
+		EncounterUnderwater = "Bajo el agua",
+		EncounterStatic = "Estático",
+		EncounterRockSmash = "Golpe Roca",
+		EncounterSuperRod = "Super Caña",
+		EncounterGoodRod = "Caña Buena",
+		EncounterOldRod = "Caña Vieja",
+		EncounterSeenPokemon = "vistos", -- or: Pok. vistos
+		TrainersDefeated = "Entrenadores derrotados",
+		TrainersNoneInArea = "Ningún entrenador en el área.",
+		GachaMonCaptured = "GachaMon capturado!",
+		PromptNoteDesc = "Deja una nota breve para",
+		PromptNoteAbilityDesc = "Asigna una o ambas habilidades para",
+		PromptNoteClearAbilities = "Borrar habilidades",
+		PromptStepsTitle = "Elige una meta de pasos",
+		PromptStepsDesc1 = "El podómetro cambiará de color cuando llegues a la meta.",
+		PromptStepsDesc2 = "Ajustar a 0 para apagar",
+		PromptStepsEnterGoal = "¿Cuántos pasos faltan para llegar a tu meta? ",
 	},
 	StartupScreen = {
-		Title = "Ironmon Tracker", -- NEEDS TRANSLATION
-		Version = "Version", -- NEEDS TRANSLATION
-		Game = "Game", -- NEEDS TRANSLATION
-		Attempts = "Attempts", -- NEEDS TRANSLATION
-		TrackedDataMsgLabel = "Tracker Notes", -- NEEDS TRANSLATION
-		TrackedDataMsgLoadSuccess = "Loaded from last play session.", -- NEEDS TRANSLATION
-		TrackedDataMsgNewGame = "New game started.", -- NEEDS TRANSLATION
-		TrackedDataMsgAutoDisabled = "Auto saving / loading is OFF.", -- NEEDS TRANSLATION
-		TrackedDataMsgError = "Error loading file.", -- NEEDS TRANSLATION
-		HeaderFavorites = "Favorite Pokémon", -- NEEDS TRANSLATION
-		HeaderControls = "GBA Controls", -- NEEDS TRANSLATION
-		ControlsSwapView = "Swap viewed Pokémon", -- NEEDS TRANSLATION
-		ControlsQuickload = "Load New Run", -- NEEDS TRANSLATION
-		ControlsEraseGameSave = "Erase game save data", -- NEEDS TRANSLATION
-		PromptChooseAPokemonTitle = "Choose a Pokémon", -- NEEDS TRANSLATION
-		PromptChooseAPokemonDesc = "Choose a Pokémon to show during startup", -- NEEDS TRANSLATION
-		PromptChooseAPokemonByAttempt = "Based on attempt #", -- NEEDS TRANSLATION
-		PromptChooseAPokemonByRandom = "Random each time", -- NEEDS TRANSLATION
-		PromptChooseAPokemonNone = "None", -- NEEDS TRANSLATION
+		Title = "Ironmon Tracker",
+		Version = "Versión",
+		Game = "Juego",
+		Attempts = "Intentos",
+		TrackedDataMsgLabel = "Notas del Tracker",
+		TrackedDataMsgLoadSuccess = "Última sesión de juego cargada.",
+		TrackedDataMsgNewGame = "Nuevo juego empezado.",
+		TrackedDataMsgAutoDisabled = "Guardado / carga autom. desactivada.",
+		TrackedDataMsgRomMismatch = "Archivo ROM incorrecto",
+		TrackedDataMsgError = "Error al cargar archivo",
+		HeaderFavorites = "Pokémon favoritos",
+		HeaderControls = "Controles de GBA",
+		ControlsSwapView = "Cambiar Pok. visualizado",
+		ControlsQuickload = "Cargar nueva run",
+		ControlsEraseGameSave = "Borrar datos de juego guardados",
+		PromptChooseAPokemonTitle = "Elige un Pokémon",
+		PromptChooseAPokemonDesc = "Elige un Pokémon para mostrar durante el inicio",
+		PromptChooseAPokemonByAttempt = "Basado en el intento #",
+		PromptChooseAPokemonByRandom = "Siempre aleatorio",
+		PromptChooseAPokemonNone = "Ninguno",
 	},
 	NavigationMenu = {
-		Title = "Tracker Settings", -- NEEDS TRANSLATION
-		ButtonSetup = "Setup", -- NEEDS TRANSLATION
-		ButtonGameplay = "Gameplay", -- NEEDS TRANSLATION
-		ButtonTheme = "Theme", -- NEEDS TRANSLATION
-		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION
-		ButtonExtras = "Extras", -- NEEDS TRANSLATION
-		ButtonQuickload = "New Runs", -- NEEDS TRANSLATION
-		ButtonNotebook = "Notebook", -- NEEDS TRANSLATION
-		ButtonLanguage = "Language", -- NEEDS TRANSLATION
-		ButtonUpdate = "Update", -- NEEDS TRANSLATION
-		ButtonExtensions = "Extensions", -- NEEDS TRANSLATION
-		ButtonCredits = "Credits", -- NEEDS TRANSLATION
-		ButtonHelp = "Help", -- NEEDS TRANSLATION
-		CreditsCreatedBy = "Created by", -- NEEDS TRANSLATION
-		CreditsContributors = "Contributors", -- NEEDS TRANSLATION
-		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Help Wiki.", -- NEEDS TRANSLATION
+		Title = "Ajustes del Tracker",
+		ButtonSetup = "Ajustes",
+		ButtonGameplay = "Jugabilidad",
+		ButtonTheme = "Temas",
+		ButtonStreaming = "Streaming",
+		ButtonExtras = "Extras",
+		ButtonQuickload = "Nueva Run",
+		ButtonNotebook = "Notas",
+		ButtonLanguage = "Idiomas",
+		ButtonUpdate = "Actualizar",
+		ButtonExtensions = "Extensiones", -- Size
+		ButtonCredits = "Créditos", -- Size
+		ButtonHelp = "Ayuda", -- Size
+		CreditsCreatedBy = "Creado por",
+		CreditsContributors = "Colaboradores",
+		MessageCheckConsole = "Consulta la consola Lua para ver un enlace al Wiki de Ayuda del Tracker.", -- Unable to see it, but translated
 	},
 	SetupScreen = {
-		Title = "Tracker Setup", -- NEEDS TRANSLATION
-		TabGeneral = "General", -- NEEDS TRANSLATION
-		TabCarousel = "Carousel", -- NEEDS TRANSLATION
-		TabControls = "Controls", -- NEEDS TRANSLATION
-		PokemonIconSetLabel = "Pokémon icon set", -- NEEDS TRANSLATION
-		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
-		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
-		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
-		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
-		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
-		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
-		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
-		OptionAllowCarouselRotation = "Allow bottom box rotation", -- NEEDS TRANSLATION
-		LabelInfoToShow = "Info to show", -- NEEDS TRANSLATION
-		LabelSpeedSetting = "Speed", -- NEEDS TRANSLATION
-		CarouselBadges = "Gym badges", -- NEEDS TRANSLATION
-		CarouselNotes = "Notes on Pokémon", -- NEEDS TRANSLATION
-		CarouselRouteInfo = "Wild encounters in area", -- NEEDS TRANSLATION
-		CarouselTrainers = "Trainers defeated in area", -- NEEDS TRANSLATION
-		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
-		CarouselBattleDetails = "Additional battle details", -- NEEDS TRANSLATION
-		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
-		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
-		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
-		LabelCurrentControllerBinding = "Current controller binding", -- NEEDS TRANSLATION
-		LabelNewControllerBinding = "New controller binding", -- NEEDS TRANSLATION
-		LabelWaiting = "Waiting", -- NEEDS TRANSLATION
-		LabelPressControllerButtons = "Press controller button(s) to bind.", -- NEEDS TRANSLATION
-		LabelButtonsAllowed = "Buttons allowed", -- NEEDS TRANSLATION
-		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
-		PromptEditControllerDesc = "Edit GBA buttons for the Tracker. Available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
-		PromptEditControllerLoadNext = "Load new seed", -- NEEDS TRANSLATION
-		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
-		PromptEditControllerInfoShortcut = "Trainers / Pivots", -- NEEDS TRANSLATION
-		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
-		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
-		PromptEditControllerNextPage = "Next page", -- NEEDS TRANSLATION
-		PromptEditControllerPreviousPage = "Previous page", -- NEEDS TRANSLATION
-		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
+		Title = "Ajustes básicos del Tracker",
+		TabGeneral = "General",
+		TabCarousel = "Varios", -- Varios instead Carrusel for better looking
+		TabControls = "Controles",
+		PokemonIconSetLabel = "Miniaturas Pokémon",
+		PokemonIconSetAuthor = "Añadido por",
+		OptionShowRandomBallPicker = "Mostrar Poké ball aleatoria",
+		OptionShowTeamView = "Mostrar equipo Pokémon",
+		OptionRightJustifiedNumbers = "Stats alineadas a la derecha",
+		OptionTrackPCHeals = "Mostrar curas del CP",
+		OptionPCHealsCountDown = "Orden desc. de curas del CP ",
+		OptionAllowSpritesToWalk = "Caminando",
+		ButtonManageData = "Gestionar datos", -- Size
+		OptionAllowCarouselRotation = "Permitir rotación de varios", -- Varios instead Carrusel for better looking
+		LabelInfoToShow = "Información para mostrar",
+		LabelSpeedSetting = "Velocidad",
+		CarouselBadges = "Medallas de gimnasio",
+		CarouselNotes = "Notas sobre Pokémon",
+		CarouselRouteInfo = "Encuentros salvajes en el área",
+		CarouselTrainers = "Entren. derrotados en el área", -- Size
+		CarouselLastAttack = "Daño del último ataque",
+		CarouselBattleDetails = "Detalles adicionales de batalla",
+		CarouselPedometer = "Pasos del podómetro",
+		CarouselGachaMon = "GachaMon capturados",
+		OptionOverrideButtonModeLR = "Anular modo de botones de LR", -- Size
+		ButtonEditAll = "Editar todo", -- Size
+		LabelCurrentControllerBinding = "Combinación actual",
+		LabelNewControllerBinding = "Nueva combinación",
+		LabelWaiting = "Esperando",
+		LabelPressControllerButtons = "Pulsa una combinacion a elegir.",
+		LabelButtonsAllowed = "Botones permitidos",
+		PromptEditControllerTitle = "Botones del mando",
+		PromptEditControllerDesc = "Edita los botones de GBA para el Tracker. Botones permitidos: A, B, L, R, Start, Select",
+		PromptEditControllerLoadNext = "Cargar nueva seed",
+		PromptEditControllerToggleView = "Alternar vista",
+		PromptEditControllerInfoShortcut = "Entrenadores / Pivotantes", -- Size
+		PromptEditControllerCycleStats = "Moverte entre las stats",
+		PromptEditControllerMarkStat = "Marcar stat",
+		PromptEditControllerNextPage = "Siguiente página",
+		PromptEditControllerPreviousPage = "Página anterior",
+		PromptEditControllerResetDefault = "Reset por defecto",
 	},
 	ExtrasScreen = {
-		Title = "Tracker Extras", -- NEEDS TRANSLATION
-		TabTools = "Tools", -- NEEDS TRANSLATION
-		TabOptions = "Options", -- NEEDS TRANSLATION
-		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
-		ButtonCoverageCalculator = "Coverage Calculator", -- NEEDS TRANSLATION
-		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
-		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
-		LabelTimer = "Timer options", -- NEEDS TRANSLATION
-		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
-		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
-		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
-		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
-		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
-		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
-		OptionAnimatedPokemonPopout = "Animated Pokémon popout", -- NEEDS TRANSLATION
-		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential", -- NEEDS TRANSLATION
-		EstimateResultOutstanding = "Outstanding!!!", -- NEEDS TRANSLATION
-		EstimateResultQuiteImpressive = "Quite impressive!!", -- NEEDS TRANSLATION
-		EstimateResultAboveAverage = "Above average!", -- NEEDS TRANSLATION
-		EstimateResultDecent = "Decent.", -- NEEDS TRANSLATION
-		EstimateResultUnavailable = "Estimate is unavailable.", -- NEEDS TRANSLATION
-		TimerPauseTip = "(Click on the timer to pause)", -- NEEDS TRANSLATION
+		Title = "Extras del Tracker",
+		TabTools = "Herramientas", -- Size
+		TabOptions = "Opciones",
+		ButtonViewLogs = "Logs",
+		ButtonCoverageCalculator = "Calculadora de cobertura",
+		ButtonGachaMonCollection = "Colección de GachaMon",
+		ButtonTimeMachine = "Máquina del tiempo",
+		ButtonCrashRecovery = "Recuperación de errores",
+		LabelTimer = "Opciones de tiempo jugado",
+		ButtonEditTime = "Editar", -- Size
+		ButtonRelocateTime = "Recolocar", -- or: Reubicar
+		OptionDisplayRepelUsage = "Mostrar uso del repelente",
+		OptionDisplayPedometer = "Mostrar pasos del podómetro",
+		OptionDisplayPlayTime = "Mostrar tiempo jugado",
+		OptionDisplayGender = "Mostrar género del Pokémon",
+		OptionAnimatedPokemonPopout = "Popout de Pokémon animado",
+		ButtonEstimatePokemonIVs = "Mostrar potencial IV aproximado",
+		EstimateResultOutstanding = "¡¡¡Excepcional!!!",
+		EstimateResultQuiteImpressive = "¡¡Muy impresionante!!",
+		EstimateResultAboveAverage = " ¡Por encima de la media!",
+		EstimateResultDecent = "Decente",
+		EstimateResultUnavailable = "no disponible.",
+		TimerPauseTip = "(Clica en el cronómetro para pausar)",
 	},
 	GameOptionsScreen = {
-		Title = "Gameplay Options", -- NEEDS TRANSLATION
-		TabBattle = "Battle", -- NEEDS TRANSLATION
-		TabGameOver = "Game Over", -- NEEDS TRANSLATION
-		TabOther = "Other", -- NEEDS TRANSLATION
-		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
-		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
-		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
-		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
-		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
-		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
-		OptionShowExpBar = "Show experience points bar", -- NEEDS TRANSLATION
-		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
-		OptionShowPhysicalSpecial = "Show physical special icons", -- NEEDS TRANSLATION
-		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
-		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
-		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
-		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
-		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
-		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
-		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
-		OptionLeadPokemonFaints = "Lead Pokémon faints", -- NEEDS TRANSLATION
-		OptionHighestLevelFaints = "Highest level faints", -- NEEDS TRANSLATION
-		OptionEntirePartyFaints = "Entire party faints", -- NEEDS TRANSLATION
-		OptionOpenBookPlayMode = "Open Book play mode", -- NEEDS TRANSLATION
-		LabelExtraTimeWarning = "May add extra load time", -- NEEDS TRANSLATION
+		Title = "Opciones de jugabilidad",
+		TabBattle = "Batalla",
+		TabGameOver = "Fin del juego",
+		TabOther = "Otros",
+		ButtonGameStats = "Estadísticas",
+		LabelGameOverCondition = "El juego termina cuando",
+		OptionAutoSwapEnemy = "Mostrar Pokémon enem. auto.",
+		OptionShowStarterBallInfo = "Mostrar info. Poké Ball inicial",
+		OptionHideStatsUntilSummary = "Ocultar resumen hasta ver datos",
+		OptionShowNicknames = "Mostrar motes",
+		OptionShowExpBar = "Mostrar barra de experiencia",
+		OptionShowHealsAsValue = "Mostrar n.º curaciones entero",
+		OptionShowPhysicalSpecial = "Mostrar iconos físico / especial",
+		OptionShowMoveEffectiveness = "Mostrar mov. superefectivo",
+		OptionCalculateVariableDamage = "Calcular daño variable",
+		OptionDetermineFriendship = "Verificar estado de amistad",
+		OptionShowBallCatchRate = "Porcentajes de captura",
+		OptionCountEnemyPP = "Mostrar PPs del enemigo",
+		OptionShowLastDamage = "Mostrar cálculo del último daño",
+		OptionRevealRandomizedInfo = "Mostrar datos mov./tipos aleat.",
+		OptionLeadPokemonFaints = "Pokémon lider debilitado",
+		OptionHighestLevelFaints = "Pokémon de + nivel debilitado",
+		OptionEntirePartyFaints = "Todo el equipo debilitado",
+		OptionOpenBookPlayMode = "Modo Open Book", -- Text box description? (space left to mini-explain)
+		LabelExtraTimeWarning = "Puede ralentizar la carga",
 	},
 	QuickloadScreen = {
-		Title = "New Runs Setup", -- NEEDS TRANSLATION
-		TabGeneral = "General", -- NEEDS TRANSLATION
-		TabProfiles = "Profiles", -- NEEDS TRANSLATION
-		TabOptions = "Options", -- NEEDS TRANSLATION
-		NewRunsDescGenerate = "The Tracker will create a NEW, randomized game ROM file when the button combo is pressed", -- NEEDS TRANSLATION
-		NewRunsDescPremade = "The Tracker will load the next numerical game ROM file when the button combo is pressed", -- NEEDS TRANSLATION
-		LabelActiveProfile = "Active Profile", -- NEEDS TRANSLATION
-		LabelNoActiveProfile = "No active profile", -- NEEDS TRANSLATION
-		LabelClickToAdd = "click to add one", -- NEEDS TRANSLATION
-		LabelProfileAttempts = "Attempts", -- NEEDS TRANSLATION
-		LabelProfileLastPlayed = "Last played", -- NEEDS TRANSLATION
-		ButtonLoadLastGame = "Load last played game", -- NEEDS TRANSLATION
-		ButtonGoNextSeed = "Go next seed", -- NEEDS TRANSLATION
-		ButtonCreateNewGame = "Create new game", -- NEEDS TRANSLATION
-		ButtonAddNew = "Add new", -- NEEDS TRANSLATION
-		ButtonSelectProfile = "Select", -- NEEDS TRANSLATION
-		ButtonEditProfile = "Edit", -- NEEDS TRANSLATION
-		ButtonDeleteProfile = "Delete", -- NEEDS TRANSLATION
-		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
+		Title = "Configurar nueva run",
+		TabGeneral = "General",
+		TabProfiles = "Perfiles",
+		TabOptions = "Opciones",
+		NewRunsDescGenerate = "El Tracker creará un archivo ROM de juego nuevo y aleatorio al pulsar la combinación de botones",
+		NewRunsDescPremade = "El Tracker cargará el siguiente archivo ROM de juego numérico al pulsar la combinación de botones",
+		LabelActiveProfile = "Perfil activo",
+		LabelNoActiveProfile = "Sin perfil activo",
+		LabelClickToAdd = "Pulsa para añadir uno",
+		LabelProfileAttempts = "Intentos",
+		LabelProfileLastPlayed = "Última vez",
+		ButtonLoadLastGame = "Cargar última partida",
+		ButtonGoNextSeed = "Siguiente seed",
+		ButtonCreateNewGame = "Crear nueva partida",
+		ButtonAddNew = "Añadir",
+		ButtonSelectProfile = "Usar",
+		ButtonEditProfile = "Editar", -- Size
+		ButtonDeleteProfile = "Eliminar",
+		OptionRefocusEmulator = "Al cargar: volver a Bizhawk",
 	},
 	ThemeScreen = {
-		Title = "Theme Library", -- NEEDS TRANSLATION
-		HeaderActiveThemeOptions = "Active Theme Options", -- NEEDS TRANSLATION
-		LabelDefaultTheme = "Default Theme", -- NEEDS TRANSLATION
-		LabelActiveCustomTheme = "Active Theme (Custom)", -- NEEDS TRANSLATION
-		ButtonApplyTheme = "Apply theme", -- NEEDS TRANSLATION
-		ButtonSaveAsNew = "Save as new", -- NEEDS TRANSLATION
-		ButtonRemove = "Remove", -- NEEDS TRANSLATION
-		ButtonRemoveConfirm = "Are you sure?", -- NEEDS TRANSLATION
-		ButtonImport = "Import theme", -- NEEDS TRANSLATION
-		ButtonExport = "Export theme", -- NEEDS TRANSLATION
-		PromptEnterThemeCode = "Enter a theme code string to import (Ctrl+V to paste)", -- NEEDS TRANSLATION
-		PromptImportError = "Error importing: Invalid theme code.", -- NEEDS TRANSLATION
-		PromptThemeFor = "Theme for", -- NEEDS TRANSLATION
-		PromptCopyThemeCode = "Copy the theme code below (Ctrl+C)", -- NEEDS TRANSLATION
-		PromptSelectPreset = "Select a Theme preset to preview", -- NEEDS TRANSLATION
-		PromptSaveAsTitle = "Save Theme As", -- NEEDS TRANSLATION
-		PromptEnterNameForTheme = "Enter a name for this Theme", -- NEEDS TRANSLATION
-		PromptCantUseReserved = "Cannot use a reserved Theme name.", -- NEEDS TRANSLATION
-		PromptCantUseConsecutiveChars = "Name cannot have 6 consecutive hexcode characters (0-9A-F)", -- NEEDS TRANSLATION
-		PromptNameAlreadyInUse = "A Theme with that name already exists. Overwrite?", -- NEEDS TRANSLATION
-		OptionColorStatNumber = "Color stat numbers by nature ", -- NEEDS TRANSLATION
-		OptionColorBar = "Show color bar for move types", -- NEEDS TRANSLATION
-		OptionTextShadows = "Text shadows", -- NEEDS TRANSLATION
-		ButtonEditColors = "Edit Theme Colors", -- NEEDS TRANSLATION
-		TitleEditingActiveTheme = "Editing Active Theme", -- NEEDS TRANSLATION
-		ColorDefaultText = "Upper box text", -- NEEDS TRANSLATION
-		ColorLowerBoxText = "Lower box text", -- NEEDS TRANSLATION
-		ColorPositiveText = "Positive text", -- NEEDS TRANSLATION
-		ColorNegativeText = "Negative text", -- NEEDS TRANSLATION
-		ColorIntermediateText = "Intermediate text", -- NEEDS TRANSLATION
-		ColorHeaderText = "Header text", -- NEEDS TRANSLATION
-		ColorUpperBoxBorder = "Upper box border", -- NEEDS TRANSLATION
-		ColorUpperBoxBackground = "Upper box background", -- NEEDS TRANSLATION
-		ColorLowerBoxBorder = "Lower box border", -- NEEDS TRANSLATION
-		ColorLowerBoxBackground = "Lower box background", -- NEEDS TRANSLATION
-		ColorMainBackground = "Main background", -- NEEDS TRANSLATION
-		PromptColorPickerTitle = "Color Picker", -- NEEDS TRANSLATION
-		PromptColorPickerHexColor = "Hex Color", -- NEEDS TRANSLATION
+		Title = "Biblioteca de temas",
+		HeaderActiveThemeOptions = "Opciones del tema activo",
+		LabelDefaultTheme = "Tema predeterminado",
+		LabelActiveCustomTheme = "Tema activo (Personalizado)",
+		ButtonApplyTheme = "Aplicar tema",
+		ButtonSaveAsNew = "Guardar como",
+		ButtonRemove = "Eliminar",
+		ButtonRemoveConfirm = "¿Estás seguro?", -- Size
+		ButtonImport = "Importar tema",
+		ButtonExport = "Exportar tema",
+		PromptEnterThemeCode = "Introduce un 'code string' para importar (Ctrl+V para pegar)",
+		PromptImportError = "Error al importar: Código erróneo.",
+		PromptThemeFor = "Tema para",
+		PromptCopyThemeCode = "Copia el código de debajo (Ctrl+C)",
+		PromptSelectPreset = "Selecciona un tema para previsualizarlo",
+		PromptSaveAsTitle = "Guardar tema",
+		PromptEnterNameForTheme = "Elige nombre para el tema",
+		PromptCantUseReserved = "No puedes usar este nombre.",
+		PromptCantUseConsecutiveChars = "El nombre no puede tener 6 caracteres hexa. consecutivos (0-9A-F)",
+		PromptNameAlreadyInUse = "Ya existe un tema con ese nombre. ¿Sobrescribir?",
+		OptionColorStatNumber = "Color de las stats por naturaleza",
+		OptionColorBar = "Barra color por tipos de mov.",
+		OptionTextShadows = "Sombras del texto",
+		ButtonEditColors = "Editar los colores",
+		TitleEditingActiveTheme = "Editando tema activo",
+		ColorDefaultText = "Texto de caja superior",
+		ColorLowerBoxText = "Texto de caja inferior",
+		ColorPositiveText = "Texto positivo",
+		ColorNegativeText = "Texto negativo",
+		ColorIntermediateText = "Texto intermedio",
+		ColorHeaderText = "Texto del encabezado",
+		ColorUpperBoxBorder = "Borde de caja superior",
+		ColorUpperBoxBackground = "Fondo de caja superior",
+		ColorLowerBoxBorder = "Borde de caja inferior",
+		ColorLowerBoxBackground = "Fondo de caja inferior",
+		ColorMainBackground = "Fondo principal",
+		PromptColorPickerTitle = "Selector de color",
+		PromptColorPickerHexColor = "Color hex.",
 	},
 	LanguageScreen = {
-		Title = "Language Settings", -- NEEDS TRANSLATION
-		DisplayLanguage = "Display Language", -- NEEDS TRANSLATION
-		AutodetectSetting = "Autodetect game language", -- NEEDS TRANSLATION
-		ButtonHelpContribute = "Help Contribute", -- NEEDS TRANSLATION
+		Title = "Opciones de idioma",
+		DisplayLanguage = "Idioma mostrado",
+		AutodetectSetting = "Detectar idioma autom.",
+		ButtonHelpContribute = "Colaborar",
 	},
 	StatsScreen = {
-		Title = "Game Stats", -- NEEDS TRANSLATION
-		StatPlayTime = "Play time", -- NEEDS TRANSLATION
-		StatTotalAttempts = "Total attempts", -- NEEDS TRANSLATION
-		StatPCsUsed = "Pokécenters used", -- NEEDS TRANSLATION
-		StatTrainerBattles = "Trainer battles", -- NEEDS TRANSLATION
-		StatWildEncounters = "Wild encounters", -- NEEDS TRANSLATION
-		StatPokemonCaught = "Pokémon caught", -- NEEDS TRANSLATION
-		StatShopPurchases = "Bulk shop purchases", -- NEEDS TRANSLATION
-		StatGameSaves = "Game saves", -- NEEDS TRANSLATION
-		StatTotalSteps = "Total steps", -- NEEDS TRANSLATION
-		StatStrugglesUsed = "Struggles used", -- NEEDS TRANSLATION
+		Title = "Estadísticas de juego",
+		StatPlayTime = "Tiempo jugado",
+		StatTotalAttempts = "Intentos totales",
+		StatPCsUsed = "CP usados",
+		StatTrainerBattles = "Combates vs entren.",
+		StatWildEncounters = "Encuentros salvajes",
+		StatPokemonCaught = "Pokémon capturados",
+		StatShopPurchases = "Compras por lotes",
+		StatGameSaves = "Partidas guardadas",
+		StatTotalSteps = "Pasos totales",
+		StatStrugglesUsed = "Usos de Combate",
 	},
 	UpdateScreen = {
-		Title = "Tracker Updater", -- NEEDS TRANSLATION
-		VersionCurrent = "Current version", -- NEEDS TRANSLATION
-		VersionLatest = "Latest version", -- NEEDS TRANSLATION
-		LabelRelease = "Release notes", -- NEEDS TRANSLATION
-		VersionNew = "New!", -- NEEDS TRANSLATION
-		ButtonShow = "Show", -- NEEDS TRANSLATION
-		ButtonHide = "Hide", -- NEEDS TRANSLATION
-		ButtonViewOnline = "View Online", -- NEEDS TRANSLATION
-		CheckboxDevBranch = "Dev branch updates", -- NEEDS TRANSLATION
-		ButtonCheckForUpdates = "Check for updates", -- NEEDS TRANSLATION
-		ButtonNoUpdates = "No update available", -- NEEDS TRANSLATION
-		ButtonBeginInstall = "Begin install", -- NEEDS TRANSLATION
-		ButtonInstallNow = "Install now", -- NEEDS TRANSLATION
-		ButtonInstallFromDev = "Install from dev", -- NEEDS TRANSLATION
-		ButtonOpenDownload = "Open download", -- NEEDS TRANSLATION
-		ButtonIgnoreUpdate = "Ignore update", -- NEEDS TRANSLATION
-		MessageInProgress = "Update in progress, please wait. Check command prompt window for status.", -- NEEDS TRANSLATION
-		MessageRequireRestart = "In order to install the update, please close and reopen your emulator.", -- NEEDS TRANSLATION
-		MessageError = "Error during the update. To fix this, first restart your emulator then load the script", -- NEEDS TRANSLATION
-		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Release Notes", -- NEEDS TRANSLATION
+		Title = "Actualizaciones del Tracker",
+		VersionCurrent = "Versión actual",
+		VersionLatest = "Última versión",
+		LabelRelease = "Notas del parche",
+		VersionNew = "Nuevo",
+		ButtonShow = "Ver",
+		ButtonHide = "Nuevo",
+		ButtonViewOnline = "Ver en la web",
+		CheckboxDevBranch = "Actualizaciones beta",
+		ButtonCheckForUpdates = "Buscar actualizaciones",
+		ButtonNoUpdates = "Sin actualizaciones",
+		ButtonBeginInstall = "Comenzar instalación",
+		ButtonInstallNow = "Instalar ahora",
+		ButtonInstallFromDev = "Instalar ver. beta",
+		ButtonOpenDownload = "Abrir descarga",
+		ButtonIgnoreUpdate = "Ignorar actualización", -- Size
+		MessageInProgress = "Actualización en curso, por favor espera. Consulta la ventana CMD para ver más.",
+		MessageRequireRestart = "Para instalar la actualización, por favor cierra y vuelve a abrir el emulador.",
+		MessageError = "Error durante la actualización. Para solucionarlo, reinicia el emulador y vuelve a cargar el script.",
+		MessageCheckConsole = "Consulta la consola del Lua para ver el enlace de la últimna actualización del Tracker.",
 	},
 	StreamerScreen = {
-		Title = "Streamer Tools", -- NEEDS TRANSLATION
-		ButtonEdit = "Edit", -- NEEDS TRANSLATION
-		ButtonStreamConnect = "Stream Connect", -- NEEDS TRANSLATION
-		LabelAttemptsCount = "Attempts Count", -- NEEDS TRANSLATION
-		LabelWelcomeMessage = "Welcome Message", -- NEEDS TRANSLATION
-		LabelFavorites = "Favorite Pokémon", -- NEEDS TRANSLATION
-		OptionDisplayFavorites = "Show on new game screen", -- NEEDS TRANSLATION
-		PromptEditAttemptsTitle = "Edit Attempts Counter", -- NEEDS TRANSLATION
-		PromptEditAttemptsDesc = "Enter the number of attempts", -- NEEDS TRANSLATION
-		PromptEditWelcomeTitle = "Edit Welcome Message", -- NEEDS TRANSLATION
-		PromptEditWelcomeDesc = "Edit the welcome message box on the Tracker, shown each time a new game begins.", -- NEEDS TRANSLATION
-		PromptChooseFavoriteTitle = "Choose a Favorite", -- NEEDS TRANSLATION
-		PromptChooseFavoriteDesc = "Favorite Pokémon are shown as a new game begins", -- NEEDS TRANSLATION
+		Title = "Herramientas para Streamer",
+		ButtonEdit = "Editar", -- Size
+		ButtonStreamConnect = "Conectar Stream",
+		LabelAttemptsCount = "Contador de intentos",
+		LabelWelcomeMessage = "Mensaje de bienvenida",
+		LabelFavorites = "Pokémon favoritos",
+		OptionDisplayFavorites = "Mostrar al empezar partida",
+		PromptEditAttemptsTitle = "Editar contador de intentos",
+		PromptEditAttemptsDesc = "Introduce el número de intentos",
+		PromptEditWelcomeTitle = "Editar mensaje de bienvenida",
+		PromptEditWelcomeDesc = "Edita el mensaje de bienvenida que aparecerá al empezar nueva partida.",
+		PromptChooseFavoriteTitle = "Elige tu favorito",
+		PromptChooseFavoriteDesc = "Pokémon favorito que aparece al inicio.",
 	},
 	InfoScreen = {
 		-- Pokémon Info
-		ButtonViewEvos = "View ...", -- NEEDS TRANSLATION
-		ButtonHistory = "History", -- NEEDS TRANSLATION
-		ButtonResistances = "Show resistances", -- NEEDS TRANSLATION
-		ExpYield = "EXP", -- NEEDS TRANSLATION
+		ButtonViewEvos = "Ver ...",
+		ButtonHistory = "Historial", -- Size
+		ButtonResistances = "Mostrar resistencias", -- Size
+		ExpYield = "EXP",
 		KilogramAbbreviation = "kg",
-		LabelWeight = "Weight", -- NEEDS TRANSLATION
-		LabelEvolution = "Evolution", -- NEEDS TRANSLATION
-		LabelLearnMove = "Learns a move at level", -- NEEDS TRANSLATION
-		LabelNoMoves = "Does not learn any moves", -- NEEDS TRANSLATION
-		LabelWeakTo = "Weak to", -- NEEDS TRANSLATION
-		LabelNoWeaknesses = "Has no weaknesses", -- NEEDS TRANSLATION
-		PromptLookupPokemon = "Choose a Pokémon to look up", -- NEEDS TRANSLATION
+		LabelWeight = "Peso",
+		LabelEvolution = "Evolución",
+		LabelLearnMove = "Aprende mov. al nivel",
+		LabelNoMoves = "No aprende ningún movimiento",
+		LabelWeakTo = "Débil a",
+		LabelNoWeaknesses = "Sin debilidades", -- Size
+		PromptLookupPokemon = "Elige un Pokémon para ver",
 		-- Move Info
-		LabelCategory = "Category", -- NEEDS TRANSLATION
-		LabelContact = "Contact", -- NEEDS TRANSLATION
-		LabelPP = "PP", -- NEEDS TRANSLATION
-		LabelPower = "Power", -- NEEDS TRANSLATION
-		LabelAccuracy = "Accuracy", -- NEEDS TRANSLATION
-		LabelPriority = "Priority", -- NEEDS TRANSLATION
-		LabelMoveSummary = "Move Summary", -- NEEDS TRANSLATION
-		SetHiddenPowerType = "Set type", -- NEEDS TRANSLATION
-		PromptLookupMove = "Choose a Move to look up", -- NEEDS TRANSLATION
+		LabelCategory = "Categoría",
+		LabelContact = "Contacto",
+		LabelPP = "PP",
+		LabelPower = "Potencia",
+		LabelAccuracy = "Precisión",
+		LabelPriority = "Prioridad",
+		LabelMoveSummary = "Resumen",
+		SetHiddenPowerType = "Sel. tipo",
+		PromptLookupMove = "Elige un movimiento para ver",
 		-- Ability Info
-		LabelEmeraldAbility = "In Emerald", -- NEEDS TRANSLATION
-		PromptLookupAbility = "Choose an Ability to look up", -- NEEDS TRANSLATION
+		LabelEmeraldAbility = "En Esmeralda",
+		PromptLookupAbility = "Elige una habilidad para ver",
 		-- Route Info
-		CheckboxPercentages = "Percentages", -- NEEDS TRANSLATION
-		CheckboxLevels = "Levels", -- NEEDS TRANSLATION
-		LabelSeenBy = "Pokémon seen by", -- NEEDS TRANSLATION
-		LabelSeenEncounters = "Pokémon encounters", -- NEEDS TRANSLATION
-		LabelOrderAppearance = "In order of appearance", -- NEEDS TRANSLATION
-		PromptLookupRoute = "Choose a Route to look up", -- NEEDS TRANSLATION
+		CheckboxPercentages = "Porcentajes",
+		CheckboxLevels = "Niveles",
+		LabelSeenBy = "Pokémon vistos",
+		LabelSeenEncounters = "Encuentros Pokémon",
+		LabelOrderAppearance = "En órden de aparición",
+		PromptLookupRoute = "Elige una ruta para ver",
 	},
 	NotebookIndexScreen = {
-		Title = "Tracker Notebook", -- NEEDS TRANSLATION
-		LabelReviewDescription = "Review notes about the game", -- NEEDS TRANSLATION
-		LabelPokemonSeen = "Pokémon Seen", -- NEEDS TRANSLATION
-		LabelTrainersFought = "Trainers Fought", -- NEEDS TRANSLATION
+		Title = "BLOC DE NOTAS DEL TRACKER",
+		LabelReviewDescription = "Revisa las notas de la partida",
+		LabelPokemonSeen = "Pokémon vistos",
+		LabelTrainersFought = "Entren. peleados",
 	},
 	NotebookPokemonSeen = {
-		Title = "All Pokémon Seen", -- NEEDS TRANSLATION
-		LabelAll = "All", -- NEEDS TRANSLATION
-		LabelSeen = "Seen", -- NEEDS TRANSLATION
+		Title = "Todos los Pokémon vistos",
+		LabelAll = "Todos",
+		LabelSeen = "Vistos",
 	},
 	NotebookPokemonNoteView = {
-		HeaderMoveHistory = "Move History", -- NEEDS TRANSLATION
+		HeaderMoveHistory = "Historial de movimientos",
 	},
 	NotebookTrainersByArea = {
-		Title = "All Trainers by Area", -- NEEDS TRANSLATION
-		CheckboxShowCompleted = "Show completed", -- NEEDS TRANSLATION
-		CheckboxSevii = "Sevii", -- NEEDS TRANSLATION
+		Title = "Todos los entrenadores por zonas",
+		CheckboxShowCompleted = "Mostra completados",
+		CheckboxSevii = "Archi7",
 	},
 	TrainerInfoScreen = {
-		LabelAvgIvs = "Avg. IVs", -- NEEDS TRANSLATION
-		LabelAIScript = "A I Script", -- NEEDS TRANSLATION
-		LabelUsableItems = "Usable Items", -- NEEDS TRANSLATION
-		LabelDouble = "Double", -- NEEDS TRANSLATION
-		LabelBattle = "Battle!", -- NEEDS TRANSLATION
+		LabelAvgIvs = "Media IVs",
+		LabelAIScript = "IA Script",
+		LabelUsableItems = "Objetos usables",
+		LabelDouble = "doble!",
+		LabelBattle = "Combate", -- In spanish is Combate (in LabelDouble) doble! (in LabelBattle)
 	},
 	CustomExtensionsScreen = {
-		Title = "Tracker Extensions", -- NEEDS TRANSLATION
-		TabGeneral = "General", -- NEEDS TRANSLATION
-		TabExtensions = "Extensions", -- NEEDS TRANSLATION
-		TabOptions = "Options", -- NEEDS TRANSLATION
-		LabelTotalInstalled = "Total installed", -- NEEDS TRANSLATION
-		LabelExtensionsEnabled = "Extensions enabled", -- NEEDS TRANSLATION
-		ButtonUpdateAllExtensions = "Update all extensions", -- NEEDS TRANSLATION
-		ButtonFindMoreExtensions = "Find more extensions", -- NEEDS TRANSLATION
-		ButtonInstallNewExtension = "Install a new extension", -- NEEDS TRANSLATION
-		OptionAllowCustomCode = "Allow custom code to run", -- NEEDS TRANSLATION
+		Title = "Extensiones personalizadas",
+		TabGeneral = "General",
+		TabExtensions = "Extensiones",
+		TabOptions = "Opciones",
+		LabelTotalInstalled = "Instaladas totales",
+		LabelExtensionsEnabled = "Extensiones activadas",
+		ButtonUpdateAllExtensions = "Actualizar extensiones",
+		ButtonFindMoreExtensions = "Buscar más extensiones",
+		ButtonInstallNewExtension = "Instalar nueva extensión",
+		OptionAllowCustomCode = "Permitir código personalizado",
 	},
 	SingleExtensionScreen = {
-		LabelAuthorBy = "By", -- NEEDS TRANSLATION
-		LabelVersion = "Version", -- NEEDS TRANSLATION
-		LabelEnabled = "Enabled", -- NEEDS TRANSLATION
-		EnabledOn = "ON", -- NEEDS TRANSLATION
-		EnabledOff = "OFF", -- NEEDS TRANSLATION
-		ButtonViewOnline = "View Online", -- NEEDS TRANSLATION
-		ButtonOptions = "Options", -- NEEDS TRANSLATION
-		ButtonCheckForUpdates = "Check for Updates", -- NEEDS TRANSLATION
-		ButtonUpdateAvailable = "Update Available", -- NEEDS TRANSLATION
-		ButtonNoUpdateFound = "No Update Found", -- NEEDS TRANSLATION
+		LabelAuthorBy = "Creado por",
+		LabelVersion = "Versión",
+		LabelEnabled = "Activada",
+		EnabledOn = "ON",
+		EnabledOff = "OFF",
+		ButtonViewOnline = "Ver en línea",
+		ButtonOptions = "Opciones", -- Size
+		ButtonCheckForUpdates = "Buscar actualizaciones", -- Size
+		ButtonUpdateAvailable = "Actualización disponible", -- Size
+		ButtonNoUpdateFound = "Ninguna actualización", -- Size
 	},
 	TrackedDataScreen = {
-		Title = "Manage Tracked Data", -- NEEDS TRANSLATION
-		DescAutoSave = "All of the data that is tracked while you play is auto saved after each battle, stored as a .TDAT file", -- NEEDS TRANSLATION
-		DescManualSave = "Old auto saved data will be lost if you start a new game on the same Pokémon version. If you want to keep it, use Save Data", -- NEEDS TRANSLATION
-		OptionAutoSaveData = "Auto save tracked game data", -- NEEDS TRANSLATION
-		ButtonSaveData = "Save Data", -- NEEDS TRANSLATION
-		ButtonLoadData = "Load Data", -- NEEDS TRANSLATION
-		ButtonClearData = "Clear Data", -- NEEDS TRANSLATION
-		ButtonClearConfirm = "Are you sure?", -- NEEDS TRANSLATION
-		ButtonClearSuccess = "Data Cleared!", -- NEEDS TRANSLATION
-		PromptHeaderSave = "Save Tracker Data", -- NEEDS TRANSLATION
-		PromptEnterFilename = "Enter a filename to save Tracker data to", -- NEEDS TRANSLATION
+		Title = "Gestión de datos",
+		DescAutoSave = "Los datos trackeados mientras juegas se guardan autom. en cada batalla, almacenados como .TDAT",
+		DescManualSave = "Los datos antiguos se perderán si empiezas una partida nueva. Si quieres guardarlos, usa el botón GUARDAR.",
+		OptionAutoSaveData = "Guardar autom. los datos",
+		ButtonSaveData = "Guardar",
+		ButtonLoadData = "Cargar",
+		ButtonClearData = "Borrar datos",
+		ButtonClearConfirm = "¿Estás seguro?",
+		ButtonClearSuccess = "¡Datos borrados!",
+		PromptHeaderSave = "Guardar datos del Tracker",
+		PromptEnterFilename = "Introduce un nombre para guardar los datos",
 	},
 	ViewLogWarningScreen = {
-		Title = "Warning -- View the Log ?", -- NEEDS TRANSLATION
-		ButtonViewCurrentLog = "View Log", -- NEEDS TRANSLATION
-		ButtonViewPreviousLog = "Previous Log", -- NEEDS TRANSLATION
-		WarningAreYouSure = "Are you sure you want to view the log file?", -- NEEDS TRANSLATION
-		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.", -- NEEDS TRANSLATION
-		WarningIfUnsure = "If you are unsure, simply do not view the log file.", -- NEEDS TRANSLATION
+		Title = "Advertencia - ¿Ver el Log?",
+		ButtonViewCurrentLog = "Ver Log",
+		ButtonViewPreviousLog = "Log anterior",
+		WarningAreYouSure = "¿Estás seguro que quieres ver el Log?",
+		WarningSpiritOfIronmon = "En IronMON, va en contra del espíritu del desafio ver el Log antes de que el juego termine.",
+		WarningIfUnsure = "Si no estás seguro, simplemente no cliques en Ver Log.",
 	},
 	CoverageCalcScreen = {
-		Title = "Coverage Calculator", -- NEEDS TRANSLATION
-		ButtonAddType = "Add Type", -- NEEDS TRANSLATION
-		ButtonClearTypes = "Clear All", -- NEEDS TRANSLATION
-		ButtonPokemonMatchups = "Pokémon Matchups", -- NEEDS TRANSLATION
-		OptionFullyEvolvedOnly = "Fully evolved Pokémon only", -- NEEDS TRANSLATION
-		TitleAddMoveType = "Add a Move Type", -- NEEDS TRANSLATION
-		LabelTotal = "Total", -- NEEDS TRANSLATION
+		Title = "Calculadora de cobertura",
+		ButtonAddType = "Añadir tipo",
+		ButtonClearTypes = "Limpiar todo", -- Size
+		ButtonPokemonMatchups = "Pokémon compatibles", -- Size
+		OptionFullyEvolvedOnly = "Solo Pokémon evo. comp.",
+		TitleAddMoveType = "Añadir el tipo",
+		LabelTotal = "Totales",
 	},
 	TimeMachineScreen = {
-		Title = "Time Machine", -- NEEDS TRANSLATION
-		OptionEnableRestorePoints = "Enable restore points", -- NEEDS TRANSLATION
-		DescInstructions = "Select a restore point below to go back to that point in time.", -- NEEDS TRANSLATION
-		DescNoRestorePoints = "No restore points are available; one is created every 5 minutes.", -- NEEDS TRANSLATION
-		RestorePointAgeSingular = "created 1 minute ago", -- NEEDS TRANSLATION
-		RestorePointAgePlural = "created %s minutes ago", -- NEEDS TRANSLATION
-		UndoAndReturnBack = "Return back to the future", -- NEEDS TRANSLATION
-		ConfirmationRestore = "Confirm restore?", -- NEEDS TRANSLATION
-		LocationUnknownArea = "Unknown Area", -- NEEDS TRANSLATION
-		ButtonCreate = "Create", -- NEEDS TRANSLATION
+		Title = "Máquina del tiempo",
+		OptionEnableRestorePoints = "Activar puntos de restauración",
+		DescInstructions = "Selecciona un punto para volver atrás en el tiempo",
+		DescNoRestorePoints = "Ningún punto de restauración disponible; Se creará uno cada 5 minutos.",
+		RestorePointAgeSingular = "creado hace 1 minuto",
+		RestorePointAgePlural = "creado hace %s",
+		UndoAndReturnBack = "Volver al futuro",
+		ConfirmationRestore = "¿Confirmar restauración?",
+		LocationUnknownArea = "Área desconocida",
+		ButtonCreate = "Crear",
 	},
 	CrashRecoveryScreen = {
-		Title = "Crash Recovery", -- NEEDS TRANSLATION
-		StatusMessageCrash = "Crash Detected", -- NEEDS TRANSLATION
-		StatusMessageNoCrash = "No Crash Detected", -- NEEDS TRANSLATION
-		ButtonRecoverSave = "Recover Save", -- NEEDS TRANSLATION
-		ButtonUndoRecovery = "Undo Recovery", -- NEEDS TRANSLATION
-		ButtonDismiss = "Dismiss", -- NEEDS TRANSLATION
-		LastPlayedGame = "Last played game", -- NEEDS TRANSLATION
-		SameGameAsLast = "Same game version as last", -- NEEDS TRANSLATION
-		SameRomAsLast = "Same exact ROM as last", -- NEEDS TRANSLATION
-		NotAvailable = "(Not available)", -- NEEDS TRANSLATION
-		OptionEnableCrashRecovery = "Enable crash recovery", -- NEEDS TRANSLATION
+		Title = "Recuperación de errores",
+		StatusMessageCrash = "Error detectado",
+		StatusMessageNoCrash = "Ningún error detectado",
+		ButtonRecoverSave = "Recuperar save",
+		ButtonUndoRecovery = "Deshacer save",
+		ButtonDismiss = "Descartar",
+		LastPlayedGame = "Último juego",
+		SameGameAsLast = "Misma versión del juego",
+		SameRomAsLast = "Misma ROM del juego",
+		NotAvailable = "(No disponible)",
+		OptionEnableCrashRecovery = "Activar recuperación de errores",
 	},
 	GameOverScreen = {
-		Title = "G a m e O v e r", -- NEEDS TRANSLATION
-		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
-		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
-		ButtonViewGrade = "View", -- NEEDS TRANSLATION
-		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
-		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
-		ButtonRetryBattle = "Retry the battle", -- NEEDS TRANSLATION
-		ButtonRetryBattleConfirm = "Are you sure?", -- NEEDS TRANSLATION
-		ButtonSaveAttempt = "Save this attempt", -- NEEDS TRANSLATION
-		ButtonSaveSuccessful = "Saved in Tracker folder", -- NEEDS TRANSLATION
-		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
-		ButtonGradeMyNotes = "Grade my notes", -- NEEDS TRANSLATION
-		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
-		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+		Title = "F i n  d e l  j u e g o",
+		LabelAttempt = "Intento",
+		LabelPlayTime = "Tiempo total",
+		ButtonViewGrade = "Ver",
+		QuoteCongratulations = "¡¡ENHORABUENA!!",
+		ButtonContinuePlaying = "Continuar jugando",
+		ButtonRetryBattle = "Reintentar batalla",
+		ButtonRetryBattleConfirm = "¿Estás seguro?",
+		ButtonSaveAttempt = "Guardar este intento",
+		ButtonSaveSuccessful = "Trackers/saved_games",
+		ButtonSaveFailed = "Error al guardar",
+		ButtonGradeMyNotes = "Puntuar mis notas",
+		ButtonInspectLogFile = "Inspeccionar Log",
+		ButtonOpenLogFile = "Abrir Log",
+		ButtonViewLogSmall = "Ver log",
+		ButtonPrizeCard = "Carta premio",
 	},
 	StatMarkingScoreSheet = {
-		Title = "Stat Marking Score Sheet", -- NEEDS TRANSLATION
-		LabelGreatMarks = "Great marks", -- NEEDS TRANSLATION
-		LabelPoorMarks = "Poor marks", -- NEEDS TRANSLATION
-		LabelTotal = "Total", -- NEEDS TRANSLATION
-		LabelPercentage = "Percentage", -- NEEDS TRANSLATION
-		MessageTakeNotesByMarking = "Take notes while playing by marking stats on opposing Pokémon. (The Speed stat is excluded from grading.)", -- NEEDS TRANSLATION
+		Title = "Puntuación efectiva de stats",
+		LabelGreatMarks = "Acertadas",
+		LabelPoorMarks = "Falladas",
+		LabelTotal = "Totales",
+		LabelPercentage = "Porcentaje",
+		MessageTakeNotesByMarking = "Toma nota mientras juegas marcando las estadísticas del Pokémon contrario. (La estadística de VELOCIDAD está excluida.)",
 	},
 	RandomEvosScreen = {
-		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
-		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
+		LabelRandomEvos = "Evo. aleatorias",
+		LabelEvoShort = "Evo.",
 	},
 	HealsInBagScreen = {
-		TabAll = "All", -- NEEDS TRANSLATION
-		TabHP = "HP", -- NEEDS TRANSLATION
-		TabPP = "PP", -- NEEDS TRANSLATION
-		TabStatus = "Status", -- NEEDS TRANSLATION
-		TabBattle = "Battle", -- NEEDS TRANSLATION
+		TabAll = "Todo",
+		TabHP = "PS",
+		TabPP = "PP",
+		TabStatus = "Estado",
+		TabBattle = "Batalla",
 	},
 	MoveHistoryScreen = {
-		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION
-		HeaderMin = "Min", -- NEEDS TRANSLATION
-		HeaderMax = "Max", -- NEEDS TRANSLATION
-		NoTrackedMoves = "(No tracked move data yet)", -- NEEDS TRANSLATION
-		NoMovesLearned = "Does not learn any moves", -- NEEDS TRANSLATION
-		PromptPokemonTitle = "Pokédex Look up", -- NEEDS TRANSLATION
-		PromptPokemonDesc = "Choose a Pokémon to look up", -- NEEDS TRANSLATION
+		HeaderMoves = "Mov. visto al nivel",
+		HeaderMin = "Mín",
+		HeaderMax = "Máx",
+		NoTrackedMoves = "(Sin datos de movimientos)",
+		NoMovesLearned = "No aprende ningún movimiento",
+		PromptPokemonTitle = "Buscar en la Pokédex",
+		PromptPokemonDesc = "Elige al Pokémon",
 	},
 	CatchRatesScreen = {
-		Title = "Ball Catch Rates", -- NEEDS TRANSLATION
-		PokemonsHPPercent = "Estimated HP", -- NEEDS TRANSLATION
-		PokemonsStatus = "Status", -- NEEDS TRANSLATION
-		HeaderBall = "Ball", -- NEEDS TRANSLATION
-		HeaderBag = "Bag", -- NEEDS TRANSLATION
-		HeaderRate = "Rate", -- NEEDS TRANSLATION
+		Title = "Porcentaje de captura",
+		PokemonsHPPercent = "PS aproximados",
+		PokemonsStatus = "Estado",
+		HeaderBall = "Ball",
+		HeaderBag = "Bag",
+		HeaderRate = "Ratio",
 	},
 	TypeDefensesScreen = {
-		Immunities = "Immunities", -- NEEDS TRANSLATION
-		Resistances = "Resistances", -- NEEDS TRANSLATION
-		Weaknesses = "Weaknesses", -- NEEDS TRANSLATION
+		Immunities = "Immunidades",
+		Resistances = "Resistencias",
+		Weaknesses = "Debilidades",
 	},
 	BattleDetailsScreen = {
-		Title = "Battle Details", -- NEEDS TRANSLATION
-		TextTurn = "Turn", -- NEEDS TRANSLATION
-		TextTerrain = "Terrain", -- NEEDS TRANSLATION
-		TextWeather = "Weather", -- NEEDS TRANSLATION
-		TextWeatherTurns = "Weather turns", -- NEEDS TRANSLATION
-		TextAllied = "Allied", -- NEEDS TRANSLATION
-		TextEnemy = "Enemy", -- NEEDS TRANSLATION
-		TextTeam = "Team", -- NEEDS TRANSLATION
-		TextField = "Field Effects", -- NEEDS TRANSLATION
-		TextTurnsRemaining = "Left", -- NEEDS TRANSLATION
-		TextLastMove = "Last Move", -- NEEDS TRANSLATION
-		TextNotAvailable ="N/A", -- NEEDS TRANSLATION
+		Title = "Detalles de la batalla",
+		TextTurn = "Turno",
+		TextTerrain = "Terreno",
+		TextWeather = "Clima",
+		TextWeatherTurns = "Turnos de clima",
+		TextAllied = "Aliado",
+		TextEnemy = "Enemigo",
+		TextTeam = "Equipo",
+		TextField = "Efecto de terreno",
+		TextTurnsRemaining = "Restantes",
+		TextLastMove = "Último mov.",
+		TextNotAvailable ="N/D",
 
-		WeatherDefault = "None", -- NEEDS TRANSLATION
-		WeatherRain = "Rain", -- NEEDS TRANSLATION
-		WeatherSandstorm = "Sandstorm", -- NEEDS TRANSLATION
-		WeatherSunlight =  "Sunlight", -- NEEDS TRANSLATION
-		WeatherHail =  "Hail", -- NEEDS TRANSLATION
-		TerrainDefault = "Building", -- NEEDS TRANSLATION
-		TerrainGrass = "Grass", -- NEEDS TRANSLATION
-		TerrainLongGrass = "Long Grass", -- NEEDS TRANSLATION
-		TerrainSand = "Sand", -- NEEDS TRANSLATION
-		TerrainUnderwater = "Underwater", -- NEEDS TRANSLATION
-		TerrainWater = "Water", -- NEEDS TRANSLATION
-		TerrainPond = "Pond", -- NEEDS TRANSLATION
-		TerrainMountain = "Mountain", -- NEEDS TRANSLATION
-		TerrainCave = "Cave", -- NEEDS TRANSLATION
+		WeatherDefault = "Ninguno",
+		WeatherRain = "Lluvia",
+		WeatherSandstorm = "Tormenta de arena",
+		WeatherSunlight =  "Soleado",
+		WeatherHail =  "Granizo",
+		TerrainDefault = "Edificio",
+		TerrainGrass = "Hierba",
+		TerrainLongGrass = "Hierba alta",
+		TerrainSand = "Arena",
+		TerrainUnderwater = "Bajo el agua",
+		TerrainWater = "Agua",
+		TerrainPond = "Estanque",
+		TerrainMountain = "Montaña",
+		TerrainCave = "Cueva",
 
-		EffectConfused = "Confused", -- NEEDS TRANSLATION
-		EffectMustAttack = "Must Attack", -- NEEDS TRANSLATION
-		EffectTrapped = "Trapped", -- NEEDS TRANSLATION
-		EffectCannotAct = "Recharging", -- NEEDS TRANSLATION
-		EffectAirborne = "Airborne", -- NEEDS TRANSLATION
-		EffectUnderground = "Underground", -- NEEDS TRANSLATION
-		EffectUnderwater = "Underwater", -- NEEDS TRANSLATION
-		EffectDrowsy = "Drowsy", -- NEEDS TRANSLATION
-		EffectProtectUses = "Protection Uses", -- NEEDS TRANSLATION
-		EffectPerishCount = "Perish Count", -- NEEDS TRANSLATION
-		EffectCannotEscape = "Can't Escape", -- NEEDS TRANSLATION
-		EffectTruant = "Loafing", -- NEEDS TRANSLATION
-		EffectFutureSight = "Future", -- NEEDS TRANSLATION
+		EffectConfused = "Confuso",
+		EffectMustAttack = "Debe atacar",
+		EffectTrapped = "Atrapado",
+		EffectCannotAct = "Recargando",
+		EffectAirborne = "Aéreo",
+		EffectUnderground = "Bajo tierra",
+		EffectUnderwater = "Bajo el agua",
+		EffectDrowsy = "Somnoliento",
+		EffectProtectUses = "Usos de Protección",
+		EffectPerishCount = "Cuenta atrás",
+		EffectCannotEscape = "No puede escapar",
+		EffectTruant = "Holgazaneando",
+		EffectFutureSight = "Premonición",
 	},
 	LogOverlay = { -- Log Viewer
-		HeaderTabPokemon = "Pokémon", -- NEEDS TRANSLATION
-		HeaderTabTrainers = "Trainers", -- NEEDS TRANSLATION
-		HeaderTabRoutes = "Routes", -- NEEDS TRANSLATION
-		HeaderTabTMs = "TMs", -- NEEDS TRANSLATION
-		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
-		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
-		LabelBSTTotal = "Total", -- NEEDS TRANSLATION
-		LabelYourIVs = "Your IVs", -- NEEDS TRANSLATION
-		LabelYourEVs = "Your EVs", -- NEEDS TRANSLATION
-		LabelShowIVs = "Show IVs", -- NEEDS TRANSLATION
-		LabelShowEVs = "Show EVs", -- NEEDS TRANSLATION
-		LabelShowBST = "Show BST", -- NEEDS TRANSLATION
-		ButtonLevelupMoves = "Levelup Moves", -- NEEDS TRANSLATION
-		ButtonTMMoves = "TM Moves", -- NEEDS TRANSLATION
-		LabelGymTMs = "Gym TMs", -- NEEDS TRANSLATION
-		LabelOtherTMs = "Other TMs", -- NEEDS TRANSLATION
-		LabelFilterBy = "Filter by", -- NEEDS TRANSLATION
-		FilterAll = "All", -- NEEDS TRANSLATION
-		FilterRival = "Rival", -- NEEDS TRANSLATION
-		FilterGym = "Gym", -- NEEDS TRANSLATION
-		FilterElite4 = "Elite 4", -- NEEDS TRANSLATION
-		FilterBoss = "Boss", -- NEEDS TRANSLATION
-		FilterOther = "Other", -- NEEDS TRANSLATION
-		LabelLocation = "Location", -- NEEDS TRANSLATION
-		LabelEncounters = "Encounters", -- NEEDS TRANSLATION
-		TabTrainers = "Trainers", -- NEEDS TRANSLATION
-		TabGrassCave = "Grass / Cave", -- NEEDS TRANSLATION
-		TabSurfing = "Surfing", -- NEEDS TRANSLATION
-		TabOldRod = "Old Rod", -- NEEDS TRANSLATION
-		TabGoodRod = "Good Rod", -- NEEDS TRANSLATION
-		TabSuperRod = "Super Rod", -- NEEDS TRANSLATION
-		TabRockSmash = "Rock Smash", -- NEEDS TRANSLATION
-		FilterTMNumber = "TM #", -- NEEDS TRANSLATION
-		FilterGymTMs = "Gym TMs", -- NEEDS TRANSLATION
-		LabelPokemonGame = "Pokémon Game", -- NEEDS TRANSLATION
-		LabelRandomizerVersion = "Randomizer Version", -- NEEDS TRANSLATION
-		LabelRandomSeed = "Random Seed", -- NEEDS TRANSLATION
-		LabelSettingsString = "Settings String", -- NEEDS TRANSLATION
-		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
-		CheckboxShowUnlearnableGymTMs = "Show unlearnable Gym TMs", -- NEEDS TRANSLATION
-		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
-		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
-		PromptShareSeedTitle = "Share Randomizer Seed", -- NEEDS TRANSLATION
-		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.", -- NEEDS TRANSLATION
+		HeaderTabPokemon = "Pokémon",
+		HeaderTabTrainers = "Entrenadores",
+		HeaderTabRoutes = "Rutas",
+		HeaderTabTMs = "MTs",
+		HeaderTabMisc = "Varios",
+		LabelBaseStats = "Estad. base",
+		LabelBSTTotal = "Total",
+		LabelYourIVs = "Tus IVs",
+		LabelYourEVs = "Tus EVs",
+		LabelShowIVs = "Ver IVs",
+		LabelShowEVs = "Ver EVs",
+		LabelShowBST = "Ver BST",
+		ButtonLevelupMoves = "Mov. por nivel",
+		ButtonTMMoves = "Mov. MT",
+		LabelGymTMs = "MTs de gimnasio",
+		LabelOtherTMs = "Otras MTs",
+		LabelFilterBy = "Filtrar por",
+		FilterAll = "Todos",
+		FilterRival = "Rival",
+		FilterGym = "Gimnasio",
+		FilterElite4 = "Alto Mando",
+		FilterBoss = "Jefe",
+		FilterOther = "Otro",
+		LabelLocation = "Ubicación",
+		LabelEncounters = "Encuentros",
+		TabTrainers = "Entrenadores",
+		TabGrassCave = "Hierba / Cueva",
+		TabSurfing = "Surf",
+		TabOldRod = "Caña vieja",
+		TabGoodRod = "Caña buena",
+		TabSuperRod = "Súper caña",
+		TabRockSmash = "Golpe roca",
+		FilterTMNumber = "N.º MT",
+		FilterGymTMs = "MTs de gimnasio",
+		LabelPokemonGame = "Nombre del juego",
+		LabelRandomizerVersion = "Versión del Randomizer",
+		LabelRandomSeed = "Seed aleatoria",
+		LabelSettingsString = "Configuración del String",
+		ButtonShareSeed = "Comp. Seed",
+		CheckboxShowUnlearnableGymTMs = "Mostrar MTs de gimnasio incompatibles",
+		CheckboxShowPreEvolutions = "Mostrar pre-evoluciones",
+		CheckboxCustomTrainerNames = "Mostrar nombres personalizados de entrenadores",
+		PromptShareSeedTitle = "Compartir Seed randomizada",
+		PromptShareSeedDesc = "Copia/pega todo para poder compartir. Cárgalo a través del Randomizer --> Premade Seed.",
 	},
 	LogSearchScreen = {
-		Title = "Search the Log", -- NEEDS TRANSLATION
-		LabelSortBy = "Sort by", -- NEEDS TRANSLATION
-		LabelSearch = "Search", -- NEEDS TRANSLATION
-		LabelNoResults = "No results", -- NEEDS TRANSLATION
-		SortAlphabetical = "Alphabetical", -- NEEDS TRANSLATION
-		SortPokedexNum = "Pokédex Number", -- NEEDS TRANSLATION
-		SortBST = "BST", -- NEEDS TRANSLATION
-		SortHP = "HP", -- NEEDS TRANSLATION
-		SortATK = "Attack", -- NEEDS TRANSLATION
-		SortDEF = "Defense", -- NEEDS TRANSLATION
-		SortSPA = "Sp. Atk", -- NEEDS TRANSLATION
-		SortSPD = "Sp. Def", -- NEEDS TRANSLATION
-		SortSPE = "Speed", -- NEEDS TRANSLATION
-		SortWildPokemonLv = "Wild Pokémon Lv.", -- NEEDS TRANSLATION
-		SortTrainerLevel = "Trainer Level", -- NEEDS TRANSLATION
-		FilterName = "Pokémon Name", -- NEEDS TRANSLATION
-		FilterAbility = "Ability", -- NEEDS TRANSLATION
-		FilterMove = "Levelup Move", -- NEEDS TRANSLATION
-		FilterTrainerName = "Trainer Name", -- NEEDS TRANSLATION
-		FilterRouteName = "Route Name", -- NEEDS TRANSLATION
+		Title = "Buscar en el Log",
+		LabelSortBy = "Ordenador por",
+		LabelSearch = "Buscar",
+		LabelNoResults = "Sin resultados",
+		SortAlphabetical = "Alfabético",
+		SortPokedexNum = "N.º Pokédex",
+		SortBST = "BST",
+		SortHP = "PS",
+		SortATK = "Ataque",
+		SortDEF = "Defensa",
+		SortSPA = "At. Esp.",
+		SortSPD = "Def. Esp.",
+		SortSPE = "Velocidad",
+		SortWildPokemonLv = "Nv. Pok. salvaje",
+		SortTrainerLevel = "Nv. del entrenador",
+		FilterName = "Nombre del Pok.",
+		FilterAbility = "Habilidad",
+		FilterMove = "Mov. por nivel",
+		FilterTrainerName = "Nombre del entr.",
+		FilterRouteName = "Nombre de la Ruta",
+	},
+	GachaMonAnimations = {
+		LabelPrizeCardFromTrainer = "Carta premio de entrenador", -- Size
+		LabelTabNEW = "NUEVO", -- Size in carrousel its OK, BUT text size in pink box is out
+		LabelPressBUTTONtoOpen = "Pulsa (%s) o clica para abrir", -- Size
+	},
+	GachaMonOverlay = {
+		TabRecent = "Capturas",
+		TabCollection = "Colección",
+		TabView = "Ver",
+		TabGachaDex = "GachaDex",
+		TabBattle = "Batalla",
+		TabOptions = "Opciones",
+		TabAbout = "?",
+
+		-- Recent/Captures Tab & Collections Tabs
+		RecentCapturesHelpText1 = "Aquí están los GachaMons capturados en esta run.",
+		RecentCapturesHelpText2 = "[Añadir a colección] y guardarlos para siempre.",
+		LabelSort = "Sort",
+
+		-- View Tab
+		LabelRating = "Ranking",
+		WordPoints = "puntos",
+		WordStars = "estrellas",
+		LabelBattlePower = "Pot. Batalla",
+		BattlePowerAbbreviation = "PB",
+		LabelCollectedOn = "Coleccionado",
+		LabelSeed = "Seed",
+		LabelStats = "Stats",
+		ButtonBattle = "Batalla",
+		ButtonFavorite = "Favorito",
+		ButtonInCollection = "En colección",
+		ButtonAddToCollection = "Añadir a colección",
+
+		-- GachaDex Tab
+		LabelSeen = "Vistos", -- Size
+		LabelCollAbbreviation = "Col.",
+
+		-- Battle Tab
+
+		-- Options Tab
+		LabelOnCaptureHeader = "Cuando capturas nuevo GachaMon, añadir a la colección si",
+		LabelRulesetForRatings = "Reglas usadas para rankings",
+		LabelTagAuto = "Auto",
+		LabelCollectionSize = "GachaMons en colección",
+		OptionAutoAddIfNew = "Es una nueva especie de Pokémon",
+		OptionAutoAddWhenDefeatTrainers = "Derrota al menos 2 entrenadores",
+		OptionShowGachaMonStarsOnTracker = "Mostrar estrellas junto a curaciones",
+		OptionShowCardPackOnScreen = "Mostrar apertura de sobre antes de las stats Pokémon",
+		OptionAnimateGachaMonPackOpening = "Animar apertura de sobre",
+		OptionAutoAddFromTrainerVictory = "Recibir ocasionalmente carta premio de entrenadores",
+		ButtonCleanupCollection = "Limpiar colección",
+
+		-- About Tab
+		GachaMonGameHeader = "Juego de cartas coleccionable GachaMon", -- Size
+		GachaMonGameDescription = "Juega IronMON,  colecciona cartas GachaMon!",
+		SectionHowItWorks = "Como funciona",
+		LabelCatchPokemon = "Captura Pokémon",
+		LabelAcquireGachaMonCards = "Consigue cartas GachaMon",
+		LabelKeepCardsInCollection = "Guárdalas en tu colección",
+		LabelBattle = "Batalla!  (muy pronto)",
+		SectionWhatsOnCard = "Que hay en la carta",
+		LabelStarsAndRating = "Estrellas:  Ranking del Pokémon (1- 5)",
+		LabelBattlePowerAndStrength = "Pot. Batalla:  Es la fuerza del Pokémon al combatir",
+		ButtonHelpWiki = "Ayuda", -- Center text
+		MessageCheckConsole = "Consulta la consola Lua para ver un enlace al Wiki de ayuda del Tracker.",
 	},
 	TeamViewArea = {
-		EggNickname = "EGG", -- NEEDS TRANSLATION
+		EggNickname = "HUEVO",
 	},
 	CustomCode = {
-		ExtensionsLoaded = "Extensions Loaded", -- NEEDS TRANSLATION
-		ExtensionsMissing = "Extensions Missing", -- NEEDS TRANSLATION
+		ExtensionsLoaded = "Extensión cargada",
+		ExtensionsMissing = "Falta extensión",
 	},
 	StreamConnect = {
 		-- THE BELOW EVENTS NEED TRANSLATION
-		CMD_Pokemon_Name = "Pokémon Info",
-		CMD_Pokemon_Help = "name > Displays useful game info for a Pokémon.",
-		CMD_BST_Name = "Pokémon BST",
-		CMD_BST_Help = "name > Displays the base stat total (BST) for a Pokémon.",
-		CMD_Weak_Name = "Pokémon Weaknesses",
-		CMD_Weak_Help = "name > Displays the weaknesses for a Pokémon.",
-		CMD_Move_Name = "Move Info",
-		CMD_Move_Help = "name > Displays game info for a move.",
-		CMD_Ability_Name = "Ability Info",
-		CMD_Ability_Help = "name > Displays game info for a Pokémon's ability.",
-		CMD_Trainer_Name = "Trainer Info",
-		CMD_Trainer_Help = "[name id] > Displays info about the most recent trainer fought, or for a specific trainer name or id.",
-		CMD_Route_Name = "Route Info",
-		CMD_Route_Help = "name > Displays trainer and wild encounter info for a route or area.",
-		CMD_Dungeon_Name = "Dungeon Info",
-		CMD_Dungeon_Help = "name > Displays info about which trainers have been defeated for an area.",
-		CMD_Unfought_Name = "Unfought Trainers",
-		CMD_Unfought_Help = "[dungeon] [no doubles] [sevii] > Lists areas ordered by lowest-level, undefeated trainers. (Add param 'dungeon' for partially completed dungeons and/or 'nodoubles' to exclude double battles.)",
-		CMD_Pivots_Name = "Pivots Seen",
-		CMD_Pivots_Help = "[safari] > Displays known early game wild encounters for an area. (Add param 'safari' for high-level encounters from Safari Zone).",
-		CMD_Revo_Name = "Pokémon Random Evolutions",
-		CMD_Revo_Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
-		CMD_Coverage_Name = "Move Coverage Effectiveness",
-		CMD_Coverage_Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
-		CMD_Heals_Name = "Heals in Bag",
-		CMD_Heals_Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
-		CMD_TMs_Name = "TM Lookup",
-		CMD_TMs_Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
-		CMD_Search_Name = "Search Tracked Info",
-		CMD_Search_Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
-		CMD_SearchNotes_Name = "Search Notes on Pokémon",
-		CMD_SearchNotes_Help = "notes > Displays a list of Pokémon with any matching notes.",
-		CMD_Favorites_Name = "Favorite Starters",
-		CMD_Favorites_Help = "> Displays the list of favorites used for picking a starter.",
-		CMD_Theme_Name = "Theme Export",
-		CMD_Theme_Help = "name > Displays the name and code string for a Tracker theme.",
-		CMD_GameStats_Name = "Game Stats",
-		CMD_GameStats_Help = "> Displays fun stats for the current game.",
-		CMD_Progress_Name = "Game Progress",
-		CMD_Progress_Help = "> Displays fun progress percentages for the current game.",
-		CMD_Log_Name = "Log Randomizer Settings",
-		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
-		CMD_BallQueue_Name = "Ball Queue",
-		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
-		CMD_About_Name = "About the Tracker",
-		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
-		CMD_Help_Name = "Command Help",
-		CMD_Help_Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
-		CR_PickBallOnce_Name = "Pick Starter Ball (One Try)",
-		CR_PickBallUntilOut_Name = "Pick Starter Ball (Until Out)",
-		CR_ChangeFavorite_Name = "Change Starter Favorite: # NAME",
-		CR_ChangeFavoriteOne_Name = "Change Starter Favorite: #1",
-		CR_ChangeFavoriteTwo_Name = "Change Starter Favorite: #2",
-		CR_ChangeFavoriteThree_Name = "Change Starter Favorite: #3",
-		CR_ChangeTheme_Name = "Change Tracker Theme",
-		CR_ChangeLanguage_Name = "Change Tracker Language",
-		GE_GameOver_Name = "When the game is over...",
-		GE_GameOver_TriggerEffect = "Update SB Global Variables",
-		O_SendMessage = "Send chat message if successful",
-		O_AutoComplete = "Auto-complete the redeem",
-		O_RequireChosenMon = "Your pick direction must match",
-		O_WordForLeft = "Word for Left",
-		O_WordForMiddle = "Word for Middle",
-		O_WordForRight = "Word for Right",
-		O_WordForRandom = "Word for Random",
-		O_ShowBallQueueOnStartup = "Show Ball Queue info on startup",
+		CMD_Pokemon_Name = "Info. del Pokémon",
+		CMD_Pokemon_Help = "nombre > Muestra info. útil del juego sobre un Pokémon.",
+		CMD_BST_Name = "BST del Pokémon",
+		CMD_BST_Help = "nombre > Muestra el total de estadísticas base (BST) del Pokémon.",
+		CMD_Weak_Name = "Debilidades del Pokémon",
+		CMD_Weak_Help = "nombre > Muestra las debilidades del Pokémon.",
+		CMD_Move_Name = "Info. del movimiento",
+		CMD_Move_Help = "nombre > Muestra la info. del juego sobre un movimiento.",
+		CMD_Ability_Name = "Info. de la habilidad",
+		CMD_Ability_Help = "nombre > Muestra la info del juego sobre una habilidad.",
+		CMD_Trainer_Name = "Info. del entrenador",
+		CMD_Trainer_Help = "[name id] > Muestras info. sobre el último entrenador derrotado, o nombre específico del entrenador o la ID.",
+		CMD_Route_Name = "Info. de la ruta",
+		CMD_Route_Help = "nombre > Muestra info. sobre entrenadores y encuentros salvajes en una ruta o zona.",
+		CMD_Dungeon_Name = "Info. de la cueva",
+		CMD_Dungeon_Help = "nombre > Muestra info. sobre que entrenadores han sido derrotados en el área.",
+		CMD_Unfought_Name = "Entrenadores no derrotados",
+		CMD_Unfought_Help = "[cueva] [no dobles] [archi7] > Lista de las áreas ordenadas por menor-nivel, entrenadores no derrotados (Añadir parámetro 'cueva' para cuevas parcialmente completadas y/o 'sin dobles' para excluir combates dobles).",
+		CMD_Pivots_Name = "Pivotantes vistos",
+		CMD_Pivots_Help = "[safari] > Muestra encuentros salvajes iniciales para un área. (Añadir el parámetro 'safari' para encuentro de mayor-nivel en la Zona Safari).",
+		CMD_Revo_Name = "Evoluciones aleatorias",
+		CMD_Revo_Help = "nombre [target-ev] > Muestra las posibilidades de evolución aleatoria para el Pokémon, y su [target-evo] si existe más de uno disponible.",
+		CMD_Coverage_Name = "Efectividad de la cobertura del tipo",
+		CMD_Coverage_Help = "tipos [completamente evolucionado] > Para la lista de tipos de movimientos, verifica la efectividad en todos los enfrentamientos Pokémon (o solo [target-evo]) para la efectividad.",
+		CMD_Heals_Name = "Curaciones",
+		CMD_Heals_Help = "[pv pp status bayas] > Muestra todas las curas de la mochila, o solo para una [categoría] especificada.",
+		CMD_TMs_Name = "MTs conseguidas",
+		CMD_TMs_Help = "[gym mo Nº] > Muestra todas las MTs de la mochila, o solo la de una [categoría] específica o N.º MT.",
+		CMD_Search_Name = "Buscar info. en el Tracker",
+		CMD_Search_Help = "buscarterm > Busca info. ya vista para un Pokémon, movimiento, o habilidad move, or ability.",
+		CMD_SearchNotes_Name = "Buscar notas sobre Pokémon",
+		CMD_SearchNotes_Help = "notas > Muestra una lista de Pokémon con notas que coincidan.",
+		CMD_Favorites_Name = "Starters favoritos",
+		CMD_Favorites_Help = "> Muestras la lista de los starters favoritos.",
+		CMD_Theme_Name = "Exportar tema",
+		CMD_Theme_Help = "nombre > Muestra el nombre y el code string del tema actual.",
+		CMD_GameStats_Name = "Estadísticas de la partida",
+		CMD_GameStats_Help = "> Muestra estadísticas varias de la partida actual.",
+		CMD_Progress_Name = "Progreso de la partida",
+		CMD_Progress_Help = "> Muestra el progreso actual de la partida en porcentajes.",
+		CMD_Log_Name = "Configuración actual del Randomizer",
+		CMD_Log_Help = "> Si el Log se abrió, muestra la configuración compartible del Randomizer actual.",
+		CMD_BallQueue_Name = "Cola de los starters",
+		CMD_BallQueue_Help = "> Muestra cuanta cola existe y a quien le toca actualmente, si existe alguien.",
+		CMD_GachaMon_Name = "Info. GachaMon",
+		CMD_GachaMon_Help = "nombre > Muestra la info. de la carta para un GachaMon, más reciente o Pokémon específico.",
+		CMD_GachaDex_Name = "Info. GachaDex",
+		CMD_GachaDex_Help = "> Muestra la colección e info. del GachaDex.",
+		CMD_About_Name = "Acerca del Tracker",
+		CMD_About_Help = "> Muestra la info acerca de IronMON Tracker y el juego actual.",
+		CMD_Help_Name = "Comando de ayuda",
+		CMD_Help_Help = "[comando] > Muestra la lista de todos los comandos, o para una info. específica del [comando].",
+		CR_PickBallOnce_Name = "Elige Poké Ball starter (Un intento)",
+		CR_PickBallUntilOut_Name = "Elige Poké Ball starter (Hasta salir)",
+		CR_ChangeFavorite_Name = "Cambiar starter favorito: # NOMBRE",
+		CR_ChangeFavoriteOne_Name = "Cambiar starter favorito: #1",
+		CR_ChangeFavoriteTwo_Name = "Cambiar starter favorito: #2",
+		CR_ChangeFavoriteThree_Name = "Cambiar starter favorito: #3",
+		CR_ChangeTheme_Name = "Cambiar tema del Tracker",
+		CR_ChangeLanguage_Name = "Cambiar idioma del Tracker",
+		GE_GameOver_Name = "Cuando se termina la partida...",
+		GE_GameOver_TriggerEffect = "Actualizar SB Global Variables",
+		GE_GachaMonCapture_Name = "Cuando un GachaMon ha sido capturado...",
+		GE_GachaMonCapture_TriggerEffect = "Enviar su código compartido base64",
+		O_SendMessage = "Mensaje al chat si se completa",
+		O_AutoComplete = "Auto completar el canje",
+		O_RequireChosenMon = "La dirección elegida debe coincidir",
+		O_WordForLeft = "Palabra para la izquierda",
+		O_WordForMiddle = "Palabra para el medio",
+		O_WordForRight = "Palabra para la derecha",
+		O_WordForRandom = "Para para aleatorio",
+		O_ShowBallQueueOnStartup = "Muestra la info. de la cola al iniciar",
 		-- THE BELOW SCREEN LABELS NEED TRANSLATION
-		TabCommands = "Commands",
-		TabRewards = "Rewards",
-		TabQueue = "Queue",
-		TabGame = "Game",
-		TabStatus = "Status",
-		ButtonRolePermissions = "Role Permissions",
-		ButtonRename = "Rename",
-		ButtonOptions = "Options",
-		ButtonAdd = "Add",
-		ButtonChange = "Change",
-		ButtonQueueAreYouSure = "Are you sure?",
-		ButtonQueueClearAll = "Clear All",
-		ButtonQueueConfirm = "Confirm?",
-		ButtonConnect = "Connect",
-		ButtonDisconnect = "Disconnect",
+		TabCommands = "Comandos",
+		TabRewards = "Recompensas",
+		TabQueue = "Cola",
+		TabGame = "Juego",
+		TabStatus = "Estado",
+		ButtonRolePermissions = "Permisos de rol",
+		ButtonRename = "Cambiar",
+		ButtonOptions = "Opciones",
+		ButtonAdd = "Añadir",
+		ButtonChange = "Cambiar",
+		ButtonQueueAreYouSure = "¿Estás seguro?",
+		ButtonQueueClearAll = "Limpiar",
+		ButtonQueueConfirm = "Confirmar?",
+		ButtonConnect = "Conectar",
+		ButtonDisconnect = "Desconectar",
 		ButtonSet = "Set",
-		ButtonGetStreamerbotCode = "Get Streamerbot Code",
-		ButtonHelp = "Help",
-		LabelWaitingForConnection = "(Waiting for connection...)",
-		LabelNoRewardsInQueue = "No Rewards have been queued up.",
-		LabelNoGameEvents = "No Game event triggers have been added.",
-		LabelHowToAddGameEvents = "You can add new Game event triggers through custom Tracker extensions.",
-		LabelConnectionStatus = "Connection Status",
-		LabelOnlineEstablished = "Online: Connection established.",
-		LabelOnlineWaiting = "Online: Waiting for connection...",
-		LabelOffline = "Offline.",
-		LabelSettings = "Settings",
-		LabelConnectionMode = "Connection Mode",
-		LabelConnectionFolder = "Connection Folder",
-		LabelImportCode = "Import Code",
-		LabelServerIP = "Server IP",
-		LabelServerPort = "Port",
+		ButtonGetStreamerbotCode = "Código Streamerbot",
+		ButtonHelp = "Ayuda",
+		LabelWaitingForConnection = "(Esperando para conectar...)",
+		LabelNoRewardsInQueue = "Ninguna recompensa en la cola.",
+		LabelNoGameEvents = "Ningún evento activo se ha añadido.",
+		LabelHowToAddGameEvents = "Puedes añadir un nuevo evento activo a través de extensiones personalizadas.",
+		LabelConnectionStatus = "Estado de la conexión",
+		LabelOnlineEstablished = "En línea: Conexión establecida.",
+		LabelOnlineWaiting = "En línea: Esperando para conectar...",
+		LabelOffline = "Desconectado.",
+		LabelSettings = "Opciones",
+		LabelConnectionMode = "Modo de conexión",
+		LabelConnectionFolder = "Carpeta de conexión",
+		LabelImportCode = "Importar código",
+		LabelServerIP = "IP del servidor",
+		LabelServerPort = "Puerto",
 		LabelHttpGet = "GET",
 		LabelHttpPost = "POST",
-		WarningSetupImport = "Setup: Import code then set connection folder.",
-		WarningNotSupported = "This mode not yet supported by Bizhawk.",
-		StatusConnTypeText = "Text",
+		WarningSetupImport = "Configuración: Importar código y luego selecciona carpeta.", -- Size
+		WarningNotSupported = "Este modo todavía no es soportado por Bizhawk.",
+		StatusConnTypeText = "Texto",
 		StatusConnTypeWebSockets = "WebSockets",
 		StatusConnTypeHttp = "Http",
-		OptionAutoConnectStartup = "Auto-connect on startup",
-		PromptUpdateTitle = "Streamerbot Update Required",
-		PromptUpdateDesc1 = "Streamerbot Tracker Integration code requires an update.",
-		PromptUpdateDesc2 = "You must re-import the code to continue using Stream Connect.",
-		PromptNetworkShowMe = "Show Me",
-		PromptNetworkTurnOff = "Turn Off Stream Connect",
-		PromptDefault = "Default",
+		OptionAutoConnectStartup = "Conectar automáticamente al iniciar",
+		PromptUpdateTitle = "Actualización necesaria de Streamerbot",
+		PromptUpdateDesc1 = "El código del Streamerbot Tracker necesita actualizarse.",
+		PromptUpdateDesc2 = "Debes reimportar el código para continuar usando Conectar Stream.",
+		PromptNetworkShowMe = "Muéstralo",
+		PromptNetworkTurnOff = "Apagar Conectar Stream",
+		PromptDefault = "Por defecto",
 	},
 	MGBA = {
-		MenuTrackerSettings = "Tracker Settings", -- NEEDS TRANSLATION
-		MenuGeneralSetup = "General Setup", -- NEEDS TRANSLATION
-		MenuGameplayOptions = "Gameplay Options", -- NEEDS TRANSLATION
-		MenuQuickloadSetup = "New Runs Setup", -- NEEDS TRANSLATION
-		MenuCheckForUpdates = "Check for Updates", -- NEEDS TRANSLATION
-		MenuNewUpdateVailable = "New Update Available", -- NEEDS TRANSLATION
-		MenuLanguage = "Language", -- NEEDS TRANSLATION
-		MenuExtensions = "Extensions", -- NEEDS TRANSLATION
-		MenuCommands = "Commands", -- NEEDS TRANSLATION
-		MenuBasicCommands = "Basic Commands", -- NEEDS TRANSLATION
-		MenuAdvancedCommands = "Advanced Commands", -- NEEDS TRANSLATION
-		MenuOtherCommands = "Other Commands", -- NEEDS TRANSLATION
-		MenuInfoLookup = "Info Lookup", -- NEEDS TRANSLATION
-		MenuPokemon = "Pokémon", -- NEEDS TRANSLATION
-		MenuMove = "Move", -- NEEDS TRANSLATION
-		MenuAbility = "Ability", -- NEEDS TRANSLATION
-		MenuRoute = "Route", -- NEEDS TRANSLATION
-		MenuOriginalRoute = "Original Route Info", -- NEEDS TRANSLATION
-		MenuGameStats = "Game Stats", -- NEEDS TRANSLATION
-		MenuTracker = "Tracker", -- NEEDS TRANSLATION
-		MenuBattleTracker = "Battle Tracker", -- NEEDS TRANSLATION
+		MenuTrackerSettings = "Ajustes del Tracker",
+		MenuGeneralSetup = "Opciones generales",
+		MenuGameplayOptions = "Opciones de jugabilidad",
+		MenuQuickloadSetup = "Configurar nueva run",
+		MenuCheckForUpdates = "Buscar actualizaciones",
+		MenuNewUpdateVailable = "Nueva actualización disponible",
+		MenuLanguage = "Idiomas",
+		MenuExtensions = "Extensiones",
+		MenuCommands = "Comandos",
+		MenuBasicCommands = "Comandos básicos",
+		MenuAdvancedCommands = "Comandos avanzados",
+		MenuOtherCommands = "Otros comandos",
+		MenuInfoLookup = "Info. Pokémon",
+		MenuPokemon = "Pokémon",
+		MenuMove = "Movimiento",
+		MenuAbility = "Habilidad",
+		MenuRoute = "Ruta",
+		MenuOriginalRoute = "Info. ruta original",
+		MenuGameStats = "Estadísticas",
+		MenuTracker = "Tracker",
+		MenuBattleTracker = "Tracker de combate",
 		StartupInstructions = {
-			"- Click on the menus on the left sidebar to see different information screens.", -- NEEDS TRANSLATION
-			"- To use commands, type the command into the box below.", -- NEEDS TRANSLATION
-			"  Surround the command options with 'quotation marks'. For example:", -- NEEDS TRANSLATION
-			"    POKEMON 'Pikachu'", -- NEEDS TRANSLATION
+			"- Clica en los menús de la izquierda para ver distintas ventanas de información.",
+			"- Para usar comandos, escribe el comando en la caja de texto de debajo.",
+			"  Envuelve el comando con 'comillas'. Por ejemplo:",
+			"    POKÉMON 'Pikachu'",
 			"", -- Leave blank just prints a newline
-			"- If you're unsure of what a command does, you can use: HELP 'command'", -- NEEDS TRANSLATION
-			"- More information can be found on the Tracker's wiki by typing: HELPWIKI()", -- NEEDS TRANSLATION
+			"- Si no estás seguro que hace el comando, puedes usar: HELP 'command'",
+			"- Para más información puedes encontrar la Wiki del Tracker escribiendo: HELPWIKI()",
 		},
-		OptionKeyError = "Option key doesn't exist", -- NEEDS TRANSLATION
-		OptionFileError = "File not found", -- NEEDS TRANSLATION
-		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
-		OptionAutosaveTrackedData = "Autosave tracked game data", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
-		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
-		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
-		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
-		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
-		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
-		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
-		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
-		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
-		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
-		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
-		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
-		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
-		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
-		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
-		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
-		OptionPhysicalSpecialIcons = "Physical/Special icons", -- NEEDS TRANSLATION
-		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
-		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
-		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
-		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
-		OptionRevealRandomizedInfo = "Show random move/type data", -- NEEDS TRANSLATION
-		OptionShowHealsAsValue = "Show heals as whole number", -- NEEDS TRANSLATION
-		OptionShowBallCatchRate = "Show Poke Ball catch rate", -- NEEDS TRANSLATION
-		OptionAutodetectGameLanguage = "Autodetect game language", -- NEEDS TRANSLATION
-		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
-		OptionGenerateRom = "Generate a ROM each time", -- NEEDS TRANSLATION
-		OptionRomsFolder = "ROMs Folder", -- NEEDS TRANSLATION
-		OptionRandomizerJar = "Randomizer JAR", -- NEEDS TRANSLATION
-		OptionSourceRom = "Source ROM", -- NEEDS TRANSLATION
-		OptionSettingsFile = "Settings File", -- NEEDS TRANSLATION
-		OptionAllowCustomCode = "Allow custom code to run", -- NEEDS TRANSLATION
-		AnimatedPopoutRequired = "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up.", -- NEEDS TRANSLATION
-		JarFileRequired = "A '.jar' file is required; please enter the full file path to your Randomizer JAR file.", -- NEEDS TRANSLATION
-		GbaFileRequired = "A '.gba' file is required; please enter the full file path to your GBA ROM file.", -- NEEDS TRANSLATION
-		RnqsFileRequired = "An '.rnqs' file is required; please enter the full file path to your Randomizer Settings file.", -- NEEDS TRANSLATION
-		ButtonInputRequired = "Button input required; available buttons: A, B, L, R, Start, Select", -- NEEDS TRANSLATION
+		OptionKeyError = "La tecla opción no existe",
+		OptionFileError = "Archivo no encontrado",
+		OptionRightJustifiedNumbers = "Stats alineadas a la derecha", -- Size
+		OptionShowNicknames = "Mostrar motes",
+		OptionAutosaveTrackedData = "Guardar autom. datos trackeados", -- Size
+		OptionTrackPCHeals = "Mostrar curas del CP",
+		OptionPCHealsCountDownward = "Orden desc. curas del CP",
+		OptionDisplayPedometer = "Mostrar pasos del podómetro", -- Size
+		OptionDisplayRepel = "Mostrar uso del repelente",
+		OptionDisplayGender = "Mostrar género del Pokémon",
+		OptionAnimatedPokemonGIF = "Mostrar GIF del Pokémon",
+		OptionDevBranchUpdates = "Actualizaciones beta",
+		OptionOverrideButtonModeLR = "Anular botones de LR",
+		OptionSwapViewedPokemon = "Pokémon mostrado",
+		OptionCycleThroughStats = "Mover entre stats",
+		OptionMarkStat = "Marcar stat [+/-]",
+		OptionQuickload = "Nueva run",
+		OptionAutoswapEnemy = "Mostrar Pok. enem. auto.",
+		OptionShowStarterBallInfo = "Info. Poké Ball inicial",
+		OptionViewSummaryForStats = "Ver datos para ver stats",
+		OptionShowMoveTypes = "Mostrar el tipo del mov.",
+		OptionPhysicalSpecialIcons = "Iconos físico / especial",
+		OptionShowMoveEffectiveness = "Mostrar mov. superefectivo",
+		OptionCalculateVariableDamage = "Calcular daño variable",
+		OptionCountEnemyPP = "Mostrar PPs del enemigo",
+		OptionShowLastDamage = "Cálculo del último daño",
+		OptionRevealRandomizedInfo = "Datos mov./tipos aleat.",
+		OptionShowHealsAsValue = "N.º curaciones entero",
+		OptionShowBallCatchRate = "Porcentajes de captura",
+		OptionAutodetectGameLanguage = "Detectar idioma autom.",
+		OptionPremadeRoms = "Usar grupo de ROMs",
+		OptionGenerateRom = "Generar una ROM cada vez",
+		OptionRomsFolder = "Carpeta de ROMs",
+		OptionRandomizerJar = "Randomizer JAR",
+		OptionSourceRom = "ROM base",
+		OptionSettingsFile = "Opciones de archivo",
+		OptionAllowCustomCode = "Permitir código personalizado",
+		AnimatedPopoutRequired = "El addon pop-out del Pokémon animado se debe instalar por separado. \n Consulta la Wiki del Tracker para más detalles sobre como configurarlo.",
+		JarFileRequired = "Se necesita un archivo '.jar'; por favor introduce la ruta completa para el archivo JAR Randomizer.",
+		GbaFileRequired = "Se necesita un archivo '.gba'; por favor introduce la ruta completa para el archivo ROM de GBA.",
+		RnqsFileRequired = "Se necesita un archivo '.rnqs'; por favor introduce la ruta completa para el archivo RNQS.",
+		ButtonInputRequired = "Entrada de botón necesaria; botones disponibles: A, B, L, R, Start, Select",
 	},
 	MGBAScreens = {
-		SymbolStatus = " ", -- NEEDS TRANSLATION
-		SymbolPhysical = "P", -- NEEDS TRANSLATION
-		SymbolSpecial = "S", -- NEEDS TRANSLATION
-		SymbolEffectivenessImmune = "X", -- NEEDS TRANSLATION
-		SymbolEffectivenessResist = "-", -- NEEDS TRANSLATION
-		SymbolEffectivenessResistDouble = "--", -- NEEDS TRANSLATION
-		SymbolEffectivenessWeak = "+", -- NEEDS TRANSLATION
-		SymbolEffectivenessWeakDouble = "++", -- NEEDS TRANSLATION
-		LabelImmunities = "Immunities", -- NEEDS TRANSLATION
-		LabelResistances = "Resistances", -- NEEDS TRANSLATION
-		LabelWeaknesses = "Weaknesses", -- NEEDS TRANSLATION
-		LabelPhysical = "Physical", -- NEEDS TRANSLATION
-		LabelSpecial = "Special", -- NEEDS TRANSLATION
-		LabelStatus = "Status", -- NEEDS TRANSLATION
-		LabelToggleOption = "Toggle option with", -- NEEDS TRANSLATION
-		LabelOption = "Option", -- NEEDS TRANSLATION
-		LabelEnabled = "Enabled", -- NEEDS TRANSLATION
-		GeneralSetupChange = "Change with", -- NEEDS TRANSLATION
-		GeneralSetupButtons = "button(s)", -- NEEDS TRANSLATION
-		GeneralSetupControls = "Controls", -- NEEDS TRANSLATION
-		GeneralSetupGBAButtons = "GBA Buttons", -- NEEDS TRANSLATION
-		GameplayOptionsManualSave = "Manually save/load tracked data", -- NEEDS TRANSLATION
-		QuickloadDesc = "To use a Load New Run option, put the required files in the [quickload] folder found in your main Tracker folder.", -- NEEDS TRANSLATION
-		QuickloadChooseMode = "Choose a mode with", -- NEEDS TRANSLATION
-		QuickloadMode = "Mode", -- NEEDS TRANSLATION
-		QuickloadSelected = "Selected", -- NEEDS TRANSLATION
-		QuickloadRequiredFiles = "Required Files", -- NEEDS TRANSLATION
-		QuickloadRequiredFilesOneEach = "Required Files (only 1 of each)", -- NEEDS TRANSLATION
-		QuickloadMultipleRoms = "Multiple GBA ROM files with #'s", -- NEEDS TRANSLATION
-		QuickloadJarFile = "JAR file from your Randomizer", -- NEEDS TRANSLATION
-		QuickloadRnqsFile = "RNQS Randomizer settings file", -- NEEDS TRANSLATION
-		QuickloadGbaFile = "GBA ROM file to randomize", -- NEEDS TRANSLATION
-		QuickloadButtonCombo = "Button Combo", -- NEEDS TRANSLATION
-		QuickloadTextCommand = "Text Command", -- NEEDS TRANSLATION
-		UpdateAvailable = "Update available!", -- NEEDS TRANSLATION
-		UpdateCurrentVersion = "Current version", -- NEEDS TRANSLATION
-		UpdateLastCheckedVersion = "Last checked version", -- NEEDS TRANSLATION
-		UpdateNewVersionAvailable = "New version available", -- NEEDS TRANSLATION
-		UpdateManualCheck = "Manually check for new updates", -- NEEDS TRANSLATION
-		UpdateViewReleaseNotes = "View release notes", -- NEEDS TRANSLATION
-		UpdateDownloadInstall = "Download & install automatically", -- NEEDS TRANSLATION
-		LanguageCurrent = "Current Language", -- NEEDS TRANSLATION
-		LanguageChangeWith = "Change your language with", -- NEEDS TRANSLATION
-		LanguageHeaderTag = "Tag", -- NEEDS TRANSLATION
-		LanguageHeaderLang = "Language", -- NEEDS TRANSLATION
-		ExtensionsInstallNewWith = "Install new extensions with", -- NEEDS TRANSLATION
-		ExtensionsInstalledExtensions = "Installed Extensions", -- NEEDS TRANSLATION
-		ExtensionsEnableDisable = "Enable/disable with", -- NEEDS TRANSLATION
-		CommandsDesc = "To use, type into below textbox. Example command", -- NEEDS TRANSLATION
-		CommandsUsageSyntax = "Usage Syntax", -- NEEDS TRANSLATION
-		CommandsExampleUsage = "Example Usage", -- NEEDS TRANSLATION
-		PokemonInfoBST = "BST", -- NEEDS TRANSLATION
-		PokemonInfoEXP = "EXP", -- NEEDS TRANSLATION
-		PokemonInfoWeight = "Weight", -- NEEDS TRANSLATION
-		PokemonInfoEvolution = "Evolution", -- NEEDS TRANSLATION
-		PokemonInfoKg = "kg", -- NEEDS TRANSLATION
-		PokemonInfoLevelupMoves = "Level-up moves", -- NEEDS TRANSLATION
-		PokemonInfoNone = "None", -- NEEDS TRANSLATION
-		PokemonInfoNote = "Note", -- NEEDS TRANSLATION
-		PokemonInfoLeaveNote = "(Leave a note)", -- NEEDS TRANSLATION
-		MoveInfoCategory = "Category", -- NEEDS TRANSLATION
-		MoveInfoContact = "Contact", -- NEEDS TRANSLATION
-		MoveInfoPP = "PP", -- NEEDS TRANSLATION
-		MoveInfoPower = "Power", -- NEEDS TRANSLATION
-		MoveInfoAccuracy = "Accuracy", -- NEEDS TRANSLATION
-		MoveInfoPriority = "Priority", -- NEEDS TRANSLATION
-		MoveInfoSummary = "Move Summary", -- NEEDS TRANSLATION
-		MoveInfoEmeraldBonus = "Emerald Bonus", -- NEEDS TRANSLATION
-		MoveInfoNormalPriority = "Normal", -- NEEDS TRANSLATION
-		RouteInfoUnknownArea = "UNKNOWN AREA", -- NEEDS TRANSLATION
-		RouteInfoTracked = "Tracked", -- NEEDS TRANSLATION
-		RouteInfoOriginal = "Original", -- NEEDS TRANSLATION
-		RouteInfoSeen = "seen", -- NEEDS TRANSLATION
-		TrackerLevel = "Lv", -- NEEDS TRANSLATION
-		TrackerBST = "BST", -- NEEDS TRANSLATION
-		TrackerHP = "HP", -- NEEDS TRANSLATION
-		TrackerAttack = "ATK", -- NEEDS TRANSLATION
-		TrackerDefense = "DEF", -- NEEDS TRANSLATION
-		TrackerSpAttack = "SPA", -- NEEDS TRANSLATION
-		TrackerSpDefense = "SPD", -- NEEDS TRANSLATION
-		TrackerSpeed = "SPE", -- NEEDS TRANSLATION
-		TrackerCatchRate = "Catch rate", -- NEEDS TRANSLATION
-		TrackerSurvivalPCs = "Survival PCs", -- NEEDS TRANSLATION
-		TrackerHeals = "Heals", -- NEEDS TRANSLATION
-		TrackerLastSeen = "Last seen", -- NEEDS TRANSLATION
-		TrackerNewEncounter = "New encounter!", -- NEEDS TRANSLATION
-		TrackerSeenWild = "Seen in the wild", -- NEEDS TRANSLATION
-		TrackerSeenTrainers = "Seen on trainers", -- NEEDS TRANSLATION
-		TrackerTrainerTeam = "Trainer team", -- NEEDS TRANSLATION
-		TrackerBadges = "Badges", -- NEEDS TRANSLATION
+		SymbolStatus = " ",
+		SymbolPhysical = "F",
+		SymbolSpecial = "E",
+		SymbolEffectivenessImmune = "X",
+		SymbolEffectivenessResist = "-",
+		SymbolEffectivenessResistDouble = "--",
+		SymbolEffectivenessWeak = "+",
+		SymbolEffectivenessWeakDouble = "++",
+		LabelImmunities = "Immunidades",
+		LabelResistances = "Resistencias",
+		LabelWeaknesses = "Debilidades",
+		LabelPhysical = "Físico",
+		LabelSpecial = "Especial",
+		LabelStatus = "Estado",
+		LabelToggleOption = "Alternar opción con",
+		LabelOption = "Opción",
+		LabelEnabled = "Activado", -- Size
+		GeneralSetupChange = "Cambiar con",
+		GeneralSetupButtons = "botón(es)",
+		GeneralSetupControls = "Controles",
+		GeneralSetupGBAButtons = "Botones GBA",
+		GameplayOptionsManualSave = "Guardar/cargar datos trackeados manualmente",
+		QuickloadDesc = "Para usar una nueva run, coloca el archivo necesario en la carpeta [quickload] que la encontrarás en la carpeta GBA Tracker.",
+		QuickloadChooseMode = "Elegir modo con",
+		QuickloadMode = "Modo",
+		QuickloadSelected = "Seleccionado", -- Size
+		QuickloadRequiredFiles = "Archivos necesarios",
+		QuickloadRequiredFilesOneEach = "Archivos necesarios (solo 1 de cada)",
+		QuickloadMultipleRoms = "Archivos múltiples de ROM GBA con #s",
+		QuickloadJarFile = "Archivo JAR de tu Randomizer",
+		QuickloadRnqsFile = "Archivo de opciones RNQS ",
+		QuickloadGbaFile = "ROM GBA par randomizar",
+		QuickloadButtonCombo = "Combinación de botones",
+		QuickloadTextCommand = "Comando de texto",
+		UpdateAvailable = "¡Actualización disponible!",
+		UpdateCurrentVersion = "Versión actual",
+		UpdateLastCheckedVersion = "Última versión vista",
+		UpdateNewVersionAvailable = "Nueva versión disponible",
+		UpdateManualCheck = "Buscar actualizaciones manualmente",
+		UpdateViewReleaseNotes = "Ver notas del parche",
+		UpdateDownloadInstall = "Descargar e instalar automaticamente",
+		LanguageCurrent = "Idioma actual",
+		LanguageChangeWith = "Cambiar tu idioma con",
+		LanguageHeaderTag = "Etiqueta",
+		LanguageHeaderLang = "Idioma",
+		ExtensionsInstallNewWith = "Instalar nueva extensión con",
+		ExtensionsInstalledExtensions = "Extensiones instaladas",
+		ExtensionsEnableDisable = "Activar/desactivar con",
+		CommandsDesc = "Para usar, escribe en la caja de texto de debajo. Por ejemplo",
+		CommandsUsageSyntax = "Usar sintaxis",
+		CommandsExampleUsage = "Ejemplo de uso",
+		PokemonInfoBST = "BST",
+		PokemonInfoEXP = "EXP",
+		PokemonInfoWeight = "Peso",
+		PokemonInfoEvolution = "Evolución",
+		PokemonInfoKg = "kg",
+		PokemonInfoLevelupMoves = "Movimientos en los niveles",
+		PokemonInfoNone = "Ninguno",
+		PokemonInfoNote = "Nota",
+		PokemonInfoLeaveNote = "(Deja una nota)",
+		MoveInfoCategory = "Categoría",
+		MoveInfoContact = "Contacto",
+		MoveInfoPP = "PP",
+		MoveInfoPower = "Potencia",
+		MoveInfoAccuracy = "Precisión",
+		MoveInfoPriority = "Prioridad",
+		MoveInfoSummary = "Resumen del movimiento",
+		MoveInfoEmeraldBonus = "En Esmeralda",
+		MoveInfoNormalPriority = "Normal",
+		RouteInfoUnknownArea = "ÁREA DESCONOCIDA",
+		RouteInfoTracked = "Trackeado",
+		RouteInfoOriginal = "Original",
+		RouteInfoSeen = "vistos",
+		TrackerLevel = "Nv",
+		TrackerBST = "BST",
+		TrackerHP = "PV",
+		TrackerAttack = "ATQ",
+		TrackerDefense = "DEF",
+		TrackerSpAttack = "ASP",
+		TrackerSpDefense = "DSP",
+		TrackerSpeed = "VEL",
+		TrackerCatchRate = "Porcentajes de captura",
+		TrackerSurvivalPCs = "PCs restantes",
+		TrackerHeals = "Curaciones",
+		TrackerLastSeen = "Última vez visto", -- NEEDS TRANSLATION || Can't confirm if it fits because interface when load is bugged. Same with the next ones in this section.
+		TrackerNewEncounter = "¡Nuevo encuentro!", -- NEEDS TRANSLATION
+		TrackerSeenWild = "Visto salvaje", -- NEEDS TRANSLATION
+		TrackerSeenTrainers = "Visto en entrenadores", -- NEEDS TRANSLATION
+		TrackerTrainerTeam = "Equipo del entrenador", -- NEEDS TRANSLATION
+		TrackerBadges = "Medallas", -- NEEDS TRANSLATION
 		TrackerRepel = "Repel", -- NEEDS TRANSLATION
-		TrackerHeaderPP = "PP", -- NEEDS TRANSLATION
-		TrackerHeaderPow = "Pow", -- NEEDS TRANSLATION
-		TrackerHeaderAcc = "Acc", -- NEEDS TRANSLATION
-		TrackerHeaderType = "Type", -- NEEDS TRANSLATION
+		TrackerHeaderPP = "PP",
+		TrackerHeaderPow = "Pot",
+		TrackerHeaderAcc = "Pre",
+		TrackerHeaderType = "Tipo",
 	},
 	MGBACommands = {
-		UsageError = "[Command Error] Usage syntax", -- NEEDS TRANSLATION
-		AllCommandsDesc = "Lists every available command. Use HELP 'command' to learn more about any command.", -- NEEDS TRANSLATION
-		HelpDesc = "Used to explain the function of other commands and how to use them.", -- NEEDS TRANSLATION
-		HelpUsage = "Usage", -- NEEDS TRANSLATION
-		HelpExample = "Example", -- NEEDS TRANSLATION
-		HelpError1 = "Where 'command' is the name of a command.", -- NEEDS TRANSLATION
-		HelpError2 = "command not found. Check list of commands on the left sidebar.", -- NEEDS TRANSLATION
-		NoteDesc = "Sets the tracked note for the opposing Pokémon currently being viewed.", -- NEEDS TRANSLATION
-		NoteError1 = "Where 'text' is the note to leave for the enemy Pokémon being viewed.", -- NEEDS TRANSLATION
-		NoteError2 = "Unable to leave a note; no Pokémon is currently being viewed.", -- NEEDS TRANSLATION
-		NoteError3 = "You can only leave notes for enemy Pokémon you are currently viewing.", -- NEEDS TRANSLATION
-		NoteSuccess = "Note added for", -- NEEDS TRANSLATION
-		InfoLookupSuccess = "found! Check the sidebar menu to view it.", -- NEEDS TRANSLATION
-		PokemonDesc = "Looks up useful Pokédex info about a Pokémon, shown on the left sidebar.", -- NEEDS TRANSLATION
-		PokemonError1 = "Where 'name' is a valid Pokémon name.", -- NEEDS TRANSLATION
-		PokemonError2 = "Unable to find Pokémon", -- NEEDS TRANSLATION
-		MoveDesc = "Looks up useful information about a Pokémon move, shown on the left sidebar.", -- NEEDS TRANSLATION
-		MoveError1 = "Where 'name' is a valid Pokémon Move name.", -- NEEDS TRANSLATION
-		MoveError2 = "Unable to find Move", -- NEEDS TRANSLATION
-		AbilityDesc = "Looks up useful information about a Pokémon ability, shown on the left sidebar.", -- NEEDS TRANSLATION
-		AbilityError1 = "Where 'name' is a valid Pokémon's Ability name.", -- NEEDS TRANSLATION
-		AbilityError2 = "Unable to find Ability", -- NEEDS TRANSLATION
-		RouteDesc = "Looks up useful information about a route, shown on the left sidebar.\n Tip: Try adding a floor number after a route name, e.g. Mt. Moon 1F", -- \n is a newline
-		RouteError1 = "Where 'name' is a valid Route number or Route name.", -- NEEDS TRANSLATION
-		RouteError2 = "Unable to find Route", -- NEEDS TRANSLATION
-		OptionDesc = "Toggles an option ON or OFF.\n For some options, you'll need to provide additional text to change it.", -- NEEDS TRANSLATION
-		OptionError1 = "Where # is a valid option number, followed by any optional text.", -- NEEDS TRANSLATION
-		OptionSuccess = "Updating option", -- NEEDS TRANSLATION
-		OptionOn = "ON", -- NEEDS TRANSLATION
-		OptionOff = "OFF", -- NEEDS TRANSLATION
-		OptionError2 = "option doesn't exist. Please try another option number.", -- NEEDS TRANSLATION
-		HiddenPowerDesc = "Sets the type of Hidden Power for your active Pokémon.\n This helps show move effectiveness calculations while in battle.", -- NEEDS TRANSLATION
-		HiddenPowerError1 = "Where 'type' is a valid Pokémon type", -- NEEDS TRANSLATION
-		HiddenPowerError2 = "You don't have a Pokémon yet.", -- NEEDS TRANSLATION
-		HiddenPowerError3 = "Your Pokémon doesn't have the move", -- NEEDS TRANSLATION
-		HiddenPowerError4 = "Unable to find type", -- NEEDS TRANSLATION
-		HiddenPowerSuccess1 = "type set to", -- NEEDS TRANSLATION
-		HiddenPowerSuccess2 = "move effectiveness is visible on the Tracker while in battle", -- NEEDS TRANSLATION
-		HiddenPowerSuccess3 = "Enable the 'Show move effectiveness' option to see this type while in battle.", -- NEEDS TRANSLATION
-		PCHealsDesc = "Allows you to manually change the tracked Pokécenter usage counter to a different number.", -- NEEDS TRANSLATION
-		PCHealsError1 = "Where # is a positive number between 0 and 99.", -- NEEDS TRANSLATION
-		PCHealsSuccess = "Updating PC Heal count to", -- NEEDS TRANSLATION
-		CreditsDesc = "Displays a list of team members who helped contribute to creating the Ironmon Tracker.", -- NEEDS TRANSLATION
-		CreditsCreated = "Created by", -- NEEDS TRANSLATION
-		CreditsContributors = "Contributors", -- NEEDS TRANSLATION
-		SaveDataDesc = "Saves all tracked data for your current game.\n The TDAT save file can be found in your main Tracker folder.", -- NEEDS TRANSLATION
-		SaveDataError1 = "Where 'filename' is a valid name for a computer file.", -- NEEDS TRANSLATION
-		SaveDataSuccess = "Tracked data saved for this game in the Tracker folder as", -- NEEDS TRANSLATION
-		LoadDataDesc = "Loads tracked data from a past game playthrough.\n Loads from a TDAT file found in your main Tracker folder.", -- NEEDS TRANSLATION
-		LoadDataError1 = "Where 'filename' is the name of a file that exists in your Tracker folder.", -- NEEDS TRANSLATION
-		LoadDataError2 = "Tracked data from this file does not match this game. Resetting tracked data instead.", -- NEEDS TRANSLATION
-		LoadDataError3 = "Unable to load Tracked data from the specific file. Make sure it's in your Tracker folder.", -- NEEDS TRANSLATION
-		ClearDataDesc = "Clears out all current tracked data for the current game.\n Can help fix situations where wrong data keeps showing up.", -- NEEDS TRANSLATION
-		ClearDataSuccess = "All tracked data for this game has been cleared.", -- NEEDS TRANSLATION
-		CheckUpdateDesc = "Checks online to see if a new version of the Tracker is available, shown on the left sidebar.", -- NEEDS TRANSLATION
-		CheckUpdateFound = "Update found! Check the sidebar menu to view it.", -- NEEDS TRANSLATION
-		CheckUpdateNotFound = "No new updates available. Latest version available", -- NEEDS TRANSLATION
-		ReleaseNotesDesc = "Opens a browser window with details about the current version's release notes.", -- NEEDS TRANSLATION
-		UpdateNowDesc = "Automatically updates the Tracker by downloading and installing the latest release.", -- NEEDS TRANSLATION
-		UpdateNowSuccess = "Update in progress, please wait...", -- NEEDS TRANSLATION
-		UpdateNowSteps0 = "Follow these steps to restart the Tracker to apply the update", -- NEEDS TRANSLATION
-		UpdateNowSteps1 = "Complete any ongoing battles first", -- NEEDS TRANSLATION
-		UpdateNowSteps2 = "On the mGBA scripting window: Click File -> Reset", -- NEEDS TRANSLATION
-		UpdateNowSteps3 = "Click File -> Load script (or Load recent script)", -- NEEDS TRANSLATION
-		QuickloadDesc = "Forces the Tracker to automatically load a new game ROM.", -- NEEDS TRANSLATION
-		HelpWikiDesc = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.", -- NEEDS TRANSLATION
-		AttemptsDesc = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar.", -- NEEDS TRANSLATION
-		AttemptsError1 = "Where # is a positive number.", -- NEEDS TRANSLATION
-		AttemptsSuccess = "Updating Attempts counter", -- NEEDS TRANSLATION
-		RandomBallDesc = "Chooses a random Pokémon starter Poké Ball from among: Left, Middle, or Right.", -- NEEDS TRANSLATION
-		RandomBallSuccess = "Randomly chosen starter Poké Ball", -- NEEDS TRANSLATION
-		LanguageDesc = "Change the display language of the Tracker.", -- NEEDS TRANSLATION
-		LanguageError1 = "Where 'language' is the name or # of a language. Check the Language sidebar menu.", -- NEEDS TRANSLATION
-		LanguageError2 = "Unable to find language", -- NEEDS TRANSLATION
-		LanguageSuccess = "The Tracker's display language has been updated.", -- NEEDS TRANSLATION
-		InstallExtDesc = "Installs new Extension files from the Tracker's extensions folder.", -- NEEDS TRANSLATION
-		InstallExtSuccess1 = "New extensions have been installed!", -- NEEDS TRANSLATION
-		InstallExtSuccess2 = "No new extension files found in the Tracker's extensions folder.", -- NEEDS TRANSLATION
+		UsageError = "[Error de comando] Sintaxis de uso",
+		AllCommandsDesc = "Lista de todos los comandos disponibles. usa HELP 'command' para aprender más sobre cualquier comando.",
+		HelpDesc = "Se usa para explicar la función de otros comandos y cómo usarlos.",
+		HelpUsage = "Uso",
+		HelpExample = "Ejemplo",
+		HelpError1 = "Donde 'command' es el nombre de un comando.",
+		HelpError2 = "Comando no encontrado. Consulta la lista de comandos en el menú lateral de la izquierda.",
+		NoteDesc = "Establece la nota trackeada para el Pokémon oponente que estás viendo actualmente.",
+		NoteError1 = "Donde 'text' es la nota que dejas para el Pokémon oponente que estás viendo actualmente.",
+		NoteError2 = "No se puede dejar una nota; actualmente no estás viendo ningún Pokémon.",
+		NoteError3 = "Solo puedes dejar notas para Pokémon enemigos que estés viendo actualmente.",
+		NoteSuccess = "Nota añadida para",
+		InfoLookupSuccess = "¡Encontrado! Consulta el menú de la izquierda.",
+		PokemonDesc = "Busca información útil de la Pokédex sobre un Pokémon, mostrado en el menú lateral de la izquierda.",
+		PokemonError1 = "Donde 'name' es un nombre Pokémon válido.",
+		PokemonError2 = "Imposible encontrar el Pokémon",
+		MoveDesc = "Busca información útil sobre un movimiento del Pokémon, mostrado en el menú lateral de la izquierda.",
+		MoveError1 = "Donde 'name' es un nombre válido de movimiento Pokémon.",
+		MoveError2 = "Imposible encontrar el movimiento",
+		AbilityDesc = "Busca información útil sobre una habilidad del Pokémon, mostrada en el menú lateral de la izquierda.",
+		AbilityError1 = "Donde 'name' es un nombre válido de habilidad del Pokémon.",
+		AbilityError2 = "Imposible encontrar la habilidad",
+		RouteDesc = "Busca inormación útil sobre una ruta, mostrada en la barra lateral de la izquierda. \n Consejo: Intenta añadir un numero de piso después del nombre de la ruta. ej. Mt. Moon P1", -- \n is a newline
+		RouteError1 = "Donde 'name' es un nombre válido de número de ruta o nombre de ruta.",
+		RouteError2 = "Imposible encontrar la ruta",
+		OptionDesc = "Alterna una opción ON u OFF.\n Para algunas opciones, necesitarás proporcionar texto adicional para cambiarla.",
+		OptionError1 = "Donde # es un número válido, seguido de cualquier texto opcional.",
+		OptionSuccess = "Actualizando opción",
+		OptionOn = "ON",
+		OptionOff = "OFF",
+		OptionError2 = "la opción no existe. Por favor prueba con otro número.",
+		HiddenPowerDesc = "Establece el tipo de Poder Oculto para tu Pokémon activo.\n Esto ayuda a la efectividad de los movimientos calculados en batalla.",
+		HiddenPowerError1 = "Donde 'type' es un tipo válido.",
+		HiddenPowerError2 = "Todavía no tienes a un Pokémon.",
+		HiddenPowerError3 = "Tu Pokémon no tiene el movimiento",
+		HiddenPowerError4 = "Imposible encontrar el tipo",
+		HiddenPowerSuccess1 = "Tipo establecido para",
+		HiddenPowerSuccess2 = "La efectivdad del movimiento es visible en el Tracker durante la batalla.",
+		HiddenPowerSuccess3 = "Activa la opción 'Show move effectiveness' para ver el tipo durante la batalla.",
+		PCHealsDesc = "Te permite cambiar manualmente el uso de los Centros Pokémon a un número distinto.",
+		PCHealsError1 = "Donde # es un número positivo entre 0 y 99.",
+		PCHealsSuccess = "Actualizando el número de curas del CP",
+		CreditsDesc = "Mostrar la lista del equipo de personas que ayudaron a crear IronMON Tracker.",
+		CreditsCreated = "Creado por",
+		CreditsContributors = "Colaboradores",
+		SaveDataDesc = "Guarda todos los datos trackeados del juego actual.\n El archivo de guardado TDAT puedes encontrarlo en la carpeta principal del Tracker.",
+		SaveDataError1 = "Donde 'filename' es un nombre válido para el archivo.",
+		SaveDataSuccess = "Datos trackeados guardados para este juego en la carpeta del Tracker como",
+		LoadDataDesc = "Carga datos trackeados de la anterior partida.\n Cargado desde el archivo TDAT encontrado en la carpeta principal del Tracker.",
+		LoadDataError1 = "Donde 'filename' es el nombre del archivo que existe en la carpeta del Tracker.",
+		LoadDataError2 = "Los datos trackeados de este archivo no coinciden con este juego. Restaurando datos trackeados.",
+		LoadDataError3 = "Imposible cargar datos trackeados del archivo específico. Asegúrate que esté en la carpeta del Tracker.",
+		ClearDataDesc = "Borra todos los datos trackeados para esta partida.\n Esto puede solucionar situaciones donde se muestran datos incorrectos.",
+		ClearDataSuccess = "Todos los datos trackeados para esta partida han sido borrados.",
+		CheckUpdateDesc = "Verifica en línea si existen versiones nuevas del Tracker disponibles, mostradas en la barra lateral de la izquierda",
+		CheckUpdateFound = "¡Actualización encontrada! Consulta el menú de la barra lateral izquierda para verla.",
+		CheckUpdateNotFound = "No hay actualizaciones disponibles. Última version disponible",
+		ReleaseNotesDesc = "Abre el navegador para ver los detalles del último parche actualizado.",
+		UpdateNowDesc = "Actualiza automaticamente el Tracker descargando e instalando la última versión.",
+		UpdateNowSuccess = "Actualización en curso, por favor espera...",
+		UpdateNowSteps0 = "Sigue los pasos para reiniciar el Tracker y aplicar la actualización.",
+		UpdateNowSteps1 = "Completa primero una batalla en curso",
+		UpdateNowSteps2 = "En la ventana de scripts en mGBA: Clica en el archivo -> Reiniciar",
+		UpdateNowSteps3 = "Clica en el archivo -> Cargar script (o carga el script reciente)",
+		QuickloadDesc = "Fuerza al Tracker a cargar automaticamente una nueva partida.",
+		HelpWikiDesc = "Abre el navegador para mostrar información útil que te explica opciones varias del Tracker.",
+		AttemptsDesc = "Permite cambiar manualmente los intentos a otro número, mostrado en la barra lateral de Estadísticas.",
+		AttemptsError1 = "Donde # es un número positivo.",
+		AttemptsSuccess = "Actualizando el contandor de intentos",
+		RandomBallDesc = "Elige una Poké Ball inicial aleatoria entre: Izquierda, centro o Derecha.",
+		RandomBallSuccess = "Poké Ball inicial aleatoria elegida.",
+		LanguageDesc = "Cambia el dioma del Tracker.",
+		LanguageError1 = "Donde 'language' es el nombre o # de un idioma. Consulta el menú de idioma en la barra lateral.",
+		LanguageError2 = "Imposible encontrar el idioma",
+		LanguageSuccess = "El idioma del Tracker ha sido actualizado.",
+		InstallExtDesc = "Instala archivos nuevos de extensión desde la carpeta del Tracker.",
+		InstallExtSuccess1 = "¡Se han instalado nuevas extensiones!",
+		InstallExtSuccess2 = "No se encontraron archivos nuevos de extensión en la carpeta del Tracker.",
 	},
 }
 
@@ -1094,7 +1174,7 @@ GameResources{
 		normal = "Normal",
 		fighting = "Lucha",
 		flying = "Volador",
-		poison = "Venemo",
+		poison = "Veneno",
 		ground = "Tierra",
 		rock = "Roca",
 		bug = "Bicho",
@@ -1113,7 +1193,7 @@ GameResources{
 	-- The list of Pokémon moves below must remain in the same order
 	MoveNames = {
 		"Destructor", --Destructor english:Pound
-		"Golpe Karate", --Golpe Karate english:Karate Chop
+		"Golpe Karate", --Golpe Kárate english:Karate Chop
 		"Doblebofetón", --Doblebofetón english:DoubleSlap
 		"Puño Cometa", --Puño Cometa english:Comet Punch
 		"Megapuño", --Megapuño english:Mega Punch
@@ -1151,7 +1231,7 @@ GameResources{
 		"Golpe", --Golpe english:Thrash
 		"Doble Filo", --Doble Filo english:Double-Edge
 		"Látigo", --Látigo english:Tail Whip
-		"Picotazo Ven", --Picotazo Ven english:Poison Sting
+		"Picotazo Ven.", --Picotazo Ven. english:Poison Sting
 		"Dobleataque", --Dobleataque english:Twineedle
 		"Pin Misil", --Pin Misil english:Pin Missile
 		"Malicioso", --Malicioso english:Leer
@@ -1269,7 +1349,7 @@ GameResources{
 		"Huesomerang", --Huesomerang english:Bonemerang
 		"Descanso", --Descanso english:Rest
 		"Avalancha", --Avalancha english:Rock Slide
-		"Hip.colmillo", --Hip.colmillo english:Hyper Fang
+		"Hip. colmillo", --Hip. colmillo english:Hyper Fang
 		"Afilar", --Afilar english:Sharpen
 		"Conversión", --Conversión english:Conversion
 		"Triataque", --Triataque english:Tri Attack
@@ -1300,7 +1380,7 @@ GameResources{
 		"Beso Dulce", --Beso Dulce english:Sweet Kiss
 		"Tambor", --Tambor english:Belly Drum
 		"Bomba Lodo", --Bomba Lodo english:Sludge Bomb
-		"Bofetón Lodo", --Bofetón Lodo english:Mud-Slap
+		"Bofetón lodo", --Bofetón lodo english:Mud-Slap
 		"Pulpocañón", --Pulpocañón english:Octazooka
 		"Púas", --Púas english:Spikes
 		"Electrocañón", --Electrocañón english:Zap Cannon
@@ -1452,7 +1532,7 @@ GameResources{
 		"Planta Feroz", --Planta Feroz english:Frenzy Plant
 		"Corpulencia", --Corpulencia english:Bulk Up
 		"Bote", --Bote english:Bounce
-		"Disp. Lodo", --Disp. Lodo english:Mud Shot
+		"Disp.Lodo", --Disp. Lodo english:Mud Shot
 		"Cola Veneno", --Cola Veneno english:Poison Tail
 		"Antojo", --Antojo english:Covet
 		"Placaje Eléc", --Placaje Eléc english:Volt Tackle
@@ -1472,1450 +1552,1450 @@ GameResources{
 	MoveDescriptions = {
 		{
 			NameKey = "Pound",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Karate Chop",
-			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una probabilidad aumentada de golpe crítico. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "DoubleSlap",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. Cualquier golpe puede ser crítico o activar una habilidad de contacto.",
 		},
 		{
 			NameKey = "Comet Punch",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. Cualquier golpe puede ser crítico o activar una habilidad de contacto.",
 		},
 		{
 			NameKey = "Mega Punch",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Pay Day",
-			Description = "Scatters coins equal to five times the user's level each time.", -- NEEDS TRANSLATION
+			Description = "Esparce monedas equivalentes a cinco veces el nivel del usuario cada vez.",
 		},
 		{
 			NameKey = "Fire Punch",
-			Description = "Deals damage and has a 10% chance of burning the opponent.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al oponente.",
 		},
 		{
 			NameKey = "Ice Punch",
-			Description = "Deals damage and has a 10% chance of freezing the opponent.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de congelar al oponente.",
 		},
 		{
 			NameKey = "ThunderPunch",
-			Description = "Deals damage and has a 10% chance of paralyzing the opponent.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de paralizar al oponente.",
 		},
 		{
 			NameKey = "Scratch",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "ViceGrip",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Guillotine",
-			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.", -- NEEDS TRANSLATION
+			Description = "KO de un golpe. Este movimiento es 1% más preciso por cada nivel por encima del objetivo. Fallará si el objetivo es de nivel superior.",
 		},
 		{
 			NameKey = "Razor Wind",
-			Description = "Attacks on the 2nd turn after use. Despite the game description, it does NOT have a high-crit chance.", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno después de usarse. A pesar de la descripción del juego, NO tiene alta probabilidad de crítico.",
 		},
 		{
 			NameKey = "Swords Dance",
-			Description = "Increases the user's Attack stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta el Ataque del usuario en dos etapas.",
 		},
 		{
 			NameKey = "Cut",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Gust",
-			Description = "Deals double damage if opponent is using Fly or Bounce.", -- NEEDS TRANSLATION
+			Description = "Inflige el doble de daño si el oponente está usando Vuelo o Rebote.",
 		},
 		{
 			NameKey = "Wing Attack",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Whirlwind",
-			Description = "Forces target to switch out with another random Pokemon. Fails against Suction Cups or Ingrain.", -- NEEDS TRANSLATION
+			Description = "Fuerza al objetivo a cambiar por otro Pokémon aleatorio. Fallará contra Ventosas o Arraigo.",
 		},
 		{
 			NameKey = "Fly",
-			Description = "Attacks on 2nd turn. Can still be hit by Gust, Sky Uppercut, Thunder, Twister, and Whirlwind.", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno. Todavía puede ser golpeado por Tornado, Gancho Alto, Trueno, Ciclón y Remolino.",
 		},
 		{
 			NameKey = "Bind",
-			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y causa 1/16 de los PS máximos del objetivo como daño durante 2-5 turnos. Impide que el objetivo cambie o huya.",
 		},
 		{
 			NameKey = "Slam",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Vine Whip",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Stomp",
-			Description = "Deals damage with 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.", -- NEEDS TRANSLATION
+			Description = "Inflige daño con un 30% de probabilidad de hacer que el objetivo retroceda. El daño se duplica contra un objetivo que usó Reducción.",
 		},
 		{
-			NameKey = "Double Kick",
-			Description = "Deals damage twice, each hit able to be critical.", -- NEEDS TRANSLATION
+		 NameKey = "Double Kick",
+		 Description = "Inflige daño dos veces, cada golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Mega Kick",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Jump Kick",
-			Description = "If the move misses, the user is hurt for 1/2 of the damage it would have dealt.", -- NEEDS TRANSLATION
+			Description = "Si el movimiento falla, el usuario recibe daño equivalente a 1/2 del daño que habría causado.",
 		},
 		{
 			NameKey = "Rolling Kick",
-			Description = "Deals damage and has a 30% chance of causing the target to flinch.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de hacer que el objetivo retroceda.",
 		},
 		{
 			NameKey = "Sand-Attack",
-			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)", -- NEEDS TRANSLATION
+			Description = "Reduce la precisión del objetivo en una etapa. (100% -> 75% -> 60% -> 50% ...)",
 		},
 		{
 			NameKey = "Headbutt",
-			Description = "Deals damage and has a 30% chance of causing the target to flinch.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de hacer que el objetivo retroceda.",
 		},
 		{
 			NameKey = "Horn Attack",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Fury Attack",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico o activar una habilidad de contacto.",
 		},
 		{
 			NameKey = "Horn Drill",
-			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.", -- NEEDS TRANSLATION
+			Description = "KO de un golpe. Este movimiento es 1% más preciso por cada nivel por encima del objetivo. Fallará si el objetivo es de nivel superior.",
 		},
 		{
 			NameKey = "Tackle",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Body Slam",
-			Description = "Deals damage and has a 30% chance of paralyzing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de paralizar al objetivo.",
 		},
 		{
 			NameKey = "Wrap",
-			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y causa 1/16 de los PS máximos del objetivo como daño durante 2-5 turnos. Impide que el objetivo cambie o huya.",
 		},
 		{
 			NameKey = "Take Down",
-			Description = "The user receives recoil damage equal to 1/4 of the damage dealt.", -- NEEDS TRANSLATION
+			Description = "El usuario recibe daño por retroceso igual a 1/4 del daño infligido.",
 		},
 		{
 			NameKey = "Thrash",
-			Description = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.", -- NEEDS TRANSLATION
+			Description = "Inflige daño durante 2-3 turnos consecutivos. El usuario queda confundido después.",
 		},
 		{
 			NameKey = "Double-Edge",
-			Description = "The user receives recoil damage equal to 1/3 of the damage dealt.", -- NEEDS TRANSLATION
+			Description = "El usuario recibe daño por retroceso igual a 1/3 del daño infligido.",
 		},
 		{
 			NameKey = "Tail Whip",
-			Description = "Decreases the Defense stat of all adjacent opponents by one stage.", -- NEEDS TRANSLATION
+			Description = "Reduce la Defensa de todos los oponentes adyacentes en una etapa.",
 		},
 		{
 			NameKey = "Poison Sting",
-			Description = "Deals damage and has a 30% chance of poisoning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de envenenar al objetivo.",
 		},
 		{
 			NameKey = "Twineedle",
-			Description = "Deals damage twice, each hit able to be critical. Final hit has a 20% chance of poisoning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño dos veces, cada golpe puede ser crítico. El golpe final tiene un 20% de probabilidad de envenenar al objetivo.",
 		},
 		{
 			NameKey = "Pin Missile",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Leer",
-			Description = "Decreases the Defense stat of all adjacent opponents by one stage.", -- NEEDS TRANSLATION
+			Description = "Reduce la Defensa de todos los oponentes adyacentes en una etapa.",
 		},
 		{
 			NameKey = "Bite",
-			Description = "Deals damage and has a 30% chance of causing the target to flinch.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de hacer que el objetivo retroceda.",
 		},
 		{
 			NameKey = "Growl",
-			Description = "Decreases the Attack stat of all adjacent opponents by one stage.", -- NEEDS TRANSLATION
+			Description = "Reduce el Ataque de todos los oponentes adyacentes en una etapa.",
 		},
 		{
 			NameKey = "Roar",
-			Description = "Forces target to switch out with another random Pokemon. Fails against Soundproof, Suction Cups or Ingrain.", -- NEEDS TRANSLATION
+			Description = "Fuerza al objetivo a cambiar por otro Pokémon aleatorio. Fallará contra Insonorizar, Ventosas o Arraigo.",
 		},
 		{
 			NameKey = "Sing",
-			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit or Soundproof.", -- NEEDS TRANSLATION
+			Description = "Pone al objetivo a dormir, dura de 2 a 5 turnos. Falla contra Insomnio, Espíritu Vital o Insonorizar.",
 		},
 		{
 			NameKey = "Supersonic",
-			Description = "Causes the target to become confused. Fails against Soundproof or Own Tempo.", -- NEEDS TRANSLATION
+			Description = "Causa confusión al objetivo. Falla contra Insonorizar o Ritmo Propio.",
 		},
 		{
 			NameKey = "SonicBoom",
-			Description = "Always inflicts exactly 20 HP damage if it hits.", -- NEEDS TRANSLATION
+			Description = "Siempre inflige exactamente 20 puntos de daño si acierta.",
 		},
 		{
 			NameKey = "Disable",
-			Description = "Disables the last move used by the target for 2-5 turns.", -- NEEDS TRANSLATION
+			Description = "Desactiva el último movimiento usado por el objetivo durante 2-5 turnos.",
 		},
 		{
 			NameKey = "Acid",
-			Description = "Deals damage and has a 10% chance of lowering the target's Defense stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de bajar la estadística de Defensa del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Ember",
-			Description = "Deals damage and has a 10% chance of burning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al objetivo.",
 		},
 		{
 			NameKey = "Flamethrower",
-			Description = "Deals damage and has a 10% chance of burning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al objetivo.",
 		},
 		{
 			NameKey = "Mist",
-			Description = "For five turns, enemy Pokémon cannot lower stats of Pokémon on your team.", -- NEEDS TRANSLATION
+			Description = "Durante cinco turnos, los Pokémon enemigos no pueden bajar las estadísticas de los Pokémon de tu equipo.",
 		},
 		{
 			NameKey = "Water Gun",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Hydro Pump",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Surf",
-			Description = "Deals double damage if opponent is using Dive.", -- NEEDS TRANSLATION
+			Description = "Inflige el doble de daño si el oponente está usando Buceo.",
 		},
 		{
 			NameKey = "Ice Beam",
-			Description = "Deals damage and has a 10% chance of freezing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de congelar al objetivo.",
 		},
 		{
 			NameKey = "Blizzard",
-			Description = "Deals damage and has a 10% chance of freezing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de congelar al objetivo.",
 		},
 		{
 			NameKey = "Psybeam",
-			Description = "Deals damage and has a 10% chance of confusing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de confundir al objetivo.",
 		},
 		{
 			NameKey = "BubbleBeam",
-			Description = "Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de bajar la estadística de Velocidad del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Aurora Beam",
-			Description = "Deals damage and has a 10% chance of lowering the target's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de bajar la estadística de Ataque del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Hyper Beam",
-			Description = "Deals damage and then forces the user to recharge during the next turn.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y luego obliga al usuario a recargar durante el siguiente turno.",
 		},
 		{
 			NameKey = "Peck",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Drill Peck",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Submission",
-			Description = "Deals damage, and the user receives recoil damage equal to 25% of the damage done.", -- NEEDS TRANSLATION
+			Description = "Inflige daño, y el usuario recibe daño de retroceso igual al 25% del daño infligido.",
 		},
 		{
 			NameKey = "Low Kick",
-			Description = "Deals between 20-120 damage dependent on the weight of the target.", -- NEEDS TRANSLATION
+			Description = "Inflige entre 20-120 de daño dependiendo del peso del objetivo.",
 		},
 		{
 			NameKey = "Counter",
-			Description = "If hit by a Physical category move, deals twice the damage received back to the user.", -- NEEDS TRANSLATION
+			Description = "Si es golpeado por un movimiento de categoría Física, inflige el doble del daño recibido de vuelta al usuario.",
 		},
 		{
 			NameKey = "Seismic Toss",
-			Description = "Deals exact damage equal to the user's level.", -- NEEDS TRANSLATION
+			Description = "Inflige daño exacto igual al nivel del usuario.",
 		},
 		{
 			NameKey = "Strength",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Absorb",
-			Description = "50% of the damage dealt is restored to the user as HP.", -- NEEDS TRANSLATION
+			Description = "El 50% del daño infligido es restaurado al usuario como PS.",
 		},
 		{
 			NameKey = "Mega Drain",
-			Description = "50% of the damage dealt is restored to the user as HP.", -- NEEDS TRANSLATION
+			Description = "El 50% del daño infligido es restaurado al usuario como PS.",
 		},
 		{
 			NameKey = "Leech Seed",
-			Description = "Drains 1/8 of the target's HP at the end of each turn.", -- NEEDS TRANSLATION
+			Description = "Drena 1/8 de los PS del objetivo al final de cada turno.",
 		},
 		{
 			NameKey = "Growth",
-			Description = "Increases the user's Special Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta el Ataque Especial del usuario en una etapa.",
 		},
 		{
 			NameKey = "Razor Leaf",
-			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "SolarBeam",
-			Description = "Attacks on the 2nd turn after use, or immediately in sunny weather. Half damage in rain or sandstorm.", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno después de usarse, o inmediatamente en clima soleado. Daño reducido en lluvia o tormenta de arena.",
 		},
 		{
 			NameKey = "PoisonPowder",
-			Description = "Poisons the target, losing 1/8 of the their max HP at the end of each turn.", -- NEEDS TRANSLATION
+			Description = "Envenena al objetivo, perdiendo 1/8 de su PS máximos al final de cada turno.",
 		},
 		{
 			NameKey = "Stun Spore",
-			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.", -- NEEDS TRANSLATION
+			Description = "Paraliza al objetivo, reduciendo su Velocidad en un 75%, y un 25% de probabilidad de que falle en actuar.",
 		},
 		{
 			NameKey = "Sleep Powder",
-			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.", -- NEEDS TRANSLATION
+			Description = "Pone al objetivo a dormir, dura de 2 a 5 turnos. Falla contra Insomnio o Espíritu Vital.",
 		},
 		{
 			NameKey = "Petal Dance",
-			Description = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.", -- NEEDS TRANSLATION
+			Description = "Inflige daño durante 2-3 turnos consecutivos. El usuario queda confundido después.",
 		},
 		{
 			NameKey = "String Shot",
-			Description = "Decreases the targets' Speed stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Reduce la Velocidad del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Dragon Rage",
-			Description = "Always inflicts exactly 40 HP damage if it hits.", -- NEEDS TRANSLATION
+			Description = "Siempre inflige exactamente 40 puntos de daño si acierta.",
 		},
 		{
 			NameKey = "Fire Spin",
-			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y causa 1/16 de los PS máximos del objetivo como daño durante 2-5 turnos. Impide que el objetivo cambie o huya.",
 		},
 		{
 			NameKey = "ThunderShock",
-			Description = "Deals damage and has a 10% chance of paralyzing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de paralizar al objetivo.",
 		},
 		{
 			NameKey = "Thunderbolt",
-			Description = "Deals damage and has a 10% chance of paralyzing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de paralizar al objetivo.",
 		},
 		{
 			NameKey = "Thunder Wave",
-			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.", -- NEEDS TRANSLATION
+			Description = "Paraliza al objetivo, reduciendo su Velocidad en un 75%, y un 25% de probabilidad de que falle al atacar.",
 		},
 		{
 			NameKey = "Thunder",
-			Description = "30% chance to paralyze. Can hit Fly and Bounce. Always hits during the rain. Accuracy is 50 when sunny.", -- NEEDS TRANSLATION
+			Description = "30% de probabilidad de paralizar. Puede golpear a Pokémon en Vuelo y Bote. Siempre acierta durante la lluvia. La precisión es 50 cuando hace sol.",
 		},
 		{
 			NameKey = "Rock Throw",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Earthquake",
-			Description = "Deals double damage if opponent is using Dig.", -- NEEDS TRANSLATION
+			Description = "Inflige el doble de daño si el oponente está usando Excavar.",
 		},
 		{
 			NameKey = "Fissure",
-			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokémon using Dig.", -- NEEDS TRANSLATION
+			Description = "KO de un golpe. Este movimiento es 1% más preciso por cada nivel por encima del objetivo. Fallará si el objetivo es de nivel superior. Puede golpear al Pokémon si usa Excavar.",
 		},
 		{
 			NameKey = "Dig",
-			Description = "Attacks on 2nd turn. Can still be hit by Earthquake, Fissure, and Magnitude. Can be used outside of battle.", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno. Todavía puede ser golpeado por Terremoto, Fisura y Magnitud. Puede usarse fuera de combate.",
 		},
 		{
 			NameKey = "Toxic",
-			Description = "Poisons the target, losing increasing amounts of the their max HP at the end of each turn.", -- NEEDS TRANSLATION
+			Description = "Envenena al objetivo, perdiendo cantidades cada vez mayores de sus PS máximos al final de cada turno.",
 		},
 		{
 			NameKey = "Confusion",
-			Description = "Deals damage and has a 10% chance of confusing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de confundir al objetivo.",
 		},
 		{
 			NameKey = "Psychic",
-			Description = "Deals damage and has a 10% chance of lowering the target's Special Defense by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de bajar la estadística de Defensa Especial del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Hypnosis",
-			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.", -- NEEDS TRANSLATION
+			Description = "Pone al objetivo a dormir, dura de 2 a 5 turnos. Falla contra Insomnio o Espíritu Vital.",
 		},
 		{
 			NameKey = "Meditate",
-			Description = "Increases the user's Attack by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta el Ataque del usuario en un nivel.",
 		},
 		{
 			NameKey = "Agility",
-			Description = "Increases the user's Speed by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Velocidad del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Quick Attack",
-			Description = "This is an increased priority move, causing the user to attack before most other moves.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad aumentada, haciendo que el usuario ataque antes que la mayoría de los movimientos.",
 		},
 		{
 			NameKey = "Rage",
-			Description = "When used consecutively, Attack stat increases by one stage when damaged by an attack.", -- NEEDS TRANSLATION
+			Description = "Cuando se usa de forma consecutiva, la estadística de Ataque aumenta en un nivel cuando recibe daño por un ataque.",
 		},
 		{
 			NameKey = "Teleport",
-			Description = "Flees from wild Pokémon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain. Can be used outside of battle.", -- NEEDS TRANSLATION
+			Description = "Huye de batallas salvajes únicamente. Fallará si está atrapado por Bloqueo, Mal de Ojo, Telaraña o Arraigo. Puede usarse fuera de combate.",
 		},
 		{
 			NameKey = "Night Shade",
-			Description = "Deals exact damage equal to the user's level.", -- NEEDS TRANSLATION
+			Description = "Inflige daño exacto igual al nivel del usuario.",
 		},
 		{
 			NameKey = "Mimic",
-			Description = "Copies the target's last used move. Fails against Sketch, Transform, Metronome, or a move already learned.", -- NEEDS TRANSLATION
+			Description = "Copia el último movimiento usado por el objetivo. Fallará contra Esquema, Transformación, Metrónomo o un movimiento ya aprendido.",
 		},
 		{
 			NameKey = "Screech",
-			Description = "Decreases the target's Defense stat by two stat stages. Fails against Soundproof ability.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Defensa del objetivo en dos niveles. Falla contra la habilidad Insonorizar.",
 		},
 		{
 			NameKey = "Double Team",
-			Description = "Increases the user's evasion by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta la evasión del usuario en un nivel.",
 		},
 		{
 			NameKey = "Recover",
-			Description = "Restores up to 50% of the user's max HP.", -- NEEDS TRANSLATION
+			Description = "Restaura hasta el 50% de los PS máximos del usuario.",
 		},
 		{
 			NameKey = "Harden",
-			Description = "Increases the user's Defense stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Defensa del usuario en un nivel.",
 		},
 		{
 			NameKey = "Minimize",
-			Description = "Increases evasion by one stage. User will now receive double damage from Stomp, Astonish, Extrasensory, and Needle Arm.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Evasión en un nivel. El usuario recibirá el doble de daño de Pisotón, Impresionar, Paranormal y Brazo Pincho.",
 		},
 		{
 			NameKey = "SmokeScreen",
-			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)", -- NEEDS TRANSLATION
+			Description = "Reduce la Precisión del objetivo en una etapa. (100% -> 75% -> 60% -> 50% ...)",
 		},
 		{
 			NameKey = "Confuse Ray",
-			Description = "Causes the target to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.", -- NEEDS TRANSLATION
+			Description = "Causa confusión al objetivo durante 2-5 turnos. 50% de probabilidad de hacerse daño a sí mismo como un movimiento físico de 40 de potencia.",
 		},
 		{
 			NameKey = "Withdraw",
-			Description = "Increases the user's Defense by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa del usuario en un nivel.",
 		},
 		{
 			NameKey = "Defense Curl",
-			Description = "Increases the user's Defense by one stage. Also doubles the power of user's Rollout and Ice Ball.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa del usuario en un nivel. También duplica el poder de los movimientos Desenrollar y Bola Hielo del usuario.",
 		},
 		{
 			NameKey = "Barrier",
-			Description = "Increases the user's Defense by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Light Screen",
-			Description = "For 5 turns, halves the damage done to user's team by Special moves.", -- NEEDS TRANSLATION
+			Description = "Durante 5 turnos, reduce a la mitad el daño infligido al equipo del usuario por movimientos Especiales.",
 		},
 		{
 			NameKey = "Haze",
-			Description = "Resets the stat stages of all active Pokémon on the field to 0.", -- NEEDS TRANSLATION
+			Description = "Restablece las etapas de estadísticas de todos los Pokémon activos en el campo a 0.",
 		},
 		{
 			NameKey = "Reflect",
-			Description = "For 5 turns, halves the damage done to user's team by Physical moves.", -- NEEDS TRANSLATION
+			Description = "Durante 5 turnos, reduce a la mitad el daño infligido al equipo del usuario por movimientos Físicos.",
 		},
 		{
 			NameKey = "Focus Energy",
-			Description = "Increases the user's critical hit ratio by two stages. (+2 stages = 1/4 or 25%)", -- NEEDS TRANSLATION
+			Description = "Aumenta la tasa de golpe crítico del usuario en dos niveles. (+2 etapas = 1/4 o 25%)",
 		},
 		{
 			NameKey = "Bide",
-			Description = "Endures attacks for two consecutive turns. Deals damage equal to twice the damage received.", -- NEEDS TRANSLATION
+			Description = "Aguanta ataques durante dos turnos consecutivos. Inflige daño igual al doble del daño recibido.",
 		},
 		{
 			NameKey = "Metronome",
-			Description = "Randomly selects a move to use, and a random target if necessary.", -- NEEDS TRANSLATION
+			Description = "Selecciona aleatoriamente un movimiento para usar, y un objetivo aleatorio si es necesario.",
 		},
 		{
 			NameKey = "Mirror Move",
-			Description = "Uses the last move targeted at the user by a Pokémon still on the field.", -- NEEDS TRANSLATION
+			Description = "Usa el último movimiento dirigido al usuario por un Pokémon aún en el campo.",
 		},
 		{
 			NameKey = "Selfdestruct",
-			Description = "The target's Defense is halved, effectively doubling the power of this move.", -- NEEDS TRANSLATION
+			Description = "La Defensa del objetivo se reduce a la mitad, duplicando efectivamente el poder de este movimiento.",
 		},
 		{
 			NameKey = "Egg Bomb",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Lick",
-			Description = "Deals damage and has a 30% chance of paralyzing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de paralizar al objetivo.",
 		},
 		{
 			NameKey = "Smog",
-			Description = "Deals damage and has a 40% chance of poisoning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 40% de probabilidad de envenenar al objetivo.",
 		},
 		{
 			NameKey = "Sludge",
-			Description = "Deals damage and has a 30% chance of poisoning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de envenenar al objetivo.",
 		},
 		{
 			NameKey = "Bone Club",
-			Description = "Deals damage and has a 10% chance of causing the target to flinch.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de hacer que el objetivo retroceda.",
 		},
 		{
 			NameKey = "Fire Blast",
-			Description = "Deals damage and has a 10% chance of burning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al objetivo.",
 		},
 		{
 			NameKey = "Waterfall",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Clamp",
-			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y causa 1/16 de los PS máximos del objetivo como daño durante 2-5 turnos. Impide que el objetivo cambie o huya.",
 		},
 		{
 			NameKey = "Swift",
-			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y siempre acierta, a menos que el objetivo esté en el turno semi-invulnerable de un movimiento como Excavar o Vuelo.",
 		},
 		{
 			NameKey = "Skull Bash",
-			Description = "Raises the user's Defense by one stage. On the following turn, it deals damage.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa del usuario en un nivel. En el siguiente turno, inflige daño.",
 		},
 		{
 			NameKey = "Spike Cannon",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Constrict",
-			Description = "Deals damage and has a 10% chance of lowering the target's Speed by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de bajar la Velocidad del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Amnesia",
-			Description = "Increases the user's Special Defense by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa Especial del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Kinesis",
-			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Precisión del objetivo en un nivel. (100% -> 75% -> 60% -> 50% ...)",
 		},
 		{
 			NameKey = "Softboiled",
-			Description = "Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.", -- NEEDS TRANSLATION
+			Description = "Restaura hasta 50% de los PS máximos del usuario. Puede usarse fuera de combate para transferir 20% de PS máximos a otro Pokémon.",
 		},
 		{
 			NameKey = "Hi Jump Kick",
-			Description = "If the move misses, the user is hurt for 1/2 of the damage it would have dealt.", -- NEEDS TRANSLATION
+			Description = "Si el movimiento falla, el usuario recibe daño equivalente a 1/2 del daño que habría causado.",
 		},
 		{
 			NameKey = "Glare",
-			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act. Fails against Ghosts.", -- NEEDS TRANSLATION
+			Description = "Paraliza al objetivo, reduciendo su Velocidad en un 75%, y un 25% de probabilidad de que falle en actuar. Falla contra tipo Fantasma.",
 		},
 		{
 			NameKey = "Dream Eater",
-			Description = "Fails if target is not asleep. 50% of the damage dealt is restored to the user as HP.", -- NEEDS TRANSLATION
+			Description = "Falla si el objetivo no está dormido. El 50% del daño infligido es restaurado al usuario como PS.",
 		},
 		{
 			NameKey = "Poison Gas",
-			Description = "Poisons the target, losing 1/8 of the their max HP at the end of each turn.", -- NEEDS TRANSLATION
+			Description = "Envenena al objetivo, perdiendo 1/8 de su PS máximos al final de cada turno.",
 		},
 		{
 			NameKey = "Barrage",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Leech Life",
-			Description = "50% of the damage dealt is restored to the user as HP.", -- NEEDS TRANSLATION
+			Description = "El 50% del daño infligido es restaurado al usuario como PS.",
 		},
 		{
 			NameKey = "Lovely Kiss",
-			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.", -- NEEDS TRANSLATION
+			Description = "Pone al objetivo a dormir, dura de 2 a 5 turnos. Falla contra Insomnio o Espíritu Vital.",
 		},
 		{
 			NameKey = "Sky Attack",
-			Description = "Attacks on 2nd turn, 30% chance to flinch target. Has increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno, 30% de probabilidad de hacer retroceder al objetivo. Tiene tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%).",
 		},
 		{
 			NameKey = "Transform",
-			Description = "Turns into the target by copying everything about it (even stat changes), except the current and max HP. Each move's PP will become 5.", -- NEEDS TRANSLATION
+			Description = "Se convierte en el objetivo copiando todo sobre él (incluso cambios de estadísticas), excepto los PS actuales y máximos. El PP de cada mov. se convertirá en 5.",
 		},
 		{
 			NameKey = "Bubble",
-			Description = "Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de bajar la estadística de Velocidad del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Dizzy Punch",
-			Description = "Deals damage and has a 20% chance of confusing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de confundir al objetivo.",
 		},
 		{
 			NameKey = "Spore",
-			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.", -- NEEDS TRANSLATION
+			Description = "Pone al objetivo a dormir, dura de 2-5 turnos. Falla contra Insomnio o Espíritu Vital.",
 		},
 		{
 			NameKey = "Flash",
-			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)", -- NEEDS TRANSLATION
+			Description = "Reduce la Precisión del objetivo en una etapa. (100% -> 75% -> 60% -> 50% ...)",
 		},
 		{
 			NameKey = "Psywave",
-			Description = "Deals a random amount of damage, varying between 50% and 150% of the user's level. Minimum of 1 damage.", -- NEEDS TRANSLATION
+			Description = "Inflige una cantidad aleatoria de daño, variando entre 50% y 150% del nivel del usuario. Mínimo de 1 de daño.",
 		},
 		{
 			NameKey = "Splash",
-			Description = "Deals no damage and has no effect whatsoever.", -- NEEDS TRANSLATION
+			Description = "No inflige daño y no tiene efecto alguno.",
 		},
 		{
 			NameKey = "Acid Armor",
-			Description = "Increases the user's Defense by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Crabhammer",
-			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Explosion",
-			Description = "The target's Defense is halved, effectively doubling the power of this move.", -- NEEDS TRANSLATION
+			Description = "La Defensa del objetivo se reduce a la mitad, duplicando efectivamente el poder de este movimiento.",
 		},
 		{
 			NameKey = "Fury Swipes",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. Cualquier golpe puede ser crítico o activar una habilidad de contacto.",
 		},
 		{
 			NameKey = "Bonemerang",
-			Description = "Deals damage twice, each hit able to be critical.", -- NEEDS TRANSLATION
+			Description = "Inflige daño dos veces, cada golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Rest",
-			Description = "Restores HP to full while going to sleep for 2 turns. Fails if user has Insomnia or Vital Spirit.", -- NEEDS TRANSLATION
+			Description = "Restaura PS por completo mientras duerme durante 2 turnos. Falla si el usuario tiene Insomnio o Espíritu Vital.",
 		},
 		{
 			NameKey = "Rock Slide",
-			Description = "Deals damage and has a 30% chance of causing each target to flinch.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de hacer que cada objetivo retroceda.",
 		},
 		{
 			NameKey = "Hyper Fang",
-			Description = "Deals damage and has a 10% chance of causing the target to flinch.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de hacer que el objetivo retroceda.",
 		},
 		{
 			NameKey = "Sharpen",
-			Description = "Increases the user's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Ataque del usuario en un nivel.",
 		},
 		{
 			NameKey = "Conversion",
-			Description = "Changes the user's type to match the type of one of the user's moves (including Conversion itself).", -- NEEDS TRANSLATION
+			Description = "Cambia el tipo del usuario para que coincida con el tipo de uno de los movimientos del usuario (incluyendo Conversion en sí mismo).",
 		},
 		{
 			NameKey = "Tri Attack",
-			Description = "Deals damage and has a 20% chance of either paralyzing, freezing, or burning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de paralizar, congelar o quemar al objetivo.",
 		},
 		{
 			NameKey = "Super Fang",
-			Description = "Deals exact damage equal to 50% of the target's current HP, minimum of 1.", -- NEEDS TRANSLATION
+			Description = "Inflige daño exacto igual al 50% de los PS actuales del objetivo, mínimo de 1.",
 		},
 		{
 			NameKey = "Slash",
-			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%).",
 		},
 		{
 			NameKey = "Substitute",
-			Description = "User loses 25% of max HP to hide behind a substitute, which prevents the effects of most attacks.", -- NEEDS TRANSLATION
+			Description = "El usuario pierde el 25% de sus PS máximos para esconderse detrás de un sustituto, que evita los efectos de la mayoría de los ataques.",
 		},
 		{
 			NameKey = "Struggle",
-			Description = "Hits as neutral damage, even through Wonder Guard. User receives recoil damage equal to 1/4 of damage dealt.", -- NEEDS TRANSLATION
+			Description = "Golpea como daño neutral, incluso a través de Superguarda. El usuario recibe daño por retroceso igual a 1/4 del daño infligido.",
 		},
 		{
 			NameKey = "Sketch",
-			Description = "User learns the target's last move permanently, replacing Sketch in the process. Fails against some moves, or if user already knows the move.", -- NEEDS TRANSLATION
+			Description = "El usuario aprende permanentemente el último mov. del objetivo, reemplazando a Esquema en el proceso. Fallará contra algunos mov., o si el usuario ya conoce el mov.",
 		},
 		{
 			NameKey = "Triple Kick",
-			Description = "Deals damage three times, each additional hit gains 10 power. Each hit has a separate accuracy check and is able to be critical.", -- NEEDS TRANSLATION
+			Description = "Inflige daño tres veces, cada golpe adicional gana 10 de potencia. Cada golpe tiene una verificación de Precisión separada y puede ser crítico.",
 		},
 		{
 			NameKey = "Thief",
-			Description = "Steals the target's held item, if it has one. An item cannot be stolen if the user already has an item, or the target has Sticky Hold.", -- NEEDS TRANSLATION
+			Description = "Roba el objeto que lleva el objetivo, si tiene uno. No se puede robar un objeto si el usuario ya tiene uno, o el objetivo tiene Viscosidad.",
 		},
 		{
 			NameKey = "Spider Web",
-			Description = "Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.", -- NEEDS TRANSLATION
+			Description = "Impide que el objetivo cambie o huya. Un Pokémon aún puede huir si tiene Fuga o tiene equipada una Bola Humo.",
 		},
 		{
 			NameKey = "Mind Reader",
-			Description = "Allows the next move used by the user to never miss, even against Bounce, Dig, Dive, and Fly.", -- NEEDS TRANSLATION
+			Description = "Permite que el próximo movimiento usado por el usuario nunca falle, incluso contra Bote, Excavar, Buceo y Vuelo.",
 		},
 		{
 			NameKey = "Nightmare",
-			Description = "Causes a sleeping target to lose 1/4 of the their max HP at the end of each turn that they remain asleep.", -- NEEDS TRANSLATION
+			Description = "Causa que un objetivo dormido pierda 1/4 de sus PS máximos al final de cada turno que permanezca dormido.",
 		},
 		{
 			NameKey = "Flame Wheel",
-			Description = "Deals damage and has a 10% chance of burning the target. This move will first thaw out its user if frozen.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al objetivo. Este movimiento primero descongela a su usuario si está congelado.",
 		},
 		{
 			NameKey = "Snore",
-			Description = "If the user is asleep, deals damage and has a 30% chance of causing the target to flinch. No effect against Soundproof.", -- NEEDS TRANSLATION
+			Description = "Si el usuario está dormido, inflige daño y tiene un 30% de probabilidad de hacer que el objetivo retroceda. Sin efecto contra Insonorizar.",
 		},
 		{
 			NameKey = "Curse",
-			Description = "Lowers Speed but raises Attack and Defense. If user is Ghost, instead loses half max HP to curse target, causing them to lose 1/4 of the their max HP at end of each turn.", -- NEEDS TRANSLATION
+			Description = "- Vel. pero + el Atk. y + Def. Si el usuario es tipo Fantasma, pierde la mitad de sus PS máx. para maldecir al objetivo, y hace que pierda 1/4 de sus PS máx. al final de cada turno.",
 		},
 		{
 			NameKey = "Flail",
-			Description = "Deals more damage the less HP the user has. Important breakpoints: 80 power at 35% hp or lower, and 150 power at 10% hp or lower.", -- NEEDS TRANSLATION
+			Description = "Inflige más daño cuanto menos PS tenga el usuario. Puntos de referencia importantes: 80 de potencia al 35% de PS o menos, y 150 de potencia al 10% de PS o menos.",
 		},
 		{
 			NameKey = "Conversion 2",
-			Description = "Randomly changes the user's type to a new type that resists or is immune to the type of the last damaging move it was hit by.", -- NEEDS TRANSLATION
+			Description = "Cambia aleatoriamente el tipo del usuario a un nuevo tipo que resista o sea inmune al tipo del último movimiento dañino que recibió.",
 		},
 		{
 			NameKey = "Aeroblast",
-			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Cotton Spore",
-			Description = "Lowers the target's Speed stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Velocidad del objetivo en dos niveles.",
 		},
 		{
 			NameKey = "Reversal",
-			Description = "Deals more damage the less HP the user has. Important breakpoints: 80 power at 35% hp or lower, and 150 power at 10% hp or lower.", -- NEEDS TRANSLATION
+			Description = "Inflige más daño cuanto menos PS tenga el usuario. Puntos de referencia importantes: 80 de potencia al 35% de PS o menos, y 150 de potencia al 10% de PS o menos.",
 		},
 		{
 			NameKey = "Spite",
-			Description = "Decreases the PP of the target's last used move by 2-5 PP, chosen at random. Spite fails if that move has exactly 1 PP remaining.", -- NEEDS TRANSLATION
+			Description = "Reduce los PP del último movimiento usado por el objetivo en 2-5 PP, elegidos al azar. Rencor falla si ese movimiento tiene exactamente 1 PP restante.",
 		},
 		{
 			NameKey = "Powder Snow",
-			Description = "Deals damage and has a 10% chance of freezing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de congelar al objetivo.",
 		},
 		{
 			NameKey = "Protect",
-			Description = "Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.", -- NEEDS TRANSLATION
+			Description = "Protege al usuario de todos los efectos de mov. en el turno, incluido el daño. Usar este mov. consecutiv. reduce su tasa de éxito a la mitad cada vez.",
 		},
 		{
 			NameKey = "Mach Punch",
-			Description = "This is an increased priority move, causing the user to attack before most other moves.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad aumentada, haciendo que el usuario ataque antes que la mayoría de los movimientos.",
 		},
 		{
 			NameKey = "Scary Face",
-			Description = "Lowers the target's Speed stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Velocidad del objetivo en dos niveles.",
 		},
 		{
 			NameKey = "Faint Attack",
-			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y omite las comprobaciones de Precisión para acertar siempre, a menos que el objetivo esté en el turno semi-invulnerable de un mov. como Excavar or Vuelo.",
 		},
 		{
 			NameKey = "Sweet Kiss",
-			Description = "Causes the target to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.", -- NEEDS TRANSLATION
+			Description = "Causa confusión al objetivo durante 2-5 turnos. 50% de probabilidad de dañarse a sí mismo como un movimiento físico de 40 de potencia.",
 		},
 		{
 			NameKey = "Belly Drum",
-			Description = "The user loses half of their max HP, and in return raises their Attack stat all the way to +6 stages.", -- NEEDS TRANSLATION
+			Description = "El usuario pierde la mitad de sus PS máximos, y a cambio aumenta su estadística de Ataque hasta +6 etapas.",
 		},
 		{
 			NameKey = "Sludge Bomb",
-			Description = "Deals damage and has a 30% chance of poisoning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de envenenar al objetivo.",
 		},
 		{
 			NameKey = "Mud-Slap",
-			Description = "Deals damage and lowers the target's accuracy by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y baja la precisión del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Octazooka",
-			Description = "Deals damage and has a 50% chance to lower the target's accuracy by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 50% de probabilidad de bajar la precisión del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Spikes",
-			Description = "Creates a hazard for the enemy team (can stack 3 times). Switching out deals 1/8, 1/6, or 1/4 max HP in damage to an enemy without Flying or Levitate.", -- NEEDS TRANSLATION
+			Description = "Crea un peligro para el equipo enemigo (puede acumularse 3 veces). Cambiar inflige 1/8, 1/6 o 1/4 de PS máximos en daño a un enemigo sin Vuelo o Levitación.",
 		},
 		{
 			NameKey = "Zap Cannon",
-			Description = "Deals damage and paralyzes the target every time it hits.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y paraliza al objetivo cada vez que acierta.",
 		},
 		{
 			NameKey = "Foresight",
-			Description = "Neutralizes accuracy checks against the target, and allows Fighting and Normal moves to hit them if they are Ghost.", -- NEEDS TRANSLATION
+			Description = "Neutraliza las comprobaciones de precisión contra el objetivo, y permite que los movimientos Lucha y Normal lo golpeen si son tipo Fantasma.",
 		},
 		{
 			NameKey = "Destiny Bond",
-			Description = "If the user faints as the result of a direct attack by an enemy, that Pokémon also faints. Effect ends when user uses another move.", -- NEEDS TRANSLATION
+			Description = "Si el usuario es derrotado como resultado de un ataque directo por un enemigo, ese Pokémon también es derrotado. El efecto termina cuando el usuario usa otro movimiento.",
 		},
 		{
 			NameKey = "Perish Song",
-			Description = "All Pokémon faint after 3 turns. Switching out or having Soundproof removes this effect.", -- NEEDS TRANSLATION
+			Description = "Todos los Pokémon son derrotados después de 3 turnos. Cambiar o tener Insonorizar elimina este efecto.",
 		},
 		{
 			NameKey = "Icy Wind",
-			Description = "Deals damage to all adjacent opponents and lowers the Speed of each by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño a todos los oponentes adyacentes y baja la Velocidad de cada uno en un nivel.",
 		},
 		{
 			NameKey = "Detect",
-			Description = "Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.", -- NEEDS TRANSLATION
+			Description = "Protege al usuario de todos los efectos de mov. por el turno, incluido el daño. Usar este mov. consecutiv. reduce su tasa de éxito a la mitad cada vez.",
 		},
 		{
 			NameKey = "Bone Rush",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. Cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Lock-On",
-			Description = "Allows the next move used by the user to never miss, even against Bounce, Dig, Dive, and Fly.", -- NEEDS TRANSLATION
+			Description = "Permite que el próximo movimiento usado por el usuario nunca falle, incluso contra Bote, Excavar, Buceo y Vuelo.",
 		},
 		{
 			NameKey = "Outrage",
-			Description = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.", -- NEEDS TRANSLATION
+			Description = "Inflige daño durante 2-3 turnos consecutivos. El usuario queda confuso después.",
 		},
 		{
 			NameKey = "Sandstorm",
-			Description = "Changes weather to Sandstorm for 5 turns. Pokémon take 1/16 of their max HP in damage, except for Steel, Ground, and Rock types.", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a Tormenta de Arena durante 5 turnos. Los Pokémon reciben 1/16 de sus PS máximos como daño, excepto los tipos Acero, Tierra y Roca.",
 		},
 		{
 			NameKey = "Giga Drain",
-			Description = "50% of the damage dealt is restored to the user as HP.", -- NEEDS TRANSLATION
+			Description = "El 50% del daño infligido es restaurado al usuario como PS.",
 		},
 		{
 			NameKey = "Endure",
-			Description = "Allows the user to survive any single attack that would cause it to faint, leaving the user with 1 HP instead.", -- NEEDS TRANSLATION
+			Description = "Permite al usuario sobrevivir a cualquier ataque único que lo debilitara, dejándolo con 1 PS en su lugar.",
 		},
 		{
 			NameKey = "Charm",
-			Description = "Lowers the Attack stat of the target by two stages.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Ataque del objetivo en dos niveles.",
 		},
 		{
 			NameKey = "Rollout",
-			Description = "Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.", -- NEEDS TRANSLATION
+			Description = "Inflige daño durante 5 turnos, duplicándose en potencia con cada golpe consecutivo. El poder base se duplica si el usuario había usado previamente Def. Férrea.",
 		},
 		{
 			NameKey = "False Swipe",
-			Description = "Deals damage, but will always leave the target with 1 HP if it would otherwise cause it to faint.", -- NEEDS TRANSLATION
+			Description = "Inflige daño, pero siempre dejará al objetivo con 1 PS si de otro modo lo debilitara.",
 		},
 		{
 			NameKey = "Swagger",
-			Description = "Raises the target's Attack stat by two stages and confuses it.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Ataque del objetivo en dos niveles y lo confunde.",
 		},
 		{
 			NameKey = "Milk Drink",
-			Description = "Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.", -- NEEDS TRANSLATION
+			Description = "Restaura hasta 50% de los PS máximos del usuario. Puede usarse fuera de combate para transferir 20% de PS máximos a otro Pokémon.",
 		},
 		{
 			NameKey = "Spark",
-			Description = "Deals damage and has a 30% chance of paralyzing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de paralizar al objetivo.",
 		},
 		{
 			NameKey = "Fury Cutter",
-			Description = "Each time this move hits successively, its power will double, up to a maximum of 160. Otherwise, it resets to base power.", -- NEEDS TRANSLATION
+			Description = "Cada vez que este movimiento golpea con éxito, su poder se duplica, hasta un máximo de 160. De lo contrario, se restablece a la potencia base.",
 		},
 		{
 			NameKey = "Steel Wing",
-			Description = "Deals damage and has a 10% chance of raising the user's Defense by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de aumentar la Defensa del usuario en un nivel.",
 		},
 		{
 			NameKey = "Mean Look",
-			Description = "Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.", -- NEEDS TRANSLATION
+			Description = "Impide que el objetivo cambie o huya. Un Pokémon aún puede huir si tiene Fuga o tiene equipada una Smoke Ball.",
 		},
 		{
 			NameKey = "Attract",
-			Description = "If the user and the target are opposite genders, the target will become infatuated, unable to use moves 50% of the time.", -- NEEDS TRANSLATION
+			Description = "Si el usuario y el objetivo son de géneros opuestos, el objetivo se enamorará, incapaz de usar movimientos el 50% del tiempo.",
 		},
 		{
 			NameKey = "Sleep Talk",
-			Description = "If the user is asleep, randomly chooses another one of the user's moves to use.", -- NEEDS TRANSLATION
+			Description = "Si el usuario está durmiendo, elige aleatoriamente otro de los movimientos del usuario para usar.",
 		},
 		{
 			NameKey = "Heal Bell",
-			Description = "Cures all Pokémon in the user's party of all major status conditions. Fails against Pokémon with Soundproof.", -- NEEDS TRANSLATION
+			Description = "Cura a todos los Pokémon en el equipo del usuario de todas las condiciones de estado mayores. Falla contra Pokémon con Insonorizar.",
 		},
 		{
 			NameKey = "Return",
-			Description = "Power ranges between 1 and 102, strongest at friendship of 255. If the user's friendship is 127 or less, Frustration is stronger.", -- NEEDS TRANSLATION
+			Description = "El poder varía entre 1 y 102, siendo más fuerte con una amistad de 255. Si la Amistad del usuario es 127 o menos, Frustración es más fuerte.",
 		},
 		{
 			NameKey = "Present",
-			Description = "40% chance power is 40, 30% chance it's 80, 10% chance it's 120, and 20% chance to heal target by 1/4 their max HP.", -- NEEDS TRANSLATION
+			Description = "40% de probabilidad de que el poder sea 40, 30% de que sea 80, 10% de que sea 120, y 20% de curar al objetivo en 1/4 de sus PS máximos.",
 		},
 		{
 			NameKey = "Frustration",
-			Description = "Power ranges between 1 and 102, strongest at friendship of 0. If the user's friendship is 128 or greater, Return is stronger.", -- NEEDS TRANSLATION
+			Description = "El poder varía entre 1 y 102, siendo más fuerte con una amistad de 0. Si la amistad del usuario es 128 o mayor, Retroceso es más fuerte.",
 		},
 		{
 			NameKey = "Safeguard",
-			Description = "For 5 turns, protects the user's party from most status effects and confusion.", -- NEEDS TRANSLATION
+			Description = "Durante 5 turnos, protege al equipo del usuario de la mayoría de los efectos de estado y Confusión.",
 		},
 		{
 			NameKey = "Pain Split",
-			Description = "Equalizes HP of user and target by adding both Pokemon's current HP together, then dividing by two, split among them evenly.", -- NEEDS TRANSLATION
+			Description = "Iguala los PS del usuario y el objetivo sumando los PS actuales de ambos Pokémon y luego dividiendo entre dos, repartidos uniformemente entre ellos.",
 		},
 		{
 			NameKey = "Sacred Fire",
-			Description = "Deals damage and has a 50% chance of burning the target. This move will first thaw out its user if frozen.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 50% de probabilidad de quemar al objetivo. Este movimiento primero descongela a su usuario si está congelado.",
 		},
 		{
 			NameKey = "Magnitude",
-			Description = "Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power; 150 power at value 10. Can hit Pokémon using Dig.", -- NEEDS TRANSLATION
+			Description = "El poder varía entre valor aleatorio y la probabilidad. Entre poder 4 y 10, cada valor extra añade 20 de pot.; 150 de pot. en el valor 10. Golpea a Pokémon usando Excavar.",
 		},
 		{
 			NameKey = "DynamicPunch",
-			Description = "Deals damage and always confuses the target, lasting 2-5 turns.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y siempre confunde al objetivo, durando de 2 a 5 turnos.",
 		},
 		{
 			NameKey = "Megahorn",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "DragonBreath",
-			Description = "Deals damage and has a 30% chance of paralyzing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de paralizar al objetivo.",
 		},
 		{
 			NameKey = "Baton Pass",
-			Description = "Switches out the user, passing all temporary stat stage changes as well as many other effects and conditions, on to the Pokémon that replaces it in battle.", -- NEEDS TRANSLATION
+			Description = "Cambia al usuario, pasando todos los cambios temporales de etapa de estadística así como muchos otros efectos y condiciones, al Pokémon que lo reemplaza en la batalla.",
 		},
 		{
 			NameKey = "Encore",
-			Description = "Prevents the target from using any move except its last used move, lasts for 2-6 turns.", -- NEEDS TRANSLATION
+			Description = "Impide que el objetivo use cualquier movimiento excepto el último movimiento que usó, dura de 2 a 6 turnos.",
 		},
 		{
 			NameKey = "Pursuit",
-			Description = "If the target Pokémon attempts to switch out, Pursuit's power will double and hit it first.", -- NEEDS TRANSLATION
+			Description = "Si el Pokémon objetivo intenta cambiar, el poder de Persecución se duplica y lo golpea primero.",
 		},
 		{
 			NameKey = "Rapid Spin",
-			Description = "Deals damage and removes the effects of any binding moves, Leech Seed, and any entry hazards such as Spikes from the user's field.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y elimina los efectos de cualquier movimiento de atadura, Drenadoras y cualquier peligro de entrada como Púas del campo del usuario.",
 		},
 		{
 			NameKey = "Sweet Scent",
-			Description = "Lowers the evasion of all adjacent opponents by one stage. Can be used outside of battle to attract a wild Pokemon.", -- NEEDS TRANSLATION
+			Description = "Reduce la evasión de todos los oponentes adyacentes en un nivel. Puede usarse fuera de la batalla para atraer a un Pokémon salvaje.",
 		},
 		{
 			NameKey = "Iron Tail",
-			Description = "Deals damage and has a 30% chance of lowering the target's Defense stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de bajar la estadística de Defensa del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Metal Claw",
-			Description = "Deals damage and has a 10% chance of raising the user's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de aumentar la estadística de Ataque del usuario en un nivel.",
 		},
 		{
 			NameKey = "Vital Throw",
-			Description = "This is a decreased priority move, causing the user to attack after most other moves.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad disminuida, haciendo que el usuario ataque después de la mayoría de los movimientos.",
 		},
 		{
 			NameKey = "Morning Sun",
-			Description = "Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.", -- NEEDS TRANSLATION
+			Description = "Restaura los PS del usuario en un porcentaje basado en el clima: 1/2 en clima despejado, 2/3 si está soleado, y 1/4 durante cualquier otra condición climática.",
 		},
 		{
 			NameKey = "Synthesis",
-			Description = "Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.", -- NEEDS TRANSLATION
+			Description = "Restaura los PS del usuario en un porcentaje basado en el clima: 1/2 en clima despejado, 2/3 si está soleado, y 1/4 durante cualquier otra condición climática.",
 		},
 		{
 			NameKey = "Moonlight",
-			Description = "Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.", -- NEEDS TRANSLATION
+			Description = "Restaura los PS del usuario en un porcentaje basado en el clima: 1/2 en clima despejado, 2/3 si está soleado, y 1/4 durante cualquier otra condición climática.",
 		},
 		{
 			NameKey = "Hidden Power",
-			Description = "Power and type vary with IVs, power ranges from 30 to 70. Counter will always work against this move, but never Mirror Coat.", -- NEEDS TRANSLATION
+			Description = "El poder y tipo varían con los IVs, el poder varía de 30 a 70. Contador siempre funcionará contra este movimiento, pero nunca Manto Espejo.",
 		},
 		{
 			NameKey = "Cross Chop",
-			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Twister",
-			Description = "Deals damage and has a 20% chance of causing each target to flinch. Hits Pokémon using Bounce or Fly for double damage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de hacer que cada objetivo retroceda. Golpea a Pokémon usando Vuelo o Rebote con el doble de daño.",
 		},
 		{
 			NameKey = "Rain Dance",
-			Description = "Changes weather to Rain for 5 turns. Water moves are boosted by 50% and Fire moves are weakened by 50%. Thunder ignores accuracy and evasion.", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a Lluvia durante 5 turnos. Los mov. de Agua reciben un aumento del 50% y los mov. de Fuego se debilitan en un 50%. Trueno ignora precisión y evasión.",
 		},
 		{
 			NameKey = "Sunny Day",
-			Description = "Changes weather to Sunny for 5 turns. Fire moves are boosted by 50% and Water moves are weakened by 50%. Thunder accuracy becomes 50%.", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a Soleado durante 5 turnos. Los mov. de Fuego reciben un aumento del 50% y los mov. de Agua se debilitan en un 50%. Trueno pasa a 50% de precisión.",
 		},
 		{
 			NameKey = "Crunch",
-			Description = "Deals damage and has a 20% chance of lowering the target's Special Defense stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de bajar la estadística de Defensa Especial del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Mirror Coat",
-			Description = "If hit by a Special category move, deals twice the damage received back to the user.", -- NEEDS TRANSLATION
+			Description = "Si es golpeado por un movimiento de categoría Especial, inflige el doble del daño recibido de vuelta al usuario.",
 		},
 		{
 			NameKey = "Psych Up",
-			Description = "Resets the user's stat changes and copies all of the target's stat stages onto the user: ATK DEF SPA SPD SPE ACC EVA.", -- NEEDS TRANSLATION
+			Description = "Restablece los cambios de estadísticas del usuario y copia todas las etapas de estadísticas del objetivo al usuario: ATQ, DEF, ASP, DSP, VEL, PRE, EVA.",
 		},
 		{
 			NameKey = "ExtremeSpeed",
-			Description = "This is an increased priority move, causing the user to attack before most other moves.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad aumentada, haciendo que el usuario ataque antes que la mayoría de los movimientos.",
 		},
 		{
 			NameKey = "AncientPower",
-			Description = "Deals damage and has a 10% chance of raising the user's Attack, Defense, Special Attack, Special Defense, and Speed by one stage each.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de aumentar en un nivel el ATQ DEF ASP DSP VEL del usuario.",
 		},
 		{
 			NameKey = "Shadow Ball",
-			Description = "Deals damage and has a 20% chance of lowering the target's Special Defense by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de bajar la estadística de Defensa Especial del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Future Sight",
-			Description = "Locks in damage when used based on SpAtk of user and SpDef of target. After 2 turns, deals damage to the current enemy. Attack is typeless: cannot STAB, hits Wonder Guard.", -- NEEDS TRANSLATION
+			Description = "Fija el daño, basado en el ASP del usuario y DSP del objetivo. Después de 2 turnos, inflige daño al enemigo actual. El ataque es sin tipo: no puede STAB, golpea Superguarda.",
 		},
 		{
 			NameKey = "Rock Smash",
-			Description = "Deals damage and has a 50% chance of lowering the target's Defense stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 50% de probabilidad de bajar la estadística de Defensa del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Whirlpool",
-			Description = "Deals damage (doubled if opponent using Dive) and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Inflige daño (duplicado si el oponente usa Buceo) y causa 1/16 de los PS máximos del objetivo como daño durante 2-5 turnos. Impide que el objetivo cambie o huya.",
 		},
 		{
 			NameKey = "Beat Up",
-			Description = "Each conscious, non-statused Pokémon in the user's party does an independent attack, each one is typeless with power of 10.", -- NEEDS TRANSLATION
+			Description = "Cada Pokémon vivo, sin estado en el equipo del usuario realiza un ataque independiente, cada uno es sin tipo con un poder de 10.",
 		},
 		{
 			NameKey = "Fake Out",
-			Description = "This is an increased priority move. It always makes the target flinch, but attack will fail if it's not the first move used.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad aumentada. Siempre hace retroceder al objetivo, pero el ataque fallará si no es el primer movimiento usado.",
 		},
 		{
 			NameKey = "Uproar",
-			Description = "Deals damage for 2-5 consecutive turns. Wakes up sleeping Pokémon and prevents them from falling asleep, except those with Soundproof.", -- NEEDS TRANSLATION
+			Description = "Inflige daño durante 2-5 turnos consecutivos. Despierta a los Pokémon durmiendo y evita que se duerman, excepto aquellos con Insonorizar.",
 		},
 		{
 			NameKey = "Stockpile",
-			Description = "Stores up energy, stacks three times. Unleash energy using Spit Up to deal damage or Swallow to heal HP.", -- NEEDS TRANSLATION
+			Description = "Acumula energía, se acumula tres veces. Libera energía usando Spit Up para infligir daño o Swallow para curar PS.",
 		},
 		{
 			NameKey = "Spit Up",
-			Description = "Consumes energy stored up by Stockpile, 100 power for each stack (0 if none). This move cannot cause a critical hit.", -- NEEDS TRANSLATION
+			Description = "Consume energía acumulada por Reserva, 100 de poder por cada acumulamiento (0 si ninguno). Este movimiento no puede causar un golpe crítico.",
 		},
 		{
 			NameKey = "Swallow",
-			Description = "Consumes energy stored up by Stockpile, healing user for 25%, 50%, or 100% HP based on number of stacks consumed (0% if none).", -- NEEDS TRANSLATION
+			Description = "Consume energía acumulada por Reserva, curando al usuario un 25%, 50% o 100% de PS según el número de acumulamientos consumidos (0% si ninguno).",
 		},
 		{
 			NameKey = "Heat Wave",
-			Description = "Deals damage and has a 10% chance of burning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al objetivo.",
 		},
 		{
 			NameKey = "Hail",
-			Description = "Changes weather to Hail for 5 turns. Pokémon take 1/16 of their max HP in damage, except for Ice types.", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a Granizo durante 5 turnos. Los Pokémon reciben 1/16 de sus PS máximos como daño, excepto los tipos Hielo.",
 		},
 		{
 			NameKey = "Torment",
-			Description = "Prevents the target from choosing to use the same move twice in a row. Effect ends when the Pokémon switches out.", -- NEEDS TRANSLATION
+			Description = "Impide que el objetivo elija usar el mismo movimiento dos veces seguidas. El efecto termina cuando el Pokémon cambia.",
 		},
 		{
 			NameKey = "Flatter",
-			Description = "Raises the target's Special Attack stat by one stage and confuses it.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Ataque Especial del objetivo en un nivel y lo confunde.",
 		},
 		{
 			NameKey = "Will-O-Wisp",
-			Description = "Inflicts a burn on the target, ineffective against Fire type Pokemon. Burned Pokémon deal half damage with Physical moves and lose 1/8 max HP each turn.", -- NEEDS TRANSLATION
+			Description = "Inflige una quemadura al objetivo, ineficaz contra tipo Fuego. Los Pokémon quemados hacen la mitad de daño con mov. Físicos y pierden 1/8 de sus PS máximos cada turno.",
 		},
 		{
 			NameKey = "Memento",
-			Description = "User faints to lower the Attack and Special Attack stat of the target by two stages each.", -- NEEDS TRANSLATION
+			Description = "El usuario se debilita para bajar la estadística de Ataque y Ataque Especial del objetivo en dos niveles cada uno.",
 		},
 		{
 			NameKey = "Facade",
-			Description = "Power doubles if the user is poisoned, paralyzed, or burned. The burn's effect of halving the damage done is still applied.", -- NEEDS TRANSLATION
+			Description = "El poder se duplica si el usuario está envenenado, paralizado o quemado. El efecto de quemadura de reducir a la mitad el daño infligido aún se aplica.",
 		},
 		{
 			NameKey = "Focus Punch",
-			Description = "This is a decreased priority move. This move will fail if the user is dealt direct damage first.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad reducida. Fallará si el usuario recibe daño directo antes de usarlo.",
 		},
 		{
 			NameKey = "SmellingSalt",
-			Description = "Power doubles against a paralyzed target, but it will also cure the target of paralysis.", -- NEEDS TRANSLATION
+			Description = "El poder se duplica contra un objetivo paralizado, pero también curará al objetivo de la parálisis.",
 		},
 		{
 			NameKey = "Follow Me",
-			Description = "This is an increased priority move. The user redirects all targeted moves from enemy Pokémon to itself.", -- NEEDS TRANSLATION
+			Description = "Este movimiento tiene prioridad aumentada. El usuario redirige todos los movimientos dirigidos de Pokémon enemigos hacia sí mismo.",
 		},
 		{
 			NameKey = "Nature Power",
-			Description = "Sand: Earthquake, Building: Swift, Cave: Shadow Ball, Rock: Rock Slide, Tall grass: Stun Spore, Long grass: Razor Leaf, Pond: Bubblebeam, Sea: Surf, Underwater: Hydro Pump.", -- NEEDS TRANSLATION
+			Description = "Arena: Terrem. Edificio: Rapidez. Cueva: Bola Sombra. Roca: Avalancha. Hierba alta: Paralizador. Hierba larga: Hoja Afil. Estanque: Rayo Burb. Mar: Surf. Bajo el agua: Hidrobomba.",
 		},
 		{
 			NameKey = "Charge",
-			Description = "User charges up, empowering the next move it uses. If that next move is Electric, damage dealt will be doubled.", -- NEEDS TRANSLATION
+			Description = "El usuario acumula energía, potenciando el siguiente movimiento que use. Si ese siguiente movimiento es Eléctrico, el daño infligido se duplicará.",
 		},
 		{
 			NameKey = "Taunt",
-			Description = "Prevents the target Pokémon from using Status category moves; moves that aren't Physical or Special. Bypasses Substitute. This effect lasts 2 turns.", -- NEEDS TRANSLATION
+			Description = "Impide que el Pokémon objetivo use movimientos de categoría Estado; movimientos que no son Físicos o Especiales. Ignora Sustituto. Este efecto dura 2 turnos.",
 		},
 		{
 			NameKey = "Helping Hand",
-			Description = "This is an increased priority move. The user boost its ally's damage done by 50% for this turn only.", -- NEEDS TRANSLATION
+			Description = "Este es un movimiento de prioridad aumentada. El usuario aumenta el daño infligido por su aliado en un 50% solo para este turno.",
 		},
 		{
 			NameKey = "Trick",
-			Description = "Switches held items with the target. Fails if used by a wild Pokémon, or if both Pokémon don't have items, or against a Substitute.", -- NEEDS TRANSLATION
+			Description = "Cambia los objetos equipados con el objetivo. Falla si es usado por un Pokémon salvaje, o si ambos Pokémon no tienen objetos, o contra un Sustituto.",
 		},
 		{
 			NameKey = "Role Play",
-			Description = "Replaces the user's ability with the target's. Fails if target ability is Trace or Wonder Guard. Some abilities like Intimidate don't trigger.", -- NEEDS TRANSLATION
+			Description = "Reemplaza la habilidad del usuario por la del objetivo. Falla si la habilidad es Rastro o Superguarda. Algunas habilidades como Intimidacón no se activan.",
 		},
 		{
 			NameKey = "Wish",
-			Description = "No effect on the turn used. At the end of the next turn, the Pokémon in the user's current position will be healed by half its own max HP.", -- NEEDS TRANSLATION
+			Description = "Sin efecto en el turno usado. Al final del siguiente turno, el Pokémon en la posición actual del usuario será curado en la mitad de sus PS máximos.",
 		},
 		{
 			NameKey = "Assist",
-			Description = "Randomly selects an eligible move from all other moves known by Pokémon in the user's party, including fainted Pokemon.", -- NEEDS TRANSLATION
+			Description = "Selecciona aleatoriamente un mov. elegible de todos los demás movimientos conocidos por los Pokémon en el equipo del usuario, incluidos los Pokémon debilitados.",
 		},
 		{
 			NameKey = "Ingrain",
-			Description = "Restore 1/16th of its max HP at the end of every turn. Prevents the user from switching out, even from moves like Roar and Whirlwind.", -- NEEDS TRANSLATION
+			Description = "Restaura 1/16 de sus PS máximos al final de cada turno. Impide que el usuario cambie, incluso por movimientos como Rugido y Torbellino.",
 		},
 		{
 			NameKey = "Superpower",
-			Description = "Deals damage, then lowers the user's Attack and Defense stats by one stage each.", -- NEEDS TRANSLATION
+			Description = "Inflige daño, luego baja la estadística de Ataque y Defensa del usuario en un nivel cada uno.",
 		},
 		{
 			NameKey = "Magic Coat",
-			Description = "Reflects most Status category moves back at the enemy, most offensive moves that aren't Physical or Special.", -- NEEDS TRANSLATION
+			Description = "Refleja la mayoría de los mov. de categoría Estado de vuelta al enemigo, la mayoría de los mov. ofensivos que no son Físicos o Especiales.",
 		},
 		{
 			NameKey = "Recycle",
-			Description = "Regains a held item, such as a Berry. Fails if item was lost through Thief or Knock Off.", -- NEEDS TRANSLATION
+			Description = "Recupera un objeto equipado, como una Baya. Falla si el objeto fue perdido a través de Ladrón o Desarme.",
 		},
 		{
 			NameKey = "Revenge",
-			Description = "This is a decreased priority move. Power is doubled if user is damaged by the target in the same turn.", -- NEEDS TRANSLATION
+			Description = "Reemplaza la habilidad del usuario con la del objetivo. Fallará si es Rastro o Superguarda. Intimidación por ejemplo no se activa.",
 		},
 		{
 			NameKey = "Brick Break",
-			Description = "Removes Light Screen and Reflect from the opponent's side of the field, then inflicts damage. Removes those effects even against Ghost Pokemon.", -- NEEDS TRANSLATION
+			Description = "Elimina Pantalla Luz y Reflejo del campo del oponente, luego inflige daño. Elimina esos efectos incluso contra Pokémon tipo Fantasma.",
 		},
 		{
 			NameKey = "Yawn",
-			Description = "Makes the target drowsy. At the end of the next turn, the drowsy Pokémon will fall asleep.", -- NEEDS TRANSLATION
+			Description = "Hace que el objetivo esté somnoliento. Al final del siguiente turno, el Pokémon somnoliento se dormirá.",
 		},
 		{
 			NameKey = "Knock Off",
-			Description = "Renders the target's held item unusable for the rest of the battle, even if switches out.", -- NEEDS TRANSLATION
+			Description = "Inutiliza el objeto equipado por el objetivo durante el resto de la batalla, incluso si cambia de Pokémon.",
 		},
 		{
 			NameKey = "Endeavor",
-			Description = "Causes the target's HP to become equal the user's current HP.", -- NEEDS TRANSLATION
+			Description = "Causa que los PS del objetivo sean iguales a los PS actuales del usuario.",
 		},
 		{
 			NameKey = "Eruption",
-			Description = "Has 150 power at max HP, but its power decreases proportionally to the user's remaining HP. Formula: 150 x currHP / maxHP", -- NEEDS TRANSLATION
+			Description = "Tiene 150 de potencia con PS máximos, pero su potencia reduce proporcionalmente a los PS restantes del usuario. Fórmula: 150 x currPS / maxPS",
 		},
 		{
 			NameKey = "Skill Swap",
-			Description = "Exchanges the abilities of the user and the target. This information is not shown to the player. Fails against Wonder Guard.", -- NEEDS TRANSLATION
+			Description = "Intercambia las habilidades del usuario y del objetivo. Esta información no se muestra al jugador. Falla contra Superguarda.",
 		},
 		{
 			NameKey = "Imprison",
-			Description = "As long as the user remains in battle, opponents cannot use any move which is also known by the user.", -- NEEDS TRANSLATION
+			Description = "Mientras el usuario permanezca en batalla, los oponentes no pueden usar ningún movimiento que también sea conocido por el usuario.",
 		},
 		{
 			NameKey = "Refresh",
-			Description = "Cures the user of burns, poison, or paralysis. It cannot cure sleep if it is used by Sleep Talk.", -- NEEDS TRANSLATION
+			Description = "Cura al usuario de quemaduras, veneno o parálisis. No puede curar sueño si es usado por Sonámbulo.",
 		},
 		{
 			NameKey = "Grudge",
-			Description = "If the user faints as the result of a direct attack by an enemy, the last used move loses all PP. Effect ends when user uses another move.", -- NEEDS TRANSLATION
+			Description = "Si el usuario es derrotado como resultado de un ataque directo por un enemigo, el último movimiento usado pierde todo su PP. El efecto termina cuando el usuario usa otro movimiento.",
 		},
 		{
 			NameKey = "Snatch",
-			Description = "This is an increased priority move. If another Pokémon tries to use a beneficial Status category move, the user will use that move instead.", -- NEEDS TRANSLATION
+			Description = "Este es un mov. de prioridad aumentada. Si otro Pokémon intenta usar un mov. de estado beneficioso, el usuario usará ese mov. en su lugar.",
 		},
 		{
 			NameKey = "Secret Power",
-			Description = "30% chance to Sand: --ACC, Building: paralysis, Cave: flinch, Rock: confusion, Tall grass: poison, Long grass: sleep, Pond: --SPD, Sea: --ATK, Underwater: --DEF", -- NEEDS TRANSLATION
+			Description = "30% Arena: --PRE. Edificio: parálisis. Cueva: retroceso. Roca: confusión. Hierba alta: envenenamiento. Hierba larga: sueño. Estanque: --DSP. Mar: --ATQ. Bajo el agua: --DEF.",
 		},
 		{
 			NameKey = "Dive",
-			Description = "Attacks on 2nd turn. Can still be hit by Surf and Whirlpool and will take double damage.", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno. Todavía puede ser golpeado por Surf y Torbellino y recibirá doble daño.",
 		},
 		{
 			NameKey = "Arm Thrust",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico o activar una habilidad de contacto.",
 		},
 		{
 			NameKey = "Camouflage",
-			Description = "Change user's type based on terrain. Building: Normal, Sand: Ground, Cave/rock: Rock, Tall/long grass: Grass, Water: Water", -- NEEDS TRANSLATION
+			Description = "Cambia el tipo del usuario según el terreno. Edificio: Normal, Arena: Tierra, Cueva/roca: Roca, Hierba corta/larga: Planta, Agua: Agua",
 		},
 		{
 			NameKey = "Tail Glow",
-			Description = "Increases the user's Special Attack by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta el Ataque Especial del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Luster Purge",
-			Description = "Deals damage and has a 50% chance of lowering the target's Special Defense.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 50% de probabilidad de bajar el Defensa Especial del objetivo.",
 		},
 		{
 			NameKey = "Mist Ball",
-			Description = "Deals damage and has a 50% chance of lowering the target's Special Attack.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 50% de probabilidad de bajar el Ataque Especial del objetivo.",
 		},
 		{
 			NameKey = "FeatherDance",
-			Description = "Lowers the target's Attack stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Ataque del objetivo en dos niveles.",
 		},
 		{
 			NameKey = "Teeter Dance",
-			Description = "Causes all other Pokémon to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.", -- NEEDS TRANSLATION
+			Description = "Causa que todos los demás Pokémon se confundan durante 2-5 turnos. 50% de probabilidad de dañarse a sí mismo como un movimiento físico de 40 de potencia.",
 		},
 		{
 			NameKey = "Blaze Kick",
-			Description = "Deals damage and has a 10% chance of burning the target. It also has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de quemar al objetivo. También tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Mud Sport",
-			Description = "Reduces the power of Electric moves by 50% for all Pokémon in the battle. This effect last until the user switches out.", -- NEEDS TRANSLATION
+			Description = "Reduce la potencia de los movimientos Eléctricos en un 50% para todos los Pokémon en la batalla. Este efecto dura hasta que el usuario cambie de lugar.",
 		},
 		{
 			NameKey = "Ice Ball",
-			Description = "Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.", -- NEEDS TRANSLATION
+			Description = "Inflige daño durante 5 turnos, duplicándose en potencia con cada golpe consecutivo. El poder base se duplica si el usuario había usado previamente Def. Férrea.",
 		},
 		{
 			NameKey = "Needle Arm",
-			Description = "Deals damage and has a 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de hacer que el objetivo retroceda. El daño se duplica contra un objetivo que usó Reducción.",
 		},
 		{
 			NameKey = "Slack Off",
-			Description = "Restores up to 50% of the user's max HP.", -- NEEDS TRANSLATION
+			Description = "Restaura hasta 50% de los PS máximos del usuario.",
 		},
 		{
 			NameKey = "Hyper Voice",
-			Description = "Deals damage to all adjacent opponents. Pokémon with Soundproof are not affected by this move.", -- NEEDS TRANSLATION
+			Description = "Inflige daño a todos los oponentes adyacentes. Los Pokémon con Insonorizar no se ven afectados por este movimiento.",
 		},
 		{
 			NameKey = "Poison Fang",
-			Description = "Deals damage and has a 30% chance of badly poisoning the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de envenenar gravemente al objetivo.",
 		},
 		{
 			NameKey = "Crush Claw",
-			Description = "Deals damage and has a 50% chance of lowering the target's Defense stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 50% de probabilidad de bajar la estadística de Defensa del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Blast Burn",
-			Description = "Deals damage and then forces the user to recharge during the next turn.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y luego obliga al usuario a recargar durante el siguiente turno.",
 		},
 		{
 			NameKey = "Hydro Cannon",
-			Description = "Deals damage and then forces the user to recharge during the next turn.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y luego obliga al usuario a recargar durante el siguiente turno.",
 		},
 		{
 			NameKey = "Meteor Mash",
-			Description = "Deals damage and has a 20% chance of raising the user's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de aumentar la estadística de Ataque del usuario en un nivel.",
 		},
 		{
 			NameKey = "Astonish",
-			Description = "Deals damage and has a 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de hacer que el objetivo retroceda. El daño se duplica contra un objetivo que usó Reducción.",
 		},
 		{
 			NameKey = "Weather Ball",
-			Description = "Power doubles in weather and changes type: Fire if sunny, Water if raining, Ice if hailing, Rock if sandstorm.", -- NEEDS TRANSLATION
+			Description = "El poder se duplica en el clima y cambia de tipo: Fuego si está soleado, Agua si está lloviendo, Hielo si hay granizo, Roca si hay tormenta de arena.",
 		},
 		{
 			NameKey = "Aromatherapy",
-			Description = "Cures all Pokémon in the user's party of all major status conditions.", -- NEEDS TRANSLATION
+			Description = "Cura a todos los Pokémon en el equipo del usuario de todas las condiciones de estado mayores.",
 		},
 		{
 			NameKey = "Fake Tears",
-			Description = "Lowers the target's Special Defense stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Defensa Especial del objetivo en dos niveles.",
 		},
 		{
 			NameKey = "Air Cutter",
-			Description = "Deals damage and has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Overheat",
-			Description = "Deals damage and lowers the user's Special Attack by two stages.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y baja el Ataque Especial del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Odor Sleuth",
-			Description = "Neutralizes accuracy checks against the target, and allows Fighting and Normal moves to hit them if they are Ghost.", -- NEEDS TRANSLATION
+			Description = "Neutraliza las verificaciones de precisión contra el objetivo, y permite que los movimientos de tipo Lucha y Normal golpeen a tipo Fantasma.",
 		},
 		{
 			NameKey = "Rock Tomb",
-			Description = "Deals damage and lowers the opponent's Speed by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y baja la Velocidad del oponente en un nivel.",
 		},
 		{
 			NameKey = "Silver Wind",
-			Description = "Deals damage and has a 10% chance of raising the user's Attack, Defense, Special Attack, Special Defense, and Speed by one stage each.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de aumentar en un nivel el Ataque, Defensa, Ataque Especial, Defensa Especial y Velocidad del usuario.",
 		},
 		{
 			NameKey = "Metal Sound",
-			Description = "Lowers the target's Special Defense stat by two stages. Fails against Pokémon with Soundproof.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Defensa Especial del objetivo en dos niveles. Falla contra Pokémon con Insonorizar.",
 		},
 		{
 			NameKey = "GrassWhistle",
-			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit, or Soundproof.", -- NEEDS TRANSLATION
+			Description = "Pone al objetivo a dormir, dura de 2 a 5 turnos. Falla contra Insomnio, Espíritu Vital, o Insonorizar.",
 		},
 		{
 			NameKey = "Tickle",
-			Description = "Reduces the target's Attack and Defense stats by one stage each. Works even if enemy has a Substitute.", -- NEEDS TRANSLATION
+			Description = "Reduce la estadística de Ataque y Defensa del objetivo en un nivel cada uno. Funciona incluso si el enemigo tiene un Sustituto.",
 		},
 		{
 			NameKey = "Cosmic Power",
-			Description = "Raises the Defense and Special Defense of the user by one stage each.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa y Defensa Especial del usuario en un nivel cada una.",
 		},
 		{
 			NameKey = "Water Spout",
-			Description = "Has 150 power at max HP, but its power decreases proportionally to the user's remaining HP. Formula: 150 x currHP / maxHP", -- NEEDS TRANSLATION
+			Description = "Tiene 150 de potencia con PS máximos, pero su potencia reduce proporcionalmente a los PS restantes del usuario. Fórmula: 150 x currPS / maxPS",
 		},
 		{
 			NameKey = "Signal Beam",
-			Description = "Deals damage and has a 10% chance of confusing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de confundir al objetivo.",
 		},
 		{
 			NameKey = "Shadow Punch",
-			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y omite las comprobaciones de Precisión para acertar siempre, a menos que el objetivo esté en el turno semi-invulnerable de un mov. como Excavar or Vuelo.",
 		},
 		{
 			NameKey = "Extrasensory",
-			Description = "Deals damage and has a 10% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de hacer que el objetivo retroceda. El daño se duplica contra un objetivo que usó Reducción.",
 		},
 		{
 			NameKey = "Sky Uppercut",
-			Description = "Deals damage and can hit Pokémon during the semi-invulnerable turns of Fly and Bounce.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y puede golpear a Pokémon durante los turnos semi-invulnerables de Vuelo y Rebote.",
 		},
 		{
 			NameKey = "Sand Tomb",
-			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y causa 1/16 de los PS máximos del objetivo como daño durante 2-5 turnos. Impide que el objetivo cambie o huya.",
 		},
 		{
 			NameKey = "Sheer Cold",
-			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.", -- NEEDS TRANSLATION
+			Description = "KO de un golpe. Este movimiento es 1% más preciso por cada nivel por encima del objetivo. Fallará si el objetivo es de nivel superior.",
 		},
 		{
 			NameKey = "Muddy Water",
-			Description = "Deals damage and has a 30% chance of lowering each target's accuracy by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 30% de probabilidad de bajar la precisión de cada objetivo en un nivel.",
 		},
 		{
 			NameKey = "Bullet Seed",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Aerial Ace",
-			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y omite las comprobaciones de Precisión para acertar siempre, a menos que el objetivo esté en el turno semi-invulnerable de un mov. como Excavar or Vuelo.",
 		},
 		{
 			NameKey = "Icicle Spear",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Iron Defense",
-			Description = "Raises the user's Defense stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Defensa del usuario en dos niveles.",
 		},
 		{
 			NameKey = "Block",
-			Description = "Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.", -- NEEDS TRANSLATION
+			Description = "Impide que el objetivo cambie o huya. Un Pokémon aún puede huir si tiene Fuga o tiene equipada una Bola Humo.",
 		},
 		{
 			NameKey = "Howl",
-			Description = "Raises the user's Attack stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Ataque del usuario en un nivel.",
 		},
 		{
 			NameKey = "Dragon Claw",
-			Description = "Deals damage and has no secondary effect.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y no tiene efecto secundario.",
 		},
 		{
 			NameKey = "Frenzy Plant",
-			Description = "Deals damage and then forces the user to recharge during the next turn.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y luego obliga al usuario a recargar durante el siguiente turno.",
 		},
 		{
 			NameKey = "Bulk Up",
-			Description = "Raises the user's Attack stat and Defense stat by one stage each.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Ataque y Defensa del usuario en un nivel cada uno.",
 		},
 		{
 			NameKey = "Bounce",
-			Description = "Attacks on 2nd turn with a 30% chance of paralyzing target. Can still be hit by Gust, Sky Uppercut, Thunder, and Twister.", -- NEEDS TRANSLATION
+			Description = "Ataca en el 2º turno con un 30% de probabilidad de paralizar al objetivo. Todavía puede ser golpeado por Tornado, Gancho Alto, Trueno y Ciclón.",
 		},
 		{
 			NameKey = "Mud Shot",
-			Description = "Deals damage and then lowers the target's Speed stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y luego baja la Velocidad del objetivo en un nivel.",
 		},
 		{
 			NameKey = "Poison Tail",
-			Description = "Deals damage and has a 10% chance of poisoning the target. It also has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 10% de probabilidad de envenenar al objetivo. También tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Covet",
-			Description = "Steals the target's held item, if it has one. An item cannot be stolen if the target has Sticky Hold.", -- NEEDS TRANSLATION
+			Description = "Roba el objeto que lleva el objetivo, si tiene uno. No se puede robar si el usuario tiene uno, o si el objetivo tiene Viscosidad.",
 		},
 		{
 			NameKey = "Volt Tackle",
-			Description = "The user receives recoil damage equal to 1/3 of the damage dealt.", -- NEEDS TRANSLATION
+			Description = "El usuario recibe daño de retroceso igual al 1/3 del daño infligido.",
 		},
 		{
 			NameKey = "Magical Leaf",
-			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y omite las comprobaciones de Precisión para acertar siempre, a menos que el objetivo esté en el turno semi-invulnerable de un mov. como Excavar or Vuelo",
 		},
 		{
 			NameKey = "Water Sport",
-			Description = "Reduces the power of Fire moves by 50% for all Pokémon in the battle. This effect last until the user switches out.", -- NEEDS TRANSLATION
+			Description = "Reduce la potencia de los movimientos de Fuego en un 50% para todos los Pokémon en la batalla. Este efecto dura hasta que el usuario cambie de lugar.",
 		},
 		{
 			NameKey = "Calm Mind",
-			Description = "Raises the user's Special Attack and Special Defense stats by one stage each.", -- NEEDS TRANSLATION
+			Description = "Aumenta en un nivel los stats de Ataque Especial y Defensa Especial del usuario.",
 		},
 		{
 			NameKey = "Leaf Blade",
-			Description = "Deals damage and has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene una tasa de golpe crítico aumentada. (+1 etapa = 1/8 o 12.5%)",
 		},
 		{
 			NameKey = "Dragon Dance",
-			Description = "Raises the user's Attack stat and Speed stat by one stage each.", -- NEEDS TRANSLATION
+			Description = "Aumenta en un nivel los stats de Ataque y Velocidad del usuario.",
 		},
 		{
 			NameKey = "Rock Blast",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
+			Description = "Golpea de 2 a 5 veces en un turno. Dos: 37.5%, Tres: 37.5%, Cuatro: 12.5%, Cinco: 12.5%. cualquier golpe puede ser crítico.",
 		},
 		{
 			NameKey = "Shock Wave",
-			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y omite las comprobaciones de Precisión para acertar siempre, a menos que el objetivo esté en el turno semi-invulnerable de un mov. como Excavar or Vuelo",
 		},
 		{
 			NameKey = "Water Pulse",
-			Description = "Deals damage and has a 20% chance of confusing the target.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y tiene un 20% de probabilidad de confundir al objetivo.",
 		},
 		{
 			NameKey = "Doom Desire",
-			Description = "Locks in damage when used based on Atk of user and Def of target. After 2 turns, deals damage to the current enemy. Attack is typeless: cannot STAB, hits Wonder Guard.", -- NEEDS TRANSLATION
+			Description = "Fija el daño, basado en el ATQ del usuario y DSP del objetivo. Después de 2 turnos, inflige daño al enemigo actual. El ataque es sin tipo: no puede STAB, golpea Superguarda.",
 		},
 		{
 			NameKey = "Psycho Boost",
-			Description = "Deals damage and lowers the user's Special Attack stat by two stages.", -- NEEDS TRANSLATION
+			Description = "Inflige daño y baja el Ataque Especial del usuario en dos niveles.",
 		},
 	},
-	-- The list of Pokémon abilities below must remain in the same order
+		-- The list of Pokémon abilities below must remain in the same order
 	AbilityNames = {
 		"Hedor", --Hedor english:Stench
 		"Llovizna", --Llovizna english:Drizzle
 		"Impulso", --Impulso english:Speed Boost
-		"Armad. Bat.", --Armad. Bat. english:Battle Armor
+		"Arm. Bat.", --Arm. Bat. english:Battle Armor
 		"Robustez", --Robustez english:Sturdy
 		"Humedad", --Humedad english:Damp
 		"Flexibilidad", --Flexibilidad english:Limber
 		"Velo Arena", --Velo Arena english:Sand Veil
-		"Elec. Estát.", --Elec. Estát. english:Static
+		"Elec. Estática", --Elec. Estática english:Static
 		"Absor. Elec.", --Absor. Elec. english:Volt Absorb
-		"Absor. Agua", --Absor. Agua english:Water Absorb
+		"Absorbe Agua", --Absorbe Agua english:Water Absorb
 		"Despiste", --Despiste english:Oblivious
 		"Aclimatación", --Aclimatación english:Cloud Nine
-		"Ojocompuesto", --Ojocompuesto english:Compoundeyes
+		"Ojo Compuesto", --Ojo Compuesto english:Compoundeyes
 		"Insomnio", --Insomnio english:Insomnia
 		"Cambio Color", --Cambio Color english:Color Change
 		"Inmunidad", --Inmunidad english:Immunity
-		"Absor. Fuego", --Absor. Fuego english:Flash Fire
+		"Absorbe Fuego", --Absorbe Fuego english:Flash Fire
 		"Polvo Escudo", --Polvo Escudo english:Shield Dust
 		"Ritmo Propio", --Ritmo Propio english:Own Tempo
 		"Ventosas", --Ventosas english:Suction Cups
 		"Intimidación", --Intimidación english:Intimidate
-		"Sombratrampa", --Sombratrampa english:Shadow Tag
+		"Sombra Trampa", --Sombra Trampa english:Shadow Tag
 		"Piel Tosca", --Piel Tosca english:Rough Skin
-		"Superguarda.", --Superguarda. english:Wonder Guard
+		"Superguarda", --Superguarda english:Wonder Guard
 		"Levitación", --Levitación english:Levitate
-		"Efec. Espora", --Efec. Espora english:Effect Spore
+		"Efecto Espora", --Efecto Espora english:Effect Spore
 		"Sincronía", --Sincronía english:Synchronize
 		"Cuerpo Puro", --Cuerpo Puro english:Clear Body
 		"Cura Natural", --Cura Natural english:Natural Cure
@@ -2925,9 +3005,9 @@ GameResources{
 		"Clorofila", --Clorofila english:Chlorophyll
 		"Iluminación", --Iluminación english:Illuminate
 		"Rastro", --Rastro english:Trace
-		"Potencia", --Potencia english:Huge Power
+		"Potencia", --Potencia Bruta english:Huge Power
 		"Punto Tóxico", --Punto Tóxico english:Poison Point
-		"Foco Interno", --Foco Interno english:Inner Focus
+		"Fuerza Mental", --Fuerza Mental english:Inner Focus
 		"Escudo Magma", --Escudo Magma english:Magma Armor
 		"Velo Agua", --Velo Agua english:Water Veil
 		"Imán", --Imán english:Magnet Pull
@@ -2951,7 +3031,7 @@ GameResources{
 		"Viscosidad", --Viscosidad english:Sticky Hold
 		"Mudar", --Mudar english:Shed Skin
 		"Agallas", --Agallas english:Guts
-		"Escama Esp.", --Escama Esp. english:Marvel Scale
+		"Escama Especial", --Escama Especial english:Marvel Scale
 		"Lodo Líquido", --Lodo Líquido english:Liquid Ooze
 		"Espesura", --Espesura english:Overgrow
 		"Mar Llamas", --Mar Llamas english:Blaze
@@ -2960,7 +3040,7 @@ GameResources{
 		"Cabeza Roca", --Cabeza Roca english:Rock Head
 		"Sequía", --Sequía english:Drought
 		"Trampa Arena", --Trampa Arena english:Arena Trap
-		"Espír. Vital", --Espír. Vital english:Vital Spirit
+		"Espíritu Vital", --Espíritu Vital english:Vital Spirit
 		"Humo Blanco", --Humo Blanco english:White Smoke
 		"Energía Pura", --Energía Pura english:Pure Power
 		"Caparazón", --Caparazón english:Shell Armor
@@ -2972,340 +3052,340 @@ GameResources{
 	AbilityDescriptions = {
 		{
 			NameKey = "Stench",
-			Description = "While at the head of the party, decreases the wild encounter rate by 50%.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "In the Battle Pyramid, the wild encounter rate is only decreased by 25%.", -- NEEDS TRANSLATION
+			Description = "Mientras esté al frente del equipo, reduce la tasa de encuentros salvajes en un 50%.",
+			DescriptionEmerald = "En la Pirámide Batalla, la tasa de encuentros salvajes solo se reduce en un 25%.",
 		},
 		{
 			NameKey = "Drizzle",
-			Description = "Changes weather to rain when switched in. In rain, Water moves have 50% increased power and Fire moves have 50% decreased power. Thunder will always hit, Solarbeam deals 50% reduced damage, and Moonlight, Synthesis, and Morning Sun heal for 1/4 max HP", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a lluvia al entrar en combate. En lluvia, los movimientos de tipo Agua tienen un 50% más de poder y los de tipo Fuego tienen un 50% menos. Trueno siempre acertará, Rayo Solar inflige un 50% menos de daño, y Luz Lunar, Síntesis y Sol Matinal curan 1/4 de los PS máximos.",
 		},
 		{
 			NameKey = "Speed Boost",
-			Description = "At the end of each turn, raises Speed stat by one stage.", -- NEEDS TRANSLATION
+			Description = "Al final de cada turno, aumenta la Velocidad en una etapa.",
 		},
 		{
 			NameKey = "Battle Armor",
-			Description = "Prevents this Pokémon from receiving critical hits.", -- NEEDS TRANSLATION
+			Description = "Evita que este Pokémon reciba golpes críticos.",
 		},
 		{
 			NameKey = "Sturdy",
-			Description = "Cannot be hit by one-hit KO moves (Fissure, Horn Drill, Guillotine, Sheer Cold).", -- NEEDS TRANSLATION
+			Description = "No puede ser golpeado por movimientos de KO de un golpe (Fisura, Taladro, Guillotina, Frío Polar).",
 		},
 		{
 			NameKey = "Damp",
-			Description = "Prevents allied and opposing Pokémon from using self-destructing moves (Self-Destruct, Explosion).", -- NEEDS TRANSLATION
+			Description = "Evita que los Pokémon aliados y oponentes usen movimientos de autodestrucción (Autodestrucción, Explosión).",
 		},
 		{
 			NameKey = "Limber",
-			Description = "Cannot be paralyzed. Gaining this Ability, like through Skill Swap, will cure Paralysis.", -- NEEDS TRANSLATION
+			Description = "No puede ser paralizado. Obtener esta habilidad como a través de Intercambio, curará la parálisis.",
 		},
 		{
 			NameKey = "Sand Veil",
-			Description = "Increases Evasion by 20% in a sandstorm, and this Pokémon takes no end of turn damage in a sandstorm.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50% in a sandstorm.", -- NEEDS TRANSLATION
+			Description = "Aumenta la Evasión en un 20% durante una tormenta de arena, y este Pokémon no recibe daño al final del turno en una tormenta de arena.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, reduce la tasa de encuentros salvajes en un 50% durante una tormenta de arena.",
 		},
 		{
 			NameKey = "Static",
-			Description = "When hit by a contact move, 1/3 chance to paralyze the attacker.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against an Electric Pokémon, if possible.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento de contacto, tiene un 1/3 de probabilidad de paralizar al atacante.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, los encuentros salvajes tienen un 50% de probabilidad de ser contra un Pokémon de tipo Eléctrico, si es posible.",
 		},
 		{
 			NameKey = "Volt Absorb",
-			Description = "Restores 25% max HP instead of taking damage if hit by a damaging Electric move.", -- NEEDS TRANSLATION
+			Description = "Restaura el 25% de los PS máximos en lugar de recibir daño si es golpeado por un movimiento de tipo Eléctrico.",
 		},
 		{
 			NameKey = "Water Absorb",
-			Description = "Restores 25% max HP instead of taking damage if hit by a damaging Water move.", -- NEEDS TRANSLATION
+			Description = "Restaura el 25% de los PS máximos en lugar de recibir daño si es golpeado por un movimiento de tipo Agua.",
 		},
 		{
 			NameKey = "Oblivious",
-			Description = "Cannot be infatuated. Gaining this Ability, like through Skill Swap, will cure infatuation.", -- NEEDS TRANSLATION
+			Description = "No puede estar enamorado. Obtener esta habilidad como a través de Intercambio, curará el enamoramiento.",
 		},
 		{
 			NameKey = "Cloud Nine",
-			Description = "Negates all effects of weather, but does not end the weather.", -- NEEDS TRANSLATION
+			Description = "Niega todos los efectos del clima, pero no termina el clima.",
 		},
 		{
 			NameKey = "Compoundeyes",
-			Description = "Increases the Accuracy of moves by 30% (i.e. Thunder has an Accuracy of 70%. With this ability, it would instead have 70% x 1.3 = 91% Accuracy).", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Increases the chance of finding a wild Pokémon holding an item.", -- NEEDS TRANSLATION
+			Description = "Aumenta la precisión de los movimientos en un 30% (es decir, Trueno tiene una precisión del 70%. Con esta habilidad, la precisión sería del 70% x 1.3 = 91%).",
+			DescriptionEmerald = "Aumenta la probabilidad de encontrar un Pokémon salvaje sosteniendo un objeto.",
 		},
 		{
 			NameKey = "Insomnia",
-			Description = "Cannot be put to sleep. If this Pokémon uses Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.", -- NEEDS TRANSLATION
+			Description = "No puede ser dormido. Si este Pokémon usa Descanso, fallará. Obtener esta habilidad, como a través de Intercambio, curará el sueño.",
 		},
 		{
 			NameKey = "Color Change",
-			Description = "When hit by a damaging move, changes this Pokémon's type to match the move's type.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento dañino, cambia el tipo de este Pokémon para que coincida con el tipo del movimiento.",
 		},
 		{
 			NameKey = "Immunity",
-			Description = "Cannot be inflicted with Poison. Gaining this Ability, like through Skill Swap, will cure Poison.", -- NEEDS TRANSLATION
+			Description = "No puede ser afectado por envenenamiento. Obtener esta habilidad, como a través de Intercambio, curará el envenenamiento.",
 		},
 		{
 			NameKey = "Flash Fire",
-			Description = "Immune to Fire moves. The first time this Pokémon is hit by a Fire move, its own Fire moves gain 50% power.", -- NEEDS TRANSLATION
+			Description = "Inmune a los movimientos de tipo Fuego. La primera vez que este Pokémon es golpeado por un movimiento de tipo Fuego, sus propios movimientos de tipo Fuego ganan un 50% de poder.",
 		},
 		{
 			NameKey = "Shield Dust",
-			Description = "Unaffected by the additional effects of other Pokémon's damaging moves. For example, a Pokémon with this ability cannot be frozen by Blizzard or made to flinch by Fake Out.", -- NEEDS TRANSLATION
+			Description = "No afectado por los efectos adicionales de los movimientos dañinos de otros Pokémon. Por ejemplo, un Pokémon con esta habilidad no puede ser congelado por Ventisca o hacer que retroceda por Finta.",
 		},
 		{
 			NameKey = "Own Tempo",
-			Description = "Cannot be confused. Gaining this Ability, like through Skill Swap, will cure confusion.", -- NEEDS TRANSLATION
+			Description = "No puede ser confundido. Obtener esta habilidad, como a través de Intercambio, curará la confusión.",
 		},
 		{
 			NameKey = "Suction Cups",
-			Description = "Prevents this Pokémon from being forced to switch out.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Increases the chance of getting bites while fishing.", -- NEEDS TRANSLATION
+			Description = "Evita que este Pokémon sea obligado a cambiar de lugar.",
+			DescriptionEmerald = "Aumenta la probabilidad de recibir mordiscos mientras se pesca.",
 		},
 		{
 			NameKey = "Intimidate",
-			Description = "Lowers all opposing Pokémons' Attack stats by one stage when this Pokémon enters battle.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a Pokémon 5 or more levels lower than this Pokémon.", -- NEEDS TRANSLATION
+			Description = "Reduce las estadísticas de Ataque de todos los Pokémon oponentes en una etapa cuando este Pokémon entra en batalla.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, 50% de probabilidad de evitar un encuentro salvaje que habría sido con un Pokémon 5 niveles o más bajo que este Pokémon.",
 		},
 		{
 			NameKey = "Shadow Tag",
-			Description = "Prevents opposing Pokémon from switching out or fleeing.", -- NEEDS TRANSLATION
+			Description = "Evita que los Pokémon oponentes cambien de lugar o huyan.",
 		},
 		{
 			NameKey = "Rough Skin",
-			Description = "When hit by a contact move, the attacker takes 1/16 of their max HP as damage.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento de contacto, el atacante recibe 1/16 de su PS máximo como daño.",
 		},
 		{
 			NameKey = "Wonder Guard",
-			Description = "Immune to all damaging moves that are not super effective, except for Struggle, Beat Up, Future Sight, and Doom Desire. Cannot be copied by Role Play or swapped by Skill Swap.", -- NEEDS TRANSLATION
+			Description = "Inmune a todos los movimientos dañinos que no son super efectivos, excepto Combate, Golpe Bajo, Precisión y Deseo Oculto. No puede ser copiado por Imitación o intercambiado por Intercambio.",
 		},
 		{
 			NameKey = "Levitate",
-			Description = "Immune to Ground moves. This immunity is lost if this Pokémon uses Ingrain.", -- NEEDS TRANSLATION
+			Description = "Inmune a los movimientos de tipo Tierra. Esta inmunidad se pierde si este Pokémon usa Arraigo.",
 		},
 		{
 			NameKey = "Effect Spore",
-			Description = "When hit by a contact move, 10% chance for the attacker to become afflicted with Poison, Paralysis, or Sleep; with an equal chance of each. It's possible the random status won't affect the attacker, in the case that it is immune to that status.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento de contacto, 10% de probabilidad de que el atacante quede afectado por Envenenamiento, Parálisis o Sueño; con igual probabilidad de cada uno. Es posible que el estado aleatorio no afecte al atacante, en el caso de que sea inmune a ese estado.",
 		},
 		{
 			NameKey = "Synchronize",
-			Description = "When a Pokémon inflicts Poison, Paralysis, or Burn on this Pokémon, that Pokémon will be inflicted with the same status condition, if possible.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, there is a 50% chance that a wild encounter Pokémon will have the same nature as this Pokémon.", -- NEEDS TRANSLATION
+			Description = "Cuando un Pokémon inflige Envenenamiento, Parálisis o Quemadura a este Pokémon, ese Pokémon será afectado con la misma condición de estado, si es posible.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, hay un 50% de probabilidad de que un Pokémon encontrado salvaje tenga la misma naturaleza que este Pokémon.",
 		},
 		{
 			NameKey = "Clear Body",
-			Description = "Prevents stat reductions caused by opposing Pokémons' moves and abilities.", -- NEEDS TRANSLATION
+			Description = "Evita reducciones de estadísticas causadas por movimientos y habilidades de Pokémon oponentes.",
 		},
 		{
 			NameKey = "Natural Cure",
-			Description = "Heals any status conditions on switching out.", -- NEEDS TRANSLATION
+			Description = "Cura cualquier condición de estado al cambiar de Pokémon.",
 		},
 		{
 			NameKey = "Lightningrod",
-			Description = "All single-target Electric moves used by opposing Pokémon are redirected to this Pokémon.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, Trainers registered with the PokéNav's Match Call feature will call twice as often.", -- NEEDS TRANSLATION
+			Description = "Todos los movimientos eléctricos de un solo objetivo usados por Pokémon oponentes son redirigidos a este Pokémon.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, los entrenadores registrados con la función Match Call del PokéNav llamarán el doble de veces.",
 		},
 		{
 			NameKey = "Serene Grace",
-			Description = "Doubles the chance of secondary effects from this Pokémon's moves.", -- NEEDS TRANSLATION
+			Description = "Duplica la probabilidad de efectos secundarios de los movimientos de este Pokémon.",
 		},
 		{
 			NameKey = "Swift Swim",
-			Description = "Doubles Speed stat during rain.", -- NEEDS TRANSLATION
+			Description = "Duplica la Velocidad durante la lluvia.",
 		},
 		{
 			NameKey = "Chlorophyll",
-			Description = "Doubles Speed stat when the weather is sunny.", -- NEEDS TRANSLATION
+			Description = "Duplica la Velocidad cuando el clima es soleado.",
 		},
 		{
 			NameKey = "Illuminate",
-			Description = "Increases the wild encounter rate by 100%.", -- NEEDS TRANSLATION
+			Description = "Aumenta la tasa de encuentros salvajes en un 100%.",
 		},
 		{
 			NameKey = "Trace",
-			Description = "Copies a random opposing Pokémon's Ability when this Pokémon enters battle.", -- NEEDS TRANSLATION
+			Description = "Copia la habilidad de un Pokémon oponente aleatorio cuando este Pokémon entra en batalla.",
 		},
 		{
 			NameKey = "Huge Power",
-			Description = "Doubles this Pokémon's Attack stat.", -- NEEDS TRANSLATION
+			Description = "Duplica el estadística de Ataque de este Pokémon.",
 		},
 		{
 			NameKey = "Poison Point",
-			Description = "When hit by a contact move, 1/3 chance to inflict Poison on the attacker.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento de contacto, tiene un 1/3 de probabilidad de envenenar al atacante.",
 		},
 		{
 			NameKey = "Inner Focus",
-			Description = "Prevents flinching.", -- NEEDS TRANSLATION
+			Description = "Evita retroceder.",
 		},
 		{
 			NameKey = "Magma Armor",
-			Description = "Cannot be frozen. Gaining this Ability, like through Skill Swap, will cure Freeze.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Decreases the time needed to hatch an Egg by half.", -- NEEDS TRANSLATION
+			Description = "No puede ser congelado. Obtener esta habilidad, como a través de Intercambio, curará la congelación.",
+			DescriptionEmerald = "Reduce a la mitad el tiempo necesario para incubar un huevo.",
 		},
 		{
 			NameKey = "Water Veil",
-			Description = "Cannot be burned. Gaining this Ability, like through Skill Swap, will cure a Burn.", -- NEEDS TRANSLATION
+			Description = "No puede ser quemado. Obtener esta habilidad, como a través de Intercambio, curará una quemadura.",
 		},
 		{
 			NameKey = "Magnet Pull",
-			Description = "Prevents allied and opposing Steel Pokémon from switching out.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against a Steel Pokémon, if possible.", -- NEEDS TRANSLATION
+			Description = "Evita que los Pokémon de tipo Acero aliados y oponentes cambien de lugar.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, los encuentros salvajes tienen un 50% de probabilidad de ser contra un Pokémon de tipo Acero, si es posible.",
 		},
 		{
 			NameKey = "Soundproof",
-			Description = "Immune to sound-based moves. These moves are: GrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar", -- NEEDS TRANSLATION
+			Description = "Inmune a movimientos basados en sonido. Estos movimientos son: Silbato, Gruñido, Campana Cura, Vozarrón, Eco Metálico, Canto Mortal, Rugido, Chillido, Canto, Ronquido, Supersónico, Alboroto",
 		},
 		{
 			NameKey = "Rain Dish",
-			Description = "Heals this Pokémon for 1/16 max HP after each turn during rain.", -- NEEDS TRANSLATION
+			Description = "Cura a este Pokémon en un 1/16 de los PS máximos después de cada turno durante la lluvia.",
 		},
 		{
 			NameKey = "Sand Stream",
-			Description = "Changes weather to a sandstorm when switched in. After each turn during a sandstorm, each Pokémon takes 1/16 max HP damage, unless they are Rock, Ground, or Steel.", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a una tormenta de arena al entrar en combate. Después de cada turno durante una tormenta de arena, cada Pokémon recibe 1/16 de daño de PS máximos, a menos que sean de tipo Roca, Tierra o Acero.",
 		},
 		{
 			NameKey = "Pressure",
-			Description = "When a moves targets this Pokémon, one additional PP is deducted. A Pokémon can still target this Pokémon with a move if it only has 1 PP remaining for it.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, 50% chance that a wild encounter Pokémon will be the highest level it could appear.", -- NEEDS TRANSLATION
+			Description = "Cuando un movimiento tiene como objetivo a este Pokémon, se le deduce un PP adicional. Un Pokémon aún puede tener como objetivo a este Pokémon con un movimiento si solo le queda 1 PP para ello.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, 50% de probabilidad de que un Pokémon encontrado salvaje sea el de mayor nivel que podría aparecer.",
 		},
 		{
 			NameKey = "Thick Fat",
-			Description = "Damage received from Ice or Fire moves is halved.", -- NEEDS TRANSLATION
+			Description = "El daño recibido por movimientos de tipo Hielo o Fuego se reduce a la mitad.",
 		},
 		{
 			NameKey = "Early Bird",
-			Description = "Spends half as many turns asleep, rounded down.", -- NEEDS TRANSLATION
+			Description = "Pasa la mitad de tiempo dormido, redondeado hacia abajo.",
 		},
 		{
 			NameKey = "Flame Body",
-			Description = "When hit by a contact move, 1/3 chance to burn the attacker.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Decreases the time needed to hatch an Egg by half.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento de contacto, tiene un 1/3 de probabilidad de quemar al atacante.",
+			DescriptionEmerald = "Reduce a la mitad el tiempo necesario para incubar un huevo.",
 		},
 		{
 			NameKey = "Run Away",
-			Description = "Running away from wild encounters always succeeds.", -- NEEDS TRANSLATION
+			Description = "Huir de encuentros salvajes siempre tiene éxito.",
 		},
 		{
 			NameKey = "Keen Eye",
-			Description = "This Pokémon's Accuracy cannot be lowered.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a Pokémon 5 or more levels lower than this Pokémon.", -- NEEDS TRANSLATION
+			Description = "La precisión de este Pokémon no puede ser reducida.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, 50% de probabilidad de evitar un encuentro salvaje que habría sido con un Pokémon 5 niveles o más bajo que este Pokémon.",
 		},
 		{
 			NameKey = "Hyper Cutter",
-			Description = "This Pokémon's Attack stat cannot be lowered by other Pokémon.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "If this Pokémon uses Cut in the overworld, the radius of the Cut tall grass is increased by one.", -- NEEDS TRANSLATION
+			Description = "El estadística de Ataque de este Pokémon no puede ser reducida por otros Pokémon.",
+			DescriptionEmerald = "Si este Pokémon usa Corte en el mundo exterior, el radio del corte de la hierba alta se aumenta en uno.",
 		},
 		{
 			NameKey = "Pickup",
-			Description = "After winning a battle, there is a 10% chance that this Pokémon will be holding an item, if it was not already holding one.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "The types of items obtained vary according to this Pokémon's level, or the current level of the Battle Pyramid.", -- NEEDS TRANSLATION
+			Description = "Después de ganar una batalla, hay un 10% de probabilidad de que este Pokémon tenga un objeto en sus manos, si es que no tenía uno ya.",
+			DescriptionEmerald = "Los tipos de objetos obtenidos varían según el nivel de este Pokémon, o el nivel actual de la Pirámide Batalla.",
 		},
 		{
 			NameKey = "Truant",
-			Description = "Every other turn using a move in battle, this Pokémon instead loafs around and does nothing.", -- NEEDS TRANSLATION
+			Description = "Cada dos turnos usando un movimiento en batalla, este Pokémon en su lugar se queda inactivo y no hace nada.",
 		},
 		{
 			NameKey = "Hustle",
-			Description = "Increases Attack stat by 50%, but decreases the Accuracy of physical moves by 20%.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, 50% chance that a wild encounter Pokémon will be the highest level it could appear.", -- NEEDS TRANSLATION
+			Description = "Aumenta el estadística de Ataque en un 50%, pero reduce la precisión de los movimientos físicos en un 20%.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, 50% de probabilidad de que un Pokémon encontrado salvaje sea el de mayor nivel que podría aparecer.",
 		},
 		{
 			NameKey = "Cute Charm",
-			Description = "When hit by a contact move, 1/3 chance to inflict infatuation on the attacker. Has no effect if this Pokémon is genderless, or the same gender as the attacker.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, 2/3 chance that a wild encounter will be forced to the opposite gender of this Pokémon, if possible.", -- NEEDS TRANSLATION
+			Description = "Cuando es golpeado por un movimiento de contacto, tiene un 1/3 de probabilidad de infligir enamoramiento al atacante. No tiene efecto si este Pokémon no tiene género, o si es del mismo género que el atacante.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, 2/3 de probabilidad de que un encuentro salvaje sea forzado al género opuesto de este Pokémon, si es posible.",
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "En una Batalla Doble donde cualquier Pokémon activo tiene la habilidad Menos, la estadística de Ataque Especial de este Pokémon aumenta en un 50%.",
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "En una Batalla Doble donde cualquier Pokémon activo tiene la habilidad Más, la estadística de Ataque Especial de este Pokémon aumenta en un 50%.",
 		},
 		{
 			NameKey = "Forecast",
-			Description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Castform obtains this ability.", -- NEEDS TRANSLATION
+			Description = "El tipo de Castform cambia con el clima. Fuego mientras hace sol, Agua mientras llueve, o Hielo mientras graniza. Aclimatación y Bucle Aire desactivan este efecto. Esta habilidad no tiene efecto si un Pokémon que no es Castform obtiene esta habilidad.",
 		},
 		{
 			NameKey = "Sticky Hold",
-			Description = "This Pokémon's held item cannot be taken or removed.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Increases the chance of getting bites while fishing.", -- NEEDS TRANSLATION
+			Description = "El objeto que tiene equipado este Pokémon no puede ser robado o eliminado.",
+			DescriptionEmerald = "Aumenta la probabilidad de recibir mordiscos mientras se pesca.",
 		},
 		{
 			NameKey = "Shed Skin",
-			Description = "1/3 chance at the end of every turn to cure major status conditions (Burn, Poison, Paralysis, Freeze, Sleep).", -- NEEDS TRANSLATION
+			Description = "1/3 de probabilidad al final de cada turno de curar condiciones de estado mayores (Quemadura, Envenenamiento, Parálisis, Congelación, Sueño).",
 		},
 		{
 			NameKey = "Guts",
-			Description = "Increases this Pokémon's Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep), and ignores the Attack reduction of Burn.", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Ataque de este Pokémon en un 50% cuando es afectado por una condición de estado mayor (Quemadura, Envenenamiento, Parálisis, Congelación, Sueño), e ignora la reducción de Ataque por Quemadura.",
 		},
 		{
 			NameKey = "Marvel Scale",
-			Description = "Increases this Pokémon's Defense stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep).", -- NEEDS TRANSLATION
+			Description = "Aumenta la estadística de Defensa de este Pokémon en un 50% cuando es afectado por una condición de estado mayor (Quemadura, Envenenamiento, Parálisis, Congelación, Sueño).",
 		},
 		{
 			NameKey = "Liquid Ooze",
-			Description = "HP draining moves used against this Pokémon cause the attacker to instead lose the HP they would have healed.", -- NEEDS TRANSLATION
+			Description = "Los movimientos que absorben PS usados contra este Pokémon hacen que el atacante pierda en cambio los PS que habría curado.",
 		},
 		{
 			NameKey = "Overgrow",
-			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Grass moves is increased by 50%.", -- NEEDS TRANSLATION
+			Description = "Si este Pokémon tiene 1/3 o menos de sus PS máximos, el poder de sus movimientos de tipo Planta aumenta en un 50%.",
 		},
 		{
 			NameKey = "Blaze",
-			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Fire moves is increased by 50%.", -- NEEDS TRANSLATION
+			Description = "Si este Pokémon tiene 1/3 o menos de sus PS máximos, el poder de sus movimientos de tipo Fuego aumenta en un 50%.",
 		},
 		{
 			NameKey = "Torrent",
-			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Water moves is increased by 50%.", -- NEEDS TRANSLATION
+			Description = "Si este Pokémon tiene 1/3 o menos de sus PS máximos, el poder de sus movimientos de tipo Agua aumenta en un 50%.",
 		},
 		{
 			NameKey = "Swarm",
-			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Bug moves is increased by 50%.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Increases the frequency at which wild Pokémons' cries are heard in the overworld.", -- NEEDS TRANSLATION
+			Description = "Si este Pokémon tiene 1/3 o menos de sus PS máximos, el poder de sus movimientos de tipo Bicho aumenta en un 50%.",
+			DescriptionEmerald = "Aumenta la frecuencia con la que se oyen los gritos de los Pokémon salvajes en el mundo exterior.",
 		},
 		{
 			NameKey = "Rock Head",
-			Description = "Prevents recoil damage from moves, except for Struggle.", -- NEEDS TRANSLATION
+			Description = "Evita el daño por retroceso de los movimientos, excepto por el tipo Lucha.",
 		},
 		{
 			NameKey = "Drought",
-			Description = "Changes weather to sunny when switched in. In sun, Fire moves have 50% increased power and Water moves have 50% decreased power. Removes the charging turn for Solarbeam, lowers the Accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.", -- NEEDS TRANSLATION
+			Description = "Cambia el clima a soleado al entrar en combate. En sol, los movimientos de tipo Fuego tienen un 50% más de poder y los de tipo Agua tienen un 50% menos de poder. Elimina el turno de carga de Rayo Solar, reduce la precisión de Trueno al 50%, y hace que Luz Lunar, Síntesis y Sol Matinal curen 2/3 de los PS máximos.",
 		},
 		{
 			NameKey = "Arena Trap",
-			Description = "Prevents opposing Pokémon from switching out or fleeing, except Flying-types and Pokémon with Levitate.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "Increases the wild encounter rate by 100%.", -- NEEDS TRANSLATION
+			Description = "Evita que los Pokémon oponentes cambien de lugar o huyan, excepto los de tipo Volador y los que tienen Levitación.",
+			DescriptionEmerald = "Aumenta la tasa de encuentros salvajes en un 100%.",
 		},
 		{
 			NameKey = "Vital Spirit",
-			Description = "Cannot be put to sleep. If this Pokémon tries to use Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, 50% chance that a wild encounter will be at the highest possible level that Pokémon could appear.", -- NEEDS TRANSLATION
+			Description = "No puede ser dormido. Si este Pokémon intenta usar Descanso, fallará. Obtener esta habilidad, como a través de Intercambio, curará el sueño.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, 50% de probabilidad de que un encuentro salvaje esté al nivel más alto posible que ese Pokémon podría aparecer.",
 		},
 		{
 			NameKey = "White Smoke",
-			Description = "Prevents stat reductions caused by opposing Pokémons' moves and abilities.", -- NEEDS TRANSLATION
-			DescriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50%.", -- NEEDS TRANSLATION
+			Description = "Evita reducciones de estadísticas causadas por movimientos y habilidades de Pokémon oponentes.",
+			DescriptionEmerald = "Mientras esté al frente del equipo, reduce la tasa de encuentros salvajes en un 50%.",
 		},
 		{
 			NameKey = "Pure Power",
-			Description = "Doubles this Pokémon's Attack stat.", -- NEEDS TRANSLATION
+			Description = "Duplica el estadística de Ataque de este Pokémon.",
 		},
 		{
 			NameKey = "Shell Armor",
-			Description = "Prevents this Pokémon from receiving critical hits.", -- NEEDS TRANSLATION
+			Description = "Evita que este Pokémon reciba golpes críticos.",
 		},
 		{
 			NameKey = "Cacophony",
-			Description = "Immune to sound-based moves. These moves are: GrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar.", -- NEEDS TRANSLATION
+			Description = "Inmune a movimientos basados en sonido. Estos movimientos son: Silbato, Gruñido, Campana Cura, Vozarrón, Eco Metálico, Canto Mortal, Rugido, Chillido, Canto, Ronquido, Supersónico, Alboroto.",
 		},
 		{
 			NameKey = "Air Lock",
-			Description = "Negates all effects of weather, but does not end the weather.", -- NEEDS TRANSLATION
+			Description = "Niega todos los efectos del clima, pero no termina el clima.",
 		},
 	},
 	-- The list of item names below must remain in the same order
 	ItemNames = {
 		"Master Ball", --Master Ball english:Master Ball
-		"Ultraball", --Ultraball english:Ultra Ball
-		"Superball", --Superball english:Great Ball
+		"Ultra Ball", --Ultraball english:Ultra Ball
+		"Super Ball", --Superball english:Great Ball
 		"Poké Ball", --Poké Ball english:Poke Ball
 		"Safari Ball", --Safari Ball english:Safari Ball
 		"Malla Ball", --Malla Ball english:Net Ball
@@ -3322,30 +3402,30 @@ GameResources{
 		"Despertar", --Despertar english:Awakening
 		"Antiparaliz", --Antiparaliz english:Parlyz Heal
 		"Restau. Todo", --Restau. Todo english:Full Restore
-		"Máx. Poción", --Máx. Poción english:Max Potion
+		"Max. Poción", --Max. Poción english:Max Potion
 		"Hiperpoción", --Hiperpoción english:Hyper Potion
 		"Superpoción", --Superpoción english:Super Potion
 		"Cura Total", --Cura Total english:Full Heal
 		"Revivir", --Revivir english:Revive
-		"Máx. Revivir", --Máx. Revivir english:Max Revive
+		"Máx. Revivir", -- english:Max Revive
 		"Agua Fresca", --Agua Fresca english:Fresh Water
 		"Refresco", --Refresco english:Soda Pop
 		"Limonada", --Limonada english:Lemonade
 		"Leche Mu-Mu", --Leche Mu-Mu english:Moomoo Milk
 		"Polvoenergía", --Polvoenergía english:EnergyPowder
 		"Raíz Energía", --Raíz Energía english:Energy Root
-		"Pol.curación", --Pol.curación english:Heal Powder
-		"Hierba Rev.", --Hierba Rev. english:Revival Herb
+		"Polvo curación", --Polvo curación english:Heal Powder
+		"Hierba Revivir", --Hierba Revivir english:Revival Herb
 		"Éter", --Éter english:Ether
 		"Éter Máx.", --Éter Máx. english:Max Ether
 		"Elixir", --Elixir english:Elixir
-		"Elixir Máx.", --Elixir Máx. english:Max Elixir
+		"Elixir Máx.", --Máximo Elixir english:Max Elixir
 		"Galleta Lava", --Galleta Lava english:Lava Cookie
 		"Flauta Azul", --Flauta Azul english:Blue Flute
-		"Fl. Amarilla", --Fl. Amarilla english:Yellow Flute
+		"Fl. Amarilla", --Flauta Amarilla english:Yellow Flute
 		"Flauta Roja", --Flauta Roja english:Red Flute
 		"Flauta Negra", --Flauta Negra english:Black Flute
-		"Fl. Blanca", --Fl. Blanca english:White Flute
+		"Fl. Blanca", --Flauta Blanca english:White Flute
 		"Zumo De Baya", --Zumo De Baya english:Berry Juice
 		"Cen. Sagrada", --Cen. Sagrada english:Sacred Ash
 		"Sal Cardumen", --Sal Cardumen english:Shoal Salt
@@ -3365,17 +3445,17 @@ GameResources{
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
-		"Más Ps", --Más Ps english:HP Up
+		"Más PS", --Más PS english:HP Up
 		"Proteína", --Proteína english:Protein
 		"Hierro", --Hierro english:Iron
 		"Carburante", --Carburante english:Carbos
 		"Calcio", --Calcio english:Calcium
 		"Carameloraro", --Carameloraro english:Rare Candy
-		"Más Pp", --Más Pp english:PP Up
+		"Más PP", --Más PP english:PP Up
 		"Zinc", --Zinc english:Zinc
-		"Máx. Pp", --Máx. Pp english:PP Max
+		"Máx. PP", --PP Máximos english:PP Max
 		"????????", --???????? english:unknown
-		"Protec. Esp.", --Protec. Esp. english:Guard Spec.
+		"Protec Esp.", --Protección Especial english:Guard Spec.
 		"Directo", --Directo english:Dire Hit
 		"Ataque X", --Ataque X english:X Attack
 		"Defensa X", --Defensa X english:X Defend
@@ -3433,8 +3513,8 @@ GameResources{
 		"Carta Sombra", --Carta Sombra english:Shadow Mail
 		"Car. Tropic.", --Car. Tropic. english:Tropic Mail
 		"Carta Sueño", --Carta Sueño english:Dream Mail
-		"Carta Fab.", --Carta Fab. english:Fab Mail
-		"Carta Retro.", --Carta Retro. english:Retro Mail
+		"Carta Fab.", --Carta Fabulosa english:Fab Mail
+		"Carta Retro", --Carta Retro english:Retro Mail
 		"Baya Zreza", --Baya Zreza english:Cheri Berry
 		"Baya Atania", --Baya Atania english:Chesto Berry
 		"Baya Meloc", --Baya Meloc english:Pecha Berry
@@ -3488,20 +3568,20 @@ GameResources{
 		"Garra Rápida", --Garra Rápida english:Quick Claw
 		"Camp. Alivio", --Camp. Alivio english:Soothe Bell
 		"Hier. Mental", --Hier. Mental english:Mental Herb
-		"Cin. Elegida", --Cin. Elegida english:Choice Band
+		"Cint. Elegida", --Cint. Elegida english:Choice Band
 		"Roca Del Rey", --Roca Del Rey english:King's Rock
 		"Polvo Plata", --Polvo Plata english:SilverPowder
 		"Mon. Amuleto", --Mon. Amuleto english:Amulet Coin
 		"Amuleto", --Amuleto english:Cleanse Tag
 		"Rocío Bondad", --Rocío Bondad english:Soul Dew
-		"Diente Mar.", --Diente Mar. english:DeepSeaTooth
+		"Diente Mar.", --Diente Marino english:DeepSeaTooth
 		"Escama Mar.", --Escama Mar. english:DeepSeaScale
 		"Bola Humo", --Bola Humo english:Smoke Ball
 		"Piedraeterna", --Piedraeterna english:Everstone
 		"Cinta Focus", --Cinta Focus english:Focus Band
 		"Huevo Suerte", --Huevo Suerte english:Lucky Egg
 		"Periscopio", --Periscopio english:Scope Lens
-		"Rev.metálico", --Rev.metálico english:Metal Coat
+		"Rev.metálico", --Rev. metálico english:Metal Coat
 		"Restos", --Restos english:Leftovers
 		"Escamadragón", --Escamadragón english:Dragon Scale
 		"Bolaluminosa", --Bolaluminosa english:Light Ball
@@ -3516,16 +3596,16 @@ GameResources{
 		"Flecha Ven.", --Flecha Ven. english:Poison Barb
 		"Antiderretir", --Antiderretir english:NeverMeltIce
 		"Hechizo", --Hechizo english:Spell Tag
-		"Cuchara Tor", --Cuchara Tor english:TwistedSpoon
+		"Cuchara Tor.", --Cuchara Torcida english:TwistedSpoon
 		"Carbón", --Carbón english:Charcoal
 		"Colmillodrag", --Colmillodrag english:Dragon Fang
 		"Pañuelo Seda", --Pañuelo Seda english:Silk Scarf
 		"Mejora", --Mejora english:Up-Grade
 		"Camp. Concha", --Camp. Concha english:Shell Bell
-		"Incie. Mar.", --Incie. Mar. english:Sea Incense
-		"Incie. Suave", --Incie. Suave english:Lax Incense
+		"Incie. Mar.", --Incienso Marino english:Sea Incense
+		"Incie. Suave", --Incienso Suave english:Lax Incense
 		"Puño Suerte", --Puño Suerte english:Lucky Punch
-		"Pol.metálico", --Pol.metálico english:Metal Powder
+		"Pol.metálico", --Polv.metálico english:Metal Powder
 		"Hueso Grueso", --Hueso Grueso english:Thick Club
 		"Palo", --Palo english:Stick
 		"????????", --???????? english:unknown
@@ -3575,7 +3655,7 @@ GameResources{
 		"Saco Hollín", --Saco Hollín english:Soot Sack
 		"Ll. Sótano", --Ll. Sótano english:Basement Key
 		"Bici Acrob.", --Bici Acrob. english:Acro Bike
-		"Tubo Pokeblocks", --Tubo Pokeblocks english:Pokeblock Case
+		"Tubo Pokécubos", --Kit de Pokécubos english:Pokeblock Case
 		"Carta", --Carta english:Letter
 		"Ticket Eón", --Ticket Eón english:Eon Ticket
 		"Esfera Roja", --Esfera Roja english:Red Orb
@@ -3590,7 +3670,7 @@ GameResources{
 		"Ll. Almacén", --Ll. Almacén english:Storage Key
 		"Fósil Raíz", --Fósil Raíz english:Root Fossil
 		"Fósil Garra", --Fósil Garra english:Claw Fossil
-		"Detec. Devon", --Detec. Devon english:Devon Scope
+		"Detec. Devon", --Detector Devon english:Devon Scope
 		"Mt01", --Mt01 english:TM01
 		"Mt02", --Mt02 english:TM02
 		"Mt03", --Mt03 english:TM03
@@ -3657,8 +3737,8 @@ GameResources{
 		"Bono Bici", --Bono Bici english:Bike Voucher
 		"Dientes Oro", --Dientes Oro english:Gold Teeth
 		"Ámbar Viejo", --Ámbar Viejo english:Old Amber
-		"Ll.magnética", --Ll.magnética english:Card Key
-		"Ll. Ascensor", --Ll. Ascensor english:Lift Key
+		"Ll.magnética", --Llave magnética english:Card Key
+		"Ll. Ascensor", --Llave Ascensor english:Lift Key
 		"Fósil Helix", --Fósil Helix english:Helix Fossil
 		"Fósil Domo", --Fósil Domo english:Dome Fossil
 		"Scope Silph", --Scope Silph english:Silph Scope
@@ -3666,7 +3746,7 @@ GameResources{
 		"Mapa", --Mapa english:Town Map
 		"Buscapelea", --Buscapelea english:Vs. Seeker
 		"Memorín", --Memorín english:Fame Checker
-		"Tubo Mt-Mo", --Tubo Mt-Mo english:TM Case
+		"Tubo MT-MO", --Tubo MT-MO english:TM Case
 		"Saco Bayas", --Saco Bayas english:Berry Pouch
 		"Poké Tele", --Poké Tele english:Teachy TV
 		"Tri-Ticket", --Tri-Ticket english:Tri-Pass
@@ -3682,30 +3762,30 @@ GameResources{
 	},
 	-- The list of Pokémon natures below must remain in the same order
 	NatureNames = {
-		"Hardy", -- NEEDS TRANSLATION
-		"Lonely", -- NEEDS TRANSLATION
-		"Brave", -- NEEDS TRANSLATION
-		"Adamant", -- NEEDS TRANSLATION
-		"Naughty", -- NEEDS TRANSLATION
-		"Bold", -- NEEDS TRANSLATION
-		"Docile", -- NEEDS TRANSLATION
-		"Relaxed", -- NEEDS TRANSLATION
-		"Impish", -- NEEDS TRANSLATION
-		"Lax", -- NEEDS TRANSLATION
-		"Timid", -- NEEDS TRANSLATION
-		"Hasty", -- NEEDS TRANSLATION
-		"Serious", -- NEEDS TRANSLATION
-		"Jolly", -- NEEDS TRANSLATION
-		"Naive", -- NEEDS TRANSLATION
-		"Modest", -- NEEDS TRANSLATION
-		"Mild", -- NEEDS TRANSLATION
-		"Quiet", -- NEEDS TRANSLATION
-		"Bashful", -- NEEDS TRANSLATION
-		"Rash", -- NEEDS TRANSLATION
-		"Calm", -- NEEDS TRANSLATION
-		"Gentle", -- NEEDS TRANSLATION
-		"Sassy", -- NEEDS TRANSLATION
-		"Careful", -- NEEDS TRANSLATION
-		"Quirky", -- NEEDS TRANSLATION
+		"Fuerte",
+		"Huraña",
+		"Audaz",
+		"Firme",
+		"Pícara",
+		"Osada",
+		"Dócil",
+		"Plácida",
+		"Agitada",
+		"Floja",
+		"Miedosa",
+		"Activa",
+		"Seria",
+		"Alegre",
+		"Ingenua",
+		"Modesta",
+		"Afable",
+		"Mansa",
+		"Tímida",
+		"Alocada",
+		"Serena",
+		"Amable",
+		"Grosera",
+		"Cauta",
+		"Rara",
 	},
 }

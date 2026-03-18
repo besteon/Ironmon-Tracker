@@ -33,7 +33,6 @@ StreamConnectOverlay = {
 		},
 	},
 	currentTab = nil,
-	isDisplayed = false,
 }
 local SCREEN = StreamConnectOverlay
 local MARGIN = 2
@@ -117,7 +116,6 @@ SCREEN.Pager = {
 
 function StreamConnectOverlay.initialize()
 	SCREEN.currentTab = SCREEN.Tabs.Status
-	SCREEN.isDisplayed = false
 	SCREEN.createTabButtons()
 	for _, button in pairs(SCREEN.Buttons) do
 		if button.textColor == nil then
@@ -1103,31 +1101,30 @@ end
 
 -- Rebuilds the buttons for the currently displayed screen. Useful when the Tracker's display language changes
 function StreamConnectOverlay.rebuildScreen()
-	if not SCREEN.isDisplayed then return end
+	if Program.currentOverlay ~= SCREEN then return end
 	SCREEN.createTabButtons()
 	SCREEN.buildPagedButtons(SCREEN.currentTab)
 	SCREEN.refreshButtons()
 end
 
 function StreamConnectOverlay.open()
-	if SCREEN.isDisplayed then return end
-	SCREEN.isDisplayed = true
 	if Network.isConnected() and Network.CurrentConnection.State >= Network.ConnectionState.Established then
 		local firstTab = Utils.getSortedList(SCREEN.Tabs)[1]
 		SCREEN.changeTab(firstTab)
 	else
 		SCREEN.changeTab(SCREEN.Tabs.Status)
 	end
+	SCREEN.refreshButtons()
 end
 
 function StreamConnectOverlay.close()
-	if not SCREEN.isDisplayed then return end
-	SCREEN.isDisplayed = false
-	Program.redraw(true)
+	if Program.currentOverlay == SCREEN then
+		Program.currentOverlay = nil
+	end
 end
 
 function StreamConnectOverlay.changeTab(tab)
-	if not SCREEN.isDisplayed then return end
+	if Program.currentOverlay ~= SCREEN then return end
 	SCREEN.currentTab = tab
 	SCREEN.buildPagedButtons(tab)
 	SCREEN.refreshButtons()
@@ -1439,14 +1436,14 @@ end
 
 -- USER INPUT FUNCTIONS
 function StreamConnectOverlay.checkInput(xmouse, ymouse)
-	if not SCREEN.isDisplayed then return end
+	if Program.currentOverlay ~= SCREEN then return end
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Buttons)
 	Input.checkButtonsClicked(xmouse, ymouse, SCREEN.Pager.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function StreamConnectOverlay.drawScreen()
-	if not SCREEN.isDisplayed then return end
+	if Program.currentOverlay ~= SCREEN then return end
 
 	local canvas = {
 		x = SCREEN.Canvas.x,

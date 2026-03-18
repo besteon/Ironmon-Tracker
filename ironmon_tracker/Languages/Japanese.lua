@@ -148,6 +148,9 @@ ScreenResources{
 		EncounterGoodRod = "いいつりざお",
 		EncounterOldRod = "ボロのつりざお",
 		EncounterSeenPokemon = "出現",
+		TrainersDefeated = "Trainers defeated", -- NEEDS TRANSLATION
+		TrainersNoneInArea = "No Trainers in this area.", -- NEEDS TRANSLATION
+		GachaMonCaptured = "GachaMon captured!", -- NEEDS TRANSLATION
 		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
 		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
 		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
@@ -165,6 +168,7 @@ ScreenResources{
 		TrackedDataMsgLoadSuccess = "Loaded from last play session.", -- NEEDS TRANSLATION
 		TrackedDataMsgNewGame = "New game started.", -- NEEDS TRANSLATION
 		TrackedDataMsgAutoDisabled = "Auto saving / loading is OFF.", -- NEEDS TRANSLATION
+		TrackedDataMsgRomMismatch = "Incorrect ROM file loaded.", -- NEEDS TRANSLATION
 		TrackedDataMsgError = "Error loading file.", -- NEEDS TRANSLATION
 		HeaderFavorites = "気に入りポケモン",
 		HeaderControls = "コントロール",
@@ -207,7 +211,7 @@ ScreenResources{
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
+		OptionTrackPCHeals = "Track PokéCenter heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
@@ -221,6 +225,7 @@ ScreenResources{
 		CarouselLastAttack = "Last attack damage", -- NEEDS TRANSLATION
 		CarouselBattleDetails = "Additional battle details", -- NEEDS TRANSLATION
 		CarouselPedometer = "Step pedometer", -- NEEDS TRANSLATION
+		CarouselGachaMon = "GachaMons captured", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		ButtonEditAll = "Edit All", -- NEEDS TRANSLATION
 		LabelCurrentControllerBinding = "Current controller binding", -- NEEDS TRANSLATION
@@ -245,6 +250,7 @@ ScreenResources{
 		TabOptions = "Options", -- NEEDS TRANSLATION
 		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
 		ButtonCoverageCalculator = "Coverage Calculator", -- NEEDS TRANSLATION
+		ButtonGachaMonCollection = "GachaMon Collection", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
@@ -379,12 +385,12 @@ ScreenResources{
 		ButtonShow = "Show", -- NEEDS TRANSLATION
 		ButtonHide = "Hide", -- NEEDS TRANSLATION
 		ButtonViewOnline = "View Online", -- NEEDS TRANSLATION
-		CheckboxDevBranch = "Dev branch updates", -- NEEDS TRANSLATION
+		CheckboxDevBranch = "Beta test branch updates", -- NEEDS TRANSLATION
 		ButtonCheckForUpdates = "Check for updates", -- NEEDS TRANSLATION
 		ButtonNoUpdates = "No update available", -- NEEDS TRANSLATION
 		ButtonBeginInstall = "Begin install", -- NEEDS TRANSLATION
 		ButtonInstallNow = "Install now", -- NEEDS TRANSLATION
-		ButtonInstallFromDev = "Install from dev", -- NEEDS TRANSLATION
+		ButtonInstallFromDev = "Install from beta branch", -- NEEDS TRANSLATION
 		ButtonOpenDownload = "Open download", -- NEEDS TRANSLATION
 		ButtonIgnoreUpdate = "Ignore update", -- NEEDS TRANSLATION
 		MessageInProgress = "Update in progress, please wait. Check command prompt window for status.", -- NEEDS TRANSLATION
@@ -562,6 +568,8 @@ ScreenResources{
 		ButtonGradeMyNotes = "Grade my notes", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+		ButtonViewLogSmall = "View log", -- NEEDS TRANSLATION
+		ButtonPrizeCard = "Prize card", -- NEEDS TRANSLATION
 	},
 	StatMarkingScoreSheet = {
 		Title = "Stat Marking Score Sheet", -- NEEDS TRANSLATION
@@ -715,6 +723,72 @@ ScreenResources{
 		FilterTrainerName = "Trainer Name", -- NEEDS TRANSLATION
 		FilterRouteName = "Route Name", -- NEEDS TRANSLATION
 	},
+	GachaMonAnimations = {
+		LabelPrizeCardFromTrainer = "Prize Card from Trainer",
+		LabelTabNEW = "NEW",
+		LabelPressBUTTONtoOpen = "Press (%s) or click to open"
+	},
+	GachaMonOverlay = {
+		TabRecent = "Captures",
+		TabCollection = "Collection",
+		TabView = "View",
+		TabGachaDex = "GachaDex",
+		TabBattle = "Battle",
+		TabOptions = "Options",
+		TabAbout = "?",
+
+		-- Recent/Captures Tab & Collections Tabs
+		RecentCapturesHelpText1 = "Here are GachaMons you've captured this game.",
+		RecentCapturesHelpText2 = "Click [Add to Collection] to keep them forever.",
+		LabelSort = "Sort",
+
+		-- View Tab
+		LabelRating = "Rating",
+		WordPoints = "points",
+		WordStars = "stars",
+		LabelBattlePower = "Battle Power",
+		BattlePowerAbbreviation = "BP",
+		LabelCollectedOn = "Collected on",
+		LabelSeed = "Seed",
+		LabelStats = "Stats",
+		ButtonBattle = "Battle",
+		ButtonFavorite = "Favorite",
+		ButtonInCollection = "In Collection",
+		ButtonAddToCollection = "Add to Collection",
+
+		-- GachaDex Tab
+		LabelSeen = "Seen",
+		LabelCollAbbreviation = "Coll.",
+
+		-- Battle Tab
+
+		-- Options Tab
+		LabelOnCaptureHeader = "When a new GachaMon is captured, add to collection if",
+		LabelRulesetForRatings = "Ruleset used for ratings",
+		LabelTagAuto = "Auto",
+		LabelCollectionSize = "GachaMons in collection",
+		OptionAutoAddIfNew = "It's a new Pokémon species",
+		OptionAutoAddWhenDefeatTrainers = "It defeats at least 2 trainers",
+		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
+		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
+		OptionAnimateGachaMonPackOpening = "Animate card pack opening",
+		OptionAutoAddFromTrainerVictory = "Occasionally receive prize cards from Trainers",
+		ButtonCleanupCollection = "Cleanup Collection",
+
+		-- About Tab
+		GachaMonGameHeader = "GachaMon  Collectable  Card  Game",
+		GachaMonGameDescription = "Play IronMON,  collect GachaMon cards!",
+		SectionHowItWorks = "How it works",
+		LabelCatchPokemon = "Catch Pokémon",
+		LabelAcquireGachaMonCards = "Acquire GachaMon cards",
+		LabelKeepCardsInCollection = "Keep cards in your Collection",
+		LabelBattle = "Battle!  (coming soon)",
+		SectionWhatsOnCard = "What's on a Card",
+		LabelStarsAndRating = "Stars:  The Pokémon's rating (1- 5)",
+		LabelBattlePowerAndStrength = "Battle Power:  Its strength for doing card battles",
+		ButtonHelpWiki = "Help",
+		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's GachaMon Help Wiki.",
+	},
 	TeamViewArea = {
 		EggNickname = "EGG", -- NEEDS TRANSLATION
 	},
@@ -768,6 +842,10 @@ ScreenResources{
 		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		CMD_BallQueue_Name = "Ball Queue",
 		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
+		CMD_GachaMon_Name = "GachaMon Info",
+		CMD_GachaMon_Help = "name > Displays card info for a GachaMon, most recent or specific Pokémon.",
+		CMD_GachaDex_Name = "GachaDex Info",
+		CMD_GachaDex_Help = "> Displays GachaDex collection stats and info.",
 		CMD_About_Name = "About the Tracker",
 		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
 		CMD_Help_Name = "Command Help",
@@ -781,7 +859,9 @@ ScreenResources{
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
 		GE_GameOver_Name = "When the game is over...",
-		GE_GameOver_TriggerEffect = "Update SB Global Variables",
+		GE_GameOver_TriggerEffect = "Send win/loss status and Pokémon ID",
+		GE_GachaMonCapture_Name = "When a GachaMon is captured...",
+		GE_GachaMonCapture_TriggerEffect = "Send its base64 share code",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
@@ -874,13 +954,13 @@ ScreenResources{
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionAutosaveTrackedData = "Autosave tracked game data", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
+		OptionTrackPCHeals = "Track PokéCenter heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
-		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionDevBranchUpdates = "Beta test branch updates", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION

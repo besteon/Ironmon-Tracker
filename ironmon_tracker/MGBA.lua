@@ -70,7 +70,8 @@ function MGBA.shortenDashes()
 	AbilityData.DefaultAbility.name = "---"
 	AbilityData.DefaultAbility.description = "---"
 
-	for _, move in pairs(MoveData.Moves) do
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
 		if move.priority ~= nil then
 			if move.priority:sub(1, 3) == "-- " then
 				move.priority = "-" .. move.priority:sub(4)
@@ -271,7 +272,7 @@ MGBA.Screens = {
 
 			-- Automatically default to showing a random Move
 			if self.moveId == nil or self.moveId == 0 then
-				self.moveId = math.random(#MoveData.Moves)
+				self.moveId = math.random(MoveData.getTotal())
 			end
 
 			if self.data == nil or (self.moveId ~= nil and self.moveId ~= self.data.m.id) then

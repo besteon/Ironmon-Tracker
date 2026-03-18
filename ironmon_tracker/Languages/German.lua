@@ -148,6 +148,9 @@ ScreenResources{
 		EncounterGoodRod = "Profiangel", --EncounterGoodRod english:Good Rod
 		EncounterOldRod = "Angel", --EncounterOldRod english:Old Rod
 		EncounterSeenPokemon = "Gesehene Pokémon", --EncounterSeenPokemon english:Seen Pokémon
+		TrainersDefeated = "Trainers defeated", -- NEEDS TRANSLATION
+		TrainersNoneInArea = "No Trainers in this area.", -- NEEDS TRANSLATION
+		GachaMonCaptured = "GachaMon captured!", -- NEEDS TRANSLATION
 		PromptNoteDesc = "Kurznotiz erstellen", --PromptNoteDesc english:Enter a short note for
 		PromptNoteAbilityDesc = "Setze eine oder beide Fähigkeiten für", --PromptNoteAbilityDesc english:Set one or both abilities for
 		PromptNoteClearAbilities = "Leeren", --PromptNoteClearAbilities english:Clear Abilities
@@ -165,6 +168,7 @@ ScreenResources{
 		TrackedDataMsgLoadSuccess = "Letzten Spielstand geladen.", --TrackedDataMsgLoadSuccess english:Loaded from last play session.
 		TrackedDataMsgNewGame = "Neues Spiel gestartet.", --TrackedDataMsgNewGame english:New game started.
 		TrackedDataMsgAutoDisabled = "Autospeichern/-laden ist AUS", --TrackedDataMsgAutoDisabled english:Auto saving / loading is OFF.
+		TrackedDataMsgRomMismatch = "Incorrect ROM file loaded.", -- NEEDS TRANSLATION
 		TrackedDataMsgError = "Datei konnte nicht geladen werden.", --TrackedDataMsgError english:Error loading file.
 		HeaderFavorites = "Lieblingspokémon", --HeaderFavorites english:Favorite Pokémon
 		HeaderControls = "GBA-Steuerung", --HeaderControls english:GBA Controls
@@ -219,6 +223,7 @@ ScreenResources{
 		CarouselLastAttack = "Schaden des letzten Angriffs", --CarouselLastAttack english:Last attack damage
 		CarouselBattleDetails = "Zusätzliche Kampfdetails", --CarouselBattleDetails english:Additional battle details
 		CarouselPedometer = "Schrittzähler", --CarouselPedometer english:Step pedometer
+		CarouselGachaMon = "GachaMons captured", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Setze den Button-Modus auf LR", --OptionOverrideButtonModeLR english:Override Button Mode to LR
 		ButtonEditAll = "Ändern", --ButtonEditAll english:Edit All
 		LabelCurrentControllerBinding = "Aktuelle Controller-Belegung", --LabelCurrentControllerBinding english:Current controller binding
@@ -243,6 +248,7 @@ ScreenResources{
 		TabOptions = "Optionen", --TabOptions english:Options
 		ButtonViewLogs = "Logs", --ButtonViewLogs english:Logs
 		ButtonCoverageCalculator = "Coverage-Rechner", --ButtonCoverageCalculator english:Coverage Calculator
+		ButtonGachaMonCollection = "GachaMon Collection", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Zeitmaschine", --ButtonTimeMachine english:Time Machine
 		ButtonCrashRecovery = "Crash-Wiederherstellung", --ButtonCrashRecovery english:Crash Recovery
 		LabelTimer = "Timer-Einstellungen", --LabelTimer english:Timer options
@@ -377,12 +383,12 @@ ScreenResources{
 		ButtonShow = "Öffne", --ButtonShow english:Show
 		ButtonHide = "Schl.", --ButtonHide english:Hide
 		ButtonViewOnline = "Öffne online", --ButtonViewOnline english:View Online
-		CheckboxDevBranch = "Dev-Branch-Updates", --CheckboxDevBranch english:Dev branch updates
+		CheckboxDevBranch = "Beta-Branch-Updates", --CheckboxDevBranch english:Dev branch updates
 		ButtonCheckForUpdates = "Nach Updates suchen", --ButtonCheckForUpdates english:Check for updates
 		ButtonNoUpdates = "Kein Update verfügbar", --ButtonNoUpdates english:No update available
 		ButtonBeginInstall = "Installation starten", --ButtonBeginInstall english:Begin install
 		ButtonInstallNow = "Jetzt installieren", --ButtonInstallNow english:Install now
-		ButtonInstallFromDev = "Install. aus Dev", --ButtonInstallFromDev english:Install from dev
+		ButtonInstallFromDev = "Install. aus Beta", --ButtonInstallFromDev english:Install from dev
 		ButtonOpenDownload = "Download öffnen", --ButtonOpenDownload english:Open download
 		ButtonIgnoreUpdate = "Update ignorieren", --ButtonIgnoreUpdate english:Ignore update
 		MessageInProgress = "Aktualisierung läuft, bitte warten. Den Status in der Lua-Konsole prüfen.", --MessageInProgress english:Update in progress, please wait. Check command prompt window for status.
@@ -560,6 +566,8 @@ ScreenResources{
 		ButtonGradeMyNotes = "Bewerte Notizen", --ButtonGradeMyNotes english:Grade my notes
 		ButtonInspectLogFile = "Log ansehen", --ButtonInspectLogFile english:Inspect the log
 		ButtonOpenLogFile = "Log öffnen", --ButtonOpenLogFile english:Open a log file
+		ButtonViewLogSmall = "View log", -- NEEDS TRANSLATION
+		ButtonPrizeCard = "Prize card", -- NEEDS TRANSLATION
 	},
 	StatMarkingScoreSheet = {
 		Title = "Bewertungsbogen", --Title english:Stat Marking Score Sheet
@@ -713,6 +721,72 @@ ScreenResources{
 		FilterTrainerName = "Trainer-Name", --FilterTrainerName english:Trainer Name
 		FilterRouteName = "Routen-Name", --FilterRouteName english:Route Name
 	},
+	GachaMonAnimations = {
+		LabelPrizeCardFromTrainer = "Prize Card from Trainer",
+		LabelTabNEW = "NEW",
+		LabelPressBUTTONtoOpen = "Press (%s) or click to open"
+	},
+	GachaMonOverlay = {
+		TabRecent = "Captures",
+		TabCollection = "Collection",
+		TabView = "View",
+		TabGachaDex = "GachaDex",
+		TabBattle = "Battle",
+		TabOptions = "Options",
+		TabAbout = "?",
+
+		-- Recent/Captures Tab & Collections Tabs
+		RecentCapturesHelpText1 = "Here are GachaMons you've captured this game.",
+		RecentCapturesHelpText2 = "Click [Add to Collection] to keep them forever.",
+		LabelSort = "Sort",
+
+		-- View Tab
+		LabelRating = "Rating",
+		WordPoints = "points",
+		WordStars = "stars",
+		LabelBattlePower = "Battle Power",
+		BattlePowerAbbreviation = "BP",
+		LabelCollectedOn = "Collected on",
+		LabelSeed = "Seed",
+		LabelStats = "Stats",
+		ButtonBattle = "Battle",
+		ButtonFavorite = "Favorite",
+		ButtonInCollection = "In Collection",
+		ButtonAddToCollection = "Add to Collection",
+
+		-- GachaDex Tab
+		LabelSeen = "Seen",
+		LabelCollAbbreviation = "Coll.",
+
+		-- Battle Tab
+
+		-- Options Tab
+		LabelOnCaptureHeader = "When a new GachaMon is captured, add to collection if",
+		LabelRulesetForRatings = "Ruleset used for ratings",
+		LabelTagAuto = "Auto",
+		LabelCollectionSize = "GachaMons in collection",
+		OptionAutoAddIfNew = "It's a new Pokémon species",
+		OptionAutoAddWhenDefeatTrainers = "It defeats at least 2 trainers",
+		OptionShowGachaMonStarsOnTracker = "Display stars next to heals",
+		OptionShowCardPackOnScreen = "Show card pack opening before Pokémon stats",
+		OptionAnimateGachaMonPackOpening = "Animate card pack opening",
+		OptionAutoAddFromTrainerVictory = "Occasionally receive prize cards from Trainers",
+		ButtonCleanupCollection = "Cleanup Collection",
+
+		-- About Tab
+		GachaMonGameHeader = "GachaMon  Collectable  Card  Game",
+		GachaMonGameDescription = "Play IronMON,  collect GachaMon cards!",
+		SectionHowItWorks = "How it works",
+		LabelCatchPokemon = "Catch Pokémon",
+		LabelAcquireGachaMonCards = "Acquire GachaMon cards",
+		LabelKeepCardsInCollection = "Keep cards in your Collection",
+		LabelBattle = "Battle!  (coming soon)",
+		SectionWhatsOnCard = "What's on a Card",
+		LabelStarsAndRating = "Stars:  The Pokémon's rating (1- 5)",
+		LabelBattlePowerAndStrength = "Battle Power:  Its strength for doing card battles",
+		ButtonHelpWiki = "Help",
+		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's GachaMon Help Wiki.",
+	},
 	TeamViewArea = {
 		EggNickname = "EI", --EggNickname english:EGG
 	},
@@ -766,6 +840,10 @@ ScreenResources{
 		CMD_Log_Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		CMD_BallQueue_Name = "Ball Queue",
 		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
+		CMD_GachaMon_Name = "GachaMon Info",
+		CMD_GachaMon_Help = "name > Displays card info for a GachaMon, most recent or specific Pokémon.",
+		CMD_GachaDex_Name = "GachaDex Info",
+		CMD_GachaDex_Help = "> Displays GachaDex collection stats and info.",
 		CMD_About_Name = "About the Tracker",
 		CMD_About_Help = "> Displays info about the Ironmon Tracker and game being played.",
 		CMD_Help_Name = "Command Help",
@@ -779,7 +857,9 @@ ScreenResources{
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
 		GE_GameOver_Name = "When the game is over...",
-		GE_GameOver_TriggerEffect = "Update SB Global Variables",
+		GE_GameOver_TriggerEffect = "Send win/loss status and Pokémon ID",
+		GE_GachaMonCapture_Name = "When a GachaMon is captured...",
+		GE_GachaMonCapture_TriggerEffect = "Send its base64 share code",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
@@ -872,13 +952,13 @@ ScreenResources{
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionAutosaveTrackedData = "Autosave tracked game data", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
+		OptionTrackPCHeals = "Track PokéCenter heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
-		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionDevBranchUpdates = "Beta test branch updates", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION

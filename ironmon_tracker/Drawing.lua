@@ -72,6 +72,14 @@ Drawing.ImagePaths = {
 		-- shouldUseOverride = function(self, value) return false end,
 		-- getOverridePath = function(self, value) return "" end,
 	},
+	GachaDexPokemonIcon = {
+		getDefaultPath = function(self, value)
+			local iconset = Options.IconSetMap[3]
+			return FileManager.buildImagePath(iconset.folder, tostring(value), iconset.extension)
+		end,
+		-- shouldUseOverride = function(self, value) return false end,
+		-- getOverridePath = function(self, value) return "" end,
+	},
 }
 
 function Drawing.initialize()
@@ -124,6 +132,7 @@ function Drawing.drawImage(filepath, x, y, width, height)
 	end
 end
 
+---Draws part of the image file (source parameters) to a destination location on screen (desttination parameters)
 ---@param filepath string The absolute filepath to the image file; see FileManager.buildImagePath()
 ---@param sourceX number The x-coordinate from the source image file
 ---@param sourceY number The y-coordinate from the source image file
@@ -142,7 +151,8 @@ function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, d
 	end
 end
 
-function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
+---@param animTypeOverride? string Optional, a `SpriteData.Types` value. Use this to override the animation of this icon to something else, leave `nil` to keep as is, or set to "None" to disable the animation on-draw
+function Drawing.drawPokemonIcon(pokemonID, x, y, width, height, animTypeOverride)
 	if not PokemonData.isImageIDValid(pokemonID) then
 		return
 	end
@@ -152,8 +162,8 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	width = width or 32
 	height = height or 32
 
-	if iconset.isAnimated then
-		Drawing.drawSpriteIcon(x, y, pokemonID)
+	if iconset.isAnimated and animTypeOverride ~= "None" then
+		Drawing.drawSpriteIcon(x, y, pokemonID, animTypeOverride)
 	else
 		local imagePath = Drawing.getImagePath("PokemonIcon", tostring(pokemonID))
 		if imagePath then
@@ -411,13 +421,13 @@ function Drawing.drawButton(button, shadowcolor)
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
-		if shadowcolor ~= nil then
+		if shadowcolor ~= nil and not button.noShadowBorder then
 			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
 		end
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
 	end
 
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER or (button.type == nil and text ~= "") then
 		Drawing.drawText(x + 1, y, text, textColor, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.disabled then
@@ -497,7 +507,15 @@ end
 
 function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	if imageMatrix == nil then return end
-	colorList = colorList or imageMatrix.iconColors or Theme.COLORS["Default text"]
+	-- Determine a valid color list to use
+	if not colorList then
+		if type(imageMatrix.getColors) == "function" then
+			colorList = imageMatrix:getColors()
+		elseif imageMatrix.iconColors then
+			colorList = imageMatrix.iconColors
+		end
+		colorList = colorList or Theme.COLORS["Default text"]
+	end
 
 	-- Convert to a list if only a single color is supplied
 	if type(colorList) == "number" then

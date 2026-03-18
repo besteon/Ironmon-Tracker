@@ -11,6 +11,7 @@ Input = {
 }
 
 Input.NO_KEY_MAPPING = "NOTBOUND"
+Input.MOUSE_SCROLL_THRESHOLD = 100
 
 Input.OrderedControllerInputs = { "A", "B",  "Select",  "Start",  "Right",  "Left",  "Up",  "Down",  "R",  "L" }
 
@@ -30,7 +31,9 @@ Input.StatHighlighter = {
 	end,
 	-- Cycle through the six visible stats to enable marking them as high/low/neutral
 	cycleToNextStat = function(self)
-		if Battle.isViewingOwn then return end
+		if Battle.isViewingOwn or not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			return
+		end
 		if self.framesSinceInput < self.framesHighlightMax then
 			self.statIndex = (self.statIndex % 6) + 1
 		end
@@ -38,7 +41,9 @@ Input.StatHighlighter = {
 		Program.redraw(true)
 	end,
 	markSelectedStat = function(self)
-		if not self:isActive() then return end
+		if not self:isActive() or not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			return
+		end
 		self.framesSinceInput = 0
 		local statKey = self:getSelectedStat()
 		local statButton = TrackerScreen.Buttons[statKey or false]
@@ -52,7 +57,9 @@ Input.StatHighlighter = {
 	end,
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
-		if not self:isActive() then return end
+		if not self:isActive() or not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			return
+		end
 		self.framesSinceInput = self.framesSinceInput + (1.0 / Program.clientFpsMultiplier)
 		if self.framesSinceInput >= self.framesHighlightMax then
 			Program.redraw(true)
@@ -94,6 +101,10 @@ function Input.checkForInput()
 				local xmouse = mouseInput["X"]
 				local ymouse = mouseInput["Y"] + Constants.SCREEN.UP_GAP
 				Input.checkMouseInput(xmouse, ymouse)
+			end
+			local wheelChange = (mouseInput["Wheel"] or 0) - (Input.prevMouseInput["Wheel"] or 0)
+			if mouseInput["Wheel"] and wheelChange ~= 0 then
+				Input.checkMouseWheel(wheelChange)
 			end
 			Input.prevMouseInput = mouseInput
 		end
@@ -138,6 +149,13 @@ function Input.getJoypadInputFormatted()
 	end
 end
 
+---If the screen has/uses a Pager, this will return that object; nil otherwise
+---@param screen table
+---@return table|nil
+local function _getPager(screen)
+	return type(screen) == "table" and screen.Pager or nil
+end
+
 function Input.checkJoypadInput()
 	-- Don't process controller buttons while rebinding them
 	if SetupScreen.inProcessOfBinding() then
@@ -152,6 +170,8 @@ function Input.checkJoypadInput()
 	local nextBtn = Options.CONTROLS["Next page"] or ""
 	local previousBtn = Options.CONTROLS["Previous page"] or ""
 	local quickloadBtns = Options.CONTROLS["Load next seed"] or ""
+
+	local animationSkipOverride = false
 
 	CustomCode.inputCheckMGBA()
 
@@ -174,34 +194,37 @@ function Input.checkJoypadInput()
 	end
 
 	if joypad[nextBtn] and not Input.prevJoypadInput[nextBtn] then
-		if LogOverlay.isDisplayed then
-			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
-				LogTabPokemonDetails.Pager:nextPage()
-			else
-				LogOverlay.Windower:nextPage()
+		-- Prioritize GachaMon animations for "Next Page" joypad button press
+		local APO = AnimationManager.GachaMonAnims.PackOpening
+		local ACD = AnimationManager.GachaMonAnims.CardDisplay
+		if APO and not APO.IsActive and APO:IsVisible() and Options["Animate GachaMon pack opening"] then
+			-- Start pack opening animation
+			AnimationManager.tryAddAnimationToActive(APO)
+			animationSkipOverride = true
+		elseif APO and APO:IsVisible() and APO.CurrentKeyFrameIndex < #APO.KeyFrames then
+			-- Skip pack opening animation
+			APO:OnExpire()
+			animationSkipOverride = true
+		elseif ACD and ACD:IsVisible() then
+			-- Close GachaMon card display view
+			ACD:OnExpire()
+			animationSkipOverride = true
+		else
+			local pager = _getPager(Program.currentOverlay) or _getPager(Program.currentScreen)
+			if pager and type(pager.nextPage) == "function" then
+				pager:nextPage()
 			end
-		elseif StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.Pager:nextPage()
-		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.nextPage) == "function" then
-			Program.currentScreen.Pager:nextPage()
 		end
 	end
 
 	if joypad[previousBtn] and not Input.prevJoypadInput[previousBtn] then
-		if LogOverlay.isDisplayed then
-			if LogOverlay.Windower.currentTab == LogTabPokemonDetails then
-				LogTabPokemonDetails.Pager:prevPage()
-			else
-				LogOverlay.Windower:prevPage()
-			end
-		elseif StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.Pager:prevPage()
-		elseif Program.currentScreen and Program.currentScreen.Pager and type(Program.currentScreen.Pager.prevPage) == "function" then
-			Program.currentScreen.Pager:prevPage()
+		local pager = _getPager(Program.currentOverlay) or _getPager(Program.currentScreen)
+		if pager and type(pager.prevPage) == "function" then
+			pager:prevPage()
 		end
 	end
 
-	if joypad[infoShortcutBtn] and not Input.prevJoypadInput[infoShortcutBtn] then
+	if not animationSkipOverride and joypad[infoShortcutBtn] and not Input.prevJoypadInput[infoShortcutBtn] then
 		Input.infoShortcutPressed()
 	end
 
@@ -307,6 +330,30 @@ function Input.getSpriteFacingDirection(animationType)
 end
 
 function Input.checkMouseInput(xmouse, ymouse)
+	-- Prioritize mouse button presses for GachaMon animations, if they exist and are visible; if so, ignore any other input checks
+	local APO = AnimationManager.GachaMonAnims.PackOpening
+	local ACD = AnimationManager.GachaMonAnims.CardDisplay
+	if (APO or ACD) and Input.isMouseInArea(xmouse, ymouse, Constants.SCREEN.WIDTH, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT) then
+		if APO and not APO.IsActive and APO:IsVisible() then
+			if Options["Animate GachaMon pack opening"] then
+				-- Start pack opening animation
+				AnimationManager.tryAddAnimationToActive(APO)
+			else
+				-- Skip animation and just show the card
+				APO:OnExpire()
+			end
+			return
+		elseif APO and APO.IsActive and APO:IsVisible() and APO.CurrentKeyFrameIndex < #APO.KeyFrames then
+			-- Skip pack opening animation
+			APO:OnExpire()
+			return
+		elseif ACD and ACD:IsVisible() then
+			-- Close GachaMon card display view
+			ACD:OnExpire()
+			return
+		end
+	end
+
 	if Program.currentScreen ~= nil and type(Program.currentScreen.checkInput) == "function" then
 		Program.currentScreen.checkInput(xmouse, ymouse)
 	end
@@ -317,12 +364,53 @@ function Input.checkMouseInput(xmouse, ymouse)
 	if TeamViewArea.isDisplayed() then
 		TeamViewArea.checkInput(xmouse, ymouse)
 	end
-	if UpdateScreen.showNotes then
-		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
-	elseif StreamConnectOverlay.isDisplayed then
-		StreamConnectOverlay.checkInput(xmouse, ymouse)
-	elseif LogOverlay.isDisplayed then
-		LogOverlay.checkInput(xmouse, ymouse)
+
+	if Program.currentOverlay and type(Program.currentOverlay.checkInput) == "function" then
+		Program.currentOverlay.checkInput(xmouse, ymouse)
+	end
+end
+
+function Input.checkMouseWheel(wheelChange)
+	-- Overlay
+	if Program.isScreenOverlayOpen() then
+		-- Use any check wheel function first
+		if type(Program.currentOverlay.checkWheelInput) == "function" then
+			Program.currentOverlay.checkWheelInput(wheelChange)
+			return
+		-- Otherwise default to checking if there is a pager to use
+		else
+			local pager = _getPager(Program.currentOverlay)
+			if pager and type(pager.prevPage) == "function" then
+				if type(pager.nextPage) == "function" and wheelChange <= -Input.MOUSE_SCROLL_THRESHOLD then
+					pager:nextPage()
+					return
+				elseif type(pager.prevPage) == "function" and wheelChange > Input.MOUSE_SCROLL_THRESHOLD then
+					pager:prevPage()
+					return
+				end
+			end
+		end
+	end
+
+	-- Primary Tracker Screen
+	if Program.currentScreen then
+		-- Use any check wheel function first
+		if type(Program.currentScreen.checkWheelInput) == "function" then
+			Program.currentScreen.checkWheelInput(wheelChange)
+			return
+		-- Otherwise default to checking if there is a pager to use
+		else
+			local pager = _getPager(Program.currentScreen)
+			if pager and type(pager.prevPage) == "function" then
+				if type(pager.nextPage) == "function" and wheelChange <= -Input.MOUSE_SCROLL_THRESHOLD then
+					pager:nextPage()
+					return
+				elseif type(pager.prevPage) == "function" and wheelChange > Input.MOUSE_SCROLL_THRESHOLD then
+					pager:prevPage()
+					return
+				end
+			end
+		end
 	end
 end
 
@@ -366,7 +454,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	end
 
 	local pokemonMoves
-	if not Battle.isViewingOwn and not Options["Open Book Play Mode"] then
+	if not Battle.isViewingOwn and PokemonData.isGameDataRandomized() and not Options["Open Book Play Mode"] then
 		pokemonMoves = Tracker.getMoves(pokemon.pokemonID, pokemon.level) -- tracked moves only
 	elseif Tracker.Data.hasCheckedSummary then
 		pokemonMoves = pokemon.moves

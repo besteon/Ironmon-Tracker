@@ -236,6 +236,15 @@ Theme.Buttons = {
 	end),
 }
 
+Theme.Pager = {
+	prevPage = function(self)
+		Theme.Buttons.CyclePresetBackward:onClick()
+	end,
+	nextPage = function(self)
+		Theme.Buttons.CyclePresetForward:onClick()
+	end,
+}
+
 function Theme.initialize()
 	Theme.createButtons()
 

@@ -95,11 +95,11 @@ SCREEN.Buttons = {
 				self.iconColors = { "Negative text" }
 			end
 		end,
-		onClick = function(self) StreamConnectOverlay.open() end,
+		onClick = function(self) Program.openOverlayScreen(StreamConnectOverlay) end,
 	},
 	Back = Drawing.createUIElementBackButton(function()
-		if StreamConnectOverlay.isDisplayed then
-			StreamConnectOverlay.close()
+		if Program.currentOverlay == StreamConnectOverlay then
+			Program.closeScreenOverlay()
 		end
 		Program.changeScreenView(NavigationMenu)
 	end),

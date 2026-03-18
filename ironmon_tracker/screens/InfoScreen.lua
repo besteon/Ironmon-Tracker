@@ -67,7 +67,7 @@ InfoScreen.Buttons = {
 				self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
 			end
 			-- If the log viewer is open, use its animation type
-			local animType = LogOverlay.isDisplayed and SpriteData.Types.Idle or self.animType
+			local animType = Program.isScreenOverlayOpen() and SpriteData.Types.Idle or self.animType
 			return pokemonID, self.animType or animType
 		end,
 		animType = SpriteData.Types.Idle,
@@ -75,7 +75,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
-			if SpriteData.canDrawIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
+			if SpriteData.canDrawIcon(InfoScreen.infoLookup) and not Program.isScreenOverlayOpen() then
 				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
 				Program.redraw(true)
 			end
@@ -88,7 +88,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 46, 31, 10 },
 		boxColors = { "Upper box border", "Upper box background" },
 		shouldShow = false, -- for now, need to update this during the legacy drawScreen method
-		isVisible = function(self) return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and self.shouldShow end,
+		isVisible = function(self) return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and self.shouldShow and PokemonData.isGameDataRandomized() end,
 		onClick = function (self)
 			if RandomEvosScreen.buildPagedButtons(InfoScreen.infoLookup) then
 				Program.changeScreenView(RandomEvosScreen)
@@ -363,7 +363,7 @@ function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.infoLookup = info
 	if screen == InfoScreen.Screens.ROUTE_INFO then
 		InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-		InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
+		InfoScreen.Buttons.ShowRouteLevels.toggleState = (not PokemonData.isGameDataRandomized() or Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
 	end
 	Program.changeScreenView(InfoScreen)
 end
@@ -385,10 +385,10 @@ function InfoScreen.showNextPokemon(delta)
 	local nextPokemonId = InfoScreen.infoLookup + delta
 
 	if nextPokemonId < 1 then
-		nextPokemonId = #PokemonData.Pokemon
+		nextPokemonId = PokemonData.getTotal()
 	elseif nextPokemonId > 251 and nextPokemonId < 277 then
 		nextPokemonId = Utils.inlineIf(delta > 0, 277, 251)
-	elseif nextPokemonId > #PokemonData.Pokemon then
+	elseif nextPokemonId > PokemonData.getTotal() then
 		nextPokemonId = 1
 	end
 
@@ -401,9 +401,10 @@ function InfoScreen.openMoveInfoWindow()
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
-	for _, data in pairs(MoveData.Moves) do
-		if data.name ~= Constants.BLANKLINE then
-			table.insert(allmovesData, data.name)
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
+		if move.name ~= Constants.BLANKLINE then
+			table.insert(allmovesData, move.name)
 		end
 	end
 
@@ -413,8 +414,9 @@ function InfoScreen.openMoveInfoWindow()
 		local moveNameFromForm = ExternalUI.BizForms.getText(moveDropdown)
 		local moveId
 
-		for id, data in pairs(MoveData.Moves) do
-			if data.name == moveNameFromForm then
+		for id = 1, MoveData.getTotal(), 1 do
+			local move = MoveData.Moves[id] or MoveData.BlankMove
+			if move.name == moveNameFromForm then
 				moveId = id
 				break
 			end
@@ -446,8 +448,9 @@ function InfoScreen.openAbilityInfoWindow()
 		local abilityNameFromForm = ExternalUI.BizForms.getText(abilityDropdown)
 		local abilityId
 
-		for id, data in pairs(AbilityData.Abilities) do
-			if data.name == abilityNameFromForm then
+		for id = 1, AbilityData.getTotal(), 1 do
+			local ability = AbilityData.Abilities[id] or {}
+			if ability.name == abilityNameFromForm then
 				abilityId = id
 				break
 			end
@@ -515,7 +518,7 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.infoLookup.mapId = mapId
 			InfoScreen.infoLookup.encounterArea = encounterArea
 			InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
+			InfoScreen.Buttons.ShowRouteLevels.toggleState = (not PokemonData.isGameDataRandomized() or Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay)
 			Program.redraw(true)
 		end
 		form:destroy()
@@ -527,7 +530,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local areaInfo
 	local totalPossible = 0
-	if Options["Open Book Play Mode"] or LogOverlay.isDisplayed then
+	if Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay then
 		areaInfo = {}
 		local selectedEncKey
 		for key, val in pairs(RandomizerLog.EncounterTypes) do
@@ -578,7 +581,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local iconButtons = {}
 	for index=1, totalPossible, 1 do
-		local pokemonID = 252 -- Question mark icon
+		local pokemonID = PokemonData.Values.QuestionMarkId
 		local rate = nil
 		local minLv, maxLv = nil, nil
 		if areaInfo ~= nil and areaInfo[index] ~= nil then
@@ -602,7 +605,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			box = { x, y, iconWidth, iconWidth },
 			isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 			onClick = function(self)
-				if not self:isVisible() or self.pokemonID == 252 then
+				if not self:isVisible() or self.pokemonID == PokemonData.Values.QuestionMarkId then
 					return
 				end
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
@@ -701,9 +704,11 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 	-- POKEMON TYPES
 	local type1, type2 = data.p.types[1], data.p.types[2]
-	if LogOverlay.isDisplayed and RandomizerLog.Data.Pokemon[pokemonID] then
-		type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.EMPTY
-		type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
+	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Pokemon[pokemonID] then
+		if #RandomizerLog.Data.Pokemon[pokemonID].Types > 0 then
+			type1 = RandomizerLog.Data.Pokemon[pokemonID].Types[1] or PokemonData.Types.UNKNOWN
+			type2 = RandomizerLog.Data.Pokemon[pokemonID].Types[2] or PokemonData.Types.EMPTY
+		end
 	end
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
@@ -886,7 +891,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local movePP = data.m.pp
 	local movePower = data.m.power
 	local moveAcc = data.m.accuracy
-	if LogOverlay.isDisplayed and RandomizerLog.Data.Moves[moveId] then
+	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Moves[moveId] then
 		local moveLog = RandomizerLog.Data.Moves[moveId]
 		moveType = moveLog.type or PokemonData.Types.EMPTY
 		moveCategory = MoveData.getCategory(moveId, moveType)
@@ -1080,15 +1085,14 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local showPercents = InfoScreen.Buttons.ShowRoutePercentages.toggleState
 	local showLevels = InfoScreen.Buttons.ShowRouteLevels.toggleState
 	-- Don't clarify the pokemon are shown "in order of appearence" if the order is known
-	if not (Options["Open Book Play Mode"] or LogOverlay.isDisplayed or showPercents or showLevels) then
+	if not (Options["Open Book Play Mode"] or Program.currentOverlay == LogOverlay or showPercents or showLevels) then
 		Drawing.drawText(boxX + 2, botBoxY, Resources.InfoScreen.LabelOrderAppearance .. ":", botBoxTextColor, boxBotShadow)
 	end
 
 	-- POKEMON SEEN
 	local iconset = Options.getIconSet()
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		-- id 252 is the question mark icon
-		if iconButton.pokemonID == 252 and iconset.adjustQuestionMark then
+		if iconButton.pokemonID == PokemonData.Values.QuestionMarkId and iconset.adjustQuestionMark then
 			iconButton.box[2] = iconButton.box[2] + (iconset.yOffset or 0)
 		end
 

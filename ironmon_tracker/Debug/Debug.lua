@@ -15,17 +15,19 @@ function Debug.createEditPokeForm()
 	local x = 10
 	local pokedexData = {}
 	table.insert(pokedexData, "Unchanged")
-	for id, data in ipairs(PokemonData.Pokemon) do
+	for id = 1, PokemonData.getTotal(), 1 do
+		local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
 		if id < 252 or id > 276 then
-			table.insert(pokedexData, data.name)
+			table.insert(pokedexData, pokemon.name)
 		end
 	end
 	local allmovesData = {}
 	table.insert(allmovesData, "Unchanged")
 	table.insert(allmovesData,"None")
-	for _, data in pairs(MoveData.Moves) do
-		if data.name ~= Constants.BLANKLINE then
-			table.insert(allmovesData, data.name)
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
+		if move.name ~= Constants.BLANKLINE then
+			table.insert(allmovesData, move.name)
 		end
 	end
 
@@ -151,14 +153,13 @@ function Debug.setAttacks(magicWord,formsTable,addrAttacks)
 end
 
 function Debug.moveToId(movename)
-	local moveId = 0
-	for idx,mov in pairs(MoveData.Moves) do
-		if mov.name == movename then
-			moveId = idx
-			break
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
+		if move.name == movename then
+			return id
 		end
 	end
-	return moveId
+	return 0
 end
 
 function Debug.setGrowth(magicWord,formsTable,addrGrowth)
@@ -171,10 +172,11 @@ function Debug.setGrowth(magicWord,formsTable,addrGrowth)
 	local magicWord2Byte = Utils.getbits(magicWord,0,16)
 	local speciesChoice = forms.gettext(formsTable["species"])
 	if  speciesChoice ~= "Unchanged" then
-		local speciesid =0
-		for idx,poke in pairs(PokemonData.Pokemon) do
-			if poke.name == speciesChoice then
-				speciesid = idx
+		local speciesid = 0
+		for id = 1, PokemonData.getTotal(), 1 do
+			local pokemon = PokemonData.Pokemon[id] or PokemonData.BlankPokemon
+			if pokemon.name == speciesChoice then
+				speciesid = id
 				break
 			end
 		end

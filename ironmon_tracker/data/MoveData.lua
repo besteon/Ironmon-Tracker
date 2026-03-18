@@ -1,7 +1,10 @@
 MoveData = {}
 
 MoveData.Values = {
+	GuillotineId = 12,
+	HornDrillId = 32,
 	LowKickId = 67,
+	FissureId = 90,
 	FlailId = 175,
 	ReversalId = 179,
 	ReturnId = 216,
@@ -12,6 +15,7 @@ MoveData.Values = {
 	SkillSwapId = 285,
 	WeatherBallId = 311,
 	WaterSpoutId = 323,
+	SheerColdId = 329,
 
 	-- The below are used by the BattleDetailsScreen
 	PayDayId = 6,
@@ -27,6 +31,7 @@ MoveData.Values = {
 	BideId = 117,
 	TransformId = 144,
 	SubstituteId = 164,
+	TripleKickId = 167,
 	NightmareId = 171,
 	CurseId = 174,
 	ProtectId = 182,
@@ -37,7 +42,7 @@ MoveData.Values = {
 	LockOnId = 199,
 	RolloutId = 205,
 	FuryCutterId = 210,
-	AttactId = 213,
+	AttractId = 213,
 	SafeguardId = 219,
 	EncoreId = 227,
 	UproarId = 253,
@@ -55,12 +60,27 @@ MoveData.Values = {
 	WaterSportId = 346,
 }
 
+MoveData.Addresses = {
+	offsetMovePower = 0x0,
+	offsetMoveType = 0x8,
+	offsetMoveAccuracy = 0x10,
+	offsetMovePP = 0x18,
+	offsetMoveFlagsCategory = 0x6,
+
+	sizeofMovePower = 8,
+	sizeofMoveType = 8,
+	sizeofMoveAccuracy = 8,
+	sizeofMovePP = 8,
+	sizeofMoveFlagsCategory = 2,
+}
+
 MoveData.IsRand = {
 	moveType = false,
 	movePower = false,
 	moveAccuracy = false,
 	movePP = false,
 	moveCategory = false,
+	tms = false,
 }
 
 -- Move categories identify the type of attack a move is: physical, special, or status
@@ -112,6 +132,7 @@ MoveData.TypeToCategory = {
 	[PokemonData.Types.ICE]      = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DRAGON]   = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DARK]     = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.FAIRY]    = MoveData.Categories.SPECIAL, -- Adding in just for Nat. Dex. rom hack support convenience
 	[PokemonData.Types.UNKNOWN]  = MoveData.Categories.NONE,
 }
 
@@ -133,6 +154,91 @@ MoveData.TypeToEffectiveness = {
 	dragon = { dragon = 2, steel = 0.5 },
 	dark = { fighting = 0.5, psychic = 2, ghost = 2, dark = 0.5, steel = 0.5 },
 	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
+	fairy = { fighting = 2, dark = 2, dragon = 2, poison = 0.5, steel = 0.5, fire = 0.5 }, -- Adding in just for Nat. Dex. rom hack support convenience
+}
+
+---Individual formulas for calculating any changes to a move based on contextual information, such as being in battle; key=moveid, val=func
+---@type table<number, function>
+MoveData.MoveValueAdjustmentFuncs = {
+	[MoveData.Values.WeatherBallId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
+		move.category = MoveData.getCategory(move.id, move.type)
+	end,
+	[MoveData.Values.LowKickId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local pokemonInternal = PokemonData.Pokemon[targetPokemon.pokemonID or false] or PokemonData.BlankPokemon
+		local targetWeight = targetPokemon.weight or pokemonInternal.weight or 0
+		move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
+	end,
+	[MoveData.Values.FlailId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateLowHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.ReversalId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateLowHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.EruptionId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateHighHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.WaterSpoutId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal HP for player's pokemon, not enemy
+		local maxHP = math.max(sourcePokemon.stats and sourcePokemon.stats.hp or 1, 1) -- minimum of 1
+		move.power = Utils.calculateHighHPBasedDamage(move.power, sourcePokemon.curHP or 0, maxHP)
+	end,
+	[MoveData.Values.ReturnId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal Friendship for player's pokemon, not enemy
+		move.power = Utils.calculateFriendshipBasedDamage(move.power, sourcePokemon.friendship or 0)
+	end,
+	[MoveData.Values.FrustrationId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.isViewingOwn then return end -- Only reveal Friendship for player's pokemon, not enemy
+		move.power = Utils.calculateFriendshipBasedDamage(move.power, sourcePokemon.friendship or 0)
+	end,
+	[MoveData.Values.GuillotineId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
+	[MoveData.Values.HornDrillId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
+	[MoveData.Values.FissureId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
+	[MoveData.Values.SheerColdId] = function(move, sourcePokemon, targetPokemon)
+		if not Battle.inActiveBattle() then return end
+		local levelDiff = (sourcePokemon.level or 0) - (targetPokemon.level or 0)
+		if levelDiff > 0 then
+			local accAsNum = tonumber(move.accuracy or "") or 30 -- 30 is default OHKO accuracy
+			move.accuracy = tostring(math.min(accAsNum + levelDiff, 100)) -- max of 100
+		elseif levelDiff < 0 then
+			move.accuracy = "X " -- Ineffective against higher level pokemon
+		end
+	end,
 }
 
 -- Is true when a Status move fails/doesn't work against a checked move type
@@ -159,7 +265,16 @@ MoveData.IsOHKOMove = {
 	["329"] = true, -- Sheer Cold
 }
 
+MoveData.IsRecoilMove = {
+	[ "36"] = true, -- Take Down
+	[ "38"] = true, -- Double-Edge
+	[ "66"] = true, -- Submission
+	["344"] = true, -- Volt Tackle
+}
+
 function MoveData.initialize()
+	MoveData.knownTotal = nil
+
 	-- For easier category lookups
 	MoveData.Categories[1] = MoveData.Categories.PHYSICAL
 	MoveData.Categories[2] = MoveData.Categories.SPECIAL
@@ -169,13 +284,14 @@ function MoveData.initialize()
 end
 
 function MoveData.updateResources()
-	for i, val in ipairs(MoveData.Moves) do
-		if Resources.Game.MoveNames[i] then
-			val.name = Resources.Game.MoveNames[i]
+	for id = 1, MoveData.getTotal(), 1 do
+		local move = MoveData.Moves[id] or MoveData.BlankMove
+		if Resources.Game.MoveNames[id] then
+			move.name = Resources.Game.MoveNames[id]
 		end
-		local descTable = Resources.Game.MoveDescriptions[i] or {}
+		local descTable = Resources.Game.MoveDescriptions[id] or {}
 		if descTable and descTable.Description then
-			val.summary = descTable.Description
+			move.summary = descTable.Description
 		end
 	end
 end
@@ -188,7 +304,7 @@ function MoveData.buildData(forced)
 		return
 	end
 
-	for moveId = 1, #MoveData.Moves, 1 do
+	for moveId = 1, MoveData.getTotal(), 1 do
 		local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
 		if moveInfo ~= nil then
 			local moveInternal = MoveData.Moves[moveId]
@@ -217,13 +333,13 @@ function MoveData.readMoveInfoFromMemory(moveId)
 	local addr = GameSettings.gBattleMoves + (moveId * Program.Addresses.sizeofBattleMove)
 	local moveData = Memory.readdword(addr + Program.Addresses.offsetBattleMoves)
 	-- Optional move flags for the Physical/Special split rom patch (in vanilla, this value is 0)
-	local moveFlags = Memory.readbyte(addr + (Program.Addresses.offsetBattleMoves * 8))
+	local moveFlags = Memory.readbyte(addr + Program.Addresses.offsetBattleMoveFlags)
 
-	local movePower = Utils.getbits(moveData, 0, 8)
-	local moveType = Utils.getbits(moveData, 8, 8)
-	local moveAccuracy = Utils.getbits(moveData, 16, 8)
-	local movePP = Utils.getbits(moveData, 24, 8)
-	local moveCategory = Utils.getbits(moveFlags, 6, 2)
+	local movePower = Utils.getbits(moveData, MoveData.Addresses.offsetMovePower, MoveData.Addresses.sizeofMovePower)
+	local moveType = Utils.getbits(moveData, MoveData.Addresses.offsetMoveType, MoveData.Addresses.sizeofMoveType)
+	local moveAccuracy = Utils.getbits(moveData, MoveData.Addresses.offsetMoveAccuracy, MoveData.Addresses.sizeofMoveAccuracy)
+	local movePP = Utils.getbits(moveData, MoveData.Addresses.offsetMovePP, MoveData.Addresses.sizeofMovePP)
+	local moveCategory = Utils.getbits(moveFlags, MoveData.Addresses.offsetMoveFlagsCategory, MoveData.Addresses.sizeofMoveFlagsCategory)
 
 	return {
 		power = tostring(movePower),
@@ -242,6 +358,7 @@ function MoveData.checkIfDataIsRandomized()
 	local areAccuraciesRandomized = false
 	local arePPsRandomized = false
 	local areCategoriesChanged = false
+	local areTMsRandomized = false
 
 	-- Check once if any data was randomized
 	local moveInfo = MoveData.readMoveInfoFromMemory(314) -- Air Cutter
@@ -277,20 +394,69 @@ function MoveData.checkIfDataIsRandomized()
 		end
 	end
 
+	-- Check for randomized TM moves
+	if Program.getMoveIdFromTMHMNumber(10) ~= MoveData.Values.HiddenPowerId then
+		areTMsRandomized = true
+	elseif Program.getMoveIdFromTMHMNumber(27) ~= MoveData.Values.ReturnId then
+		areTMsRandomized = true
+	elseif Program.getMoveIdFromTMHMNumber(45) ~= MoveData.Values.AttractId then
+		areTMsRandomized = true
+	end
+
 	MoveData.IsRand.moveType = areTypesRandomized
 	MoveData.IsRand.movePower = arePowersRandomized
 	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
 	MoveData.IsRand.movePP = arePPsRandomized
 	MoveData.IsRand.moveCategory = areCategoriesChanged
+	MoveData.IsRand.tms = areTMsRandomized
 
+	-- Check against 'move' changes only (not TMs)
 	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized or areCategoriesChanged
+end
+
+---Returns true if the move data for this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function MoveData.isMoveDataRandomized()
+	return MoveData.IsRand.moveType or MoveData.IsRand.movePower or MoveData.IsRand.moveAccuracy or MoveData.IsRand.movePP or MoveData.IsRand.moveCategory
+end
+
+---Returns true if the TMs data for this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function MoveData.isTMDataRandomized()
+	return MoveData.IsRand.tms
 end
 
 ---Returns true if the moveId is a valid, existing id of a move in MoveData.Moves
 ---@param moveId number
 ---@return boolean
 function MoveData.isValid(moveId)
-	return moveId ~= nil and moveId >= 1 and moveId <= #MoveData.Moves
+	return moveId ~= nil and MoveData.Moves[moveId] ~= nil
+end
+
+---Gets the total count of known Moves for this game.
+---@return number
+function MoveData.getTotal()
+	return #MoveData.Moves
+end
+
+--Returns the Move data if the ID is available in the base game, or if NatDex extension exists, try getting data from there
+---@param moveId number
+---@return table move If no move found, returns MoveData.BlankMove
+function MoveData.getNatDexCompatible(moveId)
+	local move = MoveData.Moves[moveId or false]
+	if move then
+		return move
+	end
+	local baseGameTotal = 354
+	local hasNatDexAccess = GachaMonData.requiresNatDex or CustomCode.RomHacks.isPlayingNatDex()
+	if moveId > baseGameTotal and hasNatDexAccess then
+		local natdexExt = TrackerAPI.getExtensionSelf(CustomCode.RomHacks.ExtensionKeys.NatDex)
+		if natdexExt and natdexExt.Data and natdexExt.Data.natDexMoves then
+			local adjustedId = moveId - baseGameTotal
+			return natdexExt.Data.natDexMoves[adjustedId] or MoveData.BlankMove
+		end
+	end
+	return MoveData.BlankMove
 end
 
 ---Returns true if the move is a One-Hit KO move (i.e. Sheer Cold)
@@ -298,6 +464,13 @@ end
 ---@return boolean
 function MoveData.isOHKO(moveId)
 	return MoveData.IsOHKOMove[tostring(moveId)] ~= nil
+end
+
+---Returns true if the move causes recoil damage (i.e. Take Down); does NOT include Struggle (id=165)
+---@param moveId number|string
+---@return boolean
+function MoveData.isRecoil(moveId)
+	return MoveData.IsRecoilMove[tostring(moveId)] ~= nil
 end
 
 ---Returns the move category of the move, such as Physical, Special, or Status; returns None if move not found
@@ -350,6 +523,62 @@ function MoveData.calcHiddenPowerTypeAndPower(ivs)
 	movePower = math.floor(moveSum * 40 / 63) + 30 -- results in 30 through 70, inclusive
 
 	return moveType, movePower
+end
+
+---Determines (guesses) at the expected numerical power of a given move. For example, average power for multi-hit moves, or max power for HP based moves.
+---@param moveId number
+---@return number
+function MoveData.getExpectedPower(moveId)
+	if not MoveData.isValid(moveId) then
+		return 0
+	end
+
+	if moveId == MoveData.Values.LowKickId then
+		return 80
+	elseif moveId == MoveData.Values.EruptionId or moveId == MoveData.Values.WaterSpoutId then
+		return 150
+	elseif moveId == MoveData.Values.FlailId or moveId == MoveData.Values.ReversalId then
+		return 80
+	elseif moveId == MoveData.Values.ReturnId then
+		return 102
+	elseif moveId == MoveData.Values.FrustrationId then
+		return 50
+	elseif moveId == MoveData.Values.TripleKickId then
+		return 60
+	end
+
+	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Variable_number_of_strikes
+	local multiHitMoves = {
+		[292] = true, [140] = true, [198] = true, [331] = true, [4] = true, [3] = true,
+		[31] = true, [154] = true, [333] = true, [42] = true, [350] = true, [131] = true
+	}
+	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Fixed_number_of_multiple_strikes
+	local doubleHitMoves = {
+		[155] = true, [24] = true, [41] = true,
+	}
+
+	local power = tonumber(MoveData.Moves[moveId].power) or 0
+	if doubleHitMoves[moveId] then
+		return (power * 2)
+	elseif multiHitMoves[moveId] then
+		-- Average of 3 hits
+		return (power * 3)
+	end
+
+	return power
+end
+
+---Adjusts the move table data based on any variable damage calculations, or other attributes; No return, as this edits the move table directly.
+---@param move table
+---@param sourcePokemon? table Optional, as not all move adjustment calculations require a source and/or a target
+---@param targetPokemon? table Optional, as not all move adjustment calculations require a source and/or a target
+function MoveData.adjustVariableMoveValues(move, sourcePokemon, targetPokemon)
+	sourcePokemon = sourcePokemon or {}
+	targetPokemon = targetPokemon or {}
+	local adjustmentFunc = MoveData.MoveValueAdjustmentFuncs[tonumber(move.id or 0) or false]
+	if type(adjustmentFunc) == "function" then
+		adjustmentFunc(move, sourcePokemon, targetPokemon)
+	end
 end
 
 MoveData.BlankMove = {

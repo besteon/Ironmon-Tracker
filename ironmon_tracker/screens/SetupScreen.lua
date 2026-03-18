@@ -354,19 +354,35 @@ end
 
 -- Loads carousel settings that may not have existed in a legacy Tracker version
 function SetupScreen.checkForNewCarouselSettings()
-	if Options["Has checked carousel battle details"] then
-		return
-	end
+	local settingsChanged = false
 
 	-- Add in the new carousel setting for Battle Details
-	if Utils.isNilOrEmpty(Options["CarouselItems"]) then
-		Options["CarouselItems"] = "BattleDetails"
-	elseif not Utils.containsText(Options["CarouselItems"], "BattleDetails") then
-		Options["CarouselItems"] = Options["CarouselItems"] .. ",BattleDetails"
+	if not Options["Has checked carousel battle details"] then
+		local carouselKey = "BattleDetails"
+		if Utils.isNilOrEmpty(Options["CarouselItems"]) then
+			Options["CarouselItems"] = carouselKey
+		elseif not Utils.containsText(Options["CarouselItems"], carouselKey) then
+			Options["CarouselItems"] = Options["CarouselItems"] .. "," .. carouselKey
+		end
+		Options["Has checked carousel battle details"] = true
+		settingsChanged = true
 	end
 
-	Options["Has checked carousel battle details"] = true
-	Main.SaveSettings(true)
+	-- Add in the new carousel setting for GachaMon captures
+	if not Options["Has checked carousel GachaMon"] then
+		local carouselKey = "GachaMon"
+		if Utils.isNilOrEmpty(Options["CarouselItems"]) then
+			Options["CarouselItems"] = carouselKey
+		elseif not Utils.containsText(Options["CarouselItems"], carouselKey) then
+			Options["CarouselItems"] = Options["CarouselItems"] .. "," .. carouselKey
+		end
+		Options["Has checked carousel GachaMon"] = true
+		settingsChanged = true
+	end
+
+	if settingsChanged then
+		Main.SaveSettings(true)
+	end
 end
 
 function SetupScreen.refreshButtons()
@@ -454,24 +470,44 @@ function SetupScreen.createButtons()
 			isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.General end,
 			onClick = function(self)
 				self.toggleState = Options.toggleSetting(self.optionKey)
-				-- If PC Heal tracking switched, invert the count
-				if self.optionKey == "PC heals count downward" then
-					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				end
 				Program.redraw(true)
-				if self.optionKey == "Show Team View" then
-					TeamViewArea.refreshDisplayPadding()
-					TeamViewArea.buildOutPartyScreen()
-					Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
-				end
 			end
 		}
 		startY = startY + Constants.SCREEN.LINESPACING
 	end
 
+	-- Additional onclick checks and actions for some option checkboxes
+
+	local optionBtnTrackHeals = SCREEN.Buttons["Track PC Heals"]
+	optionBtnTrackHeals.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		-- If GachaMon stars option is also enabled, turn that off as it conflicts by using the same screen space
+		if self.toggleState and Options["Show GachaMon stars on main Tracker Screen"] then
+			Options.toggleSetting("Show GachaMon stars on main Tracker Screen")
+		end
+		Program.redraw(true)
+	end
+
+	local optionBtnHealsDownward = SCREEN.Buttons["PC heals count downward"]
+	optionBtnHealsDownward.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		-- If PC Heal tracking switched, invert the count
+		Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+		Program.redraw(true)
+	end
+
+	local optionBtnTeamView = SCREEN.Buttons["Show Team View"]
+	optionBtnTeamView.onClick = function(self)
+		self.toggleState = Options.toggleSetting(self.optionKey)
+		Program.redraw(true)
+		TeamViewArea.refreshDisplayPadding()
+		TeamViewArea.buildOutPartyScreen()
+		Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
+	end
+
 	-- TAB: CAROUSEL
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	startY = Constants.SCREEN.MARGIN + 38
+	startY = Constants.SCREEN.MARGIN + 36
 
 	SCREEN.Buttons.CarouselSpeedHeader = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -514,7 +550,7 @@ function SetupScreen.createButtons()
 		startX = startX + speedWidth + 4
 	end
 
-	startY = startY + Constants.SCREEN.LINESPACING + 4
+	startY = startY + Constants.SCREEN.LINESPACING
 
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 
@@ -536,6 +572,7 @@ function SetupScreen.createButtons()
 		{ "LastAttack", "CarouselLastAttack", },
 		{ "BattleDetails", "CarouselBattleDetails", },
 		{ "Pedometer", "CarouselPedometer", },
+		{ "GachaMon", "CarouselGachaMon", },
 	}
 
 	local function saveCarouselSettings()

@@ -6,16 +6,21 @@ GameOverScreen = {
 	},
 	isDisplayed = false, -- Prevents repeated changing screens due to BattleOutcome persisting
 	chosenQuoteIndex = 1,
+	numDefeatedTrainers = 0,
 	enteredFromSpecialLocation = false, -- prevents constantly changing back to game over screen
 	status = nil,
 }
 
 -- Different functions to confirm if the game has ended in a loss (game over)
+-- Note: Each condition defaults to false until proven it is true (change from initial implementation)
 GameOverScreen.LossConditions = {
+	-- Returns true iff the player's party has real (non-egg) Pokémon in it and the lead Pokémon (first slot) has current HP of 0 (fainted)
 	LeadPokemonFaints = function()
 		local pokemon = TrackerAPI.getPlayerPokemon(1)
-		return pokemon and pokemon.curHP == 0 and pokemon.isEgg ~= 1
+		return pokemon and pokemon.curHP == 0 and pokemon.isEgg ~= 1 -- ignore eggs
 	end,
+
+	-- Returns true iff the player's party has real (non-egg) Pokémon in it and any of the highest-level of those have current HP of 0 (fainted)
 	HighestLevelFaints = function()
 		local highestLevel, highestFainted = 0, false
 		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
@@ -30,13 +35,19 @@ GameOverScreen.LossConditions = {
 		end
 		return highestFainted
 	end,
+
+	-- Returns true iff the player's party has real (non-egg) Pokémon in it and each of those have current HP of 0 (fainted)
 	EntirePartyFaints = function()
+		local numRealMons, numFainted = 0, 0
 		for _, pokemon in ipairs(Program.GameData.PlayerTeam or {}) do
-			if pokemon.curHP ~= 0 and pokemon.isEgg ~= 1 then -- ignore eggs
-				return false
+			if pokemon.isEgg ~= 1 then -- ignore eggs
+				numRealMons = numRealMons + 1
+				if pokemon.curHP == 0 then
+					numFainted = numFainted + 1
+				end
 			end
 		end
-		return true
+		return numRealMons > 0 and numRealMons == numFainted
 	end,
 }
 
@@ -69,7 +80,9 @@ GameOverScreen.Buttons = {
 		onClick = function(self)
 			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 			LogOverlay.isGameOver = false
-			LogOverlay.isDisplayed = false
+			if Program.currentOverlay == LogOverlay then
+				Program.closeScreenOverlay()
+			end
 			Program.GameTimer:unpause()
 			GameOverScreen.refreshButtons()
 			GameOverScreen.Buttons.SaveGameFiles:reset()
@@ -101,7 +114,9 @@ GameOverScreen.Buttons = {
 			else
 				GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 				LogOverlay.isGameOver = false
-				LogOverlay.isDisplayed = false
+				if Program.currentOverlay == LogOverlay then
+					Program.closeScreenOverlay()
+				end
 				Program.GameTimer:unpause()
 				GameOverScreen.refreshButtons()
 				GameOverScreen.Buttons.SaveGameFiles:reset()
@@ -165,8 +180,65 @@ GameOverScreen.Buttons = {
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 112, 16 },
+		isVisible = function(self) return not Options["Add to collection if prize from trainer victory"] or (GameOverScreen.numDefeatedTrainers or 0) < 2 end,
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+		end,
+	},
+	ViewLogFileSmall = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.GameOverScreen.ButtonViewLogSmall end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 132, 60, 16 },
+		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] and (GameOverScreen.numDefeatedTrainers or 0) >= 2 end,
+		onClick = function(self)
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+		end,
+	},
+	GachaMonPrizeCard = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.GACHAMON_CARD,
+		getText = function(self) return Resources.GameOverScreen.ButtonPrizeCard end,
+		iconColors = { "Positive text" },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 132, 62, 16 },
+		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] and (GameOverScreen.numDefeatedTrainers or 0) >= 2 end,
+		onClick = function(self)
+			-- If already created, display the card
+			if GachaMonData.createdTrainerPrizeCard then
+				if Program.currentOverlay == GachaMonOverlay then
+					Program.closeScreenOverlay()
+					Program.redraw(true)
+				else
+					-- If a different overlay is open, close that first
+					if Program.isScreenOverlayOpen() then
+						Program.closeScreenOverlay()
+					end
+					Program.openOverlayScreen(GachaMonOverlay)
+					GachaMonOverlay.currentTab = GachaMonOverlay.Tabs.View
+					GachaMonOverlay.Data.View.GachaMon = GachaMonData.createdTrainerPrizeCard
+					GachaMonOverlay.refreshButtons()
+					Program.redraw(true)
+				end
+				return
+			end
+
+			local pokemon, trainerInfo = GachaMonData.createPokemonDataFromDefeatedTrainers()
+			if not pokemon then
+				return
+			end
+
+			local fromTrainerPrize = true
+			GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
+			local gachamon = GachaMonData.getAssociatedRecentMon(pokemon)
+			if not gachamon then
+				return
+			end
+
+			GachaMonData.createdTrainerPrizeCard = gachamon
+			GachaMonData.newestRecentMon = gachamon
+			local x, y = Constants.SCREEN.WIDTH + 43, 43
+			AnimationManager.GachaMonAnims.PackOpening = AnimationManager.createGachaMonPackOpening(x, y, GachaMonData.newestRecentMon, trainerInfo)
+			Program.redraw(true)
 		end,
 	},
 }
@@ -174,6 +246,7 @@ GameOverScreen.Buttons = {
 function GameOverScreen.initialize()
 	GameOverScreen.isDisplayed = false
 	GameOverScreen.battleStartSaveState = nil -- Creates a temporary save state in memory, for restarting a battle
+	GameOverScreen.numDefeatedTrainers = 0
 	GameOverScreen.enteredFromSpecialLocation = false
 	GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 
@@ -196,6 +269,7 @@ function GameOverScreen.refreshButtons()
 			button:updateSelf()
 		end
 	end
+	GameOverScreen.updateDefeatedTrainersCount()
 end
 
 function GameOverScreen.randomizeAnnouncerQuote()
@@ -216,6 +290,11 @@ function GameOverScreen.randomizeAnnouncerQuote()
 	return Resources.GameOverScreenQuotes[GameOverScreen.chosenQuoteIndex] or ""
 end
 
+function GameOverScreen.updateDefeatedTrainersCount()
+	local defeatedTrainers = GachaMonData.getDefeatedCommonTrainers() or {}
+	GameOverScreen.numDefeatedTrainers = #defeatedTrainers
+end
+
 ---Returns true if a GameOver has occurred and the screen should be displayed (lost/tied, or won final battle)
 ---@param lastBattleStatus number? [2 = Lost the match, 3 = Tied]
 ---@param lastTrainerId number? The TrainerId of the most recent enemy trainer that was battled
@@ -234,6 +313,7 @@ function GameOverScreen.checkForGameOver(lastBattleStatus, lastTrainerId)
 		lastTrainerId = lastTrainerId or Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 		if Battle.wonFinalBattle(lastBattleStatus, lastTrainerId) then
 			GameOverScreen.status = GameOverScreen.Statuses.WON
+			GachaMonData.markTeamForGameWin()
 		end
 	end
 
@@ -423,4 +503,8 @@ function GameOverScreen.drawScreen()
 			end
 		end
 	end
+end
+
+function GameOverScreen.drawAnimations()
+	AnimationManager.drawGachaMonAnims()
 end
