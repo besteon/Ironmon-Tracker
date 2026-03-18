@@ -1150,7 +1150,7 @@ GachaMonOverlay.Tabs.Options.Buttons = {
 				return rulesetName or Constants.IronmonRulesetNames.Standard
 			end
 		end,
-		box = { CANVAS.X + 131, CANVAS.Y + 44, 100, 16, },
+		box = { CANVAS.X + 124, CANVAS.Y + 44, 107, 16, },
 		onClick = function(self)
 			GachaMonOverlay.openEditRulesetWindow()
 		end,
@@ -1535,7 +1535,7 @@ function GachaMonOverlay.createTabsAndButtons()
 	local optionBtnShowStars = SCREEN.Tabs.Options.Buttons["Show GachaMon stars on main Tracker Screen"]
 	optionBtnShowStars.onClick = function(self)
 		self.toggleState = Options.toggleSetting(self.optionKey)
-		-- If Survival mode for Track PC Heals is also enabled, turn that off as it conflicts by using the same screen space
+		-- If Survival mode for Track PokéCenter heals is also enabled, turn that off as it conflicts by using the same screen space
 		if self.toggleState and Options["Track PC Heals"] then
 			Options.toggleSetting("Track PC Heals")
 		end
@@ -1811,6 +1811,7 @@ function GachaMonOverlay.openEditRulesetWindow()
 		Constants.IronmonRulesetNames.Ultimate,
 		Constants.IronmonRulesetNames.Kaizo,
 		Constants.IronmonRulesetNames.Survival,
+		Constants.IronmonRulesetNames.SurvivalRevival,
 		Constants.IronmonRulesetNames.SuperKaizo,
 		Constants.IronmonRulesetNames.Subpar,
 	}

@@ -328,6 +328,10 @@ function StartupScreen.drawScreen()
 
 	-- Draw all buttons
 	for _, button in pairs(StartupScreen.Buttons) do
+		-- Double check the box colors exist
+		if button.boxColors == nil then
+			button.boxColors = { "Upper box border", "Upper box background" }
+		end
 		local buttonShadow = Utils.inlineIf(button.boxColors[2] == "Upper box background", topBox.shadow, botBox.shadow)
 		Drawing.drawButton(button, buttonShadow)
 	end

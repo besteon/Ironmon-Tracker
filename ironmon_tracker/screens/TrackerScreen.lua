@@ -282,7 +282,7 @@ TrackerScreen.Buttons = {
 				return
 			end
 			local abilityId
-			if Options["Open Book Play Mode"] then
+			if not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
 				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 0) -- 0 is the first ability
 			else
 				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID) or {}
@@ -310,7 +310,7 @@ TrackerScreen.Buttons = {
 			local abilityId
 			if Battle.isViewingOwn then
 				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
-			elseif Options["Open Book Play Mode"] then
+			elseif not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
 				abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
 			else
 				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -592,7 +592,7 @@ function TrackerScreen.initialize()
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Battle.inActiveBattle() and not Battle.isViewingOwn and not Options["Open Book Play Mode"] end,
+			isVisible = function() return Battle.inActiveBattle() and not Battle.isViewingOwn and PokemonData.IsRand.stats and not Options["Open Book Play Mode"] end,
 			onClick = function(self)
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
@@ -1175,8 +1175,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			extraInfoText = Resources.TrackerScreen.BattleNewEncounter
 		end
-		-- Prioritize showing open book stuff with highlight color
-		if Options["Open Book Play Mode"] then
+		-- Only highlight new encounter / last level seen if the real game abilities aren't being revealed
+		if not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
 			extraInfoColor = Theme.COLORS["Default text"]
 		else
 			extraInfoColor = Theme.COLORS["Intermediate text"]
@@ -1416,19 +1416,18 @@ function TrackerScreen.drawStatsArea(data)
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
-		if Battle.isViewingOwn then
-			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
-			if not Options["Color stat numbers by nature"] then
-				textColor = Theme.COLORS["Default text"]
-			end
-			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
+		local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
+		if not Battle.isViewingOwn and (not PokemonData.IsRand.stats or Options["Open Book Play Mode"]) then
+			textColor = Theme.COLORS["Intermediate text"]
+		elseif not Options["Color stat numbers by nature"] then
+			textColor = Theme.COLORS["Default text"]
+		end
+
+		-- Confirm if its okay to show the stats or not (i.e. don't show randomized enemy stats)
+		if not Battle.isViewingOwn and PokemonData.IsRand.stats and not Options["Open Book Play Mode"] then
+			Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
 		else
-			if Options["Open Book Play Mode"] then
-				local bstSpread = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
-				Drawing.drawNumber(statOffsetX + 25, statOffsetY, bstSpread, 3, Theme.COLORS["Intermediate text"], shadowcolor)
-			else
-				Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
-			end
+			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		end
 		statOffsetY = statOffsetY + 10
 	end

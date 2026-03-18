@@ -517,6 +517,7 @@
 		"PenaltyAbilitySandStreamUnsafe": -2,
 		"PenaltyWeatherAbilityWeakensMove": 0.65,
 		"BonusMoveIsSTAB": 1.5,
+		"BonusMoveWeatherBallWithAbility": 2.0,
 		"BonusAbilityImprovesWeakness": 1.50,
 		"BonusAbilityCompoundeyesHelpsMove": 1.1,
 		"BonusAbilityRockHeadHelpsMove": 1.5,
@@ -524,7 +525,7 @@
 	},
 	"RatingToStars": [
 		{
-			"Rating": 80,
+			"Rating": 77,
 			"Stars": 6
 		},
 		{
@@ -599,6 +600,26 @@
 				}
 			],
 			"BannedMoves": [19, 57, 70, 127, 148, 249, 291, 73, 105, 135, 156, 208, 220, 226, 234, 235, 236, 256, 273, 274, 275, 303],
+			"AdjustedMoves": []
+		},
+		"Survival Revival": {
+			"BannedAbilities": [4, 37, 74, 75],
+			"BannedAbilityExceptions": [
+				{
+					"BSTLessThan": 400,
+					"MustEvo": false
+				},
+				{
+					"BSTLessThan": 411,
+					"MustEvo": true
+				},
+				{
+					"BSTLessThan": 421,
+					"MustEvo": false,
+					"NatDexOnly": true
+				}
+			],
+			"BannedMoves": [19, 57, 70, 127, 148, 249, 291, 105, 135, 156, 208, 220, 226, 234, 235, 236, 256, 273, 274, 275, 303],
 			"AdjustedMoves": []
 		},
 		"SuperKaizo": {

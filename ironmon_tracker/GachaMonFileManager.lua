@@ -1,6 +1,6 @@
 GachaMonFileManager = {
 	-- The current version of the binary stream transform. If the format changes, this version must be incremented. (0-255)
-	Version = 1,
+	Version = 2,
 	-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
 	RomHashSize = 64,
 	-- Current number of card pack image files that exist
@@ -464,6 +464,11 @@ GachaMonFileManager.BinaryStreams[1] = {
 	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
 	Size = 31, -- Number of bytes per GachaMon stored
 }
+--Version 2 Binary Stream
+GachaMonFileManager.BinaryStreams[2] = {
+	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
+	Size = 31, -- Number of bytes per GachaMon stored
+}
 
 ---@param gachamon IGachaMon
 ---@return string binaryStream compact binary stream of data
@@ -538,4 +543,19 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
 	gachamon.Temp.IsShiny = gachamon:getIsShiny()
 	return gachamon, BS.Size
+end
+
+---@param gachamon IGachaMon
+---@return string binaryStream compact binary stream of data
+GachaMonFileManager.BinaryStreams[2].Writer = function(gachamon)
+	-- Version 2 is purely rating calculation changes. No change to data structure.
+	return GachaMonFileManager.BinaryStreams[1].Writer(gachamon)
+end
+
+---@param binaryStream string compact binary stream of data
+---@return IGachaMon|nil gachamon
+---@return number size
+GachaMonFileManager.BinaryStreams[2].Reader = function(binaryStream, position)
+	-- Version 2 is purely rating calculation changes. No change to data structure.
+	return GachaMonFileManager.BinaryStreams[1].Reader(binaryStream, position)
 end
