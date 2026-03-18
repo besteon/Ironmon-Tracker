@@ -20,6 +20,7 @@ Program = {
 		carouselActive = 0, -- counts up
 		Others = {}, -- list of other frame counter objects
 	},
+	DebugDrawing = {},
 	Addresses = {
 		battleStructDefault = 0x2000000, -- gSharedMem
 		nicknameCharEnd = 0xFF,
@@ -422,6 +423,12 @@ function Program.redraw(forced)
 		_drawAnimations()
 	end
 
+	for _, debugDrawFunc in pairs(Program.DebugDrawing) do
+		if type(debugDrawFunc) == "function" then
+			debugDrawFunc()
+		end
+	end
+
 	SpriteData.cleanupActiveIcons()
 end
 
@@ -692,6 +699,21 @@ function Program.removeFrameCounter(label)
 	Program.Frames.Others[label] = nil
 end
 
+---Adds a drawing function for testing that will be called every time the screen is redrawn.
+---@param label string
+---@param drawFunc function
+function Program.addDebugDrawing(label, drawFunc)
+	if not label or not drawFunc or not Main.IsOnBizhawk() then return end
+	Program.DebugDrawing[label] = drawFunc
+end
+
+---Removes a previously added debug drawing function.
+---@param label string
+function Program.removeDebugDrawing(label)
+	if not label or not Main.IsOnBizhawk() then return end
+	Program.DebugDrawing[label] = nil
+end
+
 function Program.checkForStarterSelection()
 	-- Only bother checking if the player doesn't have a Pokémon in their party
 	if TrackerAPI.getPlayerPokemon() ~= nil then
@@ -751,10 +773,10 @@ end
 ---@return table<string, number> tile { x = number, y = number }
 function Program.getPlayerMapTile()
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
-	-- The player's map tile coordinates are stored in the first 4 bytes of SaveBlock1
+	-- The player's map tile coordinates (struct Coords16) are stored as two s16 values at the start of SaveBlock1
 	return {
-		x = Memory.readbyte(saveBlock1Addr + 0x0),
-		y = Memory.readbyte(saveBlock1Addr + 0x2),
+		x = Memory.readword(saveBlock1Addr + 0x0),
+		y = Memory.readword(saveBlock1Addr + 0x2),
 	}
 end
 
