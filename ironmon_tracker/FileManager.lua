@@ -199,8 +199,12 @@ FileManager.LuaCode = {
 -- Data files that can be loaded at runtime when needed (they aren't available until loaded)
 -- The table key is the versioncolor, and the value is a table of data key labels and their filepaths
 FileManager.LuaData = {
-	Ruby = {},
-	Sapphire = {},
+	Ruby = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "RSTrainerRouteData.lua",
+        },
+	Sapphire = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "RSTrainerRouteData.lua",
+        },
 	Emerald = {
 		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "EmeraldTrainerRouteData.lua",
 	},
