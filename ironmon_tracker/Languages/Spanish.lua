@@ -388,7 +388,7 @@ ScreenResources{
 		ButtonNoUpdates = "Sin actualizaciones",
 		ButtonBeginInstall = "Comenzar instalación",
 		ButtonInstallNow = "Instalar ahora",
-		ButtonInstallFromDev = "Instalar ver. dev",
+		ButtonInstallFromDev = "Instalar ver. beta",
 		ButtonOpenDownload = "Abrir descarga",
 		ButtonIgnoreUpdate = "Ignorar actualización", -- Size
 		MessageInProgress = "Actualización en curso, por favor espera. Consulta la ventana CMD para ver más.",
