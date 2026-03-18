@@ -871,7 +871,7 @@ function GachaMonData.numberToGameVersion(num)
 end
 
 ---Updates the Gachamon card that is being shown on the main tracker screen (what's used to display the stars)
----@param needsRecalculating? boolean If true, will force a recalculation of the current Gachamon vs. its original Gachamon card. (Default: false)
+---@param needsRecalculating? boolean If true, will force a recalculation of the viewed Gachamon vs. its original Gachamon card. (Default: false)
 function GachaMonData.updateMainScreenViewedGachaMon(needsRecalculating)
 	needsRecalculating = needsRecalculating ~= false
 
