@@ -870,7 +870,11 @@ function GachaMonData.numberToGameVersion(num)
 	return v[num or false] or Constants.HIDDEN_INFO
 end
 
-function GachaMonData.updateMainScreenViewedGachaMon()
+---Updates the Gachamon card that is being shown on the main tracker screen (what's used to display the stars)
+---@param needsRecalculating? boolean If true, will force a recalculation of the current Gachamon vs. its original Gachamon card. (Default: false)
+function GachaMonData.updateMainScreenViewedGachaMon(needsRecalculating)
+	needsRecalculating = needsRecalculating ~= false
+
 	if not GachaMonData.isCompatibleWithEmulator() then
 		return
 	end
@@ -882,12 +886,15 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 		return
 	end
 
-	local prevMon = GachaMonData.playerViewedMon
-	-- If new or different mon or different level, recalc
-	local needsRecalculating = not prevMon or (prevMon.PokemonId ~= viewedPokemon.pokemonID) or (prevMon.Level ~= viewedPokemon.level)
-	-- Otherwise, check if it learned any new moves
+	local prevGachamon = GachaMonData.playerViewedMon or {}
+	-- Check if gachamon is new or different mon or different level
 	if not needsRecalculating then
-		local prevMoveIds = prevMon and prevMon:getMoveIds() or {}
+		needsRecalculating = (prevGachamon.PokemonId ~= viewedPokemon.pokemonID) or (prevGachamon.Level ~= viewedPokemon.level)
+	end
+
+	-- Check if it learned any new moves
+	if not needsRecalculating then
+		local prevMoveIds = prevGachamon:getMoveIds() or {}
 		local currentMoves = viewedPokemon.moves or {}
 		for i = 1, 4, 1 do
 			if currentMoves[i] and currentMoves[i].id ~= prevMoveIds[i] then
@@ -897,11 +904,16 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 		end
 	end
 
-	if needsRecalculating then
-		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon)
+	if not needsRecalculating then
+		return
+	end
+
+	local viewedGachamon = GachaMonData.convertPokemonToGachaMon(viewedPokemon)
+	local recentGachamon = GachaMonData.getAssociatedRecentMon(viewedGachamon)
+	if recentGachamon then
 		-- Always reset the initial stars to original card; do this every time the mon gets rerolled (in case the mon changes)
-		local recentMon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
-		GachaMonData.playerViewedInitialStars = recentMon and recentMon:getStars() or 0
+		GachaMonData.playerViewedMon = viewedGachamon
+		GachaMonData.playerViewedInitialStars = recentGachamon:getStars() or 0
 	end
 end
 
@@ -1012,6 +1024,7 @@ function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
 
 	GachaMonData.initialRecentMonsLoaded = true
 	GachaMonFileManager.importRecentMons(forceImportAndUse)
+	GachaMonData.updateMainScreenViewedGachaMon(true)
 end
 
 ---Only once per game, load the collection. Usually occurs when the Overlay is first opened or if a "NEW" GachaMon is captured
