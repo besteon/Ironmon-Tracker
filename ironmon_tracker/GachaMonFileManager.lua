@@ -11,6 +11,9 @@ GachaMonFileManager = {
 -- When adding new versions, don't use function shortcuts for binary/data conversion. Each must be written out per-version.
 GachaMonFileManager.BinaryStreams = {}
 
+-- A historical record of rating-to-star thresholds for ALL versions (however, the current version will use what's in the json data)
+GachaMonFileManager.LegacyStarRatings = {}
+
 -- function GachaMonFileManager.initialize()
 	-- Currently unused
 -- end
@@ -51,6 +54,20 @@ function GachaMonFileManager.getGameWinnerFilePath()
 	return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "winner-ribbon", FileManager.Extensions.PNG)
 end
 
+---Returns the rating-to-stars thresholds for a specified version; default = current version
+---@param version? number
+---@return table<number, table>
+function GachaMonFileManager.getStarRatings(version)
+	version = version or GachaMonFileManager.Version
+
+	if version ~= GachaMonFileManager.Version then
+		return GachaMonFileManager.LegacyStarRatings[version] or GachaMonData.RatingsSystem.RatingToStars
+	end
+
+	-- Otherwise, default to returning the current system
+	return GachaMonData.RatingsSystem.RatingToStars
+end
+
 ---Imports all GachaMon Ratings data from a JSON file
 ---@param filepath? string Optional, a custom JSON file
 ---@return boolean success
@@ -73,6 +90,7 @@ function GachaMonFileManager.importRatingSystem(filepath)
 		Stats = {},
 		CategoryMaximums = {},
 		OtherAdjustments = {},
+		-- Don't access directly; instead use GachaMonFileManager.getStarRatings(version)
 		RatingToStars = {},
 		Rulesets = {}
 	}
@@ -459,12 +477,31 @@ function GachaMonFileManager.binaryToMon(binaryStream, position)
 	return gachamon, size
 end
 
---Version 1 Binary Stream
+-- Version 1
+GachaMonFileManager.LegacyStarRatings[1] = {
+	{ Rating = 80, Stars = 6 },
+	{ Rating = 67, Stars = 5 },
+	{ Rating = 54, Stars = 4 },
+	{ Rating = 40, Stars = 3 },
+	{ Rating = 25, Stars = 2 },
+	{ Rating = 0, Stars = 1 },
+}
+-- Version 2 (current)
+GachaMonFileManager.LegacyStarRatings[2] = {
+	{ Rating = 77, Stars = 6 }, -- was 80
+	{ Rating = 67, Stars = 5 },
+	{ Rating = 54, Stars = 4 },
+	{ Rating = 40, Stars = 3 },
+	{ Rating = 25, Stars = 2 },
+	{ Rating = 0, Stars = 1 },
+}
+
+-- Version 1 Binary Stream
 GachaMonFileManager.BinaryStreams[1] = {
 	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
 	Size = 31, -- Number of bytes per GachaMon stored
 }
---Version 2 Binary Stream
+-- Version 2 Binary Stream
 GachaMonFileManager.BinaryStreams[2] = {
 	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
 	Size = 31, -- Number of bytes per GachaMon stored

@@ -611,11 +611,14 @@ function GachaMonData.calculateStars(gachamon)
 	if (gachamon.RatingScore or 0) <= 0 then
 		return 0
 	end
-	for _, ratingPair in ipairs(GachaMonData.RatingsSystem.RatingToStars or {}) do
+
+	local versionedStarRatings = GachaMonFileManager.getStarRatings(gachamon.Version) or {}
+	for _, ratingPair in ipairs(versionedStarRatings) do
 		if gachamon.RatingScore >= (ratingPair.Rating or 1) and ratingPair.Stars then
 			return ratingPair.Stars
 		end
 	end
+
 	return 0
 end
 
