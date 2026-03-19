@@ -27,6 +27,7 @@ Program = {
 		hitmarkerFlag80000 = 0x80000, -- A special value for gHitMarker
 		moveResultsFlag29 = 0x29, -- A special value for gMoveResultFlags
 
+		offsetFlashLevel = 0x30,
 		offsetStarterMonChoiceFRLG = 0x62,
 		offsetStarterMonChoiceRSE = 0x46,
 		offsetRepelStepCountFRLG = 0x40,
@@ -778,6 +779,14 @@ function Program.getPlayerMapTile()
 		x = Memory.readword(saveBlock1Addr + 0x0),
 		y = Memory.readword(saveBlock1Addr + 0x2),
 	}
+end
+
+---Returns the current flash level, with 0 being fully bright and 8 being fully black.
+---@return number flashLevel
+function Program.readFlashLevel()
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local flashLevel = Memory.readbyte(saveblock1Addr + Program.Addresses.offsetFlashLevel)
+	return flashLevel
 end
 
 function Program.updateRepelSteps()

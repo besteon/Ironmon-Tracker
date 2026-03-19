@@ -67,6 +67,7 @@ RouteData.Locations = {
 	IsInHallOfFame = {},
 	IsInSafariZone = {},
 	EarlyGameCity = {},
+	DarkAreas = {},
 }
 -- Maps a mapId to all its connected other mapIds that make up a complete dungeon (e.g. Pokemon Tower 1F-7F)
 RouteData.CombinedAreas = {}
@@ -141,6 +142,22 @@ end
 
 function RouteData.isFishingEncounter(encounterArea)
 	return encounterArea == RouteData.EncounterArea.OLDROD or encounterArea == RouteData.EncounterArea.GOODROD or encounterArea == RouteData.EncounterArea.SUPERROD
+end
+
+---Returns true if the player has visibility in the current area, notably useful for checking dark caves.
+---@param mapId? number The mapId to check for; default = current location
+---@return boolean
+function RouteData.canSeeDarkArea(mapId)
+	mapId = mapId or TrackerAPI.getMapId()
+
+	-- Can always see if not in an area/zone that's dark
+	if not RouteData.Locations.DarkAreas[mapId] then
+		return true
+	end
+
+	-- 0 = fully bright, 1 = flash active (RSE), 8 = fully dark
+	local flashLevel = Program.readFlashLevel()
+	return flashLevel <= 1
 end
 
 ---Returns an ordered list of routes used for early game pivoting; or safari zones routes if `useSafari` is true
@@ -438,6 +455,10 @@ function RouteData.setupRouteInfoAsFRLG()
 		[78] = true, -- Pallet Town
 		[79] = true, -- Viridian City
 		[80] = true, -- Pewter City
+	}
+	RouteData.Locations.DarkAreas = {
+		[154] = true, -- Rock Tunnel
+		[155] = true, -- Rock Tunnel
 	}
 
 	-- [AreaName] = { combained list of mapIds }
@@ -3217,6 +3238,15 @@ function RouteData.setupRouteInfoAsRSE()
 		[10] = true, -- Littleroot Town
 		[11] = true, -- Oldale Town
 	}
+	RouteData.Locations.DarkAreas = {
+		[65] = true, -- Dewford Gym
+		[133 + offset] = true, -- Granite Cave
+		[134 + offset] = true, -- Granite Cave
+		[163 + offset] = true, -- Victory Road (1F not actually dark, but all trainers are stored there)
+		[285 + offset] = true, -- Victory Road
+		[286 + offset] = true, -- Victory Road
+	}
+
 	if isGameEmerald then
 		-- In Emerald, Ironmon ends after Steven battle, not e4.
 		RouteData.Locations.IsInHallOfFame = {
