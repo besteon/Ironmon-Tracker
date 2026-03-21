@@ -17,6 +17,7 @@ Options = {
 	["Show move effectiveness"] = true,
 	["Calculate variable damage"] = true,
 	["Determine friendship readiness"] = true,
+	["Show data for vanilla game"] = true,
 	["Count enemy PP usage"] = true,
 	["Show nicknames"] = false,
 	["Track PC Heals"] = false,

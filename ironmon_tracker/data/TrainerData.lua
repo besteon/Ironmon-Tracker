@@ -264,6 +264,15 @@ function TrainerData.isTeamDataRandomized()
 	return TrainerData.IsRand.teamPokemon or TrainerData.IsRand.teamLevels or TrainerData.IsRand.teamSize
 end
 
+---Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
+---@return boolean
+function TrainerData.canShowUnknownTrainerTeams()
+	if Options["Open Book Play Mode"] then
+		return true
+	end
+	return not TrainerData.IsRand.teamPokemon and Options["Show data for vanilla game"]
+end
+
 function TrainerData.getTrainerInfo(trainerId)
 	return TrainerData.Trainers[trainerId or false] or TrainerData.BlankTrainer
 end

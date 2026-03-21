@@ -285,6 +285,7 @@ ScreenResources{
 		OptionShowMoveEffectiveness = "Show move effectiveness",
 		OptionCalculateVariableDamage = "Calculate variable damage",
 		OptionDetermineFriendship = "Determine friendship readiness",
+		OptionShowVanillaGameData = "Show data for vanilla game",
 		OptionShowBallCatchRate = "Show Poké Ball catch rate",
 		OptionCountEnemyPP = "Count enemy PP usage",
 		OptionShowLastDamage = "Show last damage calcs",

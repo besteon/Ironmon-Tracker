@@ -285,6 +285,7 @@ ScreenResources{
 		OptionShowMoveEffectiveness = "Mostrar mov. superefectivo",
 		OptionCalculateVariableDamage = "Calcular daño variable",
 		OptionDetermineFriendship = "Verificar estado de amistad",
+		OptionShowVanillaGameData = "Mostrar datos del juego original",
 		OptionShowBallCatchRate = "Porcentajes de captura",
 		OptionCountEnemyPP = "Mostrar PPs del enemigo",
 		OptionShowLastDamage = "Mostrar cálculo del último daño",
