@@ -183,7 +183,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		data.p[statKey] = viewedPokemon.stats[statKey] or Constants.BLANKLINE
 		if not data.x.viewingOwn then
-			if not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+			if PokemonData.canShowUnknownStats() then
 				data.p[statKey] = pokemonInternal.baseStats[statKey] or Constants.BLANKLINE
 			end
 		end
@@ -224,7 +224,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		if AbilityData.isValid(abilityId) then
 			data.p.line2 = AbilityData.Abilities[abilityId].name
 		end
-	elseif not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
+	elseif PokemonData.canShowUnknownAbilities() then
 		local abilityIds = {
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 0),
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 1),
@@ -256,7 +256,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.m.moves = { {}, {}, {}, {}, } -- four empty move placeholders
 
 	local stars
-	if data.x.viewingOwn or not PokemonData.isGameDataRandomized() or Options["Open Book Play Mode"] then
+	if data.x.viewingOwn or MoveData.canShowUnknownMoves() then
 		stars = { "", "", "", "" }
 	else
 		stars = Utils.calculateMoveStars(viewedPokemon.pokemonID, viewedPokemon.level)
@@ -265,7 +265,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID, viewedPokemon.level)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
-		if data.x.viewingOwn or not PokemonData.isGameDataRandomized() or Options["Open Book Play Mode"] then
+		if data.x.viewingOwn or MoveData.canShowUnknownMoves() then
 			local viewedMove = viewedPokemon.moves[i] or {}
 			if MoveData.isValid(viewedMove.id) then
 				moveToCopy = MoveData.Moves[viewedMove.id]
@@ -428,7 +428,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
-	if pokemon.types and (not PokemonData.IsRand.types or Options["Reveal info if randomized"] or pokemon.pokemonID == ownLeadPokemon.pokemonID) then
+	if pokemon.types and (PokemonData.canShowUnknownTypes() or Options["Reveal info if randomized"] or pokemon.pokemonID == ownLeadPokemon.pokemonID) then
 		data.p.types = { pokemon.types[1], pokemon.types[2] }
 	else
 		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }

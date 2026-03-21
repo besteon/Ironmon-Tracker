@@ -355,6 +355,33 @@ function PokemonData.isGameDataRandomized()
 	return PokemonData.IsRand.types or PokemonData.IsRand.abilities or PokemonData.IsRand.stats or PokemonData.IsRand.friendshipBase or PokemonData.IsRand.expYield
 end
 
+---Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
+---@return boolean
+function PokemonData.canShowUnknownTypes()
+	if Options["Open Book Play Mode"] then
+		return true
+	end
+	return not PokemonData.IsRand.types and Options["Show data for vanilla game"]
+end
+
+---Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
+---@return boolean
+function PokemonData.canShowUnknownAbilities()
+	if Options["Open Book Play Mode"] then
+		return true
+	end
+	return not PokemonData.IsRand.abilities and Options["Show data for vanilla game"]
+end
+
+---Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
+---@return boolean
+function PokemonData.canShowUnknownStats()
+	if Options["Open Book Play Mode"] then
+		return true
+	end
+	return not PokemonData.IsRand.stats and Options["Show data for vanilla game"]
+end
+
 function PokemonData.getTypeResource(typename)
 	typename = typename or "unknown"
 	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.unknown

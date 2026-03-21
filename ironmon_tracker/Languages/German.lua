@@ -285,6 +285,7 @@ ScreenResources{
 		OptionShowMoveEffectiveness = "Zeige Attackeneffektivität", --OptionShowMoveEffectiveness english:Show move effectiveness
 		OptionCalculateVariableDamage = "Berechne variablen Schaden", --OptionCalculateVariableDamage english:Calculate variable damage
 		OptionDetermineFriendship = "Bestimme Freundschaftswert", --OptionDetermineFriendship english:Determine friendship readiness
+		OptionShowVanillaGameData = "Zeige Daten für originales Spiel", --OptionShowVanillaGameData english:Show data for vanilla game
 		OptionShowBallCatchRate = "Zeige Fangchance", --OptionShowBallCatchRate english:Show Poké Ball catch rate
 		OptionCountEnemyPP = "Zähle gegnerische AP", --OptionCountEnemyPP english:Count enemy PP usage
 		OptionShowLastDamage = "Zeige letzte Schadenskalku.", --OptionShowLastDamage english:Show last damage calcs
