@@ -184,6 +184,7 @@ function GameOptionsScreen.createButtons()
 		{ "Show experience points bar", "OptionShowExpBar", },
 		{ "Show heals as whole number", "OptionShowHealsAsValue", },
 		{ "Determine friendship readiness", "OptionDetermineFriendship", },
+		{ "Show data for vanilla game", "OptionShowVanillaGameData", },
 		{ "Open Book Play Mode", "OptionOpenBookPlayMode", },
 	}
 	for _, optionTuple in ipairs(optionKeyMapOther) do

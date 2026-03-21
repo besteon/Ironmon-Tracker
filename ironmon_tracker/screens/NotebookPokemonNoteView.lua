@@ -273,7 +273,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 	-- ABILITIES
 	SCREEN.Data.abilityName1 = Constants.BLANKLINE
 	SCREEN.Data.abilityName2 = Constants.BLANKLINE
-	if not PokemonData.IsRand.abilities or Options["Open Book Play Mode"] then
+	if PokemonData.canShowUnknownAbilities() then
 		SCREEN.Data.abilityId1 = PokemonData.getAbilityId(pokemonID, 0) or 0
 		SCREEN.Data.abilityId2 = PokemonData.getAbilityId(pokemonID, 1) or 0
 		if AbilityData.isValid(SCREEN.Data.abilityId1) then
@@ -317,7 +317,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 		SCREEN.Buttons["Stat" .. statKey] = {
 			type = Constants.ButtonTypes.STAT_STAGE,
 			getText = function(self)
-				if not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					return ""
 				else
 					return Constants.STAT_STATES[self.statState].text
@@ -329,14 +329,14 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 			location = "top",
 			isVisible = function() return SCREEN.Data.isReady end,
 			updateSelf = function(self)
-				if not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					self.type = Constants.ButtonTypes.NO_BORDER
 				else
 					self.type = Constants.ButtonTypes.STAT_STAGE
 				end
 			end,
 			onClick = function(self)
-				if not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					return
 				end
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
@@ -348,7 +348,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 				local x, y = self.box[1], self.box[2]
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
 				Drawing.drawText(x - 26, y - 2, statLabels[statKey], textColor, shadowcolor)
-				if not PokemonData.IsRand.stats or Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 					local pokemon = PokemonData.Pokemon[SCREEN.Data.pokemonID] or {}
 					local baseStat = (pokemon.baseStats or {})[statKey]
