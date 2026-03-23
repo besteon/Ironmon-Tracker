@@ -359,19 +359,25 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 	end
 
 	-- MOVES
-	-- Sort based on min level seen, or last level seen, in descending order
 	local trackedMoves = {}
 	for _, move in pairs(trackedPokemon.moves or {}) do
 		table.insert(trackedMoves, { id = move.id, level = move.minLv or move.level })
 	end
-	table.sort(trackedMoves, function(a,b)
-		return a.level > b.level or (a.level == b.level and a.id < b.id)
-	end)
+	-- If nothing is tracked (noted down), check if its okay to just show the regular levelup learnset
+	if #trackedMoves == 0 and PokemonData.canShowUnknownMoveLearnSets() then
+		trackedMoves = PokemonData.readLevelUpMoves(pokemonID)
+		SCREEN.Data.movesTotal = #trackedMoves
+	else
+		-- Sort based on min level seen, or last level seen, in descending order
+		table.sort(trackedMoves, function(a,b)
+			return a.level > b.level or (a.level == b.level and a.id < b.id)
+		end)
+		SCREEN.Data.movesTotal = #pokemonInternal.movelvls[GameSettings.versiongroup] + 4 -- four additional level 1 moves
+	end
+	SCREEN.Data.movesSeen = #trackedMoves
 
 	local NUM_MOVES = 8
 	local allowHiddenMoveInfo = Options["Reveal info if randomized"] or not MoveData.IsRand.moveType
-	SCREEN.Data.movesSeen = #trackedMoves
-	SCREEN.Data.movesTotal = #pokemonInternal.movelvls[GameSettings.versiongroup] + 4 -- four additional level 1 moves
 	SCREEN.Data.topMoves = {}
 	for i = 1, NUM_MOVES, 1 do
 		local move = trackedMoves[i] or {}

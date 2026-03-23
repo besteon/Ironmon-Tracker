@@ -96,6 +96,8 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 	if Options["Open Book Play Mode"] then
 		local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID] or {}
 		moves = pokemonLog.MoveSet or {}
+	elseif PokemonData.canShowUnknownMoveLearnSets() then
+		moves = PokemonData.readLevelUpMoves(pokemonID)
 	else
 		moves = Tracker.getMoves(pokemonID)
 	end

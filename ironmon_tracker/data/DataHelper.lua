@@ -661,12 +661,13 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
-	for _, moveLog in ipairs(pokemonLog.MoveSet or {}) do
+	local moveList = pokemonLog.MoveSet or PokemonData.readLevelUpMoves(pokemonID) or {}
+	for _, moveLog in ipairs(moveList) do
 		local move = {
-			id = moveLog.moveId,
-			level = moveLog.level,
+			id = moveLog.moveId or moveLog.id or 0,
+			level = moveLog.level or 0,
 		}
-		local moveInternal = MoveData.Moves[moveLog.moveId]
+		local moveInternal = MoveData.Moves[move.id]
 		if moveInternal ~= nil then
 			move.name = moveInternal.name
 			move.isstab = Utils.isSTAB(moveInternal, moveInternal.type, data.p.types)
