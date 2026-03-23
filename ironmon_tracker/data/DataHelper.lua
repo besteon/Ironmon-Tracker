@@ -255,8 +255,9 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	-- MOVES OF POKEMON (data.m)
 	data.m.moves = { {}, {}, {}, {}, } -- four empty move placeholders
 
+	local canShowMoves = data.x.viewingOwn or PokemonData.canShowUnknownMoveLearnSets()
 	local stars
-	if data.x.viewingOwn or MoveData.canShowUnknownMoves() then
+	if canShowMoves then
 		stars = { "", "", "", "" }
 	else
 		stars = Utils.calculateMoveStars(viewedPokemon.pokemonID, viewedPokemon.level)
@@ -265,7 +266,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID, viewedPokemon.level)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
-		if data.x.viewingOwn or MoveData.canShowUnknownMoves() then
+		if canShowMoves then
 			local viewedMove = viewedPokemon.moves[i] or {}
 			if MoveData.isValid(viewedMove.id) then
 				moveToCopy = MoveData.Moves[viewedMove.id]

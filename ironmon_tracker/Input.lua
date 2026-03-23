@@ -454,7 +454,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	end
 
 	local pokemonMoves
-	if not Battle.isViewingOwn and not MoveData.canShowUnknownMoves() then
+	if not Battle.isViewingOwn and not PokemonData.canShowUnknownMoveLearnSets() then
 		pokemonMoves = Tracker.getMoves(pokemon.pokemonID, pokemon.level) -- tracked moves only
 	elseif Tracker.Data.hasCheckedSummary then
 		pokemonMoves = pokemon.moves
