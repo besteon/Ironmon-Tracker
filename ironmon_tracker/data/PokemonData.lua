@@ -36,6 +36,8 @@ PokemonData.Addresses = {
 PokemonData.IsRand = {
 	types = false,
 	abilities = false,
+	stats = false,
+	moveLearnSet = false,
 	friendshipBase = false,
 	expYield = false
 }
@@ -333,6 +335,39 @@ function PokemonData.checkIfDataIsRandomized()
 		PokemonData.IsRand.stats = true
 	end
 
+	-- Check for randomized Pokémon move learn sets
+	local bulbasaurMoveset = PokemonData.readLevelUpMoves(bulbasaur.pokemonID)
+	if #bulbasaurMoveset >= 3 then
+		if bulbasaurMoveset[1].id ~= 33 or bulbasaurMoveset[1].level ~= 1 -- Tackle at level 1
+			or bulbasaurMoveset[2].id ~= 45 or bulbasaurMoveset[2].level ~= 4 -- Growl at level 4
+			or bulbasaurMoveset[3].id ~= 73 or bulbasaurMoveset[3].level ~= 7 -- Leech Seed at level 7
+			then
+				PokemonData.IsRand.moveLearnSet = true
+		end
+	end
+	if not PokemonData.IsRand.moveLearnSet then
+		local laprasMoveset = PokemonData.readLevelUpMoves(lapras.pokemonID)
+		if #laprasMoveset >= 3 then
+			if laprasMoveset[1].id ~= 55 or laprasMoveset[1].level ~= 1 -- Water Gun at level 1
+				or laprasMoveset[2].id ~= 45 or laprasMoveset[2].level ~= 1 -- Growl at level 1
+				or laprasMoveset[3].id ~= 47 or laprasMoveset[3].level ~= 1 -- Sing at level 1
+				then
+					PokemonData.IsRand.moveLearnSet = true
+			end
+		end
+	end
+	if not PokemonData.IsRand.moveLearnSet then
+		local shuckleMoveset = PokemonData.readLevelUpMoves(shuckle.pokemonID)
+		if #shuckleMoveset >= 3 then
+			if shuckleMoveset[1].id ~= 132 or shuckleMoveset[1].level ~= 1 -- Constrict at level 1
+				or shuckleMoveset[2].id ~= 110 or shuckleMoveset[2].level ~= 1 -- Withdraw at level 1
+				or shuckleMoveset[3].id ~= 35 or shuckleMoveset[3].level ~= 9 -- Wrap at level 9
+				then
+					PokemonData.IsRand.moveLearnSet = true
+			end
+		end
+	end
+
 	-- Check for randomized Pokémon base friendship values
 	local baseFriendship = PokemonData.Values.DefaultBaseFriendship
 	if bulbasaur.friendshipBase ~= baseFriendship or lapras.friendshipBase ~= baseFriendship or shuckle.friendshipBase ~= baseFriendship then
@@ -352,7 +387,8 @@ end
 ---Returns true if the Pokémon data in this game is randomized (not vanilla), based on game data memory checks
 ---@return boolean
 function PokemonData.isGameDataRandomized()
-	return PokemonData.IsRand.types or PokemonData.IsRand.abilities or PokemonData.IsRand.stats or PokemonData.IsRand.friendshipBase or PokemonData.IsRand.expYield
+	return PokemonData.IsRand.types or PokemonData.IsRand.abilities or PokemonData.IsRand.stats
+		or PokemonData.IsRand.moveLearnSet or PokemonData.IsRand.friendshipBase or PokemonData.IsRand.expYield
 end
 
 ---Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
@@ -380,6 +416,15 @@ function PokemonData.canShowUnknownStats()
 		return true
 	end
 	return not PokemonData.IsRand.stats and Options["Show data for vanilla game"]
+end
+
+---Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
+---@return boolean
+function PokemonData.canShowUnknownMoveLearnSets()
+	if Options["Open Book Play Mode"] then
+		return true
+	end
+	return not PokemonData.IsRand.moveLearnSet and Options["Show data for vanilla game"]
 end
 
 function PokemonData.getTypeResource(typename)
@@ -657,7 +702,7 @@ end
 
 ---Reads from the game data all of the level-up moves learned by a Pokémon species
 ---@param pokemonID number
----@return table<string, number> learnedMoves A list moves, each entry as a table: { id = number, level = number }
+---@return table<number, table<string, number>> learnedMoves A list moves, each entry as a table: { id = number, level = number }
 function PokemonData.readLevelUpMoves(pokemonID)
 	local learnedMoves = {}
 	if not PokemonData.isValid(pokemonID) then
