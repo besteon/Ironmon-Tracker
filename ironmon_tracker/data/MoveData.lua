@@ -426,15 +426,6 @@ function MoveData.isTMDataRandomized()
 	return MoveData.IsRand.tms
 end
 
----Returns true if info unknown to the player (random or otherwise) is allowed to be revealed.
----@return boolean
-function MoveData.canShowUnknownMoves()
-	if Options["Open Book Play Mode"] then
-		return true
-	end
-	return Options["Show data for vanilla game"]
-end
-
 ---Returns true if the moveId is a valid, existing id of a move in MoveData.Moves
 ---@param moveId number
 ---@return boolean
