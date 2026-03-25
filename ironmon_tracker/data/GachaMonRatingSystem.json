@@ -520,6 +520,7 @@
 		"BonusMoveWeatherBallWithAbility": 2.0,
 		"BonusAbilityImprovesWeakness": 1.50,
 		"BonusAbilityCompoundeyesHelpsMove": 1.1,
+		"BonusAbilityHustleHelpsNoMissMove": 1.5,
 		"BonusAbilityRockHeadHelpsMove": 1.5,
 		"BonusAbilitySandStreamSafe": 2
 	},
