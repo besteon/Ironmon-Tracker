@@ -272,6 +272,15 @@ MoveData.IsRecoilMove = {
 	["344"] = true, -- Volt Tackle
 }
 
+MoveData.IsNoMissDamagingMove = {
+	["129"] = true, -- Swift
+	["185"] = true, -- Faint Attack
+	["325"] = true, -- Shadow Punch
+	["332"] = true, -- Aerial Ace
+	["345"] = true, -- Magical Leaf
+	["351"] = true, -- Shock Wave
+}
+
 function MoveData.initialize()
 	MoveData.knownTotal = nil
 
@@ -471,6 +480,13 @@ end
 ---@return boolean
 function MoveData.isRecoil(moveId)
 	return MoveData.IsRecoilMove[tostring(moveId)] ~= nil
+end
+
+---Returns true if the move is a No-Miss damaging move (i.e. Swift).
+---@param moveId number|string
+---@return boolean
+function MoveData.isNoMissDamagingMove(moveId)
+	return MoveData.IsNoMissDamagingMove[tostring(moveId)] ~= nil
 end
 
 ---Returns the move category of the move, such as Physical, Special, or Status; returns None if move not found
