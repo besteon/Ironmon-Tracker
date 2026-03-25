@@ -371,6 +371,10 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	if abilityId == AbilityData.Values.RockHeadId then
 		rockheadBonus = RS.OtherAdjustments.BonusAbilityRockHeadHelpsMove
 	end
+	local hustleBonus = nil
+	if abilityId == AbilityData.Values.HustleId then
+		hustleBonus = RS.OtherAdjustments.BonusAbilityHustleHelpsNoMissMove
+	end
 	local weatherBallBonus, weatherBallStabType = nil, nil
 	if abilityId == AbilityData.Values.DrizzleId then
 		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
@@ -391,9 +395,10 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local anyPhysicalDamagingMoves, anySpecialDamaingMoves = false, false
 	local iMoves = {}
 	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
+		local move = MoveData.getNatDexCompatible(id)
 		iMoves[i] = {
 			id = id,
-			move = MoveData.getNatDexCompatible(id),
+			move = move,
 			ePower = MoveData.getExpectedPower(id),
 			rating = RS.Moves[id] or 0,
 		}
@@ -406,13 +411,13 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		end
 		if iMoves[i].rating ~= 0 then
 			if iMoves[i].ePower > 0 then
-				if not anyPhysicalDamagingMoves and iMoves[i].move.category == MoveData.Categories.PHYSICAL then
+				if not anyPhysicalDamagingMoves and move.category == MoveData.Categories.PHYSICAL then
 					anyPhysicalDamagingMoves = true
 				end
-				if not anySpecialDamaingMoves and iMoves[i].move.category == MoveData.Categories.SPECIAL then
+				if not anySpecialDamaingMoves and move.category == MoveData.Categories.SPECIAL then
 					anySpecialDamaingMoves = true
 				end
-				local moveType = iMoves[i].move.type or PokemonData.Types.UNKNOWN
+				local moveType = move.type or PokemonData.Types.UNKNOWN
 				if badWeatherTypes[moveType] then
 					local badWeatherPenalty = badWeatherTypes[moveType] or 1
 					iMoves[i].rating = iMoves[i].rating * badWeatherPenalty
@@ -420,7 +425,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			end
 			if compoundeyesBonus and not MoveData.isOHKO(id) then
 				-- Check if accuracy of the move benefits from the ability
-				local acc = tonumber(iMoves[i].move.accuracy or "") or 0
+				local acc = tonumber(move.accuracy or "") or 0
 				if acc > 0 and acc < 100 then
 					iMoves[i].rating = iMoves[i].rating * compoundeyesBonus
 				end
@@ -428,10 +433,13 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			if rockheadBonus and MoveData.isRecoil(id) then
 				iMoves[i].rating = iMoves[i].rating * rockheadBonus
 			end
+			if hustleBonus and MoveData.isNoMissDamagingMove(id) and move.category == MoveData.Categories.PHYSICAL then
+				iMoves[i].rating = iMoves[i].rating * hustleBonus
+			end
 			if weatherBallBonus and id == MoveData.Values.WeatherBallId then
 				iMoves[i].rating = iMoves[i].rating * weatherBallBonus
 			end
-			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
+			if Utils.isSTAB(move, move.type, pokemonTypes) then
 				iMoves[i].rating = iMoves[i].rating * (RS.OtherAdjustments.BonusMoveIsSTAB or 1)
 			elseif weatherBallStabType then
 				-- Check if the weather ball's type from the ability matches any of the Pokémon's types
