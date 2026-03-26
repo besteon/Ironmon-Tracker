@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+# Usage:
+# To use this script, git "check out" the repo for the desired game's code base.
+# Pass the root directory as an argument to this script.
+# Optionally, you can also provide the output path to which the generated data will be written.
+#
+# Example script usage:
+#
+# python ironmon_tracker/Debug/parse-trainer.py --frlg-path /path/to/pokefirered/ -o FRLGTrainerRouteData.lua
+# python ironmon_tracker/Debug/parse-trainer.py --emerald-path /path/to/pokeemerald/ -o EmeraldTrainerRouteData.lua
+# python ironmon_tracker/Debug/parse-trainer.py --ruby-path /path/to/pokeruby/ -o RSTrainerRouteData.lua
+#
+# Git Repos:
+# - FireRed/LeafGreen:	https://github.com/pret/pokefirered/
+# - Emerald:			https://github.com/pret/pokeemerald/
+# - Ruby/Sapphire: 		https://github.com/pret/pokeruby/
+
 import re
 import sys
 import json
