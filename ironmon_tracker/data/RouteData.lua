@@ -5660,7 +5660,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
-		trainers = { 718, 720, 719, 727 },
+		trainers = { 718, 720, 719, 729 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, minLv = 27, maxLv = 30, },
 			{ pokemonID = 324, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -5684,7 +5684,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
-		trainers = { 724, 726, 729 },
+		trainers = { 724, 731 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, minLv = 27, maxLv = 30, },
 			{ pokemonID = 324, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -5708,7 +5708,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.MagmaHideout,
 		dungeon = true,
-		trainers = { 728, 731, 732, 601 },
+		trainers = { 726, 727, 728, 732, 601 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, minLv = 27, maxLv = 30, },
 			{ pokemonID = 324, rate = 0.30, minLv = 28, maxLv = 30, },
