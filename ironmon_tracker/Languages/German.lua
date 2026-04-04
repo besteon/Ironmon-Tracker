@@ -275,6 +275,7 @@ ScreenResources{
 		ButtonGameStats = "Statistiken", --ButtonGameStats english:Game Stats
 		LabelGameOverCondition = "Spiel gescheitert, wenn", --LabelGameOverCondition english:Game is considered over when
 		OptionAutoSwapEnemy = "Automat. zum Gegner wechseln", --OptionAutoSwapEnemy english:Auto swap to enemy
+		OptionCanClickTrainers = "Klicke auf den Trainer", --OptionCanClickTrainers english:Can click trainers on screen
 		OptionShowStarterBallInfo = "Zeige Starter Ball Info", --OptionShowStarterBallInfo english:Show starter ball info
 		OptionHideStatsUntilSummary = "Verstecke Infos bis Kampfende", --OptionHideStatsUntilSummary english:Hide info until summary shown
 		OptionShowNicknames = "Zeige Spitznamen", --OptionShowNicknames english:Show nicknames

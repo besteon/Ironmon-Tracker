@@ -20,12 +20,14 @@ Program = {
 		carouselActive = 0, -- counts up
 		Others = {}, -- list of other frame counter objects
 	},
+	DebugDrawing = {},
 	Addresses = {
 		battleStructDefault = 0x2000000, -- gSharedMem
 		nicknameCharEnd = 0xFF,
 		hitmarkerFlag80000 = 0x80000, -- A special value for gHitMarker
 		moveResultsFlag29 = 0x29, -- A special value for gMoveResultFlags
 
+		offsetFlashLevel = 0x30,
 		offsetStarterMonChoiceFRLG = 0x62,
 		offsetStarterMonChoiceRSE = 0x46,
 		offsetRepelStepCountFRLG = 0x40,
@@ -422,6 +424,12 @@ function Program.redraw(forced)
 		_drawAnimations()
 	end
 
+	for _, debugDrawFunc in pairs(Program.DebugDrawing) do
+		if type(debugDrawFunc) == "function" then
+			debugDrawFunc()
+		end
+	end
+
 	SpriteData.cleanupActiveIcons()
 end
 
@@ -692,6 +700,21 @@ function Program.removeFrameCounter(label)
 	Program.Frames.Others[label] = nil
 end
 
+---Adds a drawing function for testing that will be called every time the screen is redrawn.
+---@param label string
+---@param drawFunc function
+function Program.addDebugDrawing(label, drawFunc)
+	if not label or not drawFunc or not Main.IsOnBizhawk() then return end
+	Program.DebugDrawing[label] = drawFunc
+end
+
+---Removes a previously added debug drawing function.
+---@param label string
+function Program.removeDebugDrawing(label)
+	if not label or not Main.IsOnBizhawk() then return end
+	Program.DebugDrawing[label] = nil
+end
+
 function Program.checkForStarterSelection()
 	-- Only bother checking if the player doesn't have a Pokémon in their party
 	if TrackerAPI.getPlayerPokemon() ~= nil then
@@ -745,6 +768,25 @@ function Program.checkForStarterSelection()
 		Program.isViewingStarter = false
 		Program.changeScreenView(TrackerScreen)
 	end
+end
+
+---Returns the current map tile coordinates of the player.
+---@return table<string, number> tile { x = number, y = number }
+function Program.getPlayerMapTile()
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	-- The player's map tile coordinates (struct Coords16) are stored as two s16 values at the start of SaveBlock1
+	return {
+		x = Memory.readword(saveBlock1Addr + 0x0),
+		y = Memory.readword(saveBlock1Addr + 0x2),
+	}
+end
+
+---Returns the current flash level, with 0 being fully bright and 8 being fully black.
+---@return number flashLevel
+function Program.readFlashLevel()
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local flashLevel = Memory.readbyte(saveblock1Addr + Program.Addresses.offsetFlashLevel)
+	return flashLevel
 end
 
 function Program.updateRepelSteps()

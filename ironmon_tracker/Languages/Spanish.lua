@@ -275,6 +275,7 @@ ScreenResources{
 		ButtonGameStats = "Estadísticas",
 		LabelGameOverCondition = "El juego termina cuando",
 		OptionAutoSwapEnemy = "Mostrar Pokémon enem. auto.",
+		OptionCanClickTrainers = "Entrenadores de clic en pantalla",
 		OptionShowStarterBallInfo = "Mostrar info. Poké Ball inicial",
 		OptionHideStatsUntilSummary = "Ocultar resumen hasta ver datos",
 		OptionShowNicknames = "Mostrar motes",
