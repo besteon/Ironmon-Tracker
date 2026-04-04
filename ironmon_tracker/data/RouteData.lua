@@ -4808,7 +4808,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.AquaHideout,
 		dungeon = true,
-		trainers = isGameEmerald and { 3, 4, 192, 193 }
+		trainers = isGameEmerald and { 3, 4, 27, 192 }
 			or { 3, 4 },
 	}
 	RouteData.Info[145 + offset] = {
@@ -4816,7 +4816,7 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		area = RouteData.CombinedAreas.AquaHideout,
 		dungeon = true,
-		trainers = { 5, 27, 28, 30 },
+		trainers = { 5, 28, 30, 193 },
 	}
 	RouteData.Info[146 + offset] = {
 		name = "Seafloor Cavern U.", -- Underwater
