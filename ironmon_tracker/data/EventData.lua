@@ -1300,7 +1300,9 @@ function EventData.getGachaMon(params)
 	end
 
 	local gachamon ---@type IGachaMon|nil
-	if not Utils.isNilOrEmpty(params, true) then
+	if Utils.containsText(params, "current", true) and GachaMonData.playerViewedMon then
+		gachamon = GachaMonData.playerViewedMon
+	elseif not Utils.isNilOrEmpty(params, true) then
 		local id = DataHelper.findPokemonId(params)
 		local pokemon = PokemonData.getNatDexCompatible(id)
 		-- Check Recent GachaMons for any matching names, just get "first" one doesn't matter really
@@ -1321,7 +1323,7 @@ function EventData.getGachaMon(params)
 	end
 
 	-- EXAMPLE OUTPUT
-	-- GachaMon > Milotic - Rock Head | 4 Stars, 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
+	-- GachaMon > Milotic - Rock Head | 4 Stars (60 Points) | 7000 BP | Lv.5 Stats: 30/8/14/18/20/6 | SolarBeam, Hydro Pump, LeafBlade, Seismic Toss
 
 	local pokemonInternal = PokemonData.getNatDexCompatible(gachamon.PokemonId)
 	local abilityInternal = AbilityData.Abilities[gachamon.AbilityId or 0] or AbilityData.DefaultAbility
@@ -1333,7 +1335,12 @@ function EventData.getGachaMon(params)
 	table.insert(info, nameAndAbility)
 
 	local numStars = gachamon:getStars() or 0
-	local starsText = string.format("%s Stars", numStars > 5 and "5+" or numStars)
+	local starsText = string.format("%s %s (%s %s)",
+		numStars > 5 and "5+" or numStars,
+		Resources[GachaMonOverlay.Key].WordStars,
+		gachamon.RatingScore or 0,
+		Resources[GachaMonOverlay.Key].WordPoints
+	)
 	table.insert(info, starsText)
 
 	local bpText = string.format("%s BP", gachamon.BattlePower or 0)
@@ -1370,23 +1377,30 @@ function EventData.getGachaDex(params)
 
 	local DD = GachaMonData.DexData or {}
 
-	local completionText = string.format("%s%% %s",
-	DD.PercentageComplete or 0,
-		"collection complete"
-	)
-	table.insert(info, completionText)
+	local totalCards = #GachaMonData.Collection
+	if totalCards > 0 then
+		local totalCardsText = string.format("%s: %s",
+			"Total Cards",
+			totalCards
+		)
+		table.insert(info, totalCardsText)
+	end
 
 	local totalDex = PokemonData.getTotal() - 25
-	local inCollectionText = string.format("%s: %s/%s",
-		"GachaMons in collection",
+	local totalCompletionText = string.format("%s: %s/%s (%s%%)",
+		"Dex Collected",
 		DD.NumCollected or 0,
-		totalDex
+		totalDex,
+		math.floor(DD.PercentageComplete or 0)
 	)
-	table.insert(info, inCollectionText)
+	table.insert(info, totalCompletionText)
 
-	local seenText = string.format("%s: %s",
-		"Seen",
-		DD.NumSeen or 0
+	local numSeen = DD.NumSeen or 0
+	local seenText = string.format("%s: %s/%s (%s%%)",
+		"Dex Seen",
+		numSeen,
+		totalDex,
+		DD.PercentageSeen or math.floor(numSeen / totalDex * 100 + 0.5)
 	)
 	table.insert(info, seenText)
 

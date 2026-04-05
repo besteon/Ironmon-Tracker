@@ -842,7 +842,7 @@ ScreenResources{
 		CMD_BallQueue_Name = "Ball Queue",
 		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
 		CMD_GachaMon_Name = "GachaMon Info",
-		CMD_GachaMon_Help = "name > Displays card info for a GachaMon, most recent or specific Pokémon.",
+		CMD_GachaMon_Help = "[current name] > Displays GachaMon card info for the current viewed Pokémon or a named Pokémon.",
 		CMD_GachaDex_Name = "GachaDex Info",
 		CMD_GachaDex_Help = "> Displays GachaDex collection stats and info.",
 		CMD_About_Name = "About the Tracker",
