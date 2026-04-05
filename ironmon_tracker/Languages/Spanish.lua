@@ -843,7 +843,7 @@ ScreenResources{
 		CMD_BallQueue_Name = "Cola de los starters",
 		CMD_BallQueue_Help = "> Muestra cuanta cola existe y a quien le toca actualmente, si existe alguien.",
 		CMD_GachaMon_Name = "Info. GachaMon",
-		CMD_GachaMon_Help = "nombre > Muestra la info. de la carta para un GachaMon, más reciente o Pokémon específico.",
+		CMD_GachaMon_Help = "[current nombre] > Muestra la info. de la carta para un GachaMon, más reciente o Pokémon específico.",
 		CMD_GachaDex_Name = "Info. GachaDex",
 		CMD_GachaDex_Help = "> Muestra la colección e info. del GachaDex.",
 		CMD_About_Name = "Acerca del Tracker",
