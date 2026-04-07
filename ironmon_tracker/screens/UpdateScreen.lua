@@ -83,7 +83,7 @@ UpdateScreen.Buttons = {
 			self.textColor = UpdateScreen.Colors.text
 			self.image = Constants.PixelImages.TRIANGLE_DOWN
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 60, 110, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 60, 120, 16 },
 		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
 		onClick = function(self)
 			-- Don't check for updates if they've already been checked while on this screen (resets after clicking Back)
@@ -115,7 +115,7 @@ UpdateScreen.Buttons = {
 				return Resources[SCREEN.Key].ButtonInstallNow
 			end
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 73, 90, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 73, 120, 16 },
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function(self)
 			if not UpdateScreen.isUpdateSupported() then
@@ -132,7 +132,7 @@ UpdateScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.CLOSE,
 		getText = function(self) return Resources[SCREEN.Key].ButtonIgnoreUpdate end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 95, 90, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 95, 120, 16 },
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function() UpdateScreen.exitScreen() end
 	},
@@ -140,7 +140,7 @@ UpdateScreen.Buttons = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Dev branch updates",
 		getText = function(self) return " " .. Resources[SCREEN.Key].CheckboxDevBranch end,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 98, 10 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 110, 10 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 8, 8 },
 		toggleState = false, -- update later in initialize
 		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED or UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,

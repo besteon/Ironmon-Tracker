@@ -31,7 +31,9 @@ Input.StatHighlighter = {
 	end,
 	-- Cycle through the six visible stats to enable marking them as high/low/neutral
 	cycleToNextStat = function(self)
-		if Battle.isViewingOwn then return end
+		if Battle.isViewingOwn or PokemonData.canShowUnknownStats() then
+			return
+		end
 		if self.framesSinceInput < self.framesHighlightMax then
 			self.statIndex = (self.statIndex % 6) + 1
 		end
@@ -39,7 +41,9 @@ Input.StatHighlighter = {
 		Program.redraw(true)
 	end,
 	markSelectedStat = function(self)
-		if not self:isActive() then return end
+		if not self:isActive() or PokemonData.canShowUnknownStats() then
+			return
+		end
 		self.framesSinceInput = 0
 		local statKey = self:getSelectedStat()
 		local statButton = TrackerScreen.Buttons[statKey or false]
@@ -53,7 +57,9 @@ Input.StatHighlighter = {
 	end,
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
-		if not self:isActive() then return end
+		if not self:isActive() or PokemonData.canShowUnknownStats() then
+			return
+		end
 		self.framesSinceInput = self.framesSinceInput + (1.0 / Program.clientFpsMultiplier)
 		if self.framesSinceInput >= self.framesHighlightMax then
 			Program.redraw(true)
@@ -361,6 +367,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 
 	if Program.currentOverlay and type(Program.currentOverlay.checkInput) == "function" then
 		Program.currentOverlay.checkInput(xmouse, ymouse)
+	elseif Options["Can click trainers on screen"] then
+		Input.checkAnyTrainersClicked(xmouse, ymouse)
 	end
 end
 
@@ -412,6 +420,20 @@ function Input.isMouseInArea(xmouse, ymouse, x, y, width, height)
 	return (xmouse >= x and xmouse <= x + width) and (ymouse >= y and ymouse <= y + height)
 end
 
+---Returns the screen tile that was clicked, if within the screen bounds x{0,14}, y{0,10}; nil otherwise
+---@param xmouse number
+---@param ymouse number
+---@return table|nil
+function Input.getClickedScreenTile(xmouse, ymouse)
+	if not Input.isMouseInArea(xmouse, ymouse, 0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT) then
+		return nil
+	end
+	return {
+		x = math.floor(xmouse / 16),
+		y = math.floor((8 + ymouse) / 16),
+	}
+end
+
 function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 	local buttonQueue = {}
 	for _, button in pairs(buttons) do
@@ -448,7 +470,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	end
 
 	local pokemonMoves
-	if not Battle.isViewingOwn and not Options["Open Book Play Mode"] then
+	if not Battle.isViewingOwn and not PokemonData.canShowUnknownMoveLearnSets() then
 		pokemonMoves = Tracker.getMoves(pokemon.pokemonID, pokemon.level) -- tracked moves only
 	elseif Tracker.Data.hasCheckedSummary then
 		pokemonMoves = pokemon.moves
@@ -468,5 +490,45 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 			break
 		end
 		moveOffsetY = moveOffsetY + 10
+	end
+end
+
+function Input.checkAnyTrainersClicked(xmouse, ymouse)
+	if not Program.isValidMapLocation() or Battle.inActiveBattle() then
+		return
+	end
+
+	local screenTile = Input.getClickedScreenTile(xmouse, ymouse)
+	if not screenTile then
+		return
+	end
+
+	local playerTile = Program.getPlayerMapTile()
+
+	-- Adjust for player being centered on the screen to get the actual map tile that was clicked
+	local clickedMapTile = {
+		x = screenTile.x + playerTile.x - 7, -- Offset 7 tiles left because the player is always centered
+		y = screenTile.y + playerTile.y - 5, -- Offset 5 tiles up because the player is always centered
+	}
+
+	-- If the lights are out, check if the trainer (tile clicked) is close enough
+	local canSeeTrainer = true
+	if not RouteData.canSeeDarkArea() then
+		local xDist = math.abs(clickedMapTile.x - playerTile.x)
+		local yDist = math.abs(clickedMapTile.y - playerTile.y)
+		canSeeTrainer = xDist <= 1 and yDist <= 1
+	end
+
+	local trainerId = TrainerMapData.getTrainerIdFromMapTile(clickedMapTile.x, clickedMapTile.y)
+
+	-- If the trainer exists, can be seen, and data can be shown for it, show that screen
+	if canSeeTrainer and trainerId and TrainerInfoScreen.buildScreen(trainerId) then
+		if Program.currentScreen ~= TrainerInfoScreen then
+			TrainerInfoScreen.previousScreen = Program.currentScreen
+		end
+		Program.changeScreenView(TrainerInfoScreen)
+	-- Otherwise, if clicking on empty space, close the trainer screen
+	elseif Program.currentScreen == TrainerInfoScreen then
+		Program.changeScreenView(TrainerInfoScreen.previousScreen or TrackerScreen)
 	end
 end

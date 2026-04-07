@@ -114,3 +114,29 @@ function Memory.splitDomainAndAddress(addr)
 	end
 	return nil, addr
 end
+
+---Returns a memory read function to match the number of bytes needing to be read in. [1:byte, 2:word, 3:dword]
+---@param size number Number of bytes that need to be read in
+---@return function
+function Memory.getReadFunc(size)
+	if size >= 4 then
+		return Memory.readdword
+	elseif size >= 2 then
+		return Memory.readword
+	else -- Default
+		return Memory.readbyte
+	end
+end
+
+---Returns a memory write function to match the number of bytes needing to be written. [1:byte, 2:word, 3:dword]
+---@param size number Number of bytes that need to be read in
+---@return function
+function Memory.getWriteFunc(size)
+	if size >= 4 then
+		return Memory.writedword
+	elseif size >= 2 then
+		return Memory.writeword
+	else -- Default
+		return Memory.writebyte
+	end
+end

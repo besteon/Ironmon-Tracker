@@ -1,6 +1,6 @@
 GachaMonFileManager = {
 	-- The current version of the binary stream transform. If the format changes, this version must be incremented. (0-255)
-	Version = 1,
+	Version = 2,
 	-- The number of characters to reserve at the start of RecentMons file for storing the matching game's ROM hash (only needs 40)
 	RomHashSize = 64,
 	-- Current number of card pack image files that exist
@@ -10,6 +10,9 @@ GachaMonFileManager = {
 -- A historical record of ALL binary data readers/writers and their storage size, such that any stream of binary data can be transformed into a GachaMon object
 -- When adding new versions, don't use function shortcuts for binary/data conversion. Each must be written out per-version.
 GachaMonFileManager.BinaryStreams = {}
+
+-- A historical record of rating-to-star thresholds for ALL versions (however, the current version will use what's in the json data)
+GachaMonFileManager.LegacyStarRatings = {}
 
 -- function GachaMonFileManager.initialize()
 	-- Currently unused
@@ -51,6 +54,20 @@ function GachaMonFileManager.getGameWinnerFilePath()
 	return FileManager.buildImagePath(FileManager.Folders.GachaMonImages, "winner-ribbon", FileManager.Extensions.PNG)
 end
 
+---Returns the rating-to-stars thresholds for a specified version; default = current version
+---@param version? number
+---@return table<number, table>
+function GachaMonFileManager.getStarRatings(version)
+	version = version or GachaMonFileManager.Version
+
+	if version ~= GachaMonFileManager.Version then
+		return GachaMonFileManager.LegacyStarRatings[version] or GachaMonData.RatingsSystem.RatingToStars
+	end
+
+	-- Otherwise, default to returning the current system
+	return GachaMonData.RatingsSystem.RatingToStars
+end
+
 ---Imports all GachaMon Ratings data from a JSON file
 ---@param filepath? string Optional, a custom JSON file
 ---@return boolean success
@@ -73,6 +90,7 @@ function GachaMonFileManager.importRatingSystem(filepath)
 		Stats = {},
 		CategoryMaximums = {},
 		OtherAdjustments = {},
+		-- Don't access directly; instead use GachaMonFileManager.getStarRatings(version)
 		RatingToStars = {},
 		Rulesets = {}
 	}
@@ -459,8 +477,32 @@ function GachaMonFileManager.binaryToMon(binaryStream, position)
 	return gachamon, size
 end
 
---Version 1 Binary Stream
+-- Version 1
+GachaMonFileManager.LegacyStarRatings[1] = {
+	{ Rating = 80, Stars = 6 },
+	{ Rating = 67, Stars = 5 },
+	{ Rating = 54, Stars = 4 },
+	{ Rating = 40, Stars = 3 },
+	{ Rating = 25, Stars = 2 },
+	{ Rating = 0, Stars = 1 },
+}
+-- Version 2 (current)
+GachaMonFileManager.LegacyStarRatings[2] = {
+	{ Rating = 77, Stars = 6 }, -- was 80
+	{ Rating = 67, Stars = 5 },
+	{ Rating = 54, Stars = 4 },
+	{ Rating = 40, Stars = 3 },
+	{ Rating = 25, Stars = 2 },
+	{ Rating = 0, Stars = 1 },
+}
+
+-- Version 1 Binary Stream
 GachaMonFileManager.BinaryStreams[1] = {
+	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
+	Size = 31, -- Number of bytes per GachaMon stored
+}
+-- Version 2 Binary Stream
+GachaMonFileManager.BinaryStreams[2] = {
 	Format = "BIHBBBHBBBIIII", -- The packing format (version # always occupies the 1st byte)
 	Size = 31, -- Number of bytes per GachaMon stored
 }
@@ -538,4 +580,19 @@ GachaMonFileManager.BinaryStreams[1].Reader = function(binaryStream, position)
 	gachamon.C_DateObtained = Utils.getbits(movepair2, 16, 16)
 	gachamon.Temp.IsShiny = gachamon:getIsShiny()
 	return gachamon, BS.Size
+end
+
+---@param gachamon IGachaMon
+---@return string binaryStream compact binary stream of data
+GachaMonFileManager.BinaryStreams[2].Writer = function(gachamon)
+	-- Version 2 is purely rating calculation changes. No change to data structure.
+	return GachaMonFileManager.BinaryStreams[1].Writer(gachamon)
+end
+
+---@param binaryStream string compact binary stream of data
+---@return IGachaMon|nil gachamon
+---@return number size
+GachaMonFileManager.BinaryStreams[2].Reader = function(binaryStream, position)
+	-- Version 2 is purely rating calculation changes. No change to data structure.
+	return GachaMonFileManager.BinaryStreams[1].Reader(binaryStream, position)
 end

@@ -319,10 +319,10 @@ function TrainerInfoScreen.buildScreen(trainerId)
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			-- Only display pokemon icon if trainer is defeated or mon is defeated
 			getIconId = function(self)
-				if trainerGame.defeated or Options["Open Book Play Mode"] then
+				if trainerGame.defeated or TrainerData.canShowUnknownTrainerTeams() then
 					return pokemon.pokemonID
 				end
-				if trainerId == trainerIdCurrentBattle then
+				if Battle.inActiveBattle() and trainerId == trainerIdCurrentBattle then
 					local enemyMon = Tracker.getPokemon(i, false)
 					if enemyMon and enemyMon.curHP <= 0 then
 						return pokemon.pokemonID

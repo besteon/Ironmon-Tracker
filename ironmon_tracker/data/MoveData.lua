@@ -42,7 +42,7 @@ MoveData.Values = {
 	LockOnId = 199,
 	RolloutId = 205,
 	FuryCutterId = 210,
-	AttactId = 213,
+	AttractId = 213,
 	SafeguardId = 219,
 	EncoreId = 227,
 	UproarId = 253,
@@ -60,12 +60,27 @@ MoveData.Values = {
 	WaterSportId = 346,
 }
 
+MoveData.Addresses = {
+	offsetMovePower = 0x0,
+	offsetMoveType = 0x8,
+	offsetMoveAccuracy = 0x10,
+	offsetMovePP = 0x18,
+	offsetMoveFlagsCategory = 0x6,
+
+	sizeofMovePower = 8,
+	sizeofMoveType = 8,
+	sizeofMoveAccuracy = 8,
+	sizeofMovePP = 8,
+	sizeofMoveFlagsCategory = 2,
+}
+
 MoveData.IsRand = {
 	moveType = false,
 	movePower = false,
 	moveAccuracy = false,
 	movePP = false,
 	moveCategory = false,
+	tms = false,
 }
 
 -- Move categories identify the type of attack a move is: physical, special, or status
@@ -257,6 +272,15 @@ MoveData.IsRecoilMove = {
 	["344"] = true, -- Volt Tackle
 }
 
+MoveData.IsNoMissDamagingMove = {
+	["129"] = true, -- Swift
+	["185"] = true, -- Faint Attack
+	["325"] = true, -- Shadow Punch
+	["332"] = true, -- Aerial Ace
+	["345"] = true, -- Magical Leaf
+	["351"] = true, -- Shock Wave
+}
+
 function MoveData.initialize()
 	MoveData.knownTotal = nil
 
@@ -318,13 +342,13 @@ function MoveData.readMoveInfoFromMemory(moveId)
 	local addr = GameSettings.gBattleMoves + (moveId * Program.Addresses.sizeofBattleMove)
 	local moveData = Memory.readdword(addr + Program.Addresses.offsetBattleMoves)
 	-- Optional move flags for the Physical/Special split rom patch (in vanilla, this value is 0)
-	local moveFlags = Memory.readbyte(addr + (Program.Addresses.offsetBattleMoves * 8))
+	local moveFlags = Memory.readbyte(addr + Program.Addresses.offsetBattleMoveFlags)
 
-	local movePower = Utils.getbits(moveData, 0, 8)
-	local moveType = Utils.getbits(moveData, 8, 8)
-	local moveAccuracy = Utils.getbits(moveData, 16, 8)
-	local movePP = Utils.getbits(moveData, 24, 8)
-	local moveCategory = Utils.getbits(moveFlags, 6, 2)
+	local movePower = Utils.getbits(moveData, MoveData.Addresses.offsetMovePower, MoveData.Addresses.sizeofMovePower)
+	local moveType = Utils.getbits(moveData, MoveData.Addresses.offsetMoveType, MoveData.Addresses.sizeofMoveType)
+	local moveAccuracy = Utils.getbits(moveData, MoveData.Addresses.offsetMoveAccuracy, MoveData.Addresses.sizeofMoveAccuracy)
+	local movePP = Utils.getbits(moveData, MoveData.Addresses.offsetMovePP, MoveData.Addresses.sizeofMovePP)
+	local moveCategory = Utils.getbits(moveFlags, MoveData.Addresses.offsetMoveFlagsCategory, MoveData.Addresses.sizeofMoveFlagsCategory)
 
 	return {
 		power = tostring(movePower),
@@ -343,6 +367,7 @@ function MoveData.checkIfDataIsRandomized()
 	local areAccuraciesRandomized = false
 	local arePPsRandomized = false
 	local areCategoriesChanged = false
+	local areTMsRandomized = false
 
 	-- Check once if any data was randomized
 	local moveInfo = MoveData.readMoveInfoFromMemory(314) -- Air Cutter
@@ -378,13 +403,36 @@ function MoveData.checkIfDataIsRandomized()
 		end
 	end
 
+	-- Check for randomized TM moves
+	if Program.getMoveIdFromTMHMNumber(10) ~= MoveData.Values.HiddenPowerId then
+		areTMsRandomized = true
+	elseif Program.getMoveIdFromTMHMNumber(27) ~= MoveData.Values.ReturnId then
+		areTMsRandomized = true
+	elseif Program.getMoveIdFromTMHMNumber(45) ~= MoveData.Values.AttractId then
+		areTMsRandomized = true
+	end
+
 	MoveData.IsRand.moveType = areTypesRandomized
 	MoveData.IsRand.movePower = arePowersRandomized
 	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
 	MoveData.IsRand.movePP = arePPsRandomized
 	MoveData.IsRand.moveCategory = areCategoriesChanged
+	MoveData.IsRand.tms = areTMsRandomized
 
+	-- Check against 'move' changes only (not TMs)
 	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized or areCategoriesChanged
+end
+
+---Returns true if the move data for this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function MoveData.isMoveDataRandomized()
+	return MoveData.IsRand.moveType or MoveData.IsRand.movePower or MoveData.IsRand.moveAccuracy or MoveData.IsRand.movePP or MoveData.IsRand.moveCategory
+end
+
+---Returns true if the TMs data for this game is randomized (not vanilla), based on game data memory checks
+---@return boolean
+function MoveData.isTMDataRandomized()
+	return MoveData.IsRand.tms
 end
 
 ---Returns true if the moveId is a valid, existing id of a move in MoveData.Moves
@@ -432,6 +480,13 @@ end
 ---@return boolean
 function MoveData.isRecoil(moveId)
 	return MoveData.IsRecoilMove[tostring(moveId)] ~= nil
+end
+
+---Returns true if the move is a No-Miss damaging move (i.e. Swift).
+---@param moveId number|string
+---@return boolean
+function MoveData.isNoMissDamagingMove(moveId)
+	return MoveData.IsNoMissDamagingMove[tostring(moveId)] ~= nil
 end
 
 ---Returns the move category of the move, such as Physical, Special, or Status; returns None if move not found
@@ -515,7 +570,7 @@ function MoveData.getExpectedPower(moveId)
 	}
 	-- https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move#Fixed_number_of_multiple_strikes
 	local doubleHitMoves = {
-		[155] = true, [24] = true
+		[155] = true, [24] = true, [41] = true,
 	}
 
 	local power = tonumber(MoveData.Moves[moveId].power) or 0

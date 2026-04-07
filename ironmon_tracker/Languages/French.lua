@@ -148,6 +148,9 @@ ScreenResources{
 		EncounterGoodRod = "Good Rod", -- NEEDS TRANSLATION
 		EncounterOldRod = "Old Rod", -- NEEDS TRANSLATION
 		EncounterSeenPokemon = "Seen Pokémon", -- NEEDS TRANSLATION
+		TrainersDefeated = "Trainers defeated", -- NEEDS TRANSLATION
+		TrainersNoneInArea = "No Trainers in this area.", -- NEEDS TRANSLATION
+		GachaMonCaptured = "GachaMon captured!", -- NEEDS TRANSLATION
 		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
 		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
 		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
@@ -206,7 +209,7 @@ ScreenResources{
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
+		OptionTrackPCHeals = "Track PokéCenter heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
@@ -272,6 +275,7 @@ ScreenResources{
 		ButtonGameStats = "Game Stats", -- NEEDS TRANSLATION
 		LabelGameOverCondition = "Game is considered over when", -- NEEDS TRANSLATION
 		OptionAutoSwapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
+		OptionCanClickTrainers = "Can click trainers on screen", -- NEEDS TRANSLATION
 		OptionShowStarterBallInfo = "Show starter ball info", -- NEEDS TRANSLATION
 		OptionHideStatsUntilSummary = "Hide info until summary shown", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
@@ -281,6 +285,7 @@ ScreenResources{
 		OptionShowMoveEffectiveness = "Show move effectiveness", -- NEEDS TRANSLATION
 		OptionCalculateVariableDamage = "Calculate variable damage", -- NEEDS TRANSLATION
 		OptionDetermineFriendship = "Determine friendship readiness", -- NEEDS TRANSLATION
+		OptionShowVanillaGameData = "Show data for vanilla game", -- NEEDS TRANSLATION
 		OptionShowBallCatchRate = "Show Poké Ball catch rate", -- NEEDS TRANSLATION
 		OptionCountEnemyPP = "Count enemy PP usage", -- NEEDS TRANSLATION
 		OptionShowLastDamage = "Show last damage calcs", -- NEEDS TRANSLATION
@@ -380,12 +385,12 @@ ScreenResources{
 		ButtonShow = "Show", -- NEEDS TRANSLATION
 		ButtonHide = "Hide", -- NEEDS TRANSLATION
 		ButtonViewOnline = "View Online", -- NEEDS TRANSLATION
-		CheckboxDevBranch = "Dev branch updates", -- NEEDS TRANSLATION
+		CheckboxDevBranch = "Beta test branch updates", -- NEEDS TRANSLATION
 		ButtonCheckForUpdates = "Check for updates", -- NEEDS TRANSLATION
 		ButtonNoUpdates = "No update available", -- NEEDS TRANSLATION
 		ButtonBeginInstall = "Begin install", -- NEEDS TRANSLATION
 		ButtonInstallNow = "Install now", -- NEEDS TRANSLATION
-		ButtonInstallFromDev = "Install from dev", -- NEEDS TRANSLATION
+		ButtonInstallFromDev = "Install from beta branch", -- NEEDS TRANSLATION
 		ButtonOpenDownload = "Open download", -- NEEDS TRANSLATION
 		ButtonIgnoreUpdate = "Ignore update", -- NEEDS TRANSLATION
 		MessageInProgress = "Update in progress, please wait. Check command prompt window for status.", -- NEEDS TRANSLATION
@@ -838,7 +843,7 @@ ScreenResources{
 		CMD_BallQueue_Name = "Ball Queue",
 		CMD_BallQueue_Help = "> Displays the size of the ball queue and the current pick, if any.",
 		CMD_GachaMon_Name = "GachaMon Info",
-		CMD_GachaMon_Help = "name > Displays card info for a GachaMon, most recent or specific Pokémon.",
+		CMD_GachaMon_Help = "[current name] > Displays GachaMon card info for the current viewed Pokémon or a named Pokémon.",
 		CMD_GachaDex_Name = "GachaDex Info",
 		CMD_GachaDex_Help = "> Displays GachaDex collection stats and info.",
 		CMD_About_Name = "About the Tracker",
@@ -854,7 +859,9 @@ ScreenResources{
 		CR_ChangeTheme_Name = "Change Tracker Theme",
 		CR_ChangeLanguage_Name = "Change Tracker Language",
 		GE_GameOver_Name = "When the game is over...",
-		GE_GameOver_TriggerEffect = "Update SB Global Variables",
+		GE_GameOver_TriggerEffect = "Send win/loss status and Pokémon ID",
+		GE_GachaMonCapture_Name = "When a GachaMon is captured...",
+		GE_GachaMonCapture_TriggerEffect = "Send its base64 share code",
 		O_SendMessage = "Send chat message if successful",
 		O_AutoComplete = "Auto-complete the redeem",
 		O_RequireChosenMon = "Your pick direction must match",
@@ -947,13 +954,13 @@ ScreenResources{
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
 		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionAutosaveTrackedData = "Autosave tracked game data", -- NEEDS TRANSLATION
-		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
+		OptionTrackPCHeals = "Track PokéCenter heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayRepel = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayGender = "Display Pokémon's gender", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonGIF = "Animated Pokemon GIF", -- NEEDS TRANSLATION
-		OptionDevBranchUpdates = "Dev branch updates", -- NEEDS TRANSLATION
+		OptionDevBranchUpdates = "Beta test branch updates", -- NEEDS TRANSLATION
 		OptionOverrideButtonModeLR = "Override Button Mode to LR", -- NEEDS TRANSLATION
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION

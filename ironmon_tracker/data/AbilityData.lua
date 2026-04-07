@@ -2,20 +2,26 @@ AbilityData = {}
 
 AbilityData.Values = {
 	DrizzleId = 2,
+	SturdyId = 5,
 	VoltAbsorbId = 10,
 	WaterAbsorbId = 11,
 	CompoundeyesId = 14,
+	ImmunityId = 17,
 	FlashFireId = 18,
 	LevitateId = 26,
 	TraceId = 36,
 	HugePowerId = 37,
+	MagmaArmorId = 40,
+	WaterVeilId = 41,
 	SandStreamId = 45,
 	ThickFatId = 47,
 	TruantId = 54,
 	HustleId = 55,
+	OvergrowId = 65,
 	RockHeadId = 69,
 	DroughtId = 70,
 	PurePowerId = 74,
+	ShellArmorId = 75,
 	CacophonyId = 76,
 }
 

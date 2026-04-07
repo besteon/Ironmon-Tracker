@@ -1,4 +1,6 @@
 GachaMonData = {
+	MIN_RATING = 0, -- Prevent underflow
+	MAX_RATING = 255, -- Prevent overflow
 	MIN_BATTLE_POWER = 1000,
 	MAX_BATTLE_POWER = 15000,
 	SHINY_ODDS = 0.004695, -- 1 in 213 odds. (Pokémon Go and Pokémon Sleep use ~1/500)
@@ -135,9 +137,12 @@ function GachaMonData.findInCollection(gachamon)
 end
 
 ---Returns true if no matching Pokémon species for this `gachamon` already exists in the collection; false if matching species found
----@param gachamon IGachaMon
+---@param gachamon IGachaMon|nil
 ---@return boolean
 function GachaMonData.checkIfNewCollectionSpecies(gachamon)
+	if not gachamon then
+		return false
+	end
 	-- Temp store this information if previously checked for faster lookup
 	if gachamon.Temp.IsNewCollectionSpecies ~= nil then
 		return gachamon.Temp.IsNewCollectionSpecies
@@ -257,9 +262,10 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	local RulesetChanges = RS.Rulesets[GachaMonData.rulesetKey or false] or RS.Rulesets["Standard"]
 
 	-- ABILITY
-	local abilityRating = RS.Abilities[gachamon.AbilityId or 0] or 0
+	local abilityId = gachamon.AbilityId or 0
+	local abilityRating = RS.Abilities[abilityId] or 0
 	-- Remove rating if banned ability, unless it qualifies for an exception
-	if RulesetChanges.BannedAbilities[gachamon.AbilityId or 0] then
+	if RulesetChanges.BannedAbilities[abilityId] then
 		local bannedAbilityException = false
 		for _, bae in pairs(RulesetChanges.BannedAbilityExceptions or {}) do
 			local bstOkay = pokemonInternal.bst < (bae.BSTLessThan or 0)
@@ -276,7 +282,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	end
 	-- Check if the ability helps improves the Pokémon's weakness(es)
 	local typeDefensiveAbilities = AbilityData.getTypeDefensiveAbilities()
-	local defensiveTypings = typeDefensiveAbilities[gachamon.AbilityId or 0]
+	local defensiveTypings = typeDefensiveAbilities[abilityId]
 	local hasDefensiveAbility = false
 	if abilityRating > 0 and defensiveTypings then
 		local pokemonDefenses = PokemonData.getEffectiveness(gachamon.PokemonId)
@@ -299,7 +305,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		abilityRating = abilityRating * RS.OtherAdjustments.BonusAbilityImprovesWeakness
 	end
 	-- Check specific abilities generic to all rulesets
-	if (gachamon.AbilityId or 0) == AbilityData.Values.SandStreamId then
+	if abilityId == AbilityData.Values.SandStreamId then
 		local safeSandTypes = {
 			[PokemonData.Types.GROUND] = true,
 			[PokemonData.Types.ROCK] = true,
@@ -311,31 +317,88 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			abilityRating = abilityRating + (RS.OtherAdjustments.PenaltyAbilitySandStreamUnsafe or 0)
 		end
 	end
+	if abilityId == AbilityData.Values.ImmunityId then
+		local unhelpfulTypes = {
+			[PokemonData.Types.POISON] = true,
+			[PokemonData.Types.STEEL] = true,
+		}
+		-- Remove points gained from Immunity (can't be poisoned)
+		if unhelpfulTypes[pokemonTypes[1] or false] or unhelpfulTypes[pokemonTypes[2] or false] then
+			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.ImmunityId] or 0)
+		end
+	end
+	if abilityId == AbilityData.Values.WaterVeilId then
+		local unhelpfulTypes = {
+			[PokemonData.Types.FIRE] = true,
+		}
+		-- Remove points gained from Water Veil (can't be burned)
+		if unhelpfulTypes[pokemonTypes[1] or false] or unhelpfulTypes[pokemonTypes[2] or false] then
+			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.WaterVeilId] or 0)
+		end
+	end
+	if abilityId == AbilityData.Values.MagmaArmorId then
+		local unhelpfulTypes = {
+			[PokemonData.Types.ICE] = true,
+		}
+		-- Remove points gained from Magma Armor (can't be frozen)
+		if unhelpfulTypes[pokemonTypes[1] or false] or unhelpfulTypes[pokemonTypes[2] or false] then
+			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.MagmaArmorId] or 0)
+		end
+	end
+	if abilityId == AbilityData.Values.LevitateId then
+		local unhelpfulTypes = {
+			[PokemonData.Types.FLYING] = true,
+		}
+		-- Remove points gained from Levitate (immune to ground moves)
+		if unhelpfulTypes[pokemonTypes[1] or false] or unhelpfulTypes[pokemonTypes[2] or false] then
+			abilityRating = abilityRating - (RS.Abilities[AbilityData.Values.LevitateId] or 0)
+		end
+	end
 	abilityRating = math.min(abilityRating, RS.CategoryMaximums.Ability or 999)
 	ratingTotal = ratingTotal + abilityRating
 
 	local badWeatherTypes = {}
-	if (gachamon.AbilityId or 0) == AbilityData.Values.DrizzleId then
+	if abilityId == AbilityData.Values.DrizzleId then
 		badWeatherTypes[PokemonData.Types.FIRE] = RS.OtherAdjustments.PenaltyWeatherAbilityWeakensMove
-	elseif (gachamon.AbilityId or 0) == AbilityData.Values.DroughtId then
+	elseif abilityId == AbilityData.Values.DroughtId then
 		badWeatherTypes[PokemonData.Types.WATER] = RS.OtherAdjustments.PenaltyWeatherAbilityWeakensMove
 	end
 	local compoundeyesBonus = nil
-	if (gachamon.AbilityId or 0) == AbilityData.Values.CompoundeyesId then
+	if abilityId == AbilityData.Values.CompoundeyesId then
 		compoundeyesBonus = RS.OtherAdjustments.BonusAbilityCompoundeyesHelpsMove
 	end
 	local rockheadBonus = nil
-	if (gachamon.AbilityId or 0) == AbilityData.Values.RockHeadId then
+	if abilityId == AbilityData.Values.RockHeadId then
 		rockheadBonus = RS.OtherAdjustments.BonusAbilityRockHeadHelpsMove
+	end
+	local hustleBonus = nil
+	if abilityId == AbilityData.Values.HustleId then
+		hustleBonus = RS.OtherAdjustments.BonusAbilityHustleHelpsNoMissMove
+	end
+	local weatherBallBonus, weatherBallStabType = nil, nil
+	if abilityId == AbilityData.Values.DrizzleId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.WATER
+	elseif abilityId == AbilityData.Values.DroughtId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.FIRE
+	elseif abilityId == AbilityData.Values.SandStreamId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.ROCK
+	-- Snow Warning doesn't exist in vanilla gen3, but adding it here anyway for rom hack support
+	elseif abilityId == AbilityData.Values.SnowWarningId then
+		weatherBallBonus = RS.OtherAdjustments.BonusMoveWeatherBallWithAbility
+		weatherBallStabType = PokemonData.Types.ICE
 	end
 
 	-- MOVES
 	local anyPhysicalDamagingMoves, anySpecialDamaingMoves = false, false
 	local iMoves = {}
 	for i, id in ipairs(gachamon.Temp.MoveIds or {}) do
+		local move = MoveData.getNatDexCompatible(id)
 		iMoves[i] = {
 			id = id,
-			move = MoveData.getNatDexCompatible(id),
+			move = move,
 			ePower = MoveData.getExpectedPower(id),
 			rating = RS.Moves[id] or 0,
 		}
@@ -348,13 +411,13 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 		end
 		if iMoves[i].rating ~= 0 then
 			if iMoves[i].ePower > 0 then
-				if not anyPhysicalDamagingMoves and iMoves[i].move.category == MoveData.Categories.PHYSICAL then
+				if not anyPhysicalDamagingMoves and move.category == MoveData.Categories.PHYSICAL then
 					anyPhysicalDamagingMoves = true
 				end
-				if not anySpecialDamaingMoves and iMoves[i].move.category == MoveData.Categories.SPECIAL then
+				if not anySpecialDamaingMoves and move.category == MoveData.Categories.SPECIAL then
 					anySpecialDamaingMoves = true
 				end
-				local moveType = iMoves[i].move.type or PokemonData.Types.UNKNOWN
+				local moveType = move.type or PokemonData.Types.UNKNOWN
 				if badWeatherTypes[moveType] then
 					local badWeatherPenalty = badWeatherTypes[moveType] or 1
 					iMoves[i].rating = iMoves[i].rating * badWeatherPenalty
@@ -362,7 +425,7 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			end
 			if compoundeyesBonus and not MoveData.isOHKO(id) then
 				-- Check if accuracy of the move benefits from the ability
-				local acc = tonumber(iMoves[i].move.accuracy or "") or 0
+				local acc = tonumber(move.accuracy or "") or 0
 				if acc > 0 and acc < 100 then
 					iMoves[i].rating = iMoves[i].rating * compoundeyesBonus
 				end
@@ -370,8 +433,22 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 			if rockheadBonus and MoveData.isRecoil(id) then
 				iMoves[i].rating = iMoves[i].rating * rockheadBonus
 			end
-			if Utils.isSTAB(iMoves[i].move, iMoves[i].move.type, pokemonTypes) then
-				iMoves[i].rating = iMoves[i].rating * 1.5
+			if hustleBonus and MoveData.isNoMissDamagingMove(id) and move.category == MoveData.Categories.PHYSICAL then
+				iMoves[i].rating = iMoves[i].rating * hustleBonus
+			end
+			if weatherBallBonus and id == MoveData.Values.WeatherBallId then
+				iMoves[i].rating = iMoves[i].rating * weatherBallBonus
+			end
+			if Utils.isSTAB(move, move.type, pokemonTypes) then
+				iMoves[i].rating = iMoves[i].rating * (RS.OtherAdjustments.BonusMoveIsSTAB or 1)
+			elseif weatherBallStabType then
+				-- Check if the weather ball's type from the ability matches any of the Pokémon's types
+				for _, type in ipairs(pokemonTypes) do
+					if weatherBallStabType == type then
+						iMoves[i].rating = iMoves[i].rating * (RS.OtherAdjustments.BonusMoveIsSTAB or 1)
+						break
+					end
+				end
 			end
 		end
 	end
@@ -479,7 +556,16 @@ function GachaMonData.calculateRatingScore(gachamon, baseStats)
 	natureRating = math.min(natureRating, RS.CategoryMaximums.Nature or 999)
 	ratingTotal = ratingTotal + natureRating
 
-	return math.floor(ratingTotal + 0.5)
+	-- Round up
+	ratingTotal = math.floor(ratingTotal + 0.5)
+
+	if ratingTotal > GachaMonData.MAX_RATING then
+		return GachaMonData.MAX_RATING
+	elseif ratingTotal < GachaMonData.MIN_RATING then
+		return GachaMonData.MIN_RATING
+	else
+		return ratingTotal
+	end
 end
 
 ---Calculates the GachaMon's "Battle Power" based on its rating, STAB moves, nature, etc
@@ -533,11 +619,14 @@ function GachaMonData.calculateStars(gachamon)
 	if (gachamon.RatingScore or 0) <= 0 then
 		return 0
 	end
-	for _, ratingPair in ipairs(GachaMonData.RatingsSystem.RatingToStars or {}) do
+
+	local versionedStarRatings = GachaMonFileManager.getStarRatings(gachamon.Version) or {}
+	for _, ratingPair in ipairs(versionedStarRatings) do
 		if gachamon.RatingScore >= (ratingPair.Rating or 1) and ratingPair.Stars then
 			return ratingPair.Stars
 		end
 	end
+
 	return 0
 end
 
@@ -792,22 +881,31 @@ function GachaMonData.numberToGameVersion(num)
 	return v[num or false] or Constants.HIDDEN_INFO
 end
 
-function GachaMonData.updateMainScreenViewedGachaMon()
+---Updates the Gachamon card that is being shown on the main tracker screen (what's used to display the stars)
+---@param needsRecalculating? boolean If true, will force a recalculation of the viewed Gachamon vs. its original Gachamon card. (Default: false)
+function GachaMonData.updateMainScreenViewedGachaMon(needsRecalculating)
+	needsRecalculating = needsRecalculating ~= false
+
 	if not GachaMonData.isCompatibleWithEmulator() then
 		return
 	end
+
 	local viewedPokemon = Battle.getViewedPokemon(true)
 	if not viewedPokemon then
 		GachaMonData.playerViewedMon = nil
 		GachaMonData.playerViewedInitialStars = 0
 		return
 	end
-	local prevMon = GachaMonData.playerViewedMon
-	-- If new or different mon or different level, recalc
-	local needsRecalculating = not prevMon or (prevMon.PokemonId ~= viewedPokemon.pokemonID) or (prevMon.Level ~= viewedPokemon.level)
-	-- Otherwise, check if it learned any new moves
+
+	local prevGachamon = GachaMonData.playerViewedMon or {}
+	-- Check if gachamon is new or different mon or different level
 	if not needsRecalculating then
-		local prevMoveIds = prevMon and prevMon:getMoveIds() or {}
+		needsRecalculating = (prevGachamon.PokemonId ~= viewedPokemon.pokemonID) or (prevGachamon.Level ~= viewedPokemon.level)
+	end
+
+	-- Check if it learned any new moves
+	if not needsRecalculating then
+		local prevMoveIds = prevGachamon:getMoveIds() or {}
 		local currentMoves = viewedPokemon.moves or {}
 		for i = 1, 4, 1 do
 			if currentMoves[i] and currentMoves[i].id ~= prevMoveIds[i] then
@@ -816,12 +914,17 @@ function GachaMonData.updateMainScreenViewedGachaMon()
 			end
 		end
 	end
-	-- Suppress debug messages when re-calculating here
-	if needsRecalculating then
-		GachaMonData.playerViewedMon = GachaMonData.convertPokemonToGachaMon(viewedPokemon)
+
+	if not needsRecalculating then
+		return
+	end
+
+	local viewedGachamon = GachaMonData.convertPokemonToGachaMon(viewedPokemon)
+	local recentGachamon = GachaMonData.getAssociatedRecentMon(viewedGachamon)
+	if recentGachamon then
 		-- Always reset the initial stars to original card; do this every time the mon gets rerolled (in case the mon changes)
-		local recentMon = GachaMonData.getAssociatedRecentMon(GachaMonData.playerViewedMon)
-		GachaMonData.playerViewedInitialStars = recentMon and recentMon:getStars() or 0
+		GachaMonData.playerViewedMon = viewedGachamon
+		GachaMonData.playerViewedInitialStars = recentGachamon:getStars() or 0
 	end
 end
 
@@ -832,6 +935,7 @@ function GachaMonData.autoDetermineIronmonRuleset()
 	local rulesetsOrdered = {
 		{ Key = "Standard", Name = Constants.IronmonRulesetNames.Standard },
 		{ Key = "Ultimate", Name = Constants.IronmonRulesetNames.Ultimate },
+		{ Key = "SurvivalRevival", Name = Constants.IronmonRulesetNames.SurvivalRevival },
 		{ Key = "Survival", Name = Constants.IronmonRulesetNames.Survival },
 		{ Key = "SuperKaizo", Name = Constants.IronmonRulesetNames.SuperKaizo },
 		{ Key = "Subpar", Name = Constants.IronmonRulesetNames.Subpar },
@@ -931,6 +1035,7 @@ function GachaMonData.tryImportMatchingRomRecentMons(forceImportAndUse)
 
 	GachaMonData.initialRecentMonsLoaded = true
 	GachaMonFileManager.importRecentMons(forceImportAndUse)
+	GachaMonData.updateMainScreenViewedGachaMon(true)
 end
 
 ---Only once per game, load the collection. Usually occurs when the Overlay is first opened or if a "NEW" GachaMon is captured
@@ -976,6 +1081,9 @@ function GachaMonData.tryAddToRecentMons(pokemon, fromTrainerPrize)
 		GachaMonData.DexData.NumSeen = GachaMonData.DexData.NumSeen + 1
 		GachaMonFileManager.saveGachaDexInfoToFile()
 	end
+
+	local shareCode = GachaMonData.getShareablyCode(gachamon)
+	EventHandler.triggerEvent(EventHandler.DefaultEvents.GE_GachaMonCapture.Key, shareCode)
 
 	return true
 end

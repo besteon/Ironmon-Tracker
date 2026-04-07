@@ -178,12 +178,14 @@ function GameOptionsScreen.createButtons()
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	startY = Constants.SCREEN.MARGIN + TAB_HEIGHT + 14
 	local optionKeyMapOther = {
+		{ "Can click trainers on screen", "OptionCanClickTrainers", },
 		{ "Show starter ball info", "OptionShowStarterBallInfo", },
 		{ "Hide stats until summary shown", "OptionHideStatsUntilSummary", },
 		{ "Show nicknames", "OptionShowNicknames", },
 		{ "Show experience points bar", "OptionShowExpBar", },
 		{ "Show heals as whole number", "OptionShowHealsAsValue", },
 		{ "Determine friendship readiness", "OptionDetermineFriendship", },
+		{ "Show data for vanilla game", "OptionShowVanillaGameData", },
 		{ "Open Book Play Mode", "OptionOpenBookPlayMode", },
 	}
 	for _, optionTuple in ipairs(optionKeyMapOther) do

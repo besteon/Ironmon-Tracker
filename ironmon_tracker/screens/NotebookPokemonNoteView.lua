@@ -77,7 +77,7 @@ SCREEN.Buttons = {
 				return ""
 			end
 		end,
-		textColor = SCREEN.Colors.highlight,
+		textColor = SCREEN.Colors.text,
 		box = { CANVAS.X + 30, CANVAS.Y + 20, 63, Constants.SCREEN.LINESPACING },
 		location = "top",
 		isVisible = function() return SCREEN.Data.isReady end,
@@ -273,7 +273,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 	-- ABILITIES
 	SCREEN.Data.abilityName1 = Constants.BLANKLINE
 	SCREEN.Data.abilityName2 = Constants.BLANKLINE
-	if Options["Open Book Play Mode"] then
+	if PokemonData.canShowUnknownAbilities() then
 		SCREEN.Data.abilityId1 = PokemonData.getAbilityId(pokemonID, 0) or 0
 		SCREEN.Data.abilityId2 = PokemonData.getAbilityId(pokemonID, 1) or 0
 		if AbilityData.isValid(SCREEN.Data.abilityId1) then
@@ -317,7 +317,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 		SCREEN.Buttons["Stat" .. statKey] = {
 			type = Constants.ButtonTypes.STAT_STAGE,
 			getText = function(self)
-				if Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					return ""
 				else
 					return Constants.STAT_STATES[self.statState].text
@@ -329,14 +329,14 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 			location = "top",
 			isVisible = function() return SCREEN.Data.isReady end,
 			updateSelf = function(self)
-				if Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					self.type = Constants.ButtonTypes.NO_BORDER
 				else
 					self.type = Constants.ButtonTypes.STAT_STAGE
 				end
 			end,
 			onClick = function(self)
-				if Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					return
 				end
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
@@ -348,7 +348,7 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 				local x, y = self.box[1], self.box[2]
 				local textColor = Theme.COLORS[SCREEN.Colors.text]
 				Drawing.drawText(x - 26, y - 2, statLabels[statKey], textColor, shadowcolor)
-				if Options["Open Book Play Mode"] then
+				if PokemonData.canShowUnknownStats() then
 					local highlight = Theme.COLORS[SCREEN.Colors.highlight]
 					local pokemon = PokemonData.Pokemon[SCREEN.Data.pokemonID] or {}
 					local baseStat = (pokemon.baseStats or {})[statKey]
@@ -359,19 +359,25 @@ function NotebookPokemonNoteView.buildScreen(pokemonID)
 	end
 
 	-- MOVES
-	-- Sort based on min level seen, or last level seen, in descending order
 	local trackedMoves = {}
 	for _, move in pairs(trackedPokemon.moves or {}) do
 		table.insert(trackedMoves, { id = move.id, level = move.minLv or move.level })
 	end
-	table.sort(trackedMoves, function(a,b)
-		return a.level > b.level or (a.level == b.level and a.id < b.id)
-	end)
+	-- If nothing is tracked (noted down), check if its okay to just show the regular levelup learnset
+	if #trackedMoves == 0 and PokemonData.canShowUnknownMoveLearnSets() then
+		trackedMoves = PokemonData.readLevelUpMoves(pokemonID)
+		SCREEN.Data.movesTotal = #trackedMoves
+	else
+		-- Sort based on min level seen, or last level seen, in descending order
+		table.sort(trackedMoves, function(a,b)
+			return a.level > b.level or (a.level == b.level and a.id < b.id)
+		end)
+		SCREEN.Data.movesTotal = #pokemonInternal.movelvls[GameSettings.versiongroup] + 4 -- four additional level 1 moves
+	end
+	SCREEN.Data.movesSeen = #trackedMoves
 
 	local NUM_MOVES = 8
 	local allowHiddenMoveInfo = Options["Reveal info if randomized"] or not MoveData.IsRand.moveType
-	SCREEN.Data.movesSeen = #trackedMoves
-	SCREEN.Data.movesTotal = #pokemonInternal.movelvls[GameSettings.versiongroup] + 4 -- four additional level 1 moves
 	SCREEN.Data.topMoves = {}
 	for i = 1, NUM_MOVES, 1 do
 		local move = trackedMoves[i] or {}

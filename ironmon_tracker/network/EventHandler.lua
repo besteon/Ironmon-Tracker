@@ -596,7 +596,7 @@ EventHandler.DefaultEvents = {
 			if lasGUID == ballqRequest.GUID then
 				return
 			end
-			EventHandler.triggerEvent("CMD_BallQueue")
+			EventHandler.triggerEvent(EventHandler.DefaultEvents.CMD_BallQueue.Key)
 			Main.MetaSettings["network"].LastBallQueueGUID = ballqRequest.GUID
 			Main.SaveSettings(true)
 		end,
@@ -1008,6 +1008,26 @@ EventHandler.DefaultEvents = {
 				},
 			}
 			EventData.Vars[self.Key] = output
+			return response
+		end,
+	},
+	GE_GachaMonCapture = {
+		Type = EventHandler.EventTypes.Game,
+		Process = function(self, request)
+			-- Don't start fulfilling if in the process of opening the pack
+			local isOpeningPack = AnimationManager.GachaMonAnims.PackOpening ~= nil
+			return not isOpeningPack
+		end,
+		Fulfill = function(self, request)
+			local shareCode = request.Args.Input or ""
+			local response = {
+				Message = "",
+				GlobalVars = {
+					-- Example Global Var output: "Adfu0HzVsCoiObEGAAYFsoRwBYS44ARVyLlEs3qLMg=="
+					[self.Key] = shareCode,
+				},
+			}
+			EventData.Vars[self.Key] = shareCode
 			return response
 		end,
 	},

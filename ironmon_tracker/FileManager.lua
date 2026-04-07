@@ -124,6 +124,7 @@ FileManager.LuaCode = {
 	{ name = "EventData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "EventData.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
+	{ name = "TrainerMapData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerMapData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
 	{ name = "GachaMonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "GachaMonData.lua", },
 	-- Second set of core files
@@ -193,6 +194,38 @@ FileManager.LuaCode = {
 	{ name = "StreamConnectOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamConnectOverlay.lua", },
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
+}
+
+-- Data files that can be loaded at runtime when needed (they aren't available until loaded)
+-- The table key is the versioncolor, and the value is a table of data key labels and their filepaths
+FileManager.LuaData = {
+	Ruby = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "RSTrainerRouteData.lua",
+        },
+	Sapphire = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "RSTrainerRouteData.lua",
+        },
+	Emerald = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "EmeraldTrainerRouteData.lua",
+	},
+	FireRed = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "FRLGTrainerRouteData.lua",
+	},
+	LeafGreen = {
+		TrainerRoutes = FileManager.Folders.DataCode .. FileManager.slash .. "FRLGTrainerRouteData.lua",
+	},
+	All = {},
+}
+
+-- Some files are initialized early and don't need to be re-intialized again
+FileManager.ExcludeFromInitialize = {
+	["UpdateOrInstall"] = true,
+	["Main"] = true,
+	["FileManager"] = true,
+	["Resources"] = true,
+	["CustomCode"] = true,
+	["GameSettings"] = true,
+	["Memory"] = true,
 }
 
 function FileManager.setupFolders()
@@ -398,8 +431,27 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 	return false
 end
 
--- Executes 'functionName' for all code files loaded in the Tracker, except Main, FileManager, and UpdateOrInstall.
-function FileManager.executeEachFile(functionName)
+---Loads a known data file and returns the result.
+---@param gameKey string Ruby, Sapphire, Emerald, FireRed, LeafGreen, or All
+---@param dataKey string The key label for the data file to load
+---@return any|nil
+function FileManager.loadLuaData(gameKey, dataKey)
+	local gameDataTable = FileManager.LuaData[gameKey or false] or {}
+	local dataFilepath = gameDataTable[dataKey or false] or ""
+
+	local filepath = FileManager.getPathIfExists(FileManager.Folders.TrackerCode .. FileManager.slash .. dataFilepath)
+	if not filepath then
+		return nil
+	end
+
+	return dofile(filepath)
+end
+
+---Executes 'functionName' for all loaded code files.
+---@param functionName string The name of the function to execute
+---@param excludeFileNames? table<string, boolean> (Optional) A set of file names to exclude from having the function executed
+function FileManager.executeEachFile(functionName, excludeFileNames)
+	excludeFileNames = excludeFileNames or {}
 	local globalRef
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
@@ -409,9 +461,13 @@ function FileManager.executeEachFile(functionName)
 	end
 
 	for _, luafile in ipairs(FileManager.LuaCode) do
-		local luaObject = globalRef[luafile.name or ""] or {}
-		if type(luaObject[functionName]) == "function" then
-			luaObject[functionName]()
+		local luaFilename = luafile.name or ""
+		if not excludeFileNames[luaFilename] then
+			local luaObject = globalRef[luaFilename] or {}
+			local luaFunction = luaObject[functionName]
+			if type(luaFunction) == "function" then
+				luaFunction()
+			end
 		end
 	end
 end

@@ -48,8 +48,9 @@ body:
       options:
         - Bizhawk 2.8
         - Bizhawk 2.9
-        - mGBA 0.10.0
-        - mGBA 0.10.1
+        - Bizhawk 2.10
+        - Bizhawk 2.11
+        - mGBA (Provide the version number in Additional Information)
         - Other (Tell us in Additional Information)
     validations:
       required: true
