@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "9", minor = "3", patch = "0" }
+Main.Version = { major = "9", minor = "3", patch = "1" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -206,17 +206,18 @@ function Main.Run()
 			Main.frameAdvance()
 		end
 
+		-- Note: The use of "return" is to exit this parent function instead of creating a growing stack in memory
 		if Main.loadNextSeed then
-			Main.LoadNextRom()
+			return Main.LoadNextRom()
 		elseif Main.updateRequested then
-			UpdateScreen.performUpdate()
+			return UpdateScreen.performUpdate()
 		elseif Main.forceRestart then
 			Main.ExitSafely(false)
-			IronmonTracker.startTracker()
+			return IronmonTracker.startTracker()
 		elseif Main.loadDifferentRom then
 			Main.ExitSafely(false)
 			Main.LoadRom(Main.loadDifferentRom)
-			IronmonTracker.startTracker()
+			return IronmonTracker.startTracker()
 		end
 	else
 		MGBA.printStartupInstructions()
@@ -575,7 +576,8 @@ function Main.LoadNextRom()
 
 	Utils.tempEnableBizhawkSound()
 
-	Main.Run()
+	-- Note: The use of "return" is to exit this parent function instead of creating a growing stack in memory
+	return Main.Run()
 end
 
 function Main.GetNextRomFromFolder()
