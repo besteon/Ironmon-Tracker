@@ -20,7 +20,7 @@ function IronmonTracker.startTracker()
 	if IronmonTracker.tryLoad() then
 		-- Then verify the remainder of the Tracker files were able to be setup and initialized
 		if Main.Initialize() then
-			Main.Run()
+			return Main.Run()
 		end
 	end
 end
