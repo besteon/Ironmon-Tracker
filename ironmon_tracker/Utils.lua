@@ -269,6 +269,8 @@ end
 function Utils.startsWithJapaneseChineseChar(text)
 	if text == nil or not Main.supportsSpecialChars then
 		return false
+	elseif string.match(text, "^[¡¿]") then
+		return false
 	end
 
 	---@diagnostic disable-next-line: err-esc
