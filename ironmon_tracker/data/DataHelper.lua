@@ -180,8 +180,10 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.positivestat = ""
 	data.p.negativestat = ""
 	data.p.stages = {}
+	data.p.baseStats = {}
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		data.p[statKey] = viewedPokemon.stats[statKey] or Constants.BLANKLINE
+		data.p.baseStats[statKey] = pokemonInternal.baseStats[statKey] or 0
 		if not data.x.viewingOwn then
 			if PokemonData.canShowUnknownStats() then
 				data.p[statKey] = pokemonInternal.baseStats[statKey] or Constants.BLANKLINE
