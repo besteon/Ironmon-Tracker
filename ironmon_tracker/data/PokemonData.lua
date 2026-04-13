@@ -779,6 +779,7 @@ PokemonData.BlankPokemon = {
 	abilities = { 0, 0 },
 	evolution = PokemonData.Evolutions.NONE,
 	bst = Constants.BLANKLINE,
+	baseStats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 	expYield = 0,
 	movelvls = { {}, {} },
 	weight = 0.0,

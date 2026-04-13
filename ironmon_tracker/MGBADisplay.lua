@@ -759,7 +759,12 @@ MGBADisplay.LineBuilder = {
 		local formattedStats = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 			local statValue = Utils.inlineIf(data.p[statKey] ~= 0, data.p[statKey], Constants.BLANKLINE)
-			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statValue, data.p.stages[statKey])
+			if data.x.viewingOwn and data.p.baseStats then
+				local baseValue = Utils.inlineIf(data.p.baseStats[statKey] ~= 0, data.p.baseStats[statKey], Constants.BLANKLINE)
+				formattedStats[statKey] = Utils.formatUTF8("%-4s" .. justify3 .. " " .. justify3 .. "%-2s", data.p.labels[statKey], baseValue, statValue, data.p.stages[statKey])
+			else
+				formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statValue, data.p.stages[statKey])
+			end
 		end
 
 		-- Header and top dividing line (with types)
@@ -773,7 +778,8 @@ MGBADisplay.LineBuilder = {
 			end
 		end
 		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", name, data.p.status), Resources.MGBAScreens.TrackerBST, bstAligned)
-		lines[2] = Utils.formatUTF8("%-23s%-10s", data.p.typeline, "----------")
+		local statDivider = Utils.inlineIf(data.x.viewingOwn and data.p.baseStats, "-------------", "----------")
+		lines[2] = Utils.formatUTF8("%-23s%-10s", data.p.typeline, statDivider)
 
 		-- Top six lines of the box: Pokemon related stuff
 		local topFormattedLine = "%-23s%-10s"
