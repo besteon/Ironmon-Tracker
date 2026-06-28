@@ -1077,13 +1077,17 @@ function Program.readTrainerGameData(trainerId)
 	local function readPartyPokemon(partyPtr)
 		local partyData = {}
 
+		-- NOTE: Regarding the IV field data read
+		-- The decomp is u16. However the upper byte is never used as the iv value is never larger than 255.
+		-- Thus using using readbyte instead of readword. This allows the other byte to be used by rom hacks.
+
 		-- #define F_TRAINER_PARTY_CUSTOM_MOVESET (1 << 0) even = default moveset, odd = custom moveset
 		-- #define F_TRAINER_PARTY_HELD_ITEM      (1 << 1) 2 or greater = held item, 1 or lower = no item
 		if trainer.partyFlags == 0 then -- TrainerMonNoItemDefaultMoves (flag: 0 << 0)
 			for i = 0, trainer.partySize - 1, 1 do
 				local offset = i * Program.Addresses.sizeofTrainerMonWithDefaultMoves
 				table.insert(partyData, {
-					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					iv = Memory.readbyte(partyPtr + offset), -- u16 iv, only using the first byte;
 					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
 					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
 				})
@@ -1093,7 +1097,7 @@ function Program.readTrainerGameData(trainerId)
 			for i = 0, trainer.partySize - 1, 1 do
 				local offset = i * Program.Addresses.sizeofTrainerMonWithCustomMoves
 				table.insert(partyData, {
-					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					iv = Memory.readbyte(partyPtr + offset), -- u16 iv, only using the first byte;
 					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
 					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
 					moves = { -- u16 moves[MAX_MON_MOVES];
@@ -1108,7 +1112,7 @@ function Program.readTrainerGameData(trainerId)
 			for i = 0, trainer.partySize - 1, 1 do
 				local offset = i * Program.Addresses.sizeofTrainerMonWithDefaultMoves
 				table.insert(partyData, {
-					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					iv = Memory.readbyte(partyPtr + offset), -- u16 iv, only using the first byte;
 					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
 					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
 					heldItem = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItem),-- u16 heldItem;
@@ -1118,7 +1122,7 @@ function Program.readTrainerGameData(trainerId)
 			for i = 0, trainer.partySize - 1, 1 do
 				local offset = i * Program.Addresses.sizeofTrainerMonWithCustomMoves
 				table.insert(partyData, {
-					iv = Memory.readword(partyPtr + offset), -- u16 iv;
+					iv = Memory.readbyte(partyPtr + offset), -- u16 iv, only using the first byte;
 					level = Memory.readbyte(partyPtr + offset + Program.Addresses.offsetTrainerMonLevel), -- u8 lvl;
 					species = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonSpecies), -- u16 species;
 					heldItem = Memory.readword(partyPtr + offset + Program.Addresses.offsetTrainerMonItem),-- u16 heldItem;
