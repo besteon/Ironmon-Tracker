@@ -62,7 +62,6 @@ function UpdateOrInstall.setupEmulatorSpecifics()
 	end
 
 	-- This function doesn't exist in Bizhawk, only mGBA
-	---@diagnostic disable-next-line: undefined-field
 	IronmonTracker.isOnBizhawk = (console.createBuffer == nil)
 
 	-- Get the current working directory of the Tracker script, needed for mGBA
@@ -291,7 +290,7 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 			'echo;',
 			string.format('echo %s', messages.extracting),
 			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
-			string.format('tar --force-local -xzf "%s"', archive),
+			string.format('tar -xzf "%s"', archive),
 			string.format('del "%s"', archive),
 		}
 		for _, folderName in ipairs(folderNamesToExclude or {}) do
@@ -311,11 +310,11 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 			string.format('echo %s', messages.extracting),
 		}
 		if IronmonTracker.isOnBizhawk then -- Required because Bizhawk doesn't use absolute paths
-			table.insert(batchCommands, string.format('tar --force-local -xzf "%s" --overwrite', archive))
+			table.insert(batchCommands, string.format('tar -xzf "%s" --overwrite', archive))
 		else
 			table.insert(batchCommands, string.format('mkdir -p "%s"', extractedFolder))
-			local linuxExtract = string.format('tar --force-local -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir)
-			local macExtract = string.format('tar --force-local -xzf "%s" -C "%s"', archive, IronmonTracker.workingDir)
+			local linuxExtract = string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir)
+			local macExtract = string.format('tar -xzf "%s" -C "%s"', archive, IronmonTracker.workingDir)
 			table.insert(batchCommands, string.format("(%s || %s)", linuxExtract, macExtract))
 		end
 		table.insert(batchCommands, string.format('rm -rf "%s"', archive))
