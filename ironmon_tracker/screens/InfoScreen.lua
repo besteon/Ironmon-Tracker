@@ -888,6 +888,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	local moveType = data.m.type
 	local moveCategory = data.m.category
+	local moveCategoryText = moveCategory
 	local movePP = data.m.pp
 	local movePower = data.m.power
 	local moveAcc = data.m.accuracy
@@ -898,6 +899,13 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		movePP = moveLog.pp ~= 0 and moveLog.pp or Constants.BLANKLINE
 		movePower = moveLog.power ~= 0 and moveLog.power or Constants.BLANKLINE
 		moveAcc = moveLog.acc ~= 0 and moveLog.acc or Constants.BLANKLINE
+	end
+	if moveCategory == MoveData.Categories.PHYSICAL then
+		moveCategoryText = Resources.MGBAScreens.LabelPhysical
+	elseif moveCategory == MoveData.Categories.SPECIAL then
+		moveCategoryText = Resources.MGBAScreens.LabelSpecial
+	elseif moveCategory == MoveData.Categories.STATUS then
+		moveCategoryText = Resources.MGBAScreens.LabelStatus
 	end
 
 	-- MOVE NAME
@@ -922,7 +930,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
 	end
 	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelCategory .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, moveCategory, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, moveCategoryText, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- CONTACT

@@ -99,6 +99,10 @@ function LanguageScreen.createLanguageButtons()
 				end
 			end,
 			onClick = function()
+				if Options["Autodetect language from game"] then
+					Options["Autodetect language from game"] = false
+					Main.SaveSettings(true)
+				end
 				Resources.changeLanguageSetting(language)
 				LanguageScreen.refreshButtons()
 				LogOverlay.rebuildScreen()
