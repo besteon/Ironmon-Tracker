@@ -307,8 +307,8 @@ ScreenResources{
 		LabelNoActiveProfile = "Aucun profil actif",
 		LabelClickToAdd = "cliquez pour ajouter",
 		LabelProfileAttempts = "Tentatives",
-		LabelProfileLastPlayed = "Dernière partie",
-		ButtonLoadLastGame = "Dernière partie",
+		LabelProfileLastPlayed = "Dern. partie",
+		ButtonLoadLastGame = "Dern. partie",
 		ButtonGoNextSeed = "Suivant",
 		ButtonCreateNewGame = "Créer partie",
 		ButtonAddNew = "Ajouter",
@@ -501,10 +501,10 @@ ScreenResources{
 	},
 	TrackedDataScreen = {
 		Title = "Données",
-		DescAutoSave = "Toutes les données suivies pendant la partie sont sauvegardées automatiquement après chaque combat, dans un fichier .TDAT.",
-		DescManualSave = "Les anciennes données auto-sauvegardées seront perdues si vous démarrez une nouvelle partie sur la même version de Pokémon. Pour les conserver, utilisez Sauvegarder les données.",
-		OptionAutoSaveData = "Sauvegarde automatique des données suivies",
-		ButtonSaveData = "Sauvegarder",
+		DescAutoSave = "Données sauvegardées après combat (.TDAT).",
+		DescManualSave = "Nouvelle partie : anciennes données perdues. Pour les garder, utilisez Sauv.",
+		OptionAutoSaveData = "Sauv. auto des données",
+		ButtonSaveData = "Sauv.",
 		ButtonLoadData = "Charger",
 		ButtonClearData = "Effacer",
 		ButtonClearConfirm = "Êtes-vous sûr ?",
@@ -532,7 +532,7 @@ ScreenResources{
 	TimeMachineScreen = {
 		Title = "Machine temporelle",
 		OptionEnableRestorePoints = "Activer les pts de restauration",
-		DescInstructions = "Sélectionnez un point de restauration ci-dessous pour revenir à ce moment.",
+		DescInstructions = "Coisissez un point de restauration",
 		DescNoRestorePoints = "Aucun point de restauration disponible ; un point est créé toutes les 5 minutes.",
 		RestorePointAgeSingular = "créé il y a 1 minute",
 		RestorePointAgePlural = "créé il y a %s minutes",
@@ -2372,7 +2372,7 @@ GameResources{
 		},
 		{
 			NameKey = "Rollout",
-			Description = "Inflige des dégâts pendant 5 tours, avec une puissance qui double a chaque coup consécutif. La puissance de base est doublée si l'utilisateur a utilisé Boul'Armure auparavant.",
+			Description = "Dégâts sur 5 tours, puissance doublée à chaque coup. Base doublée après Boul'Armure.",
 		},
 		{
 			NameKey = "False Swipe",
