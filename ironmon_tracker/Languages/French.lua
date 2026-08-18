@@ -592,7 +592,7 @@ ScreenResources{
 		TabBattle = "Combat",
 	},
 	MoveHistoryScreen = {
-		HeaderMoves = "Attaque vue au niveau",
+		HeaderMoves = "Vu au niveau",
 		HeaderMin = "Min",
 		HeaderMax = "Max",
 		NoTrackedMoves = "(Aucune donnée d'attaque suivie pour l'instant)",
