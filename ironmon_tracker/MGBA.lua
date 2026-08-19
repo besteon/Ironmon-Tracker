@@ -1306,6 +1306,10 @@ MGBA.CommandMap = {
 				return
 			end
 
+			if Options["Autodetect language from game"] then
+				Options["Autodetect language from game"] = false
+				Main.SaveSettings(true)
+			end
 			Resources.changeLanguageSetting(languageFound)
 			-- Clear out any old data that was using the previous language; repopulated on redraw
 			for _, screen in pairs(MGBA.Screens) do

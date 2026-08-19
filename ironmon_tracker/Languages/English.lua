@@ -315,6 +315,7 @@ ScreenResources{
 		ButtonSelectProfile = "Select",
 		ButtonEditProfile = "Edit",
 		ButtonDeleteProfile = "Delete",
+		OptionWarnRomMismatch = "Warn of ROM mismatch",
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk",
 	},
 	ThemeScreen = {
