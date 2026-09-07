@@ -598,7 +598,11 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 	return data
 end
 
-function DataHelper.buildPokemonLogDisplay(pokemonID)
+---Builds all data needed for displaying log information about a Pokémon
+---@param pokemonID number
+---@param viewingCurrentGame boolean
+---@return table data
+function DataHelper.buildPokemonLogDisplay(pokemonID, viewingCurrentGame)
 	local data = {}
 	data.p = {} -- data about the Pokemon itself
 	data.x = {} -- misc data to display, such as notes
@@ -621,7 +625,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		pokemonLog.Types[2],
 	}
 	-- Sometimes types info isn't available from the log (i.e. vanilla game). As such, show if allowed.
-	if not data.p.types[1] and PokemonData.canShowUnknownTypes() then
+	if not data.p.types[1] and viewingCurrentGame and PokemonData.canShowUnknownTypes() then
 		data.p.types[1] = pokemonInternal.types[1]
 		if not data.p.types[2] then
 			data.p.types[2] = pokemonInternal.types[2]
@@ -633,7 +637,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		pokemonLog.Abilities[2],
 	}
 	-- Sometimes ability info isn't available from the log (i.e. vanilla game). As such, show if allowed.
-	if not data.p.abilities[1] and PokemonData.canShowUnknownAbilities() then
+	if not data.p.abilities[1] and viewingCurrentGame and PokemonData.canShowUnknownAbilities() then
 		data.p.abilities[1] = PokemonData.getAbilityId(pokemonID, 0)
 		if not data.p.abilities[2] then
 			data.p.abilities[2] = PokemonData.getAbilityId(pokemonID, 1)
@@ -679,7 +683,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.p.moves = {}
 	local moveList = pokemonLog.MoveSet or {}
 	-- Sometimes moveset info isn't available from the log (i.e. vanilla game). As such, show if allowed.
-	if not moveList[1] and PokemonData.canShowUnknownMoveLearnSets() then
+	if not moveList[1] and viewingCurrentGame and PokemonData.canShowUnknownMoveLearnSets() then
 		moveList = PokemonData.readLevelUpMoves(pokemonID) or {}
 	end
 

@@ -182,7 +182,7 @@ GameOverScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 132, 112, 16 },
 		isVisible = function(self) return not Options["Add to collection if prize from trainer victory"] or (GameOverScreen.numDefeatedTrainers or 0) < 2 end,
 		onClick = function(self)
-			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED, true)
 		end,
 	},
 	ViewLogFileSmall = {
@@ -192,7 +192,7 @@ GameOverScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6, Constants.SCREEN.MARGIN + 132, 60, 16 },
 		isVisible = function(self) return Options["Add to collection if prize from trainer victory"] and (GameOverScreen.numDefeatedTrainers or 0) >= 2 end,
 		onClick = function(self)
-			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED, true)
 		end,
 	},
 	GachaMonPrizeCard = {
