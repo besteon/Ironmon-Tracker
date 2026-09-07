@@ -2,6 +2,8 @@ Options = {
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
 	["Language"] = Resources and Resources.Default.Language.Key or "ENGLISH",
 	["Autodetect language from game"] = true,
+	["Show game words in language"] = true,
+	["Show menu text in language"] = true,
 	["Allow carousel rotation"] = true,
 	["CarouselItems"] = "Badges,Notes,RouteInfo,Trainers,LastAttack,BattleDetails,Pedometer,GachaMon",
 	["CarouselSpeed"] = "1",

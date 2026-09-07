@@ -975,7 +975,7 @@ EventHandler.DefaultEvents = {
 				Main.SaveSettings(true)
 			end
 			local prevLangName = Resources.currentLanguage.DisplayName
-			Resources.loadAndApplyLanguage(language)
+			Resources.applyAndLoadLanguage(language)
 
 			if self.O_SendMessage then
 				response.Message = string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)

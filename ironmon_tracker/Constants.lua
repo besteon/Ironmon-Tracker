@@ -143,6 +143,8 @@ Constants.OrderedLists = {
 	OPTIONS = {
 		"Language",
 		"Autodetect language from game",
+		"Show game words in language",
+		"Show menu text in language",
 		"Allow carousel rotation",
 		"CarouselItems",
 		"CarouselSpeed",
