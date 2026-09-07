@@ -623,9 +623,9 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- Sometimes types info isn't available from the log (i.e. vanilla game). As such, show if allowed.
 	if not data.p.types[1] and PokemonData.canShowUnknownTypes() then
 		data.p.types[1] = pokemonInternal.types[1]
-	end
-	if not data.p.types[2] and PokemonData.canShowUnknownTypes() then
-		data.p.types[2] = pokemonInternal.types[2]
+		if not data.p.types[2] then
+			data.p.types[2] = pokemonInternal.types[2]
+		end
 	end
 
 	data.p.abilities = {
@@ -635,9 +635,9 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- Sometimes ability info isn't available from the log (i.e. vanilla game). As such, show if allowed.
 	if not data.p.abilities[1] and PokemonData.canShowUnknownAbilities() then
 		data.p.abilities[1] = PokemonData.getAbilityId(pokemonID, 0)
-	end
-	if not data.p.abilities[2] and PokemonData.canShowUnknownAbilities() then
-		data.p.abilities[2] = PokemonData.getAbilityId(pokemonID, 1)
+		if not data.p.abilities[2] then
+			data.p.abilities[2] = PokemonData.getAbilityId(pokemonID, 1)
+		end
 	end
 
 	-- The following are all Randomizer Log information
