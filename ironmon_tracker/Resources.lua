@@ -171,8 +171,8 @@ function Resources.defineResourceCallbacks()
 
 	-- Callback function(s) for loading data from resource files
 	function GameResources(data)
-		-- Don't replace game data (names, moves, etc) with language if setting is off
-		if not Options["Show game words in language"] then
+		-- Don't *replace* game data (names, moves, etc) with language if setting is off
+		if Resources.Game ~= nil and not Options["Show game words in language"] then
 			return
 		end
 		dataLoadHelper("Game", data)
@@ -180,8 +180,8 @@ function Resources.defineResourceCallbacks()
 
 	-- Each screen is its own asset category of data
 	function ScreenResources(data)
-		-- Don't replace Tracker UI menus and text with language if setting is off
-		if not Options["Show menu text in language"] then
+		-- Don't *replace* Tracker UI menus and text with language if setting is off
+		if Resources.AllScreens ~= nil and not Options["Show menu text in language"] then
 			return
 		end
 		for screen, labels in pairs(data) do
