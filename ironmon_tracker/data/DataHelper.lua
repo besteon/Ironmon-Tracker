@@ -598,7 +598,11 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 	return data
 end
 
-function DataHelper.buildPokemonLogDisplay(pokemonID)
+---Builds all data needed for displaying log information about a Pokémon
+---@param pokemonID number
+---@param viewingCurrentGame boolean
+---@return table data
+function DataHelper.buildPokemonLogDisplay(pokemonID, viewingCurrentGame)
 	local data = {}
 	data.p = {} -- data about the Pokemon itself
 	data.x = {} -- misc data to display, such as notes
@@ -615,14 +619,30 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.p.id = pokemonInternal.pokemonID or 0
 	data.p.name = RandomizerLog.getPokemonName(pokemonID)
 	data.p.bst = pokemonInternal.bstCalculated or pokemonInternal.bst or Constants.BLANKLINE
+
 	data.p.types = {
-		pokemonLog.Types[1] or pokemonInternal.types[1],
-		pokemonLog.Types[2] or pokemonInternal.types[2],
+		pokemonLog.Types[1],
+		pokemonLog.Types[2],
 	}
+	-- Sometimes types info isn't available from the log (i.e. vanilla game). As such, show if allowed.
+	if not data.p.types[1] and viewingCurrentGame and PokemonData.canShowUnknownTypes() then
+		data.p.types[1] = pokemonInternal.types[1]
+		if not data.p.types[2] then
+			data.p.types[2] = pokemonInternal.types[2]
+		end
+	end
+
 	data.p.abilities = {
-		pokemonLog.Abilities[1] or PokemonData.getAbilityId(pokemonID, 0),
-		pokemonLog.Abilities[2] or PokemonData.getAbilityId(pokemonID, 1),
+		pokemonLog.Abilities[1],
+		pokemonLog.Abilities[2],
 	}
+	-- Sometimes ability info isn't available from the log (i.e. vanilla game). As such, show if allowed.
+	if not data.p.abilities[1] and viewingCurrentGame and PokemonData.canShowUnknownAbilities() then
+		data.p.abilities[1] = PokemonData.getAbilityId(pokemonID, 0)
+		if not data.p.abilities[2] then
+			data.p.abilities[2] = PokemonData.getAbilityId(pokemonID, 1)
+		end
+	end
 
 	-- The following are all Randomizer Log information
 	data.p.helditems = pokemonLog.HeldItems or Constants.BLANKLINE -- unsure how this is formatted
@@ -631,7 +651,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		if pokemonLog.BaseStats ~= nil then
 			data.p[statKey] = pokemonLog.BaseStats[statKey] or 0
-		elseif pokemonInternal.baseStats ~= nil then
+		elseif pokemonInternal.baseStats ~= nil and PokemonData.canShowUnknownStats() then
 			data.p[statKey] = pokemonInternal.baseStats[statKey] or 0
 		else
 			data.p[statKey] = 0
@@ -661,7 +681,12 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
-	local moveList = pokemonLog.MoveSet or PokemonData.readLevelUpMoves(pokemonID) or {}
+	local moveList = pokemonLog.MoveSet or {}
+	-- Sometimes moveset info isn't available from the log (i.e. vanilla game). As such, show if allowed.
+	if not moveList[1] and viewingCurrentGame and PokemonData.canShowUnknownMoveLearnSets() then
+		moveList = PokemonData.readLevelUpMoves(pokemonID) or {}
+	end
+
 	for _, moveLog in ipairs(moveList) do
 		local move = {
 			id = moveLog.moveId or moveLog.id or 0,

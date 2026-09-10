@@ -359,8 +359,12 @@ ScreenResources{
 	},
 	LanguageScreen = {
 		Title = "Opciones de idioma",
+		TabDisplay = "Display", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
 		DisplayLanguage = "Idioma mostrado",
 		AutodetectSetting = "Detectar idioma autom.",
+		OptionGameWordsInLanguage = "Show game words in language", -- NEEDS TRANSLATION
+		OptionMenusTextInLanguage = "Show menus/text in language", -- NEEDS TRANSLATION
 		ButtonHelpContribute = "Colaborar",
 	},
 	StatsScreen = {

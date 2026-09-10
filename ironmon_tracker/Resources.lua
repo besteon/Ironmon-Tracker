@@ -69,7 +69,7 @@ function Resources.initialize()
 	Resources.sanitizeTable(Resources.Languages)
 
 	-- Load in default language data first, to fill in gaps in other language data
-	Resources.loadAndApplyLanguage(Resources.Default.Language)
+	Resources.applyAndLoadLanguage(Resources.Default.Language)
 	FileManager.copyTable(Resources.Data, Resources.Default.Data)
 
 	-- Define metatables
@@ -82,7 +82,7 @@ function Resources.initialize()
 		Resources.autoDetectForeignLanguage()
 	else
 		local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
-		Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
+		Resources.applyAndLoadLanguage(Resources.Languages[userLanguageKey])
 	end
 
 	Resources.hasInitialized = true
@@ -105,7 +105,7 @@ function Resources.autoDetectForeignLanguage()
 end
 
 function Resources.changeLanguageSetting(language, forced)
-	local success = Resources.loadAndApplyLanguage(language)
+	local success = Resources.applyAndLoadLanguage(language)
 	if success or forced then
 		Resources.currentLanguage = language
 		Options["Language"] = language.Key
@@ -113,8 +113,8 @@ function Resources.changeLanguageSetting(language, forced)
 	end
 end
 
--- Loads resources for the specified language into all of the Tracker's assets
-function Resources.loadAndApplyLanguage(language)
+-- Applies the specified language, then loads data for it
+function Resources.applyAndLoadLanguage(language)
 	if language == nil or language == Resources.currentLanguage or not Resources.Languages[language.Key] then
 		return false
 	end
@@ -125,8 +125,20 @@ function Resources.loadAndApplyLanguage(language)
 		return false
 	end
 
+	Resources.currentLanguage = language
+	local success = Resources.loadLanguageData()
+
+	return success
+end
+
+-- Loads resources for the current language into all of the Tracker's assets
+function Resources.loadLanguageData()
+	if not Resources.currentLanguage then
+		return false
+	end
+
 	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
-	local langFilePath = langFolder .. language.FileName
+	local langFilePath = langFolder .. Resources.currentLanguage.FileName
 	if not FileManager.fileExists(langFilePath) then
 		return false
 	end
@@ -137,7 +149,6 @@ function Resources.loadAndApplyLanguage(language)
 	-- Load data into Resources.Data
 	dofile(langFilePath)
 
-	Resources.currentLanguage = language
 	Resources.sanitizeTable(Resources.Data)
 	FileManager.executeEachFile("updateResources")
 	collectgarbage()
@@ -159,10 +170,20 @@ function Resources.defineResourceCallbacks()
 	end
 
 	-- Callback function(s) for loading data from resource files
-	function GameResources(data) dataLoadHelper("Game", data) end
+	function GameResources(data)
+		-- Don't *replace* game data (names, moves, etc) with language if setting is off
+		if Resources.Game ~= nil and not Options["Show game words in language"] then
+			return
+		end
+		dataLoadHelper("Game", data)
+	end
 
 	-- Each screen is its own asset category of data
 	function ScreenResources(data)
+		-- Don't *replace* Tracker UI menus and text with language if setting is off
+		if Resources.AllScreens ~= nil and not Options["Show menu text in language"] then
+			return
+		end
 		for screen, labels in pairs(data) do
 			dataLoadHelper(screen, labels)
 		end

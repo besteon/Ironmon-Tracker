@@ -84,7 +84,7 @@ end
 
 function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	pokemonID = pokemonID or LogTabPokemonDetails.infoId or -1
-	local data = DataHelper.buildPokemonLogDisplay(pokemonID)
+	local data = DataHelper.buildPokemonLogDisplay(pokemonID, LogOverlay.viewingCurrentGame)
 	LogTabPokemonDetails.infoId = pokemonID
 	LogTabPokemonDetails.dataSet = data
 
@@ -770,7 +770,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	LogTabPokemonDetails.Pager:changeTab(LogTabPokemonDetails.Tabs.LevelMoves)
 
 	-- LABEL/BUTTON FOR "Show IVs/EVs/BST"
-	local canSeeIVsEVs = LogOverlay.viewedLog == FileManager.PostFixes.AUTORANDOMIZED and LogTabPokemonDetails.playerTeam[pokemonID] ~= nil
+	local canSeeIVsEVs = LogOverlay.viewingCurrentGame and LogTabPokemonDetails.playerTeam[pokemonID] ~= nil
 	local showBtnBox = { LogOverlay.TabBox.x + 66, LogOverlay.TabBox.y + 42, 43, 11 } -- x, y, width, height
 
 	local lblStatGraphHeader = {
@@ -853,7 +853,7 @@ function LogTabPokemonDetails.drawTab()
 	-- Ideally this is done only once on tab change
 	local data = LogTabPokemonDetails.dataSet
 	if data == nil then
-		data = DataHelper.buildPokemonLogDisplay(LogTabPokemonDetails.infoId)
+		data = DataHelper.buildPokemonLogDisplay(LogTabPokemonDetails.infoId, LogOverlay.viewingCurrentGame)
 		LogTabPokemonDetails.dataSet = data
 	end
 
