@@ -9,6 +9,7 @@ LogOverlay = {
 	isDisplayed = false,
 	isGameOver = false, -- Set to true when game is over, so we known to show game over screen if X is pressed
 	viewedLog = "None", -- use to note if the opened log is the current seed, previous seed, or other
+	viewingCurrentGame = false, -- True if the log that is opened is for the current game that is loaded
 }
 
 -- Dimensions of the screen space occupied by the currentl visible Tab
@@ -266,6 +267,7 @@ LogOverlay.NavFilters = {
 function LogOverlay.initialize()
 	LogOverlay.isGameOver = false
 	LogOverlay.viewedLog = "None"
+	LogOverlay.viewingCurrentGame = false
 
 	LogOverlay.TabHistory = {}
 	LogOverlay.Windower.currentTab = nil
@@ -479,8 +481,16 @@ function LogOverlay.hasParsedThisLog(postfix)
 	return RandomizerLog.Data.Settings ~= nil and string.find(RandomizerLog.loadedLogPath or "", postfix, 1, true) ~= nil
 end
 
-function LogOverlay.viewLogFile(postfix)
+---Opens a log file to view on the Tracker.
+---@param postfix string For example: "AutoRandomized", "PreviousAttempt", "Other", or "None"
+---@param isCurrent? boolean If the log file being opened is for the game currently loaded; default will check against postfix
+function LogOverlay.viewLogFile(postfix, isCurrent)
+	if isCurrent == nil then
+		isCurrent = postfix == FileManager.PostFixes.AUTORANDOMIZED
+	end
+
 	LogOverlay.viewedLog = postfix or "Other"
+	LogOverlay.viewingCurrentGame = isCurrent
 	local logpath = LogOverlay.getLogFileAutodetected(postfix)
 
 	-- Only prompt for a new file if no autodetect and nothing has been parsed yet

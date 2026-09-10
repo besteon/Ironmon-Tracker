@@ -34,24 +34,18 @@ body:
     validations:
       required: true
   - type: input
+    id: emulators
+    attributes:
+      label: What emulator(s) are you seeing the problem on?
+      description: Include the version number, found in Help > About in Bizhawk or File > About in mGBA
+      placeholder: e.g. Bizhawk 2.11.1
+    validations:
+      required: true
+  - type: input
     id: os
     attributes:
       label: What operating system are you using?
       placeholder: e.g. Windows 10, Linux, MacOS
-    validations:
-      required: true
-  - type: dropdown
-    id: emulators
-    attributes:
-      label: What emulator(s) are you seeing the problem on?
-      multiple: true
-      options:
-        - Bizhawk 2.8
-        - Bizhawk 2.9
-        - Bizhawk 2.10
-        - Bizhawk 2.11
-        - mGBA (Provide the version number in Additional Information)
-        - Other (Tell us in Additional Information)
     validations:
       required: true
   - type: textarea

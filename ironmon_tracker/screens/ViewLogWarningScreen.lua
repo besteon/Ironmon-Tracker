@@ -13,7 +13,7 @@ ViewLogWarningScreen.Buttons = {
 		getText = function(self) return Resources.ViewLogWarningScreen.ButtonViewCurrentLog end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 39, 56, 16 },
 		onClick = function(self)
-			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED, true)
 		end,
 	},
 	ViewPreviousLogFile = {
@@ -22,7 +22,7 @@ ViewLogWarningScreen.Buttons = {
 		getText = function(self) return Resources.ViewLogWarningScreen.ButtonViewPreviousLog end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 64, Constants.SCREEN.MARGIN + 39, 72, 16 },
 		onClick = function(self)
-			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
+			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT, false)
 		end
 	},
 	WarningIcon1 = {
