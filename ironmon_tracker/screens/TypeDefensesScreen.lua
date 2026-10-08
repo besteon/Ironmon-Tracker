@@ -106,7 +106,23 @@ function TypeDefensesScreen.buildOutPagedButtons(pokemonID)
 	TypeDefensesScreen.pokemonID = pokemonID -- Used for displaying the Pokemon's name in the header
 
 	local typesPerLine = 4
-	local pokemonDefenses = PokemonData.getEffectiveness(pokemonID)
+
+	-- Your lead Pokémon
+	local ownLeadPokemon = Battle.getViewedPokemon(true) or {}
+
+	local pokemonDefenses
+
+	local randomTypesShowable = (PokemonData.canShowUnknownTypes() or Options["Reveal info if randomized"] or pokemonID == ownLeadPokemon.pokemonID)
+	local logOpen = (Program.currentOverlay == LogOverlay and RandomizerLog.Data.Pokemon[pokemonID])
+	if randomTypesShowable or logOpen then
+		pokemonDefenses = PokemonData.getEffectiveness(pokemonID)
+	else
+		pokemonDefenses = {
+			[0] = {}, [0.25] = {}, [0.5] = {}, [1] = {},
+			[2] = {PokemonData.Types.UNKNOWN},
+			[4] = {}
+		}
+	end
 	local defenseLayout = {
 		{ prefix = "0x",	labelKey = "Immunities",	types = pokemonDefenses[0], },
 		{ prefix = "1/4x",	labelKey = "Resistances",	types = pokemonDefenses[0.25], },

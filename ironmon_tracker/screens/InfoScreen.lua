@@ -800,6 +800,14 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 
 	-- WEAK TO
+
+	local eff
+	if Program.currentOverlay == LogOverlay and RandomizerLog.Data.Pokemon[pokemonID] then
+		eff = PokemonData.getEffectiveness(pokemonID)
+	else
+		eff = data.e
+	end
+
 	if InfoScreen.Buttons.TypeDefenses.box[2] ~= botOffsetY then
 		InfoScreen.Buttons.TypeDefenses.box[2] = botOffsetY
 	end
@@ -808,14 +816,14 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 	-- Temporarily storing things as a single set of weaknesses, filtered out later, but ideally we display all type-effectiveness
 	local weaknesses = {}
-	for _, weakType in pairs(data.e[2]) do
+	for _, weakType in pairs(eff[2]) do
 		weaknesses[weakType] = 2
 	end
-	for _, weakType in pairs(data.e[4]) do
+	for _, weakType in pairs(eff[4]) do
 		weaknesses[weakType] = 4
 	end
 
-	if #data.e[2] == 0 and #data.e[4] == 0 then -- If the Pokemon has no weakness, like Sableye
+	if #eff[2] == 0 and #eff[4] == 0 then -- If the Pokemon has no weakness, like Sableye
 		Drawing.drawText(offsetX + 6, botOffsetY, Resources.InfoScreen.LabelNoWeaknesses, Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 

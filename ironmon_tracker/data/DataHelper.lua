@@ -443,7 +443,16 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 		end
 	end
 
-	data.e = PokemonData.getEffectiveness(pokemon.pokemonID)
+	-- Hide effectiveness too if types are unknown
+	if pokemon.types and (PokemonData.canShowUnknownTypes() or Options["Reveal info if randomized"] or pokemon.pokemonID == ownLeadPokemon.pokemonID) then
+		data.e = PokemonData.getEffectiveness(pokemon.pokemonID)
+	else
+		data.e = {
+			[0] = {}, [0.25] = {}, [0.5] = {}, [1] = {},
+			[2] = {PokemonData.Types.UNKNOWN},
+			[4] = {}
+		}
+	end
 
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
