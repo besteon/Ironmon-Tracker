@@ -86,6 +86,8 @@
         "sSpecialFlags": "202E8E2",
         "gBattlescriptCurrInstr": "2024C10",
         "gBattleTypeFlags": "20239F8",
+        "gMain": "3001770",
+        "CB2_EndScriptedWildBattle": "8081D0D",
         "gMultiUsePlayerCursor": "3004344",
         "BattleScript_MoveUsedIsConfused2": "81D9549",
         "gWishFutureKnock_NatDex_113": "20243CC",

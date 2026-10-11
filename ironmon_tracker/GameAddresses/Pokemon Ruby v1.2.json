@@ -41,6 +41,8 @@
         "gSaveBlock2": "2024EA4",
         "gBaseStats": "81FEC30",
         "gBattleTypeFlags": "20239F8",
+        "gMain": "3001770",
+        "CB2_EndScriptedWildBattle": "8081D0D",
         "gBattleTextBuff1": "30041C0",
         "gTrainerClassNames": "81F0220",
         "gBattleResults": "30042E0",

@@ -58,6 +58,8 @@
         "gLevelUpLearnsets_NatDex_113": "8349750",
         "BattleScript_SnatchedMove": "82DB1B6",
         "gBattleTypeFlags": "2022FEC",
+        "gMain": "30022C0",
+        "CB2_EndScriptedWildBattle": "80B0B6D",
         "bagPocket_KeyItems_offset": "5D8",
         "BattleScript_MoveUsedIsConfusedNoMore": "82DB303",
         "gLockedMoves_NatDex_113": "2024264",

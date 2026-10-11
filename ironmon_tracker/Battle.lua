@@ -571,6 +571,16 @@ function Battle.updateStatStages(pokemon, isOwn, isLeft)
 	end
 end
 
+---Returns true if the current wild battle was started by a map script (setwildbattle/dowildbattle)
+---@return boolean
+function Battle.isScriptedWildBattle()
+	if GameSettings.gMain == nil or GameSettings.CB2_EndScriptedWildBattle == nil then
+		return false
+	end
+	-- gMain.savedCallback is where the game returns after the battle
+	return Memory.readdword(GameSettings.gMain + 0x8) == GameSettings.CB2_EndScriptedWildBattle
+end
+
 function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 	Tracker.TrackEncounter(opposingPokemon.pokemonID, Battle.isWildEncounter)
 	Battle.lastPokemonSeen = opposingPokemon.pokemonID
@@ -579,6 +589,11 @@ function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 	battleFlags = battleFlags or Memory.readdword(GameSettings.gBattleTypeFlags)
 
 	Battle.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
+
+	-- Scripted wild battles (e.g. New Mauville Voltorbs, Route 120 Kecleons) use the same battle flags as walking encounters
+	if Battle.CurrentRoute.encounterArea == RouteData.EncounterArea.LAND and Battle.isScriptedWildBattle() then
+		Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.STATIC
+	end
 
 	-- Check if fishing encounter, if so then get the rod that was used
 	local gameStat_FishingCaptures = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES)

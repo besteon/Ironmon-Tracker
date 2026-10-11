@@ -46,6 +46,8 @@
         "sBattlerAbilities": "203926C",
         "BattleScript_MoveUsedIsFrozen2": "81D94F3",
         "gBattleTypeFlags": "20239F8",
+        "gMain": "3001770",
+        "CB2_EndScriptedWildBattle": "8081D0D",
         "gWishFutureKnock_NatDex_113": "20243CC",
         "bagPocket_TmHm_offset": "640",
         "gLevelUpLearnsets": "8207B70",

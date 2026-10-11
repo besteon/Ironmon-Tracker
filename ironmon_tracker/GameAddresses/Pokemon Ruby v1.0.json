@@ -102,6 +102,8 @@
         "sMonSummaryScreen": "2018076",
         "gameRegItemOffset": "496",
         "gBattleTypeFlags": "20239F8",
+        "gMain": "3001770",
+        "CB2_EndScriptedWildBattle": "8081CED",
         "bagPocket_Items_Size": "14",
         "gSpecialVar_Result": "202E8DC",
         "sEvoInfo": "2014800",

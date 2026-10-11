@@ -27,6 +27,8 @@
         "BattleIntroOpponentSendsOutMonAnimation": "80135B1",
         "gTakenDmg": "2023D58",
         "gBattleTypeFlags": "2022B4C",
+        "gMain": "30030F0",
+        "CB2_EndScriptedWildBattle": "807FBB5",
         "sTMHMMoves": "845A86C",
         "gBattleOutcome": "2023E8A",
         "gTasks": "3005090",

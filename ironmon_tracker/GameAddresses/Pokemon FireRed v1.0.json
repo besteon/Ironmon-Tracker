@@ -71,6 +71,8 @@
         "gBattlerPartyIndexes": "2023BCE",
         "gExperienceTables": "8253AE4",
         "gBattleTypeFlags": "2022B4C",
+        "gMain": "30030F0",
+        "CB2_EndScriptedWildBattle": "807FBA1",
         "gBattleTextBuff1": "2022AB8",
         "BattleScript_SnatchedMove": "81D8FCC",
         "BattleScript_MoveUsedIsFrozen3": "81D9088",

@@ -28,6 +28,8 @@
         "bagPocket_TmHm_Size": "40",
         "gExperienceTables": "81FDF08",
         "gBattleTypeFlags": "20239F8",
+        "gMain": "3001770",
+        "CB2_EndScriptedWildBattle": "8081CED",
         "gameStatsOffset": "1540",
         "gTakenDmg": "2024BF4",
         "gMoveResultFlags": "2024C68",

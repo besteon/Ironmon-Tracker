@@ -87,6 +87,8 @@
         "gBattleScriptingBattler": "2023FDB",
         "gLockedMoves": "2023DB8",
         "gBattleTypeFlags": "2022B4C",
+        "gMain": "30030F0",
+        "CB2_EndScriptedWildBattle": "807FB75",
         "bagPocket_KeyItems_Size": "1E",
         "gameRegItemOffset": "296",
         "bagPocket_TmHm_Size": "3A",

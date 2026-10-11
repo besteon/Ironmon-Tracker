@@ -60,6 +60,8 @@
         "BattleScript_MoveUsedUnfroze2": "81D9574",
         "gBattlersCount": "2024A68",
         "gBattleTypeFlags": "20239F8",
+        "gMain": "3001770",
+        "CB2_EndScriptedWildBattle": "8081D0D",
         "gBaseStats": "81FEC30",
         "gTakenDmg": "2024BF4",
         "gBattlerAttacker": "2024C07",

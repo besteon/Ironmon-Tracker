@@ -101,6 +101,8 @@
         "gTrainerBattleOpponent_A": "20386AE",
         "gBattleMons": "2023BE4",
         "BattleScript_MoveUsedUnfroze": "81D90DE",
+        "gMain": "30030F0",
+        "CB2_EndScriptedWildBattle": "807FB89",
         "gBattleTypeFlags": "2022B4C"
     },
     "AbilityAddresses": {
