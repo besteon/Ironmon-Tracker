@@ -346,7 +346,8 @@ function FileManager.setupWorkingDirectory()
 				pathCheckFile:close()
 			else
 				local luaconsole = client.gettool("luaconsole")
-				local luaImp = luaconsole and luaconsole.get_LuaImp()
+				-- LuaImp is private from Bizhawk 2.11, so this falls through to the command below
+				local luaImp = luaconsole and luaconsole.get_LuaImp and luaconsole.get_LuaImp()
 				local scriptList = luaImp and luaImp.ScriptList or { Count = 0 }
 				for i = 0, scriptList.Count - 1, 1 do
 					local scriptPath = scriptList[i].Path or scriptList[i].path or ""
@@ -603,9 +604,8 @@ function FileManager.getLoadedRomPath()
 	if not Main.IsOnBizhawk() then
 		return nil
 	end
-	local luaconsole = client.gettool("luaconsole")
-	local luaImp = luaconsole and luaconsole.get_LuaImp()
-	local filepath = luaImp and luaImp.PathEntries and luaImp.PathEntries.LastRomPath or ""
+	local config = client.getconfig()
+	local filepath = config and config.PathEntries and config.PathEntries.LastRomPath or ""
 	if filepath ~= "" then
 		return filepath
 	end
